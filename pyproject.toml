@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-investment-advisor-mvp"
+version = "0.1.0"
+description = "MVP funcional alinhado a EF do AI-Powered Investment Advisor"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi>=0.115.0,<1.0.0",
+  "uvicorn[standard]>=0.32.0,<1.0.0",
+  "sqlalchemy>=2.0.36,<3.0.0",
+  "pydantic>=2.10.0,<3.0.0",
+  "python-multipart>=0.0.17,<1.0.0",
+  "jinja2>=3.1.4,<4.0.0",
+  "pyotp>=2.9.0,<3.0.0",
+  "email-validator>=2.2.0,<3.0.0",
+  "argon2-cffi>=23.1.0,<26.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.3,<9.0.0",
+  "httpx>=0.28.0,<1.0.0",
+  "mypy>=1.13.0,<2.0.0",
+  "ruff>=0.7.3,<1.0.0"
+]
+
+[tool.setuptools]
+package-dir = {"" = "services/api"}
+
+[tool.setuptools.packages.find]
+where = ["services/api"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.13"
+packages = ["app"]
+strict = true
+ignore_missing_imports = false
