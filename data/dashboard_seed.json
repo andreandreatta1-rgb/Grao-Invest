@@ -15,17 +15,17 @@
   },
   "current_simulation_summary": {
     "period_label": "desde 2026-04-27 (simulacao atual - teses monitoradas)",
-    "thesis_count": 5,
-    "paper_orders": 5,
-    "accepted_orders": 5,
+    "thesis_count": 3,
+    "paper_orders": 3,
+    "accepted_orders": 3,
     "rejected_orders": 0,
     "gross_amount_brl": 0.0,
     "estimated_cost_brl": 0.0,
     "estimated_tax_brl": 0.0,
     "backtest_runs": 0,
-    "backtest_trades": 5,
-    "avg_expected_pct": 2.0318,
-    "avg_backtest_return_pct": -1.4966,
+    "backtest_trades": 3,
+    "avg_expected_pct": 2.1958,
+    "avg_backtest_return_pct": -1.1086,
     "approved_count": 0,
     "monitoring_days": 1,
     "last_order_at": "2026-04-28T02:25:24+00:00"
@@ -33,15 +33,15 @@
   "current_simulation_daily": [
     {
       "day": "2026-04-28",
-      "paper_orders": 5,
-      "accepted_orders": 5,
+      "paper_orders": 3,
+      "accepted_orders": 3,
       "rejected_orders": 0,
       "gross_amount_brl": 0.0,
       "estimated_cost_brl": 0.0,
       "estimated_tax_brl": 0.0,
       "backtest_runs": 0,
-      "backtest_trades": 5,
-      "avg_backtest_return_pct": -1.4966
+      "backtest_trades": 3,
+      "avg_backtest_return_pct": -1.1086
     }
   ],
   "thesis_history_overview": {
@@ -212,8 +212,8 @@
       "case_study_runs": 157,
       "current_monitor_runs": 1
     },
-    "avg_resolution_days": 6.67,
-    "resolution_sample_count": 6
+    "avg_resolution_days": 13.0,
+    "resolution_sample_count": 1
   },
   "thesis_executive_summary": {
     "historical": {
@@ -225,16 +225,16 @@
     },
     "current": {
       "period_label": "desde 2026-04-27 (simulacao atual - teses monitoradas)",
-      "thesis_count": 5,
-      "expected_pct": 2.0318,
-      "achieved_pct": -1.4966,
+      "thesis_count": 3,
+      "expected_pct": 2.1958,
+      "achieved_pct": -1.1086,
       "approved_count": 0
     }
   },
   "thesis_open_operations": [
     {
       "phase": "historico",
-      "thesis_number": 157,
+      "thesis_number": 159,
       "thesis_id": "TH-PETR4-bullish-3514",
       "thesis_raised_at": "2024-04-19T00:00:00+00:00",
       "action": "PETR4",
@@ -252,7 +252,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 158,
+      "thesis_number": 160,
       "thesis_id": "TH-PETR4-range-4448",
       "thesis_raised_at": "2026-04-21T11:07:00+00:00",
       "action": "PETR4",
@@ -262,33 +262,15 @@
       "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
       "entry_price_brl": 41.03,
       "exit_rule": "Sai se subir para R$ 41.03 ou cair para R$ 40.41",
-      "status": "Fechada",
-      "outcome": "Stop/Protecao",
+      "status": "Aberta",
+      "outcome": "Alerta de stop",
       "moment_result_pct": -3.8,
-      "duration_days": 1,
-      "learning_note": "A proteção evitou perda maior. Próxima: só operar faixa lateral quando a estabilidade estiver mais clara."
+      "duration_days": null,
+      "learning_note": "Tese ainda em aberto: manter acompanhamento diário e só ajustar a operação com novo sinal confirmado."
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 159,
-      "thesis_id": "TH-PETR4-range-4449",
-      "thesis_raised_at": "2026-04-21T11:07:00+00:00",
-      "action": "PETR4",
-      "thesis_reason": "Tese de estabilidade para PETR4: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação mista.",
-      "expected_result_pct": 0.8178,
-      "operation_plan": "Neutra até 2026-04-22. Plano: operar em faixa, esperando preço entre 40.41 e 41.03. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.82%.",
-      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
-      "entry_price_brl": 41.03,
-      "exit_rule": "Sai se subir para R$ 41.03 ou cair para R$ 40.41",
-      "status": "Fechada",
-      "outcome": "Stop/Protecao",
-      "moment_result_pct": -3.8,
-      "duration_days": 1,
-      "learning_note": "A proteção evitou perda maior. Próxima: só operar faixa lateral quando a estabilidade estiver mais clara."
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 160,
+      "thesis_number": 161,
       "thesis_id": "TH-MGLU3-bullish-21238",
       "thesis_raised_at": "2026-04-15T00:00:00+00:00",
       "action": "MGLU3",
@@ -298,15 +280,15 @@
       "structured_operation": "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
       "entry_price_brl": 9.39,
       "exit_rule": "Sai se subir para R$ 9.99 ou cair para R$ 9.03",
-      "status": "Fechada",
-      "outcome": "Tempo",
+      "status": "Aberta",
+      "outcome": "Em monitoramento",
       "moment_result_pct": -0.3598,
-      "duration_days": 8,
-      "learning_note": "O tempo jogou contra a tese. Próxima: janela mais curta e gatilhos de saída antecipados."
+      "duration_days": null,
+      "learning_note": "Tese ainda em aberto: manter acompanhamento diário e só ajustar a operação com novo sinal confirmado."
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 161,
+      "thesis_number": 162,
       "thesis_id": "TH-MGLU3-bullish-21236",
       "thesis_raised_at": "2026-04-14T00:00:00+00:00",
       "action": "MGLU3",
@@ -316,30 +298,12 @@
       "structured_operation": "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
       "entry_price_brl": 9.25,
       "exit_rule": "Sai se subir para R$ 9.90 ou cair para R$ 8.86",
-      "status": "Fechada",
-      "outcome": "Tempo",
+      "status": "Aberta",
+      "outcome": "Em monitoramento",
       "moment_result_pct": 0.834,
-      "duration_days": 9,
-      "learning_note": "O movimento foi mais lento que o esperado. Próxima: usar prazo um pouco maior ou saída parcial."
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 162,
-      "thesis_id": "TH-MGLU3-bullish-21237",
-      "thesis_raised_at": "2026-04-15T00:00:00+00:00",
-      "action": "MGLU3",
-      "thesis_reason": "Tese de alta para MGLU3: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço com sinal de subida, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação mista.",
-      "expected_result_pct": 2.754,
-      "operation_plan": "Compra até 2026-04-22. Plano: buscar alta de 9.39 para perto de 9.99. Se cair para 9.03, encerramos para proteger a posição. Retorno esperado: 2.75%.",
-      "structured_operation": "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
-      "entry_price_brl": 9.39,
-      "exit_rule": "Sai se subir para R$ 9.99 ou cair para R$ 9.03",
-      "status": "Fechada",
-      "outcome": "Tempo",
-      "moment_result_pct": -0.3573,
-      "duration_days": 8,
-      "learning_note": "O tempo jogou contra a tese. Próxima: janela mais curta e gatilhos de saída antecipados."
+      "duration_days": null,
+      "learning_note": "Tese ainda em aberto: manter acompanhamento diário e só ajustar a operação com novo sinal confirmado."
     }
   ],
-  "seed_generated_at": "2026-04-27"
+  "seed_generated_at": "2026-05-01T04:26:45.870161+00:00"
 }
