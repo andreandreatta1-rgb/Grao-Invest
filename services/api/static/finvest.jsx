@@ -250,6 +250,12 @@ function TabelaExercicio({ titulo, periodo, teses, esperado, alcancado, aprovada
 }
 
 function TabelaTeses({ rows, titulo }) {
+  const [expandedId, setExpandedId] = useState(null);
+
+  const toggleDetail = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
       <div style={{ padding: "16px 20px", borderBottom: `1px solid ${C.border}` }}>
@@ -259,18 +265,23 @@ function TabelaTeses({ rows, titulo }) {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
           <thead>
             <tr style={{ background: C.panel }}>
-              {["#", "Ação", "Direção", "Esperado", "Estrutura", "Entrada", "Saída se", "Desfecho", "Dias", "Status", "Resultado"].map((h) => (
+              {["#", "A??o", "Dire??o", "Esperado", "Estrutura", "Entrada", "Sa?da se", "Desfecho", "Dias", "Status", "Resultado", "Detalhe"].map((h) => (
                 <th key={h} style={{ padding: "9px 12px", color: C.muted, fontWeight: 600, textAlign: "left", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => {
+            {rows.flatMap((r, i) => {
               const resColor = r.resultado > 0 ? C.teal : r.resultado < 0 ? C.coral : C.muted;
-              return (
-                <tr key={i} style={{ borderBottom: `1px solid ${C.line}`, transition: "background 0.1s" }}
+              const isExpanded = expandedId === r.id;
+
+              const mainRow = (
+                <tr
+                  key={`row-${r.id}-${i}`}
+                  style={{ borderBottom: `1px solid ${C.line}`, transition: "background 0.1s" }}
                   onMouseEnter={(e) => e.currentTarget.style.background = C.hover}
-                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                >
                   <td style={{ padding: "10px 12px", color: C.dim, fontFamily: mono }}>{r.id}</td>
                   <td style={{ padding: "10px 12px", color: C.text, fontWeight: 700 }}>{r.ativo}</td>
                   <td style={{ padding: "10px 12px" }}><Badge label={r.direcao} type={r.direcao === "Alta" ? "bull" : "bear"} /></td>
@@ -282,8 +293,55 @@ function TabelaTeses({ rows, titulo }) {
                   <td style={{ padding: "10px 12px", color: C.muted, fontFamily: mono }}>{r.dias}d</td>
                   <td style={{ padding: "10px 12px" }}><Badge label={r.status} type={r.status === "Aberta" ? "open" : "closed"} /></td>
                   <td style={{ padding: "10px 12px", color: resColor, fontFamily: mono, fontWeight: 700 }}>{r.resultado > 0 ? "+" : ""}{r.resultado?.toFixed(2)}%</td>
+                  <td style={{ padding: "10px 12px" }}>
+                    <button
+                      type="button"
+                      onClick={() => toggleDetail(r.id)}
+                      style={{
+                        background: isExpanded ? `${C.gold}22` : C.panel,
+                        color: isExpanded ? C.gold : C.sky,
+                        border: `1px solid ${isExpanded ? `${C.gold}66` : C.border}`,
+                        borderRadius: 8,
+                        padding: "5px 9px",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: "0.04em",
+                        textTransform: "uppercase",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {isExpanded ? "Ocultar" : "Abrir"}
+                    </button>
+                  </td>
                 </tr>
               );
+
+              const detailRow = isExpanded ? (
+                <tr key={`detail-${r.id}-${i}`}>
+                  <td colSpan={12} style={{ padding: "12px 14px", background: C.panel, borderBottom: `1px solid ${C.line}` }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
+                        <p style={{ margin: "0 0 6px", color: C.gold, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                          Por que entramos
+                        </p>
+                        <p style={{ margin: 0, color: C.text, fontSize: 12, lineHeight: 1.45 }}>
+                          {r.porQue || "Sem detalhamento dispon?vel para esta tese."}
+                        </p>
+                      </div>
+                      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
+                        <p style={{ margin: "0 0 6px", color: C.teal, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                          O que aprendemos
+                        </p>
+                        <p style={{ margin: 0, color: C.text, fontSize: 12, lineHeight: 1.45 }}>
+                          {r.aprendizado || "Sem aprendizado registrado ainda."}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : null;
+
+              return detailRow ? [mainRow, detailRow] : [mainRow];
             })}
           </tbody>
         </table>
@@ -316,13 +374,69 @@ const tesisAbertas = [
 ];
 
 const tesesHistoricas = [
-  { id: 159, ativo: "PETR4", direcao: "Alta", esperado: "+4,82%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "40,53", saida: "≥43,37 / ≤38,83", desfecho: "Tempo", dias: 13, status: "Fechada", resultado: 3.14 },
+  {
+    id: 159,
+    ativo: "PETR4",
+    direcao: "Alta",
+    esperado: "+4,82%",
+    estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
+    entrada: "40,53",
+    saida: "?43,37 / ?38,83",
+    desfecho: "Tempo",
+    dias: 13,
+    status: "Fechada",
+    resultado: 3.14,
+    porQue: "A tese foi aberta porque o pre?o reagiu em suporte t?cnico, com contexto favor?vel em fundamentos e fluxo mais comprador no per?odo.",
+    aprendizado: "Quando o alvo n?o vem no tempo esperado, a estrutura ainda protegeu o capital. Pr?xima melhoria: reduzir janela e usar sa?da parcial no meio do caminho.",
+  },
 ];
 
 const tesesPosGoLive = [
-  { id: 160, ativo: "PETR4", direcao: "Neutro", esperado: "+0,82%", estrutura: "Iron Condor | ganho 2,40% | perda 3,80%", entrada: "41,03", saida: "≥41,03 / ≤40,41", desfecho: "Alerta de stop", dias: 0, status: "Aberta", resultado: -3.88 },
-  { id: 161, ativo: "MGLU3", direcao: "Alta", esperado: "+2,76%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,39", saida: "≥9,99 / ≤9,03", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: -0.36 },
-  { id: 162, ativo: "MGLU3", direcao: "Alta", esperado: "+3,01%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,25", saida: "≥9,90 / ≤8,86", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: 0.83 },
+  {
+    id: 160,
+    ativo: "PETR4",
+    direcao: "Neutro",
+    esperado: "+0,82%",
+    estrutura: "Iron Condor | ganho 2,40% | perda 3,80%",
+    entrada: "41,03",
+    saida: "?41,03 / ?40,41",
+    desfecho: "Alerta de stop",
+    dias: 0,
+    status: "Aberta",
+    resultado: -3.88,
+    porQue: "Entramos com cen?rio de lateraliza??o, pois o ativo vinha oscilando em faixa estreita com volatilidade controlada e sem tend?ncia forte definida.",
+    aprendizado: "Com rompimento r?pido da faixa, refor?amos que cen?rios neutros precisam gatilho de sa?da mais cedo quando o mercado acelera para um lado.",
+  },
+  {
+    id: 161,
+    ativo: "MGLU3",
+    direcao: "Alta",
+    esperado: "+2,76%",
+    estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
+    entrada: "9,39",
+    saida: "?9,99 / ?9,03",
+    desfecho: "Em monitoramento",
+    dias: 0,
+    status: "Aberta",
+    resultado: -0.36,
+    porQue: "A tese surgiu por retomada de momentum de alta com confirma??o de pre?o acima de zona de suporte e assimetria favor?vel entre risco e retorno.",
+    aprendizado: "Em mercado mais ruidoso, manter prote??o curta continua importante. Vamos priorizar confirma??o de volume antes de repetir entradas parecidas.",
+  },
+  {
+    id: 162,
+    ativo: "MGLU3",
+    direcao: "Alta",
+    esperado: "+3,01%",
+    estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
+    entrada: "9,25",
+    saida: "?9,90 / ?8,86",
+    desfecho: "Em monitoramento",
+    dias: 0,
+    status: "Aberta",
+    resultado: 0.83,
+    porQue: "Entramos ap?s sinal t?cnico de continuidade da alta, com leitura de contexto menos adverso e rela??o risco-retorno dentro do limite definido.",
+    aprendizado: "A leitura inicial est? funcionando, mas ainda em fase aberta. Pr?ximo ajuste ser? calibrar tempo m?ximo da tese para capturar ganho sem prolongar exposi??o.",
+  },
 ];
 
 // ── Main ──────────────────────────────────────────────────────────────────────
