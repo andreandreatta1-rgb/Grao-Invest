@@ -4,7 +4,8 @@ import os
 import sys
 from importlib import import_module
 from pathlib import Path
-from typing import Any
+import json
+from collections.abc import Awaitable, Callable
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 API_ROOT = PROJECT_ROOT / "services" / "api"
@@ -27,29 +28,30 @@ def _safe_bootstrap_error(exc: Exception) -> str:
 try:
     app = import_module("app.main").app
 except Exception as bootstrap_exc:
-    from fastapi import FastAPI
-    from fastapi.responses import JSONResponse
-
     bootstrap_error = _safe_bootstrap_error(bootstrap_exc)
-    app = FastAPI(
-        title="Grao Invest bootstrap diagnostic",
-        version="0.1.0",
-    )
+    Receive = Callable[[], Awaitable[dict[str, object]]]
+    Send = Callable[[dict[str, object]], Awaitable[None]]
 
-    @app.get("/health")
-    def health() -> dict[str, str]:
-        return {
+    async def app(scope: dict[str, object], receive: Receive, send: Send) -> None:
+        path = str(scope.get("path") or "/")
+        status_code = 200 if path == "/health" else 503
+        body = json.dumps(
+            {
             "status": "degraded",
             "phase": "bootstrap",
+                "path": path,
             "error": bootstrap_error,
-        }
-
-    @app.get("/{path:path}")
-    def fallback(path: str) -> JSONResponse:
-        payload: dict[str, Any] = {
-            "status": "degraded",
-            "phase": "bootstrap",
-            "path": path,
-            "error": bootstrap_error,
-        }
-        return JSONResponse(status_code=503, content=payload)
+            },
+            ensure_ascii=False,
+        ).encode("utf-8")
+        await send(
+            {
+                "type": "http.response.start",
+                "status": status_code,
+                "headers": [
+                    (b"content-type", b"application/json; charset=utf-8"),
+                    (b"cache-control", b"no-store"),
+                ],
+            }
+        )
+        await send({"type": "http.response.body", "body": body})
