@@ -5,6 +5,8 @@ import json
 import zipfile
 from datetime import UTC, datetime, timedelta
 
+import pytest
+from app.main import AUTH_DISABLED
 from fastapi.testclient import TestClient
 
 PETR4_SERIES = [
@@ -152,6 +154,16 @@ def signup_and_authenticate(
     access_token = login_response.json()["access_token"]
     client.headers.update({"Authorization": f"Bearer {access_token}"})
     return user_id
+
+
+def test_dashboard_anonymous_bootstrap_without_seed_user(client) -> None:
+    if not AUTH_DISABLED:
+        pytest.skip("Modo anonimo desativado no ambiente de teste.")
+    response = client.get("/api/dashboard/summary/1")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["user_id"] == 1
+    assert payload["open_positions"] == []
 
 
 def test_end_to_end_mvp_flow(client) -> None:

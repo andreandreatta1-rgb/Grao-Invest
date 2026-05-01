@@ -22,7 +22,7 @@ from fastapi.responses import FileResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import and_, desc, or_, select
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from app.db import Base, SessionLocal, engine, get_db, run_startup_migrations
@@ -39,6 +39,7 @@ from app.models import (
     RiskDecision,
     Signal,
     SuitabilityProfile,
+    Tenant,
     User,
 )
 from app.schemas import (
@@ -150,7 +151,14 @@ from app.services.thesis_current_monitor import (
     CurrentThesisMonitorPayload,
     run_current_thesis_monitor,
 )
-from app.services.utils import DISCLAIMER, access_token_ttl_seconds, decode_access_token
+from app.services.utils import (
+    DISCLAIMER,
+    access_token_ttl_seconds,
+    decode_access_token,
+    hash_password,
+    isoformat,
+    utc_now,
+)
 from app.workers import AgentLoop
 
 Base.metadata.create_all(bind=engine)
@@ -171,6 +179,10 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 agent_loop = AgentLoop()
 AUTH_DISABLED = os.getenv("DISABLE_AUTH", "1").strip().lower() in {"1", "true", "yes", "on"}
 DEFAULT_ANON_USER_ID = int(os.getenv("ANON_USER_ID", "1"))
+DEFAULT_ANON_EMAIL = os.getenv("ANON_USER_EMAIL", "anon@graoinvest.local").strip().lower()
+DEFAULT_ANON_FULL_NAME = os.getenv("ANON_USER_FULL_NAME", "Convidado")
+DEFAULT_ANON_TENANT_NAME = os.getenv("ANON_TENANT_NAME", "Grao Invest")
+DEFAULT_ANON_PASSWORD = os.getenv("ANON_USER_PASSWORD", "anon-access-disabled")
 
 
 @app.get("/", include_in_schema=False)
@@ -197,6 +209,44 @@ def _resolve_anonymous_user(db: Session) -> User:
     user = db.get(User, DEFAULT_ANON_USER_ID)
     if user is not None:
         return user
+    user_by_email = db.scalar(
+        select(User).where(User.email == DEFAULT_ANON_EMAIL).limit(1),
+    )
+    if user_by_email is not None:
+        return user_by_email
+
+    tenant = db.scalar(select(Tenant).order_by(Tenant.id.asc()).limit(1))
+    if tenant is None:
+        tenant = Tenant(
+            name=DEFAULT_ANON_TENANT_NAME,
+            created_at=isoformat(utc_now()),
+        )
+        db.add(tenant)
+        db.flush()
+
+    candidate = User(
+        id=DEFAULT_ANON_USER_ID,
+        tenant_id=tenant.id,
+        email=DEFAULT_ANON_EMAIL,
+        password_hash=hash_password(DEFAULT_ANON_PASSWORD),
+        full_name=DEFAULT_ANON_FULL_NAME,
+        created_at=isoformat(utc_now()),
+        mfa_enabled=False,
+    )
+    db.add(candidate)
+    try:
+        db.commit()
+        db.refresh(candidate)
+        return candidate
+    except IntegrityError:
+        db.rollback()
+        resolved = db.get(User, DEFAULT_ANON_USER_ID)
+        if resolved is not None:
+            return resolved
+        resolved_by_email = db.scalar(select(User).where(User.email == DEFAULT_ANON_EMAIL).limit(1))
+        if resolved_by_email is not None:
+            return resolved_by_email
+
     fallback = db.scalar(select(User).order_by(User.id.asc()).limit(1))
     if fallback is None:
         raise HTTPException(
