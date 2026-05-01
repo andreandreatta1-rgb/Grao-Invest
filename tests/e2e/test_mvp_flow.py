@@ -182,7 +182,9 @@ def test_dashboard_uses_seed_when_runtime_snapshots_are_missing(client, tmp_path
     )
 
     original_data_dir = main_module.data_dir
+    original_bundled_data_dir = main_module.bundled_data_dir
     main_module.data_dir = seed_data_dir
+    main_module.bundled_data_dir = seed_data_dir
     try:
         response = client.get("/api/dashboard/summary/1")
         assert response.status_code == 200
@@ -191,6 +193,7 @@ def test_dashboard_uses_seed_when_runtime_snapshots_are_missing(client, tmp_path
         assert len(payload["thesis_open_operations"]) > 0
     finally:
         main_module.data_dir = original_data_dir
+        main_module.bundled_data_dir = original_bundled_data_dir
 
 
 def test_end_to_end_mvp_flow(client) -> None:

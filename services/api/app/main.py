@@ -173,7 +173,8 @@ app = FastAPI(
 )
 
 static_dir = Path(__file__).resolve().parent.parent / "static"
-data_dir = Path(os.getenv("DATA_DIR", str(Path(__file__).resolve().parents[3] / "data")))
+bundled_data_dir = Path(__file__).resolve().parents[3] / "data"
+data_dir = Path(os.getenv("DATA_DIR", str(bundled_data_dir)))
 data_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 agent_loop = AgentLoop()
@@ -1891,6 +1892,14 @@ def dashboard_summary(
             return None
         return raw if isinstance(raw, dict) else None
 
+    def _load_runtime_or_bundled_json(filename: str) -> dict[str, object] | None:
+        runtime_payload = _load_json_dict(data_dir / filename)
+        if runtime_payload is not None:
+            return runtime_payload
+        if bundled_data_dir != data_dir:
+            return _load_json_dict(bundled_data_dir / filename)
+        return None
+
     historical_backtests = [
         run
         for run in all_backtests
@@ -2054,8 +2063,8 @@ def dashboard_summary(
             .order_by(AuditEvent.created_at.asc(), AuditEvent.id.asc())
         )
     )
-    case_study_latest = _load_json_dict(data_dir / "case_study_latest.json")
-    dashboard_seed = _load_json_dict(data_dir / "dashboard_seed.json")
+    case_study_latest = _load_runtime_or_bundled_json("case_study_latest.json")
+    dashboard_seed = _load_runtime_or_bundled_json("dashboard_seed.json")
     if historical_empty and historical_case_study_events:
         expected_values: list[float] = []
         realized_values: list[float] = []
@@ -2170,7 +2179,7 @@ def dashboard_summary(
                 "direction": str(thesis_dict.get("direction") or ""),
             }
 
-    current_monitor_latest = _load_json_dict(data_dir / "current_thesis_monitor_latest.json")
+    current_monitor_latest = _load_runtime_or_bundled_json("current_thesis_monitor_latest.json")
     if current_empty and current_monitor_latest is not None:
         monitor_summary = current_monitor_latest.get("summary")
         monitor_summary_dict = monitor_summary if isinstance(monitor_summary, dict) else {}
