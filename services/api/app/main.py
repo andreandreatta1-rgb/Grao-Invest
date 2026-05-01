@@ -4,7 +4,7 @@ import asyncio
 import json
 import os
 from collections import defaultdict
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Annotated, cast
 
@@ -169,6 +169,8 @@ data_dir = Path(os.getenv("DATA_DIR", str(Path(__file__).resolve().parents[3] / 
 data_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 agent_loop = AgentLoop()
+AUTH_DISABLED = os.getenv("DISABLE_AUTH", "1").strip().lower() in {"1", "true", "yes", "on"}
+DEFAULT_ANON_USER_ID = int(os.getenv("ANON_USER_ID", "1"))
 
 
 @app.get("/", include_in_schema=False)
@@ -191,10 +193,25 @@ def _extract_bearer_token(authorization: str | None) -> str:
     return token
 
 
+def _resolve_anonymous_user(db: Session) -> User:
+    user = db.get(User, DEFAULT_ANON_USER_ID)
+    if user is not None:
+        return user
+    fallback = db.scalar(select(User).order_by(User.id.asc()).limit(1))
+    if fallback is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nenhum usuario disponivel para acesso anonimo",
+        )
+    return fallback
+
+
 def current_user(
     authorization: Annotated[str | None, Header(alias="Authorization")] = None,
     db: Session = Depends(get_db),
 ) -> User:
+    if AUTH_DISABLED and not authorization:
+        return _resolve_anonymous_user(db)
     token = _extract_bearer_token(authorization)
     try:
         payload = decode_access_token(token)
@@ -1751,6 +1768,70 @@ def dashboard_summary(
         except (TypeError, ValueError):
             return default
 
+    def _safe_datetime(value: object) -> datetime | None:
+        if value is None:
+            return None
+        raw = str(value).strip()
+        if not raw:
+            return None
+        try:
+            parsed = datetime.fromisoformat(raw)
+        except ValueError:
+            return None
+        if parsed.tzinfo is None:
+            return parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC)
+
+    def _extract_exit_datetime(
+        events: list[dict[str, object]],
+        fallback: object = None,
+    ) -> datetime | None:
+        exit_times = [
+            _safe_datetime(event.get("event_time"))
+            for event in events
+            if str(event.get("event_type") or "").lower() == "exit_snapshot"
+        ]
+        valid_exit_times = [value for value in exit_times if value is not None]
+        if valid_exit_times:
+            return max(valid_exit_times)
+        return _safe_datetime(fallback)
+
+    def _duration_days(entry_time: object, exit_time: object) -> float | None:
+        start_dt = _safe_datetime(entry_time)
+        end_dt = _safe_datetime(exit_time)
+        if start_dt is None or end_dt is None:
+            return None
+        delta_days = (end_dt - start_dt).total_seconds() / 86400.0
+        return round(max(0.0, delta_days), 2)
+
+    def _humanize_signal(signal: object) -> str:
+        raw = str(signal or "").strip()
+        if not raw:
+            return ""
+        cleaned = raw.replace("_", " ").replace("-", " ").strip()
+        return cleaned[:72]
+
+    def _build_thesis_candidate_reason(
+        *,
+        reason_category: str,
+        direction: str,
+        confidence_pct: float,
+        technical_support_pct: float,
+        fundamental_support_pct: float,
+        news_support_pct: float,
+        why_signals: list[str],
+    ) -> str:
+        direction_label = direction.strip().lower() or "misto"
+        category_label = reason_category.strip() or "sinais combinados"
+        top_signals = [_humanize_signal(item) for item in why_signals if _humanize_signal(item)]
+        signal_excerpt = ", ".join(top_signals[:3]) if top_signals else "sem sinais detalhados"
+        return (
+            f"Candidato por {category_label} ({direction_label}). "
+            f"Confianca {confidence_pct:.2f}%. "
+            f"Suportes T/F/N: {technical_support_pct:.2f}%/{fundamental_support_pct:.2f}%/{news_support_pct:.2f}%. "
+            f"Sinais chave: {signal_excerpt}."
+        )
+
     def _load_json_dict(path: Path) -> dict[str, object] | None:
         if not path.exists():
             return None
@@ -1910,7 +1991,82 @@ def dashboard_summary(
         and _safe_int(current_simulation_summary.get("monitoring_days")) == 0
     )
 
+    historical_cutoff_iso = f"{phase_kickoff_date}T00:00:00+00:00"
+    historical_case_study_events = list(
+        db.scalars(
+            select(AuditEvent)
+            .where(
+                and_(
+                    AuditEvent.event_type == "thesis.case_study.generated",
+                    AuditEvent.created_at < historical_cutoff_iso,
+                )
+            )
+            .order_by(AuditEvent.created_at.asc(), AuditEvent.id.asc())
+        )
+    )
     case_study_latest = _load_json_dict(data_dir / "case_study_latest.json")
+    if historical_empty and historical_case_study_events:
+        expected_values: list[float] = []
+        realized_values: list[float] = []
+        approved_count = 0
+        for event in historical_case_study_events:
+            details_dict: dict[str, object] = {}
+            try:
+                parsed_details = json.loads(event.details) if event.details else {}
+                if isinstance(parsed_details, dict):
+                    details_dict = parsed_details
+            except json.JSONDecodeError:
+                details_dict = {}
+
+            selected_case = details_dict.get("selected_case")
+            selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+            kpis = selected_case_dict.get("kpis")
+            kpis_dict = kpis if isinstance(kpis, dict) else {}
+            outcome = selected_case_dict.get("outcome")
+            outcome_dict = outcome if isinstance(outcome, dict) else {}
+            thesis = selected_case_dict.get("thesis")
+            thesis_dict = thesis if isinstance(thesis, dict) else {}
+
+            expected_pct = _safe_number(
+                details_dict.get(
+                    "expected_financial_pct",
+                    kpis_dict.get("expected_financial_pct", thesis_dict.get("expected_financial_pct")),
+                ),
+                0.0,
+            )
+            realized_pct = _safe_number(
+                details_dict.get(
+                    "realized_financial_pct",
+                    kpis_dict.get("realized_financial_pct", outcome_dict.get("realized_financial_pct")),
+                ),
+                0.0,
+            )
+            expected_values.append(expected_pct)
+            realized_values.append(realized_pct)
+
+            success_flag = outcome_dict.get("success")
+            if isinstance(success_flag, bool):
+                approved_count += 1 if success_flag else 0
+            elif realized_pct >= 0.0:
+                approved_count += 1
+
+        thesis_count = len(historical_case_study_events)
+        historical_analysis_summary = {
+            "period_label": f"ate {phase_kickoff_date} (base historica global Â· case studies consolidados)",
+            "thesis_count": thesis_count,
+            "backtest_runs": thesis_count,
+            "operacoes_simuladas": thesis_count,
+            "total_trades": thesis_count,
+            "avg_expected_pct": avg(expected_values),
+            "avg_win_rate_pct": round((approved_count / thesis_count) * 100, 2) if thesis_count > 0 else 0.0,
+            "avg_return_pct": avg(realized_values),
+            "approved_count": approved_count,
+            "avg_drawdown_pct": 0.0,
+            "window_start": as_day(historical_case_study_events[0].created_at),
+            "window_end": as_day(historical_case_study_events[-1].created_at),
+        }
+        historical_empty = False
+
     if historical_empty and case_study_latest is not None:
         selected_case = case_study_latest.get("selected_case")
         if isinstance(selected_case, dict):
@@ -2018,6 +2174,380 @@ def dashboard_summary(
                 }
             ]
 
+    thesis_event_types = [
+        "thesis.case_study.generated",
+        "thesis.current_monitor.generated",
+    ]
+    thesis_audit_events = list(
+        db.scalars(
+            select(AuditEvent)
+            .where(
+                and_(
+                    AuditEvent.user_id == user_id,
+                    AuditEvent.event_type.in_(thesis_event_types),
+                )
+            )
+            .order_by(AuditEvent.created_at.asc(), AuditEvent.id.asc())
+        )
+    )
+    thesis_audit_events_global = list(
+        db.scalars(
+            select(AuditEvent)
+            .where(AuditEvent.event_type.in_(thesis_event_types))
+            .order_by(AuditEvent.created_at.asc(), AuditEvent.id.asc())
+        )
+    )
+
+    def _maybe_float(value: object) -> float | None:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    def _parse_audit_details(event: AuditEvent) -> dict[str, object]:
+        try:
+            parsed = json.loads(event.details) if event.details else {}
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+
+    def _extract_thesis_event_metrics(
+        event_type: str,
+        details: dict[str, object],
+    ) -> tuple[int, int, float | None]:
+        theses_payload = details.get("theses")
+        theses_payload_list = (
+            [item for item in theses_payload if isinstance(item, dict)]
+            if isinstance(theses_payload, list)
+            else []
+        )
+        thesis_count = _safe_int(details.get("thesis_count"), 0)
+        if thesis_count <= 0 and theses_payload_list:
+            thesis_count = len(theses_payload_list)
+
+        success_count = 0
+        avg_result_pct: float | None = None
+
+        if event_type == "thesis.case_study.generated":
+            thesis_count = max(1, thesis_count)
+            avg_result_pct = _maybe_float(details.get("realized_financial_pct"))
+            if avg_result_pct is None:
+                selected_case = details.get("selected_case")
+                if isinstance(selected_case, dict):
+                    kpis = selected_case.get("kpis")
+                    kpis_dict = kpis if isinstance(kpis, dict) else {}
+                    outcome = selected_case.get("outcome")
+                    outcome_dict = outcome if isinstance(outcome, dict) else {}
+                    avg_result_pct = _maybe_float(
+                        kpis_dict.get("realized_financial_pct"),
+                    ) or _maybe_float(outcome_dict.get("realized_financial_pct"))
+                    success_flag = outcome_dict.get("success")
+                    if isinstance(success_flag, bool):
+                        success_count = 1 if success_flag else 0
+            if success_count == 0:
+                success_count = 1 if (avg_result_pct is not None and avg_result_pct >= 0.0) else 0
+            return thesis_count, success_count, avg_result_pct
+
+        if event_type == "thesis.current_monitor.generated":
+            thesis_count = max(0, thesis_count)
+            avg_result_pct = _maybe_float(details.get("avg_unrealized_financial_pct"))
+            target_hits = _safe_int(details.get("target_hits"), -1)
+            if target_hits >= 0:
+                success_count = max(0, min(thesis_count, target_hits))
+            elif avg_result_pct is not None and thesis_count > 0:
+                success_count = thesis_count if avg_result_pct >= 0.0 else 0
+            return thesis_count, success_count, avg_result_pct
+
+        return thesis_count, success_count, avg_result_pct
+
+    def _extract_outcome_counts(
+        event_type: str,
+        details: dict[str, object],
+        tested_count: int,
+        avg_result_pct: float | None,
+    ) -> tuple[int, int, int, int]:
+        if tested_count <= 0:
+            return 0, 0, 0, 0
+
+        if event_type == "thesis.case_study.generated":
+            selected_case = details.get("selected_case")
+            selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+            outcome = selected_case_dict.get("outcome")
+            outcome_dict = outcome if isinstance(outcome, dict) else {}
+            exit_reason = str(
+                details.get("exit_reason")
+                or outcome_dict.get("exit_reason")
+                or "",
+            ).lower()
+            if "stop" in exit_reason:
+                return 0, tested_count, 0, 0
+            if "time" in exit_reason or "window" in exit_reason or "horizon" in exit_reason:
+                if avg_result_pct is not None and avg_result_pct < 0.0:
+                    return 0, tested_count, 0, 0
+                return 0, 0, tested_count, 0
+            if "target" in exit_reason:
+                if avg_result_pct is not None and avg_result_pct < 0.0:
+                    return 0, tested_count, 0, 0
+                return tested_count, 0, 0, 0
+            if avg_result_pct is None:
+                return 0, 0, tested_count, 0
+            if avg_result_pct > 0.0:
+                return tested_count, 0, 0, 0
+            if avg_result_pct < 0.0:
+                return 0, tested_count, 0, 0
+            return 0, 0, tested_count, 0
+
+        if event_type == "thesis.current_monitor.generated":
+            target_hits = max(0, min(tested_count, _safe_int(details.get("target_hits"), 0)))
+            stop_alerts = max(0, min(tested_count - target_hits, _safe_int(details.get("stop_alerts"), 0)))
+            monitoring_count = max(
+                0,
+                min(
+                    tested_count - target_hits - stop_alerts,
+                    _safe_int(details.get("monitoring_count"), 0),
+                ),
+            )
+            time_exit_count = max(0, tested_count - target_hits - stop_alerts - monitoring_count)
+            return target_hits, stop_alerts, time_exit_count, monitoring_count
+
+        return 0, 0, tested_count, 0
+
+    thesis_event_counts_by_type: dict[str, int] = defaultdict(int)
+    user_total_theses_tested = 0
+    for event in thesis_audit_events:
+        thesis_event_counts_by_type[event.event_type] += 1
+        details_dict = _parse_audit_details(event)
+        tested_count, _, _ = _extract_thesis_event_metrics(event.event_type, details_dict)
+        user_total_theses_tested += tested_count
+
+    thesis_event_counts_global_by_type: dict[str, int] = defaultdict(int)
+    global_total_theses_tested = 0
+    global_success_count = 0
+    global_weighted_return_sum = 0.0
+    global_return_observations = 0
+    global_target_count = 0
+    global_stop_count = 0
+    global_time_exit_count = 0
+    global_open_count = 0
+    target_weighted_return_sum = 0.0
+    target_return_observations = 0
+    stop_weighted_return_sum = 0.0
+    stop_return_observations = 0
+    time_weighted_return_sum = 0.0
+    time_return_observations = 0
+    thesis_daily_performance: dict[str, dict[str, float | int]] = defaultdict(
+        lambda: {
+            "tested": 0,
+            "success": 0,
+            "return_observations": 0,
+            "weighted_return_sum": 0.0,
+        },
+    )
+    for event in thesis_audit_events_global:
+        thesis_event_counts_global_by_type[event.event_type] += 1
+        details_dict = _parse_audit_details(event)
+        tested_count, success_count, avg_result_pct = _extract_thesis_event_metrics(
+            event.event_type,
+            details_dict,
+        )
+        if tested_count <= 0:
+            continue
+        success_count = max(0, min(tested_count, success_count))
+        global_total_theses_tested += tested_count
+        global_success_count += success_count
+        target_count, stop_count, time_exit_count, open_count = _extract_outcome_counts(
+            event.event_type,
+            details_dict,
+            tested_count,
+            avg_result_pct,
+        )
+        global_target_count += target_count
+        global_stop_count += stop_count
+        global_time_exit_count += time_exit_count
+        global_open_count += open_count
+        if avg_result_pct is not None:
+            global_weighted_return_sum += avg_result_pct * tested_count
+            global_return_observations += tested_count
+            if target_count > 0:
+                target_weighted_return_sum += avg_result_pct * target_count
+                target_return_observations += target_count
+            if stop_count > 0:
+                stop_weighted_return_sum += avg_result_pct * stop_count
+                stop_return_observations += stop_count
+            if time_exit_count > 0:
+                time_weighted_return_sum += avg_result_pct * time_exit_count
+                time_return_observations += time_exit_count
+
+        event_day = as_day(event.created_at)
+        if not event_day:
+            continue
+        day_row = thesis_daily_performance[event_day]
+        day_row["tested"] = int(day_row["tested"]) + tested_count
+        day_row["success"] = int(day_row["success"]) + success_count
+        if avg_result_pct is not None:
+            day_row["return_observations"] = int(day_row["return_observations"]) + tested_count
+            day_row["weighted_return_sum"] = (
+                float(day_row["weighted_return_sum"]) + (avg_result_pct * tested_count)
+            )
+
+    sorted_days = sorted(thesis_daily_performance.keys())
+    window_start = sorted_days[0] if sorted_days else None
+    window_end = sorted_days[-1] if sorted_days else None
+
+    if window_end:
+        try:
+            last_day: date = datetime.fromisoformat(window_end).date()
+        except ValueError:
+            last_day = datetime.now(UTC).date()
+    else:
+        last_day = datetime.now(UTC).date()
+
+    last_3_weeks: list[dict[str, object]] = []
+    for index, week_offset in enumerate((2, 1, 0), start=1):
+        week_end = last_day - timedelta(days=week_offset * 7)
+        week_start = week_end - timedelta(days=6)
+        week_series: list[dict[str, object]] = []
+        week_tested = 0
+        week_success = 0
+        week_weighted_return_sum = 0.0
+        week_return_observations = 0
+
+        for day_offset in range(7):
+            day_value = week_start + timedelta(days=day_offset)
+            day_key = day_value.isoformat()
+            day_payload = thesis_daily_performance.get(day_key)
+            tested = int(day_payload["tested"]) if day_payload is not None else 0
+            success = int(day_payload["success"]) if day_payload is not None else 0
+            day_return_observations = (
+                int(day_payload["return_observations"]) if day_payload is not None else 0
+            )
+            day_weighted_return_sum = (
+                float(day_payload["weighted_return_sum"]) if day_payload is not None else 0.0
+            )
+            avg_result_pct = (
+                round(day_weighted_return_sum / day_return_observations, 4)
+                if day_return_observations > 0
+                else None
+            )
+
+            week_tested += tested
+            week_success += success
+            week_return_observations += day_return_observations
+            week_weighted_return_sum += day_weighted_return_sum
+            week_series.append(
+                {
+                    "day": day_key,
+                    "avg_result_pct": avg_result_pct,
+                    "tested": tested,
+                }
+            )
+
+        week_avg_result_pct = (
+            round(week_weighted_return_sum / week_return_observations, 4)
+            if week_return_observations > 0
+            else None
+        )
+        week_success_rate_pct = (
+            round((week_success / week_tested) * 100, 2) if week_tested > 0 else 0.0
+        )
+        last_3_weeks.append(
+            {
+                "week_index": index,
+                "label": f"Semana {index}",
+                "start_day": week_start.isoformat(),
+                "end_day": week_end.isoformat(),
+                "total_tested": week_tested,
+                "success_count": week_success,
+                "success_rate_pct": week_success_rate_pct,
+                "avg_result_pct": week_avg_result_pct,
+                "series": week_series,
+            }
+        )
+
+    avg_result_pct = (
+        round(global_weighted_return_sum / global_return_observations, 4)
+        if global_return_observations > 0
+        else 0.0
+    )
+    resolved_theses_count = max(0, global_total_theses_tested - global_open_count)
+    target_rate_pct = (
+        round((global_target_count / resolved_theses_count) * 100, 2)
+        if resolved_theses_count > 0
+        else 0.0
+    )
+    stop_rate_pct = (
+        round((global_stop_count / resolved_theses_count) * 100, 2)
+        if resolved_theses_count > 0
+        else 0.0
+    )
+    time_exit_rate_pct = (
+        round((global_time_exit_count / resolved_theses_count) * 100, 2)
+        if resolved_theses_count > 0
+        else 0.0
+    )
+    open_rate_pct = (
+        round((global_open_count / global_total_theses_tested) * 100, 2)
+        if global_total_theses_tested > 0
+        else 0.0
+    )
+
+    avg_target_return_pct = (
+        round(target_weighted_return_sum / target_return_observations, 4)
+        if target_return_observations > 0
+        else 0.0
+    )
+    avg_stop_return_pct = (
+        round(stop_weighted_return_sum / stop_return_observations, 4)
+        if stop_return_observations > 0
+        else 0.0
+    )
+    avg_time_return_pct = (
+        round(time_weighted_return_sum / time_return_observations, 4)
+        if time_return_observations > 0
+        else 0.0
+    )
+    expectancy_net_pct = round(
+        (target_rate_pct / 100.0) * avg_target_return_pct
+        + (stop_rate_pct / 100.0) * avg_stop_return_pct
+        + (time_exit_rate_pct / 100.0) * avg_time_return_pct,
+        4,
+    )
+    success_rate_pct = (
+        round((global_success_count / global_total_theses_tested) * 100, 2)
+        if global_total_theses_tested > 0
+        else 0.0
+    )
+
+    thesis_history_overview: dict[str, object] = {
+        "total_tested": int(global_total_theses_tested),
+        "success_count": int(global_success_count),
+        "success_rate_pct": success_rate_pct,
+        "avg_result_pct": avg_result_pct,
+        "expectancy_net_pct": expectancy_net_pct,
+        "target_rate_pct": target_rate_pct,
+        "stop_rate_pct": stop_rate_pct,
+        "time_exit_rate_pct": time_exit_rate_pct,
+        "open_rate_pct": open_rate_pct,
+        "resolved_count": int(resolved_theses_count),
+        "open_count": int(global_open_count),
+        "avg_target_return_pct": avg_target_return_pct,
+        "avg_stop_return_pct": avg_stop_return_pct,
+        "avg_time_return_pct": avg_time_return_pct,
+        "window_start": window_start,
+        "window_end": window_end,
+        "last_3_weeks": last_3_weeks,
+        "event_count": len(thesis_audit_events),
+        "global_event_count": len(thesis_audit_events_global),
+        "global_total_tested": int(global_total_theses_tested),
+        "user_total_tested": int(user_total_theses_tested),
+        "sources": {
+            "case_study_runs": int(thesis_event_counts_global_by_type.get("thesis.case_study.generated", 0)),
+            "current_monitor_runs": int(
+                thesis_event_counts_global_by_type.get("thesis.current_monitor.generated", 0)
+            ),
+        },
+    }
+
     historical_thesis_count = _safe_int(
         historical_analysis_summary.get("thesis_count"),
         _safe_int(historical_analysis_summary.get("backtest_runs")),
@@ -2076,6 +2606,114 @@ def dashboard_summary(
     }
 
     thesis_open_operations: list[dict[str, object]] = []
+    if case_study_latest is not None:
+        selected_case = case_study_latest.get("selected_case")
+        selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+        if selected_case_dict:
+            thesis = selected_case_dict.get("thesis")
+            thesis_dict = thesis if isinstance(thesis, dict) else {}
+            operation = selected_case_dict.get("structured_operation")
+            operation_dict = operation if isinstance(operation, dict) else {}
+            outcome = selected_case_dict.get("outcome")
+            outcome_dict = outcome if isinstance(outcome, dict) else {}
+            monitoring_timeline = selected_case_dict.get("monitoring_timeline")
+            monitoring_timeline_list = (
+                [event for event in monitoring_timeline if isinstance(event, dict)]
+                if isinstance(monitoring_timeline, list)
+                else []
+            )
+            direction = str(thesis_dict.get("direction") or "").lower()
+            if direction == "bullish":
+                operation_side = "Compra"
+            elif direction == "bearish":
+                operation_side = "Venda"
+            else:
+                operation_side = "Neutra"
+            exit_reason = str(outcome_dict.get("exit_reason") or "").lower()
+            entry_time = (
+                selected_case_dict.get("suggested_entry_time")
+                or selected_case_dict.get("thesis_raised_at")
+                or thesis_dict.get("entry_time")
+            )
+            exit_time = (
+                outcome_dict.get("exit_time")
+                or _extract_exit_datetime(
+                    monitoring_timeline_list,
+                    selected_case_dict.get("suggested_exit_time"),
+                )
+            )
+            duration_days = _duration_days(entry_time, exit_time)
+            realized_pct = round(
+                _safe_number(
+                    outcome_dict.get("realized_financial_pct"),
+                    selected_case_dict.get("kpis", {}).get("realized_financial_pct")
+                    if isinstance(selected_case_dict.get("kpis"), dict)
+                    else 0.0,
+                ),
+                4,
+            )
+            if "stop" in exit_reason or realized_pct < 0.0:
+                outcome_label = "Stop/Protecao"
+            elif "time" in exit_reason or "window" in exit_reason:
+                outcome_label = "Tempo"
+            elif "target" in exit_reason or realized_pct > 0.0:
+                outcome_label = "Alvo"
+            else:
+                outcome_label = "Encerrada"
+            strategy_name = str(
+                operation_dict.get("strategy_name") or operation_dict.get("strategy_id") or "n/d"
+            )
+            max_gain_pct = round(_safe_number(operation_dict.get("max_gain_pct"), 0.0), 4)
+            max_loss_pct = round(_safe_number(operation_dict.get("max_loss_pct"), 0.0), 4)
+            suggested_exit_time = str(selected_case_dict.get("suggested_exit_time") or "")
+            supporting_signals = thesis_dict.get("supporting_signals")
+            supporting_signals_list = (
+                [str(value) for value in supporting_signals if isinstance(value, (str, int, float))]
+                if isinstance(supporting_signals, list)
+                else []
+            )
+            thesis_reason = _build_thesis_candidate_reason(
+                reason_category="case study historico",
+                direction=str(thesis_dict.get("direction") or ""),
+                confidence_pct=round(_safe_number(thesis_dict.get("confidence_tese_pct"), 0.0), 4),
+                technical_support_pct=round(_safe_number(thesis_dict.get("technical_support_pct"), 0.0), 4),
+                fundamental_support_pct=round(_safe_number(thesis_dict.get("fundamental_support_pct"), 0.0), 4),
+                news_support_pct=round(_safe_number(thesis_dict.get("news_support_pct"), 0.0), 4),
+                why_signals=supporting_signals_list,
+            )
+            thesis_open_operations.append(
+                {
+                    "thesis_number": len(thesis_open_operations) + 1,
+                    "thesis_id": str(thesis_dict.get("thesis_id") or "case-study"),
+                    "action": str(thesis_dict.get("instrument") or "n/d"),
+                    "thesis_reason": thesis_reason,
+                    "expected_result_pct": round(
+                        _safe_number(
+                            thesis_dict.get("expected_financial_pct"),
+                            selected_case_dict.get("kpis", {}).get("expected_financial_pct")
+                            if isinstance(selected_case_dict.get("kpis"), dict)
+                            else 0.0,
+                        ),
+                        4,
+                    ),
+                    "operation_plan": (
+                        f"{operation_side} ate {as_day(suggested_exit_time) or suggested_exit_time or '-'} "
+                        f"(case study historico)"
+                    ),
+                    "structured_operation": (
+                        f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
+                    ),
+                    "exit_rule": (
+                        f"Sai acima de {round(_safe_number(thesis_dict.get('target_price'), 0.0), 4)} "
+                        f"ou abaixo de {round(_safe_number(thesis_dict.get('stop_price'), 0.0), 4)}"
+                    ),
+                    "status": "Fechada",
+                    "outcome": outcome_label,
+                    "moment_result_pct": realized_pct,
+                    "duration_days": duration_days,
+                }
+            )
+
     if current_monitor_latest is not None:
         theses_payload = current_monitor_latest.get("theses")
         theses_payload_list = (
@@ -2111,8 +2749,15 @@ def dashboard_summary(
                 else []
             )
             thesis_reason = str(item.get("reason_category") or "")
-            if not thesis_reason:
-                thesis_reason = " | ".join(why_list[:3]) if why_list else "n/d"
+            thesis_reason = _build_thesis_candidate_reason(
+                reason_category=thesis_reason or "monitoramento atual",
+                direction=str(item.get("direction") or ""),
+                confidence_pct=round(_safe_number(item.get("confidence_tese_pct"), 0.0), 4),
+                technical_support_pct=round(_safe_number(item.get("technical_support_pct"), 0.0), 4),
+                fundamental_support_pct=round(_safe_number(item.get("fundamental_support_pct"), 0.0), 4),
+                news_support_pct=round(_safe_number(item.get("news_support_pct"), 0.0), 4),
+                why_signals=why_list,
+            )
 
             monitoring_events = item.get("monitoring_events")
             monitoring_events_list = (
@@ -2130,12 +2775,45 @@ def dashboard_summary(
                 if has_exit_event or monitor_status in {"closed", "encerrada", "finished", "exited"}
                 else "Aberta"
             )
-            if status_label != "Aberta":
-                continue
+            has_target_event = (
+                monitor_status == "target_hit"
+                or any(
+                    "target" in str(event.get("event_type") or "").lower()
+                    for event in monitoring_events_list
+                )
+            )
+            has_stop_event = (
+                monitor_status == "stop_alert"
+                or any(
+                    any(
+                        token in str(event.get("event_type") or "").lower()
+                        for token in ("stop", "range_break")
+                    )
+                    for event in monitoring_events_list
+                )
+            )
+            if has_target_event:
+                outcome_label = "Alvo"
+            elif has_stop_event:
+                outcome_label = "Stop/Protecao"
+            elif has_exit_event:
+                outcome_label = "Tempo"
+            else:
+                outcome_label = "Em monitoramento"
+            entry_time = item.get("suggested_entry_time") or item.get("thesis_raised_at")
+            exit_time = (
+                _extract_exit_datetime(
+                    monitoring_events_list,
+                    item.get("latest_event_time"),
+                )
+                if status_label == "Fechada"
+                else None
+            )
+            duration_days = _duration_days(entry_time, exit_time) if status_label == "Fechada" else None
 
             thesis_open_operations.append(
                 {
-                    "thesis_number": index + 1,
+                    "thesis_number": len(thesis_open_operations) + 1,
                     "thesis_id": str(item.get("thesis_id") or f"Tese {index + 1}"),
                     "action": str(item.get("instrument") or "n/d"),
                     "thesis_reason": thesis_reason,
@@ -2152,12 +2830,25 @@ def dashboard_summary(
                     ),
                     "exit_rule": f"Sai acima de {target_price} ou abaixo de {stop_price}",
                     "status": status_label,
+                    "outcome": outcome_label,
                     "moment_result_pct": round(
                         _safe_number(item.get("unrealized_financial_pct"), 0.0),
                         4,
                     ),
+                    "duration_days": duration_days,
                 }
             )
+
+    resolved_durations = [
+        float(row["duration_days"])
+        for row in thesis_open_operations
+        if row.get("status") == "Fechada" and isinstance(row.get("duration_days"), (int, float))
+    ]
+    avg_resolution_days = (
+        round(sum(resolved_durations) / len(resolved_durations), 2) if resolved_durations else None
+    )
+    thesis_history_overview["avg_resolution_days"] = avg_resolution_days
+    thesis_history_overview["resolution_sample_count"] = len(resolved_durations)
 
     return DashboardResponse(
         user_id=user_id,
@@ -2261,6 +2952,7 @@ def dashboard_summary(
         historical_analysis_summary=historical_analysis_summary,
         current_simulation_summary=current_simulation_summary,
         current_simulation_daily=current_simulation_daily,
+        thesis_history_overview=thesis_history_overview,
         thesis_executive_summary=thesis_executive_summary,
         thesis_open_operations=thesis_open_operations,
         disclaimer=DISCLAIMER,

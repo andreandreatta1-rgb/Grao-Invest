@@ -183,6 +183,7 @@ class DashboardResponse(BaseModel):
     historical_analysis_summary: dict[str, object] | None = None
     current_simulation_summary: dict[str, object] | None = None
     current_simulation_daily: list[dict[str, object]] | None = None
+    thesis_history_overview: dict[str, object] | None = None
     thesis_executive_summary: dict[str, object] | None = None
     thesis_open_operations: list[dict[str, object]] | None = None
     disclaimer: str
