@@ -664,7 +664,7 @@ function renderThesisHistoryOverview(data) {
   const overview = data.thesis_history_overview || null;
   if (!overview || typeof overview !== "object") {
     metricsNode.innerHTML = "";
-    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>Histórico acumulado indisponível no momento.</p></div>";
+    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>Historico acumulado indisponivel no momento.</p></div>";
     return;
   }
 
@@ -686,18 +686,18 @@ function renderThesisHistoryOverview(data) {
 
   const cards = [
     {
-      label: "Teses testadas até hoje",
+      label: "Teses testadas ate hoje",
       value: formatNumber(totalTested),
       tone: "tone-success",
       mono: true,
-      sub: `Período ${windowStart} até ${windowEnd}`,
+      sub: `Periodo ${windowStart} ate ${windowEnd}`,
     },
     {
-      label: "Expectância líquida",
+      label: "Expectancia liquida",
       value: formatSignedMetricPercent(expectancyNetPct),
       tone: expectancyNetPct >= 0 ? "tone-success" : "tone-danger",
       mono: true,
-      sub: "Média esperada por tese resolvida",
+      sub: "Media esperada por tese resolvida",
     },
     {
       label: "Teses com sucesso",
@@ -714,13 +714,14 @@ function renderThesisHistoryOverview(data) {
       sub: `Em monitoramento: ${formatMetric(openRatePct)}% (${formatNumber(openCount)})`,
     },
     {
-      label: "Tempo médio até resultado",
+      label: "Tempo medio ate resultado",
       value: hasAvgResolutionDays ? `${formatMetric(avgResolutionDays)} dias` : "-",
       tone: "tone-accent",
       mono: true,
       sub: `Amostra: ${formatNumber(resolutionSampleCount)} teses encerradas`,
     },
   ];
+
   metricsNode.innerHTML = cards
     .map(
       (card) => `
@@ -733,79 +734,98 @@ function renderThesisHistoryOverview(data) {
     )
     .join("");
 
-  const last3Weeks = Array.isArray(overview.last_3_weeks) ? overview.last_3_weeks : [];
-  if (!last3Weeks.length) {
-    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>Sem dados para as últimas 3 semanas.</p></div>";
+  const kickoffDate = String(data.phase_kickoff_date || "2026-04-27");
+  const rows = Array.isArray(data.thesis_open_operations) ? data.thesis_open_operations : [];
+
+  const classifyPhase = (row) => {
+    const explicitPhase = String(row.phase || row.source_phase || "").toLowerCase();
+    if (explicitPhase.includes("histor")) {
+      return "historical";
+    }
+    if (
+      explicitPhase.includes("pos")
+      || explicitPhase.includes("go_live")
+      || explicitPhase.includes("go-live")
+      || explicitPhase.includes("current")
+    ) {
+      return "current";
+    }
+    const thesisDateRaw = String(
+      row.thesis_raised_at || row.entry_time || row.reference_day || row.suggested_entry_time || "",
+    );
+    const thesisDay = thesisDateRaw.length >= 10 ? thesisDateRaw.slice(0, 10) : "";
+    if (thesisDay && kickoffDate && thesisDay < kickoffDate) {
+      return "historical";
+    }
+    return "current";
+  };
+
+  const isOpenStatus = (row) => {
+    const status = String(row.status || "").toLowerCase();
+    if (status.includes("aberta") || status.includes("aberto") || status.includes("monitor")) {
+      return true;
+    }
+    const monitorStatus = String(row.monitor_status || "").toLowerCase();
+    return monitorStatus === "monitoring";
+  };
+
+  const trimText = (value, maxLen = 190) => {
+    const text = String(value || "").trim();
+    if (!text) {
+      return "-";
+    }
+    if (text.length <= maxLen) {
+      return text;
+    }
+    return `${text.slice(0, maxLen - 1).trim()}...`;
+  };
+
+  const openRows = rows.filter((row) => row && typeof row === "object" && isOpenStatus(row));
+  const openCurrentRows = openRows.filter((row) => classifyPhase(row) === "current");
+  const openHistoricalRows = openRows.filter((row) => classifyPhase(row) === "historical");
+  const prioritizedRows = (openCurrentRows.length ? openCurrentRows : openRows)
+    .slice()
+    .sort((a, b) => Number(b.thesis_number || 0) - Number(a.thesis_number || 0));
+
+  if (!prioritizedRows.length) {
+    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>Nao ha operacoes ativas no momento.</p></div>";
     return;
   }
 
-  const weekCards = last3Weeks
-    .map((week) => {
-      const series = Array.isArray(week.series) ? week.series : [];
-      const validPoints = series
-        .map((row, index) => ({
-          index,
-          value: Number(row.avg_result_pct),
-        }))
-        .filter((row) => Number.isFinite(row.value));
-      const weekAvg = Number(week.avg_result_pct || 0);
-      const weekSuccessRate = Number(week.success_rate_pct || 0);
-      const weekTested = Number(week.total_tested || 0);
-      const label = String(week.label || "Semana");
-      const startDay = String(week.start_day || "-");
-      const endDay = String(week.end_day || "-");
-
-      if (validPoints.length < 2) {
-        return `
-        <article class="list-row week-chart-card">
-          <div class="list-main">
-            <p class="list-title">${escapeHtml(label)} (${escapeHtml(formatDayShort(startDay))} a ${escapeHtml(formatDayShort(endDay))})</p>
-            <p class="list-meta mono">${escapeHtml(formatSignedMetricPercent(weekAvg))}</p>
-          </div>
-          <p class="list-meta">Sem pontos suficientes para evolução diária.</p>
-          <p class="list-meta">Teses: ${escapeHtml(formatNumber(weekTested))} | Sucesso: ${escapeHtml(formatMetric(weekSuccessRate))}%</p>
-        </article>
-      `;
-      }
-
-      const width = 320;
-      const height = 130;
-      const padX = 14;
-      const padY = 14;
-      const values = validPoints.map((point) => point.value);
-      const minY = Math.min(0, ...values);
-      const maxY = Math.max(0, ...values);
-      const range = Math.max(0.5, maxY - minY);
-      const toX = (index) => {
-        if (series.length <= 1) {
-          return width / 2;
-        }
-        return padX + (index / (series.length - 1)) * (width - padX * 2);
-      };
-      const toY = (value) => {
-        const normalized = (value - minY) / range;
-        return height - padY - normalized * (height - padY * 2);
-      };
-      const points = validPoints.map((point) => `${toX(point.index).toFixed(2)},${toY(point.value).toFixed(2)}`).join(" ");
-      const zeroY = toY(0).toFixed(2);
-      const firstLabel = String(series[0]?.day || startDay);
-      const lastLabel = String(series[series.length - 1]?.day || endDay);
+  const cardsHtml = prioritizedRows
+    .slice(0, 6)
+    .map((row) => {
+      const thesisNumber = Number(row.thesis_number || 0);
+      const action = String(row.action || "n/d");
+      const status = String(row.status || "Aberta");
+      const outcome = String(row.outcome || "Em monitoramento");
+      const expectedResult = Number(row.expected_result_pct || 0);
+      const momentResult = Number(row.moment_result_pct || 0);
+      const entryPrice = Number(row.entry_price_brl);
+      const entryLabel = Number.isFinite(entryPrice) && entryPrice > 0 ? formatMoney(entryPrice) : "-";
+      const operationPlan = trimText(row.operation_plan || "-");
+      const structuredOperation = trimText(row.structured_operation || "-");
+      const exitRule = trimText(row.exit_rule || "-");
+      const reason = trimText(row.thesis_reason || "-", 220);
+      const raisedAt = String(row.thesis_raised_at || row.entry_time || row.suggested_entry_time || "");
+      const raisedDay = raisedAt.length >= 10 ? `${raisedAt.slice(8, 10)}/${raisedAt.slice(5, 7)}/${raisedAt.slice(0, 4)}` : "-";
+      const statusTone = String(status).toLowerCase().includes("aberta") ? "tone-warning" : "tone-success";
+      const momentTone = Number.isFinite(momentResult) && momentResult < 0 ? "tone-danger" : "tone-success";
+      const phaseLabel = classifyPhase(row) === "historical" ? "Historico" : "Pos go-live";
 
       return `
-        <article class="list-row week-chart-card">
+        <article class="list-row active-op-card">
           <div class="list-main">
-            <p class="list-title">${escapeHtml(label)} (${escapeHtml(formatDayShort(startDay))} a ${escapeHtml(formatDayShort(endDay))})</p>
-            <p class="list-meta mono ${weekAvg >= 0 ? "tone-success" : "tone-danger"}">${escapeHtml(formatSignedMetricPercent(weekAvg))}</p>
+            <p class="list-title">Tese ${escapeHtml(formatNumber(thesisNumber || 0))} | ${escapeHtml(action)}</p>
+            <p class="list-meta mono ${statusTone}"><strong>${escapeHtml(status)}</strong></p>
           </div>
-          <svg class="week-evolution-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Evolução semanal de rendimento das teses">
-            <line x1="${padX}" y1="${zeroY}" x2="${width - padX}" y2="${zeroY}" class="week-evolution-zero" />
-            <polyline fill="none" stroke="var(--c-accent)" stroke-width="2.5" points="${points}" />
-          </svg>
-          <div class="history-evolution-axis mono">
-            <span>${escapeHtml(formatDayShort(firstLabel))}</span>
-            <span>${escapeHtml(formatDayShort(lastLabel))}</span>
-          </div>
-          <p class="list-meta">Teses: ${escapeHtml(formatNumber(weekTested))} | Sucesso: ${escapeHtml(formatMetric(weekSuccessRate))}%</p>
+          <p class="list-meta">${escapeHtml(phaseLabel)} | Inicio: ${escapeHtml(raisedDay)} | Desfecho atual: ${escapeHtml(outcome)}</p>
+          <p class="list-meta">Esperado: <span class="mono">${escapeHtml(formatSignedMetricPercent(expectedResult))}</span> | Momento: <span class="mono ${momentTone}">${escapeHtml(formatSignedMetricPercent(momentResult))}</span></p>
+          <p class="list-meta">Entra em: <span class="mono">${escapeHtml(entryLabel)}</span></p>
+          <p class="list-meta">Operacao: ${escapeHtml(operationPlan)}</p>
+          <p class="list-meta">Estrutura: ${escapeHtml(structuredOperation)}</p>
+          <p class="list-meta">Sai se: ${escapeHtml(exitRule)}</p>
+          <p class="list-meta">Motivo: ${escapeHtml(reason)}</p>
         </article>
       `;
     })
@@ -814,18 +834,13 @@ function renderThesisHistoryOverview(data) {
   chartNode.innerHTML = `
     <div class="list-row">
       <div class="list-main">
-        <p class="list-title">Evolução do rendimento (%) nas 3 últimas semanas</p>
-        <p class="list-meta">Objetivo: comprovar se as teses melhoram a chance de ganho em renda variável</p>
+        <p class="list-title">Operacoes ativas das teses</p>
+        <p class="list-meta mono">${escapeHtml(formatNumber(openRows.length))} abertas</p>
       </div>
+      <p class="list-meta">Pos go-live: ${escapeHtml(formatNumber(openCurrentRows.length))} | Historico: ${escapeHtml(formatNumber(openHistoricalRows.length))}</p>
     </div>
     <div class="history-weeks-grid">
-      ${weekCards}
-    </div>
-    <div class="list-row">
-      <p class="list-meta">
-        % médio observado: ${escapeHtml(formatSignedMetricPercent(avgResultPct))}. Fonte: case study e monitor diário de teses.
-        Janela histórica disponível: ${escapeHtml(windowStart)} até ${escapeHtml(windowEnd)}.
-      </p>
+      ${cardsHtml}
     </div>
   `;
 }
@@ -985,6 +1000,10 @@ function renderThesisOpenOperations(data) {
     }
   });
 
+  const currentOpenRows = currentRows.filter((row) =>
+    String(row.status || "").toLowerCase().includes("aberta"),
+  );
+
   if (historicalBody) {
     historicalBody.innerHTML = renderRows(
       historicalRows,
@@ -993,7 +1012,7 @@ function renderThesisOpenOperations(data) {
   }
   if (currentBody) {
     currentBody.innerHTML = renderRows(
-      currentRows,
+      currentOpenRows,
       "Sem teses pós go-live no momento.",
     );
   }
@@ -2901,5 +2920,6 @@ function bootstrap() {
 }
 
 window.addEventListener("DOMContentLoaded", bootstrap);
+
 
 

@@ -2061,6 +2061,33 @@ def dashboard_summary(
             return _load_json_dict(bundled_data_dir / filename)
         return None
 
+    def _dedupe_thesis_cards(cards: list[dict[str, object]]) -> list[dict[str, object]]:
+        best_by_key: dict[tuple[str, str, float, float, float, str], tuple[float, float, dict[str, object]]] = {}
+        for card in cards:
+            instrument = str(card.get("instrument") or "").upper()
+            direction = str(card.get("direction") or "").lower()
+            entry_key = round(_safe_number(card.get("entry_price"), 0.0), 2)
+            target_key = round(_safe_number(card.get("target_price"), 0.0), 2)
+            stop_key = round(_safe_number(card.get("stop_price"), 0.0), 2)
+            exit_day = as_day(str(card.get("suggested_exit_time") or "")) or str(
+                card.get("suggested_exit_time") or ""
+            )[:10]
+            dedupe_key = (instrument, direction, entry_key, target_key, stop_key, exit_day)
+            score_confidence = _safe_number(card.get("confidence_tese_pct"), 0.0)
+            score_expected = _safe_number(card.get("expected_financial_pct"), 0.0)
+            existing = best_by_key.get(dedupe_key)
+            if existing is None or (score_confidence, score_expected) > (existing[0], existing[1]):
+                best_by_key[dedupe_key] = (score_confidence, score_expected, card)
+        deduped_cards = [entry[2] for entry in best_by_key.values()]
+        deduped_cards.sort(
+            key=lambda item: (
+                _safe_number(item.get("confidence_tese_pct"), 0.0),
+                _safe_number(item.get("expected_financial_pct"), 0.0),
+            ),
+            reverse=True,
+        )
+        return deduped_cards
+
     historical_backtests = [
         run
         for run in all_backtests
@@ -2342,25 +2369,29 @@ def dashboard_summary(
 
     current_monitor_latest = _load_runtime_or_bundled_json("current_thesis_monitor_latest.json")
     if current_empty and current_monitor_latest is not None:
-        monitor_summary = current_monitor_latest.get("summary")
-        monitor_summary_dict = monitor_summary if isinstance(monitor_summary, dict) else {}
         theses_payload = current_monitor_latest.get("theses")
         theses_payload_list = (
             [item for item in theses_payload if isinstance(item, dict)]
             if isinstance(theses_payload, list)
             else []
         )
+        theses_payload_list = _dedupe_thesis_cards(theses_payload_list)
         generated_at = str(current_monitor_latest.get("generated_at") or "")
-        thesis_count = _safe_int(current_monitor_latest.get("thesis_count"), 0)
-        target_hits = _safe_int(monitor_summary_dict.get("target_hits"), 0)
-        stop_alerts = _safe_int(monitor_summary_dict.get("stop_alerts"), 0)
-        monitoring_count = _safe_int(monitor_summary_dict.get("monitoring_count"), 0)
+        thesis_count = len(theses_payload_list)
+        target_hits = sum(
+            1 for item in theses_payload_list if str(item.get("monitor_status") or "").lower() == "target_hit"
+        )
+        stop_alerts = sum(
+            1 for item in theses_payload_list if str(item.get("monitor_status") or "").lower() == "stop_alert"
+        )
+        monitoring_count = sum(
+            1 for item in theses_payload_list if str(item.get("monitor_status") or "").lower() == "monitoring"
+        )
         avg_expected = avg(
             [_safe_number(item.get("expected_financial_pct")) for item in theses_payload_list],
         )
-        avg_unrealized = round(
-            _safe_number(monitor_summary_dict.get("avg_unrealized_financial_pct"), 0.0),
-            4,
+        avg_unrealized = avg(
+            [_safe_number(item.get("unrealized_financial_pct")) for item in theses_payload_list],
         )
         current_simulation_summary = {
             "period_label": f"desde {phase_kickoff_date} (simulacao atual - teses monitoradas)",
@@ -3006,6 +3037,7 @@ def dashboard_summary(
             if isinstance(theses_payload, list)
             else []
         )
+        theses_payload_list = _dedupe_thesis_cards(theses_payload_list)
         for index, item in enumerate(theses_payload_list):
             direction = str(item.get("direction") or "").lower()
             if direction == "bullish":
@@ -3058,11 +3090,9 @@ def dashboard_summary(
                 for event in monitoring_events_list
             )
             monitor_status = str(item.get("monitor_status") or "").lower()
-            status_label = (
-                "Fechada"
-                if has_exit_event or monitor_status in {"closed", "encerrada", "finished", "exited"}
-                else "Aberta"
-            )
+            status_label = "Aberta"
+            if monitor_status in {"closed", "encerrada", "finished", "exited"}:
+                status_label = "Fechada"
             has_target_event = (
                 monitor_status == "target_hit"
                 or any(
@@ -3080,14 +3110,22 @@ def dashboard_summary(
                     for event in monitoring_events_list
                 )
             )
-            if has_target_event:
-                outcome_label = "Alvo"
-            elif has_stop_event:
-                outcome_label = "Stop/Protecao"
-            elif has_exit_event:
-                outcome_label = "Tempo"
+            if status_label == "Aberta":
+                if monitor_status == "target_hit" or has_target_event:
+                    outcome_label = "Alvo atingido (avaliar saida)"
+                elif monitor_status == "stop_alert" or has_stop_event:
+                    outcome_label = "Alerta de stop"
+                else:
+                    outcome_label = "Em monitoramento"
             else:
-                outcome_label = "Em monitoramento"
+                if has_target_event:
+                    outcome_label = "Alvo"
+                elif has_stop_event:
+                    outcome_label = "Stop/Protecao"
+                elif has_exit_event:
+                    outcome_label = "Tempo"
+                else:
+                    outcome_label = "Encerrada"
             entry_time = item.get("suggested_entry_time") or item.get("thesis_raised_at")
             exit_time = (
                 _extract_exit_datetime(
