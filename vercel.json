@@ -1,15 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "functions": {
-    "api/index.py": {
-      "excludeFiles": "{.git/**,.venv/**,.mypy_cache/**,.pytest_cache/**,.ruff_cache/**,backlog/**,data/**,docs/**,scripts/**,specs/**,tests/**,tmp_b3_*,**/__pycache__/**,**/*.pyc}"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.py"
+      "destination": "/index.py"
     }
   ]
 }

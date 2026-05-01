@@ -96,7 +96,7 @@ Este e o caminho recomendado para publicar sem Render pago.
 5. Faca deploy e abra `/health` na URL publica.
 
 Resultado:
-- Frontend e API FastAPI rodam na Vercel via [`api/index.py`](api/index.py).
+- Frontend e API FastAPI rodam na Vercel via [`index.py`](index.py).
 - O banco persistente fica no Supabase.
 - A pasta `data/` em producao e transitoria (`/tmp`) e nao deve guardar dados importantes.
 

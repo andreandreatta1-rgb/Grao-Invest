@@ -5,7 +5,7 @@ publicacao.
 
 ## Decisao de arquitetura
 
-- Vercel hospeda o frontend e a API FastAPI.
+- Vercel hospeda o frontend e a API FastAPI via `index.py`.
 - Supabase guarda o banco Postgres persistente.
 - `data/` em producao usa `/tmp` e e transitorio.
 - Historico B3/COTAHIST fica somente local para exercicios de teses historicas.

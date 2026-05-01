@@ -5,7 +5,7 @@ import sys
 from importlib import import_module
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parent
 API_ROOT = PROJECT_ROOT / "services" / "api"
 
 if str(API_ROOT) not in sys.path:
