@@ -45,6 +45,11 @@ if DATABASE_URL.startswith("sqlite"):
     # SQLite + long-lived websocket connections can exhaust QueuePool.
     # Use NullPool so each session has an independent short-lived connection.
     engine_kwargs["poolclass"] = NullPool
+elif DATABASE_URL.startswith("postgresql+psycopg"):
+    # Supabase Transaction Pooler/PgBouncer does not work reliably with
+    # server-side prepared statements reused across pooled connections.
+    engine_kwargs["connect_args"] = {"prepare_threshold": None}
+    engine_kwargs["poolclass"] = NullPool
 
 engine = create_engine(DATABASE_URL, **engine_kwargs)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
