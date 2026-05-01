@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import json
 import os
 import sys
+from collections.abc import Awaitable, Callable
 from importlib import import_module
 from pathlib import Path
-import json
-from collections.abc import Awaitable, Callable
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+from fastapi import FastAPI
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 API_ROOT = PROJECT_ROOT / "services" / "api"
 
 if str(API_ROOT) not in sys.path:
@@ -15,6 +17,9 @@ if str(API_ROOT) not in sys.path:
 
 os.environ.setdefault("DATA_DIR", "/tmp/grao-invest-data")
 os.environ.setdefault("APP_RUNTIME", "vercel")
+
+# Vercel's FastAPI detector expects an explicit FastAPI instance named `app`.
+app = FastAPI(title="Grao Invest bootstrap")
 
 
 def _safe_bootstrap_error(exc: Exception) -> str:
@@ -37,10 +42,10 @@ except Exception as bootstrap_exc:
         status_code = 200 if path == "/health" else 503
         body = json.dumps(
             {
-            "status": "degraded",
-            "phase": "bootstrap",
+                "status": "degraded",
+                "phase": "bootstrap",
                 "path": path,
-            "error": bootstrap_error,
+                "error": bootstrap_error,
             },
             ensure_ascii=False,
         ).encode("utf-8")
