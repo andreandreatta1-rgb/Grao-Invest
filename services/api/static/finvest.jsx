@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   if (!window.React || !window.ReactDOM) {
     return;
   }
@@ -127,10 +127,10 @@ function ThesisCard({ thesis }) {
 
       {/* Levels */}
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <span style={{ color: C.muted, fontSize: 10 }}>SaÃ­da</span>
-        <span style={{ color: C.green, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>â–² R$ {thesis.saiGanho}</span>
+        <span style={{ color: C.muted, fontSize: 10 }}>Saída</span>
+        <span style={{ color: C.green, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>▲ R$ {thesis.saiGanho}</span>
         <div style={{ width: 1, height: 12, background: C.border }} />
-        <span style={{ color: C.coral, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>â–¼ R$ {thesis.saiStop}</span>
+        <span style={{ color: C.coral, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>▼ R$ {thesis.saiStop}</span>
         {thesis.inicio && <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>go-live {thesis.inicio}</span>}
       </div>
     </div>
@@ -139,13 +139,13 @@ function ThesisCard({ thesis }) {
 
 function Sidebar({ active, setActive }) {
   const items = [
-    { id: "dashboard", label: "Dashboard", icon: "â—‰" },
-    { id: "mercado",   label: "Mercado",   icon: "ã€œ" },
-    { id: "operacoes", label: "OperaÃ§Ãµes",  icon: "â‡„" },
-    { id: "backtest",  label: "Backtest",   icon: "â†º" },
-    { id: "risco",     label: "Risco",      icon: "â—¬" },
-    { id: "game",      label: "Game",       icon: "â—ˆ" },
-    { id: "alertas",   label: "Alertas",    icon: "â—Ž" },
+    { id: "dashboard", label: "Dashboard", icon: "◉" },
+    { id: "mercado",   label: "Mercado",   icon: "〜" },
+    { id: "operacoes", label: "Operações",  icon: "⇄" },
+    { id: "backtest",  label: "Backtest",   icon: "↺" },
+    { id: "risco",     label: "Risco",      icon: "◬" },
+    { id: "game",      label: "Game",       icon: "◈" },
+    { id: "alertas",   label: "Alertas",    icon: "◎" },
   ];
 
   return (
@@ -165,13 +165,13 @@ function Sidebar({ active, setActive }) {
             fontSize: 14, fontWeight: 700, color: C.gold, fontFamily: mono,
           }}>G</div>
           <div>
-            <div style={{ color: C.text, fontSize: 14, fontWeight: 700, letterSpacing: "0.04em" }}>GRÃƒO</div>
+            <div style={{ color: C.text, fontSize: 14, fontWeight: 700, letterSpacing: "0.04em" }}>GRÃO</div>
             <div style={{ color: C.muted, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>Invest</div>
           </div>
         </div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.amber + "18", border: `1px solid ${C.amber}40`, borderRadius: 6, padding: "3px 8px" }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.amber, display: "inline-block" }} />
-          <span style={{ color: C.amber, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>FASE 1 Â· SIMULAÃ‡ÃƒO</span>
+          <span style={{ color: C.amber, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>FASE 1 · SIMULAÇÃO</span>
         </div>
       </div>
 
@@ -203,7 +203,7 @@ function Sidebar({ active, setActive }) {
           <div style={{ width: 30, height: 30, background: C.sky + "30", border: `1px solid ${C.sky}44`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: C.sky }}>AI</div>
           <div>
             <div style={{ color: C.text, fontSize: 12, fontWeight: 500 }}>Convidado</div>
-            <div style={{ color: C.muted, fontSize: 10 }}>ConfiguraÃ§Ãµes</div>
+            <div style={{ color: C.muted, fontSize: 10 }}>Configurações</div>
           </div>
         </div>
       </div>
@@ -228,7 +228,7 @@ function TabelaExercicio({ titulo, periodo, teses, esperado, alcancado, aprovada
         {[
           { label: "Teses", value: teses, color: C.text },
           { label: "Esperado", value: `${esperado}%`, color: C.sky },
-          { label: "AlcanÃ§ado", value: `${alcancado}%`, color: parseFloat(alcancado) >= 0 ? C.teal : C.coral },
+          { label: "Alcançado", value: `${alcancado}%`, color: parseFloat(alcancado) >= 0 ? C.teal : C.coral },
           { label: "Gap", value: `${gap > 0 ? "+" : ""}${gap}pp`, color: gapColor },
         ].map((s) => (
           <div key={s.label} style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
@@ -259,7 +259,7 @@ function TabelaTeses({ rows, titulo }) {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
           <thead>
             <tr style={{ background: C.panel }}>
-              {["#", "AÃ§Ã£o", "DireÃ§Ã£o", "Esperado", "Estrutura", "Entrada", "SaÃ­da se", "Desfecho", "Dias", "Status", "Resultado"].map((h) => (
+              {["#", "Ação", "Direção", "Esperado", "Estrutura", "Entrada", "Saída se", "Desfecho", "Dias", "Status", "Resultado"].map((h) => (
                 <th key={h} style={{ padding: "9px 12px", color: C.muted, fontWeight: 600, textAlign: "left", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
               ))}
             </tr>
@@ -292,54 +292,49 @@ function TabelaTeses({ rows, titulo }) {
   );
 }
 
-// â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Data ──────────────────────────────────────────────────────────────────────
 
 const tesisAbertas = [
   {
     id: 162, ativo: "MGLU3", direcao: "Alta", entrada: "9,25",
-    expected: 3.01, momentum: 0.83, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
+    expected: 3.01, momentum: 0.83, estrutura: "Bull Call Spread · ganho 5,40% · perda 2,20%",
     saiGanho: "9,90", saiStop: "8,86", status: "Aberta", desfecho: "Em monitoramento",
     inicio: "14/04",
   },
   {
     id: 161, ativo: "MGLU3", direcao: "Alta", entrada: "9,39",
-    expected: 2.76, momentum: -0.36, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
+    expected: 2.76, momentum: -0.36, estrutura: "Bull Call Spread · ganho 5,40% · perda 2,20%",
     saiGanho: "9,99", saiStop: "9,03", status: "Aberta", desfecho: "Em monitoramento",
     inicio: "15/04",
   },
   {
     id: 160, ativo: "PETR4", direcao: "Neutro", entrada: "41,03",
-    expected: 0.82, momentum: -3.88, estrutura: "Iron Condor Â· ganho 2,40% Â· perda 3,80%",
+    expected: 0.82, momentum: -3.88, estrutura: "Iron Condor · ganho 2,40% · perda 3,80%",
     saiGanho: "41,03", saiStop: "40,41", status: "Aberta", desfecho: "Alerta de stop",
     inicio: "21/04",
   },
 ];
 
 const tesesHistoricas = [
-  { id: 159, ativo: "PETR4", direcao: "Alta", esperado: "+4,82%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "40,53", saida: "â‰¥43,37 / â‰¤38,83", desfecho: "Tempo", dias: 13, status: "Fechada", resultado: 3.14 },
+  { id: 159, ativo: "PETR4", direcao: "Alta", esperado: "+4,82%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "40,53", saida: "≥43,37 / ≤38,83", desfecho: "Tempo", dias: 13, status: "Fechada", resultado: 3.14 },
 ];
 
 const tesesPosGoLive = [
-  { id: 160, ativo: "PETR4", direcao: "Neutro", esperado: "+0,82%", estrutura: "Iron Condor | ganho 2,40% | perda 3,80%", entrada: "41,03", saida: "â‰¥41,03 / â‰¤40,41", desfecho: "Alerta de stop", dias: 0, status: "Aberta", resultado: -3.88 },
-  { id: 161, ativo: "MGLU3", direcao: "Alta", esperado: "+2,76%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,39", saida: "â‰¥9,99 / â‰¤9,03", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: -0.36 },
-  { id: 162, ativo: "MGLU3", direcao: "Alta", esperado: "+3,01%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,25", saida: "â‰¥9,90 / â‰¤8,86", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: 0.83 },
+  { id: 160, ativo: "PETR4", direcao: "Neutro", esperado: "+0,82%", estrutura: "Iron Condor | ganho 2,40% | perda 3,80%", entrada: "41,03", saida: "≥41,03 / ≤40,41", desfecho: "Alerta de stop", dias: 0, status: "Aberta", resultado: -3.88 },
+  { id: 161, ativo: "MGLU3", direcao: "Alta", esperado: "+2,76%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,39", saida: "≥9,99 / ≤9,03", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: -0.36 },
+  { id: 162, ativo: "MGLU3", direcao: "Alta", esperado: "+3,01%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,25", saida: "≥9,90 / ≤8,86", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: 0.83 },
 ];
 
-// â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 function GraoDashboard() {
-  const [activeNav, setActiveNav] = useState("dashboard");
-  const [now, setNow] = useState("");
 
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap";
     document.head.appendChild(link);
-    const tick = () => setNow(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => { clearInterval(t); link.remove(); };
+    return () => { link.remove(); };
   }, []);
 
   return (
@@ -348,30 +343,9 @@ function GraoDashboard() {
       fontFamily: "Sora, system-ui, sans-serif", color: C.text,
       borderRadius: 18, overflow: "hidden", border: `1px solid ${C.border}`,
     }}>
-      <Sidebar active={activeNav} setActive={setActiveNav} />
-
       {/* Main */}
       <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
-
-        {/* Topbar */}
-        <div style={{ borderBottom: `1px solid ${C.border}`, padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", background: C.panel, flexShrink: 0 }}>
-          <div>
-            <div style={{ color: C.text, fontSize: 17, fontWeight: 700, letterSpacing: "-0.02em" }}>Dashboard</div>
-            <div style={{ color: C.muted, fontSize: 11, marginTop: 1 }}>VisÃ£o consolidada da simulaÃ§Ã£o, risco e trilha operacional</div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, background: C.amber + "18", border: `1px solid ${C.amber}35`, borderRadius: 8, padding: "5px 10px" }}>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.amber, display: "inline-block", boxShadow: `0 0 8px ${C.amber}` }} />
-              <span style={{ color: C.amber, fontSize: 11, fontWeight: 600 }}>Feed sem telemetria</span>
-            </div>
-            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
-              <span style={{ color: C.muted, fontSize: 11, fontFamily: mono }}>01/05 Â· {now}</span>
-            </div>
-            <button style={{ background: C.gold, color: "#000", border: "none", borderRadius: 9, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.02em" }}>
-              Atualizar â†º
-            </button>
-          </div>
-        </div>
+        {/* Topbar interna removida: usamos a topbar do shell principal */}
 
         {/* Content */}
         <div style={{ padding: "24px 28px 40px", display: "flex", flexDirection: "column", gap: 24 }}>
@@ -380,16 +354,16 @@ function GraoDashboard() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>Resumo de teses</div>
-              <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>PerÃ­odo: 20/04/2026 â†’ 01/05/2026 Â· histÃ³rico total</div>
+              <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>Período: 20/04/2026 → 01/05/2026 · histórico total</div>
             </div>
             <Badge label="162 teses testadas" type="info" />
           </div>
 
           {/* KPI grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
-            <KPICard label="Teses testadas" value="162" sub="20/04 â†’ 01/05" accent={C.sky} icon="â—Ž" />
-            <KPICard label="ExpectÃ¢ncia lÃ­quida" value="+3,07%" sub="MÃ©dia por tese resolvida" valueColor={C.teal} accent={C.teal} icon="ã€œ" />
-            <KPICard label="Taxa de sucesso" value="93,83%" sub="152 de 162 teses" valueColor={C.green} accent={C.green} icon="âœ“" />
+            <KPICard label="Teses testadas" value="162" sub="20/04 → 01/05" accent={C.sky} icon="◎" />
+            <KPICard label="Expectância líquida" value="+3,07%" sub="Média por tese resolvida" valueColor={C.teal} accent={C.teal} icon="〜" />
+            <KPICard label="Taxa de sucesso" value="93,83%" sub="152 de 162 teses" valueColor={C.green} accent={C.green} icon="✓" />
             <KPICard
               label="Alvo / Stop / Tempo"
               value={<span style={{ fontSize: 15, letterSpacing: 0 }}>
@@ -401,15 +375,15 @@ function GraoDashboard() {
               </span>}
               sub="Em monitoramento: 0,00%"
               accent={C.gold}
-              icon="â—¬"
+              icon="◬"
             />
-            <KPICard label="Tempo mÃ©dio" value="13 dias" sub="Amostra: 1 tese" valueColor={C.amber} accent={C.amber} icon="â—·" />
+            <KPICard label="Tempo médio" value="13 dias" sub="Amostra: 1 tese" valueColor={C.amber} accent={C.amber} icon="◷" />
           </div>
 
           {/* Active theses */}
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>OperaÃ§Ãµes ativas das teses</div>
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Operações ativas das teses</div>
               <Badge label="3 abertas" type="open" />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
@@ -417,25 +391,25 @@ function GraoDashboard() {
             </div>
           </div>
 
-          {/* ExercÃ­cio histÃ³rico + pÃ³s go-live */}
+          {/* Exercício histórico + pós go-live */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <TabelaExercicio
-              titulo="ExercÃ­cio histÃ³rico"
-              periodo="atÃ© 2026-04-27 Â· base histÃ³rica global â€” case studies consolidados"
+              titulo="Exercício histórico"
+              periodo="até 2026-04-27 · base histórica global — case studies consolidados"
               teses={97} esperado="4,43" alcancado="3,41" aprovadas={96}
             />
             <TabelaExercicio
-              titulo="ExercÃ­cio pÃ³s go-live"
-              periodo="desde 2026-04-27 Â· simulaÃ§Ã£o atual â€” teses monitoradas"
+              titulo="Exercício pós go-live"
+              periodo="desde 2026-04-27 · simulação atual — teses monitoradas"
               teses={3} esperado="2,20" alcancado="-1,11" aprovadas={0}
             />
           </div>
 
-          {/* Teses histÃ³ricas table */}
-          <TabelaTeses titulo="Teses histÃ³ricas (encerradas)" rows={tesesHistoricas} />
+          {/* Teses históricas table */}
+          <TabelaTeses titulo="Teses históricas (encerradas)" rows={tesesHistoricas} />
 
-          {/* Teses pÃ³s go-live table */}
-          <TabelaTeses titulo="Teses pÃ³s go-live (em aberto)" rows={tesesPosGoLive} />
+          {/* Teses pós go-live table */}
+          <TabelaTeses titulo="Teses pós go-live (em aberto)" rows={tesesPosGoLive} />
 
         </div>
       </div>
