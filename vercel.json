@@ -1,26 +1,15 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "functions": {
+    "api/index.py": {
+      "excludeFiles": "{.git/**,.venv/**,.mypy_cache/**,.pytest_cache/**,.ruff_cache/**,backlog/**,data/**,docs/**,scripts/**,specs/**,tests/**,tmp_b3_*,**/__pycache__/**,**/*.pyc}"
+    }
+  },
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/services/api/static/index.html"
-    },
-    {
-      "source": "/static/(.*)",
-      "destination": "/services/api/static/$1"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "https://YOUR_BACKEND_DOMAIN/api/$1"
-    },
-    {
-      "source": "/health",
-      "destination": "https://YOUR_BACKEND_DOMAIN/health"
-    },
-    {
-      "source": "/ws/(.*)",
-      "destination": "https://YOUR_BACKEND_DOMAIN/ws/$1"
+      "source": "/(.*)",
+      "destination": "/api/index.py"
     }
   ]
 }
-

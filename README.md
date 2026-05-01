@@ -83,30 +83,32 @@ This repository is structured to help coding agents implement the product safely
 6. Click `Atualizar saude/cobertura feed` and then `Dashboard > Atualizar dashboard`.
 7. In `Game`, start `5 teses` and play thesis-by-thesis com dados historicos reais.
 
-## Publicacao Estavel (Render)
+## Publicacao gratuita (Vercel + Supabase)
+Este e o caminho recomendado para publicar sem Render pago.
+
 1. Suba este projeto para um repositorio GitHub.
-2. No Render, clique em `New +` -> `Blueprint` e selecione o repositorio.
-3. O arquivo [`render.yaml`](render.yaml) cria automaticamente:
-   - Web service `ai-investment-advisor`
-   - Health check em `/health`
-   - Disco persistente em `/var/data` (10GB)
-4. Configure secrets no Render (`Environment`):
-   - `FINNHUB_API_TOKEN` (opcional, intraday real)
-   - `BRAPI_TOKEN` (opcional, fundamentos externos)
-5. Deploy e abra a URL publica gerada pelo Render.
-
-Observacao:
-- O start usa [`scripts/start_render.sh`](scripts/start_render.sh), que liga `data/` ao disco persistente para manter `app.db` e artefatos de relatorio entre deploys.
-
-## GitHub + Vercel (frontend) + backend externo
-1. Publique o backend em Render/Railway/Fly (URL externa HTTPS).
-2. No arquivo [`vercel.json`](vercel.json), troque `YOUR_BACKEND_DOMAIN` pela URL do backend.
-3. Suba o projeto no GitHub.
-4. No Vercel, importe o repositório e faça deploy.
+2. Crie um projeto Supabase e copie a string de conexao Postgres.
+3. No Vercel, importe o repositorio.
+4. Em `Settings > Environment Variables`, configure:
+   - `DATABASE_URL`: string Postgres do Supabase.
+   - `FINNHUB_API_TOKEN` (opcional, intraday real).
+   - `BRAPI_TOKEN` (opcional, fundamentos externos).
+5. Faca deploy e abra `/health` na URL publica.
 
 Resultado:
-- Frontend servido no Vercel.
-- Chamadas `/api/*`, `/health` e `/ws/*` encaminhadas para seu backend externo.
+- Frontend e API FastAPI rodam na Vercel via [`api/index.py`](api/index.py).
+- O banco persistente fica no Supabase.
+- A pasta `data/` em producao e transitoria (`/tmp`) e nao deve guardar dados importantes.
+
+Observacao sobre B3 historico:
+- Os arquivos historicos B3/COTAHIST nao fazem parte da publicacao.
+- Eles servem apenas para exercicios locais de teses historicas.
+- Em producao, o app deve usar dados leves no banco ou provedores externos sob demanda.
+
+## Publicacao com Render (opcional, pago quando exigir disco)
+O arquivo [`render.yaml`](render.yaml) continua disponivel para uma versao com servidor
+persistente e disco em `/var/data`, mas esse caminho pode exigir plano pago quando
+houver necessidade de disco persistente.
 
 ## Real Intraday Provider (Finnhub)
 - Set token in shell before running app/worker:

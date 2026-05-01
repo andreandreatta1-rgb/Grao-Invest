@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -164,7 +165,8 @@ app = FastAPI(
 )
 
 static_dir = Path(__file__).resolve().parent.parent / "static"
-data_dir = Path(__file__).resolve().parents[3] / "data"
+data_dir = Path(os.getenv("DATA_DIR", str(Path(__file__).resolve().parents[3] / "data")))
+data_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 agent_loop = AgentLoop()
 
@@ -2128,6 +2130,8 @@ def dashboard_summary(
                 if has_exit_event or monitor_status in {"closed", "encerrada", "finished", "exited"}
                 else "Aberta"
             )
+            if status_label != "Aberta":
+                continue
 
             thesis_open_operations.append(
                 {

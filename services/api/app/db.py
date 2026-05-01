@@ -3,16 +3,38 @@ from __future__ import annotations
 from collections.abc import Generator
 import os
 from pathlib import Path
+import tempfile
 
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import NullPool
 
 BASE_DIR = Path(__file__).resolve().parents[3]
-DATA_DIR = Path(os.getenv("DATA_DIR", str(BASE_DIR / "data"))).resolve()
-DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _default_data_dir() -> Path:
+    explicit = os.getenv("DATA_DIR")
+    if explicit:
+        return Path(explicit)
+    if os.getenv("VERCEL"):
+        return Path(tempfile.gettempdir()) / "grao-invest-data"
+    return BASE_DIR / "data"
+
+
+def _normalize_database_url(raw_url: str) -> str:
+    if raw_url.startswith("postgres://"):
+        return raw_url.replace("postgres://", "postgresql+psycopg://", 1)
+    if raw_url.startswith("postgresql://"):
+        return raw_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return raw_url
+
+
+DATA_DIR = _default_data_dir().resolve()
 default_sqlite_url = f"sqlite:///{(DATA_DIR / 'app.db').as_posix()}"
-DATABASE_URL = os.getenv("DATABASE_URL", default_sqlite_url)
+DATABASE_URL = _normalize_database_url(os.getenv("DATABASE_URL", default_sqlite_url))
+
+if DATABASE_URL.startswith("sqlite"):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 engine_kwargs: dict[str, object] = {"future": True}
 if DATABASE_URL.startswith("sqlite"):

@@ -674,9 +674,12 @@ function renderThesisOpenOperations(data) {
   if (!body) {
     return;
   }
-  const rows = Array.isArray(data.thesis_open_operations) ? data.thesis_open_operations : [];
+  const sourceRows = Array.isArray(data.thesis_open_operations) ? data.thesis_open_operations : [];
+  const rows = sourceRows.filter((row) =>
+    String(row?.status || "").toLowerCase().includes("aberta"),
+  );
   if (!rows.length) {
-    body.innerHTML = "<tr><td colspan='9'>Sem operacoes monitoradas no momento.</td></tr>";
+    body.innerHTML = "<tr><td colspan='9'>Sem operacoes em aberto no momento.</td></tr>";
     return;
   }
 
@@ -1646,6 +1649,7 @@ function bindOperationsHandlers() {
 async function loadDashboard() {
   const userId = getAuthUserId();
   if (!userId) {
+    renderDashboardFallback("Sessao expirada. Faca login novamente para carregar as teses.");
     return;
   }
   if (!state.dashboardSnapshot) {
