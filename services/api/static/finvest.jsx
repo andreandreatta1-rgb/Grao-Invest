@@ -51,6 +51,108 @@ const semaforoAmostra = (fechadas) => {
   return { label: "Vermelho", type: "danger", color: C.coral };
 };
 
+const toNumber = (value, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const formatPctLabel = (value) => {
+  const n = toNumber(value, 0);
+  return `${n >= 0 ? "+" : ""}${n.toFixed(2).replace(".", ",")}%`;
+};
+
+const formatMoneyLabel = (value) => {
+  const n = toNumber(value, NaN);
+  if (!Number.isFinite(n)) return "-";
+  return n.toFixed(2).replace(".", ",");
+};
+
+const isOpenStatus = (status) => {
+  const normalized = String(status || "").toLowerCase();
+  return normalized.includes("aberta") || normalized.includes("aberto") || normalized.includes("monitor");
+};
+
+const classifyPhase = (row, kickoffDate) => {
+  const explicitPhase = String(row?.phase || row?.source_phase || "").toLowerCase();
+  if (explicitPhase.includes("histor")) return "historical";
+  if (explicitPhase.includes("pos") || explicitPhase.includes("go_live") || explicitPhase.includes("go-live") || explicitPhase.includes("current")) {
+    return "current";
+  }
+  const thesisDateRaw = String(
+    row?.thesis_raised_at || row?.entry_time || row?.reference_day || row?.suggested_entry_time || "",
+  );
+  const thesisDay = thesisDateRaw.length >= 10 ? thesisDateRaw.slice(0, 10) : "";
+  if (thesisDay && kickoffDate && thesisDay < kickoffDate) return "historical";
+  return "current";
+};
+
+const inferMelhoriasAplicadas = (row) => {
+  const outcome = String(row?.outcome || "").toLowerCase();
+  const reason = String(row?.thesis_reason || "").toLowerCase();
+  const learning = String(row?.learning_note || "").toLowerCase();
+  const tags = [];
+  if (outcome.includes("tempo")) tags.push("tempo_da_tese");
+  if (learning.includes("parcial")) tags.push("saida_parcial");
+  if (outcome.includes("stop") || learning.includes("stop")) tags.push("stop_antecipado");
+  if (reason.includes("faixa") || learning.includes("faixa")) tags.push("range_break_rapido");
+  if (reason.includes("volume") || learning.includes("volume")) tags.push("confirmacao_volume");
+  if (learning.includes("protecao curta") || learning.includes("proteção curta")) tags.push("protecao_curta");
+  if (learning.includes("tempo maximo") || learning.includes("tempo máximo")) tags.push("tempo_maximo");
+  if (learning.includes("alvo")) tags.push("calibragem_alvo");
+  return [...new Set(tags)];
+};
+
+const operationDirection = (row) => {
+  const plan = String(row?.operation_plan || "").toLowerCase();
+  if (plan.startsWith("compra")) return "Alta";
+  if (plan.startsWith("venda")) return "Baixa";
+  return "Neutra";
+};
+
+const extractExitLevels = (exitRule) => {
+  const text = String(exitRule || "");
+  const matches = [...text.matchAll(/R\\$\\s*([0-9]+(?:[\\.,][0-9]+)?)/g)];
+  const values = matches
+    .map((m) => (m[1] || "").replace(",", "."))
+    .map((v) => Number(v))
+    .filter((n) => Number.isFinite(n));
+  return {
+    gain: values.length > 0 ? values[0].toFixed(2).replace(".", ",") : "-",
+    stop: values.length > 1 ? values[1].toFixed(2).replace(".", ",") : "-",
+  };
+};
+
+const mapOperationRowToTable = (row, index) => {
+  const expected = toNumber(row?.expected_result_pct, 0);
+  const result = toNumber(row?.moment_result_pct, 0);
+  const entry = formatMoneyLabel(row?.entry_price_brl);
+  const duration = Number.isFinite(toNumber(row?.duration_days, NaN)) ? Math.round(toNumber(row?.duration_days, 0)) : 0;
+  const direction = operationDirection(row);
+  const melhoriasAplicadas = inferMelhoriasAplicadas(row);
+  const lowerSignals = `${String(row?.outcome || "")} ${String(row?.thesis_reason || "")} ${String(row?.learning_note || "")}`.toLowerCase();
+  const sintomaDetectado = melhoriasAplicadas.length > 0 || /stop|tempo|romp|alerta|quebra/.test(lowerSignals);
+  const sintomaConfirmado = String(row?.status || "").toLowerCase().includes("fechad") && result >= 0;
+  return {
+    id: toNumber(row?.thesis_number, index + 1),
+    ativo: String(row?.action || "n/d"),
+    direcao: direction,
+    esperado: formatPctLabel(expected),
+    estrutura: String(row?.structured_operation || "-"),
+    entrada: entry,
+    saida: String(row?.exit_rule || "-"),
+    desfecho: String(row?.outcome || "-"),
+    dias: duration,
+    status: String(row?.status || "Fechada"),
+    resultado: result,
+    porQue: String(row?.thesis_reason || "Sem detalhamento disponivel para esta tese."),
+    aprendizado: String(row?.learning_note || "Sem aprendizado registrado ainda."),
+    melhoriasAplicadas,
+    sintomaDetectado,
+    sintomaConfirmado,
+    origem: row,
+  };
+};
+
 function Badge({ label, type = "neutral" }) {
   const styles = {
     open:    { bg: C.teal + "20",  color: C.teal,  border: C.teal + "40" },
@@ -110,6 +212,7 @@ function ThesisCard({ thesis }) {
   const statusType = thesis.status === "Aberta" ? (isWarning ? "warning" : "open") : "closed";
   const momentumColor = thesis.momentum >= 0 ? C.teal : C.coral;
   const expectedColor = thesis.expected >= 0 ? C.teal : C.coral;
+  const dirType = thesis.direcao === "Alta" ? "bull" : thesis.direcao === "Baixa" ? "bear" : "neutral";
 
   return (
     <div style={{
@@ -125,7 +228,7 @@ function ThesisCard({ thesis }) {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ color: C.muted, fontSize: 10, fontFamily: mono }}>#{thesis.id}</span>
           <span style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>{thesis.ativo}</span>
-          <Badge label={thesis.direcao} type={thesis.direcao === "Alta" ? "bull" : "bear"} />
+          <Badge label={thesis.direcao} type={dirType} />
         </div>
         <Badge label={thesis.desfecho || thesis.status} type={statusType} />
       </div>
@@ -302,6 +405,7 @@ function TabelaTeses({ rows, titulo }) {
             {rows.flatMap((r, i) => {
               const resColor = r.resultado > 0 ? C.teal : r.resultado < 0 ? C.coral : C.muted;
               const isExpanded = expandedId === r.id;
+              const dirType = r.direcao === "Alta" ? "bull" : r.direcao === "Baixa" ? "bear" : "neutral";
 
               const mainRow = (
                 <tr
@@ -313,10 +417,12 @@ function TabelaTeses({ rows, titulo }) {
                 >
                   <td style={{ padding: "10px 12px", color: C.dim, fontFamily: mono }}>{r.id}</td>
                   <td style={{ padding: "10px 12px", color: C.text, fontWeight: 700 }}>{r.ativo}</td>
-                  <td style={{ padding: "10px 12px" }}><Badge label={r.direcao} type={r.direcao === "Alta" ? "bull" : "bear"} /></td>
+                  <td style={{ padding: "10px 12px" }}><Badge label={r.direcao} type={dirType} /></td>
                   <td style={{ padding: "10px 12px", color: C.sky, fontFamily: mono }}>{r.esperado}</td>
                   <td style={{ padding: "10px 12px", color: C.muted, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.estrutura}</td>
-                  <td style={{ padding: "10px 12px", color: C.text, fontFamily: mono }}>R$ {r.entrada}</td>
+                  <td style={{ padding: "10px 12px", color: C.text, fontFamily: mono }}>
+                    {r.entrada === "-" ? "-" : `R$ ${r.entrada}`}
+                  </td>
                   <td style={{ padding: "10px 12px", color: C.muted, fontFamily: mono, fontSize: 10 }}>{r.saida}</td>
                   <td style={{ padding: "10px 12px" }}><Badge label={r.desfecho} type={r.desfecho?.includes("stop") ? "warning" : r.desfecho === "Tempo" ? "neutral" : "open"} /></td>
                   <td style={{ padding: "10px 12px", color: C.muted, fontFamily: mono }}>{r.dias}d</td>
@@ -472,6 +578,136 @@ function GraoDashboard() {
     return () => { link.remove(); };
   }, []);
 
+  const [apiData, setApiData] = useState(null);
+  const [apiError, setApiError] = useState("");
+  const [lastSync, setLastSync] = useState("");
+
+  useEffect(() => {
+    let canceled = false;
+    const loadSummary = async () => {
+      try {
+        const response = await fetch("/api/dashboard/summary/1", {
+          method: "GET",
+          headers: { Accept: "application/json" },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const payload = await response.json();
+        if (!canceled) {
+          setApiData(payload);
+          setApiError("");
+          setLastSync(new Date().toISOString());
+        }
+      } catch (error) {
+        if (!canceled) {
+          setApiError(String(error?.message || "Falha ao atualizar"));
+        }
+      }
+    };
+
+    loadSummary();
+    const timer = window.setInterval(loadSummary, 60000);
+    return () => {
+      canceled = true;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const runtime = useMemo(() => {
+    if (!apiData || typeof apiData !== "object") return null;
+    const kickoffDate = String(apiData.phase_kickoff_date || "2026-04-27");
+    const overview = apiData.thesis_history_overview && typeof apiData.thesis_history_overview === "object"
+      ? apiData.thesis_history_overview
+      : {};
+    const operationsRaw = Array.isArray(apiData.thesis_open_operations) ? apiData.thesis_open_operations : [];
+    const mapped = operationsRaw
+      .filter((row) => row && typeof row === "object")
+      .map((row, index) => mapOperationRowToTable(row, index))
+      .sort((a, b) => toNumber(a.id, 0) - toNumber(b.id, 0));
+    const historical = mapped.filter((row) => classifyPhase(row.origem, kickoffDate) === "historical");
+    const current = mapped.filter((row) => classifyPhase(row.origem, kickoffDate) === "current");
+    const currentOpen = current.filter((row) => isOpenStatus(row.status));
+    const cards = currentOpen
+      .slice()
+      .sort((a, b) => toNumber(b.id, 0) - toNumber(a.id, 0))
+      .slice(0, 6)
+      .map((row) => {
+        const levels = extractExitLevels(row.saida);
+        const raisedAt = String(row.origem?.thesis_raised_at || "");
+        const startLabel = raisedAt.length >= 10 ? `${raisedAt.slice(8, 10)}/${raisedAt.slice(5, 7)}` : "";
+        return {
+          id: row.id,
+          ativo: row.ativo,
+          direcao: row.direcao,
+          entrada: row.entrada,
+          expected: toNumber(row.origem?.expected_result_pct, 0),
+          momentum: toNumber(row.resultado, 0),
+          estrutura: row.estrutura,
+          saiGanho: levels.gain,
+          saiStop: levels.stop,
+          status: row.status,
+          desfecho: row.desfecho,
+          inicio: startLabel,
+        };
+      });
+
+    const totalTested = toNumber(overview.total_tested, historical.length + current.length);
+    const successCount = toNumber(overview.success_count, mapped.filter((row) => row.resultado >= 0).length);
+    const successRatePct = toNumber(overview.success_rate_pct, pct(successCount, totalTested));
+    const expectancyNetPct = toNumber(overview.expectancy_net_pct, 0);
+    const targetRatePct = toNumber(overview.target_rate_pct, 0);
+    const stopRatePct = toNumber(overview.stop_rate_pct, 0);
+    const timeExitRatePct = toNumber(overview.time_exit_rate_pct, 0);
+    const openRatePct = toNumber(overview.open_rate_pct, 0);
+    const openCount = toNumber(overview.open_count, 0);
+    const avgResolutionDays = toNumber(overview.avg_resolution_days, 0);
+    const resolutionSampleCount = toNumber(overview.resolution_sample_count, 0);
+
+    return {
+      kickoffDate,
+      historical,
+      current,
+      currentOpen,
+      cards,
+      summary: {
+        totalTested,
+        successCount,
+        successRatePct,
+        expectancyNetPct,
+        targetRatePct,
+        stopRatePct,
+        timeExitRatePct,
+        openRatePct,
+        openCount,
+        avgResolutionDays,
+        resolutionSampleCount,
+        windowStart: String(overview.window_start || "-"),
+        windowEnd: String(overview.window_end || "-"),
+      },
+    };
+  }, [apiData]);
+
+  const tesesHistoricasView = runtime?.historical?.length ? runtime.historical : tesesHistoricas;
+  const tesesPosGoLiveViewAll = runtime?.current?.length ? runtime.current : tesesPosGoLive;
+  const tesesPosGoLiveViewOpen = runtime?.currentOpen?.length ? runtime.currentOpen : tesesPosGoLive;
+  const tesisAbertasView = runtime?.cards?.length ? runtime.cards : tesisAbertas;
+  const resumoKpis = runtime?.summary || {
+    totalTested: 162,
+    successCount: 152,
+    successRatePct: 93.83,
+    expectancyNetPct: 3.07,
+    targetRatePct: 93.83,
+    stopRatePct: 3.09,
+    timeExitRatePct: 3.09,
+    openRatePct: 0,
+    openCount: 0,
+    avgResolutionDays: 13,
+    resolutionSampleCount: 1,
+    windowStart: "2026-04-20",
+    windowEnd: "2026-05-01",
+  };
+
   const provaAprendizado = useMemo(() => {
     const mapaLicoes = {
       tempo_da_tese: {
@@ -524,8 +760,8 @@ function GraoDashboard() {
       },
     };
 
-    const todas = [...tesesHistoricas, ...tesesPosGoLive];
-    const posGoLive = [...tesesPosGoLive];
+    const todas = [...tesesHistoricasView, ...tesesPosGoLiveViewAll];
+    const posGoLive = [...tesesPosGoLiveViewAll];
 
     const posComRemedio = posGoLive.filter((tese) => Array.isArray(tese.melhoriasAplicadas) && tese.melhoriasAplicadas.length > 0).length;
     const adocaoRemedioPct = pct(posComRemedio, posGoLive.length);
@@ -536,8 +772,8 @@ function GraoDashboard() {
     const acertoDiagnosticoPct = pct(comSintomaConfirmado, comSintomaDetectado);
     const semaforoDiagnostico = semaforoPorPercentual(acertoDiagnosticoPct, 70, 45);
 
-    const historicasFechadas = tesesHistoricas.filter((tese) => tese.status === "Fechada");
-    const posFechadas = tesesPosGoLive.filter((tese) => tese.status === "Fechada");
+    const historicasFechadas = tesesHistoricasView.filter((tese) => tese.status === "Fechada");
+    const posFechadas = tesesPosGoLiveViewAll.filter((tese) => tese.status === "Fechada");
     const mediaHistorica = avg(historicasFechadas.map((tese) => tese.resultado));
     const mediaPos = avg(posFechadas.map((tese) => tese.resultado));
     const deltaMediaPos = mediaPos !== null && mediaHistorica !== null ? mediaPos - mediaHistorica : null;
@@ -588,7 +824,7 @@ function GraoDashboard() {
       semaforoMaturidade,
       licoes,
     };
-  }, []);
+  }, [tesesHistoricasView, tesesPosGoLiveViewAll]);
 
 
   return (
@@ -608,43 +844,53 @@ function GraoDashboard() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>Resumo de teses</div>
-              <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>Período: 20/04/2026 → 01/05/2026 · histórico total</div>
+              <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>
+                {`Periodo: ${resumoKpis.windowStart} -> ${resumoKpis.windowEnd} | historico total`}
+              </div>
+              {apiError && <div style={{ color: C.coral, fontSize: 11, marginTop: 4 }}>{`Atualizacao em contingencia: ${apiError}`}</div>}
+              {!apiError && lastSync && <div style={{ color: C.muted, fontSize: 10, marginTop: 4 }}>{`Atualizado em: ${lastSync.slice(0, 19).replace("T", " ")}`}</div>}
             </div>
-            <Badge label="162 teses testadas" type="info" />
+            <Badge label={`${teseCountLabel(resumoKpis.totalTested)} testadas`} type="info" />
           </div>
 
           {/* KPI grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
-            <KPICard label="Teses testadas" value="162" sub="20/04 → 01/05" accent={C.sky} icon="◎" />
-            <KPICard label="Expectância líquida" value="+3,07%" sub="Média por tese resolvida" valueColor={C.teal} accent={C.teal} icon="〜" />
-            <KPICard label="Taxa de sucesso" value="93,83%" sub="152 de 162 teses" valueColor={C.green} accent={C.green} icon="✓" />
+            <KPICard label="Teses testadas" value={String(resumoKpis.totalTested)} sub={`${resumoKpis.windowStart} -> ${resumoKpis.windowEnd}`} accent={C.sky} icon="◉" />
+            <KPICard label="Expectancia liquida" value={formatPctLabel(resumoKpis.expectancyNetPct)} sub="Media por tese resolvida" valueColor={C.teal} accent={C.teal} icon="◌" />
+            <KPICard label="Taxa de sucesso" value={`${resumoKpis.successRatePct.toFixed(2).replace(".", ",")}%`} sub={`${resumoKpis.successCount} de ${resumoKpis.totalTested} teses`} valueColor={C.green} accent={C.green} icon="✓" />
             <KPICard
               label="Alvo / Stop / Tempo"
               value={<span style={{ fontSize: 15, letterSpacing: 0 }}>
-                <span style={{ color: C.teal }}>93,83%</span>
+                <span style={{ color: C.teal }}>{`${resumoKpis.targetRatePct.toFixed(2).replace(".", ",")}%`}</span>
                 <span style={{ color: C.dim }}> / </span>
-                <span style={{ color: C.coral }}>3,09%</span>
+                <span style={{ color: C.coral }}>{`${resumoKpis.stopRatePct.toFixed(2).replace(".", ",")}%`}</span>
                 <span style={{ color: C.dim }}> / </span>
-                <span style={{ color: C.gold }}>3,09%</span>
+                <span style={{ color: C.gold }}>{`${resumoKpis.timeExitRatePct.toFixed(2).replace(".", ",")}%`}</span>
               </span>}
-              sub="Em monitoramento: 0,00%"
+              sub={`Em monitoramento: ${resumoKpis.openRatePct.toFixed(2).replace(".", ",")}% (${resumoKpis.openCount})`}
               accent={C.gold}
               icon="◬"
             />
-            <KPICard label="Tempo médio" value="13 dias" sub="Amostra: 1 tese" valueColor={C.amber} accent={C.amber} icon="◷" />
+            <KPICard
+              label="Tempo medio"
+              value={resumoKpis.resolutionSampleCount > 0 ? `${Math.round(resumoKpis.avgResolutionDays)} dias` : "-"}
+              sub={`Amostra: ${resumoKpis.resolutionSampleCount} ${resumoKpis.resolutionSampleCount === 1 ? "tese" : "teses"}`}
+              valueColor={C.amber}
+              accent={C.amber}
+              icon="◷"
+            />
           </div>
 
           {/* Active theses */}
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Operações ativas das teses</div>
-              <Badge label="3 abertas" type="open" />
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Operacoes ativas das teses</div>
+              <Badge label={`${teseCountLabel(tesisAbertasView.length)} abertas`} type="open" />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-              {tesisAbertas.map((t) => <ThesisCard key={t.id} thesis={t} />)}
+              {tesisAbertasView.map((t) => <ThesisCard key={t.id} thesis={t} />)}
             </div>
           </div>
-
           {/* Prova de aprendizado */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -718,10 +964,10 @@ function GraoDashboard() {
           </div>
 
           {/* Teses históricas table */}
-          <TabelaTeses titulo="Teses históricas (encerradas)" rows={tesesHistoricas} />
+          <TabelaTeses titulo="Teses historicas (encerradas)" rows={tesesHistoricasView} />
 
           {/* Teses pós go-live table */}
-          <TabelaTeses titulo="Teses pós go-live (em aberto)" rows={tesesPosGoLive} />
+          <TabelaTeses titulo="Teses pos go-live (em aberto)" rows={tesesPosGoLiveViewOpen} />
 
         </div>
       </div>
@@ -737,3 +983,4 @@ function GraoDashboard() {
   const root = window.ReactDOM.createRoot(rootNode);
   root.render(<GraoDashboard />);
 })();
+

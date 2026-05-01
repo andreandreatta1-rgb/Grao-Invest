@@ -36,6 +36,7 @@ def build_b3_daily_job_markdown(payload: dict[str, Any]) -> str:
     build = payload.get("build", {})
     load = payload.get("load", {})
     case_study = payload.get("case_study", {})
+    dashboard_seed = payload.get("dashboard_seed", {})
     run_at = str(pipeline.get("run_at", ""))
     source_root = str(pipeline.get("source_root", ""))
     output_root = str(pipeline.get("output_root", ""))
@@ -67,6 +68,12 @@ def build_b3_daily_job_markdown(payload: dict[str, Any]) -> str:
         f"- `confidence_pct`: {case_study.get('confidence_pct', 0)}",
         f"- `expected_pct`: {case_study.get('expected_pct', 0)}",
         f"- `realized_pct`: {case_study.get('realized_pct', 0)}",
+        "",
+        "## Dashboard Seed",
+        f"- `executed`: {dashboard_seed.get('executed', False)}",
+        f"- `user_id`: {dashboard_seed.get('user_id', '')}",
+        f"- `total_tested`: {dashboard_seed.get('total_tested', 0)}",
+        f"- `summary_file`: {dashboard_seed.get('summary_file', '')}",
     ]
     return "\n".join(lines)
 

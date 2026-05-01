@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from fastapi.testclient import TestClient
+
 from app.db import DATA_DIR, SessionLocal
 from app.services.b3_daily_job import (
     build_b3_daily_job_markdown,
@@ -105,6 +107,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Pula etapa de case study.",
     )
+    parser.add_argument(
+        "--skip-dashboard-seed",
+        action="store_true",
+        help="Pula atualizacao do dashboard_seed.json a partir do resumo mais recente.",
+    )
     return parser.parse_args()
 
 
@@ -138,6 +145,53 @@ def _resolve_source_roots(repo_root: Path, args: argparse.Namespace) -> tuple[Pa
     return source_root, pesquisa_root
 
 
+def _refresh_dashboard_seed(repo_root: Path, user_id: int) -> dict[str, Any]:
+    from app.main import app  # import tardio para reduzir efeito colateral no startup do script
+
+    with TestClient(app) as client:
+        response = client.get(f"/api/dashboard/summary/{user_id}")
+        if response.status_code >= 400:
+            raise SystemExit(
+                "Falha ao gerar dashboard_seed.json "
+                f"(status={response.status_code}): {response.text}"
+            )
+        payload = response.json()
+
+    historical = payload.get("historical_analysis_summary")
+    current = payload.get("current_simulation_summary")
+    current_daily = payload.get("current_simulation_daily")
+    overview = payload.get("thesis_history_overview")
+    executive = payload.get("thesis_executive_summary")
+    open_operations = payload.get("thesis_open_operations")
+
+    dashboard_seed = {
+        "generated_at": utc_iso_now(),
+        "user_id": int(payload.get("user_id") or user_id),
+        "phase_kickoff_date": payload.get("phase_kickoff_date"),
+        "historical_analysis_summary": historical if isinstance(historical, dict) else {},
+        "current_simulation_summary": current if isinstance(current, dict) else {},
+        "current_simulation_daily": current_daily if isinstance(current_daily, list) else [],
+        "thesis_history_overview": overview if isinstance(overview, dict) else {},
+        "thesis_executive_summary": executive if isinstance(executive, dict) else {},
+        "thesis_open_operations": open_operations if isinstance(open_operations, list) else [],
+    }
+
+    output_path = repo_root / "data" / "dashboard_seed.json"
+    output_path.write_text(
+        json.dumps(dashboard_seed, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    overview_dict = dashboard_seed["thesis_history_overview"]
+    total_tested = int(overview_dict.get("total_tested") or 0) if isinstance(overview_dict, dict) else 0
+
+    return {
+        "executed": True,
+        "user_id": int(dashboard_seed["user_id"]),
+        "total_tested": total_tested,
+        "summary_file": str(output_path),
+    }
+
+
 def main() -> None:
     args = parse_args()
     repo_root = Path(__file__).resolve().parents[1]
@@ -166,6 +220,7 @@ def main() -> None:
         "build": {"executed": False},
         "load": {"executed": False},
         "case_study": {"executed": False},
+        "dashboard_seed": {"executed": False},
     }
 
     pesquisa_for_build = (
@@ -234,6 +289,9 @@ def main() -> None:
             "markdown_file": str(repo_root / "data" / "case_study_latest.md"),
         }
 
+    if not args.skip_dashboard_seed:
+        summary["dashboard_seed"] = _refresh_dashboard_seed(repo_root, args.user_id)
+
     output_json = repo_root / "data" / "b3_daily_job_latest.json"
     output_md = repo_root / "data" / "b3_daily_job_latest.md"
     output_json.write_text(json.dumps(summary, ensure_ascii=True, indent=2), encoding="utf-8")
@@ -245,7 +303,8 @@ def main() -> None:
         "Resumo job diario: "
         f"build_executed={summary['build']['executed']} | "
         f"load_executed={summary['load']['executed']} | "
-        f"case_study_executed={summary['case_study']['executed']}"
+        f"case_study_executed={summary['case_study']['executed']} | "
+        f"dashboard_seed_executed={summary['dashboard_seed']['executed']}"
     )
 
 

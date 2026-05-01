@@ -2463,6 +2463,20 @@ def dashboard_summary(
             return {}
         return parsed if isinstance(parsed, dict) else {}
 
+    def _extract_case_study_expected_pct(details: dict[str, object]) -> float | None:
+        expected_pct = _maybe_float(details.get("expected_financial_pct"))
+        if expected_pct is not None:
+            return expected_pct
+        selected_case = details.get("selected_case")
+        selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+        kpis = selected_case_dict.get("kpis")
+        kpis_dict = kpis if isinstance(kpis, dict) else {}
+        thesis = selected_case_dict.get("thesis")
+        thesis_dict = thesis if isinstance(thesis, dict) else {}
+        return _maybe_float(
+            kpis_dict.get("expected_financial_pct"),
+        ) or _maybe_float(thesis_dict.get("expected_financial_pct"))
+
     def _extract_thesis_event_metrics(
         event_type: str,
         details: dict[str, object],
@@ -2575,6 +2589,14 @@ def dashboard_summary(
     thesis_event_counts_global_by_type: dict[str, int] = defaultdict(int)
     thesis_id_sequence_map: dict[str, list[int]] = defaultdict(list)
     thesis_global_sequence_cursor = 0
+    case_study_total_tested = 0
+    case_study_success_count = 0
+    case_study_expected_weighted_sum = 0.0
+    case_study_expected_observations = 0
+    case_study_return_weighted_sum = 0.0
+    case_study_return_observations = 0
+    case_study_window_start: str | None = None
+    case_study_window_end: str | None = None
     global_total_theses_tested = 0
     global_success_count = 0
     global_weighted_return_sum = 0.0
@@ -2643,6 +2665,22 @@ def dashboard_summary(
             thesis_global_sequence_cursor += tested_count
 
         success_count = max(0, min(tested_count, success_count))
+        event_day = as_day(event.created_at)
+        if event.event_type == "thesis.case_study.generated":
+            case_study_total_tested += tested_count
+            case_study_success_count += success_count
+            expected_pct = _extract_case_study_expected_pct(details_dict)
+            if expected_pct is not None:
+                case_study_expected_weighted_sum += expected_pct * tested_count
+                case_study_expected_observations += tested_count
+            if avg_result_pct is not None:
+                case_study_return_weighted_sum += avg_result_pct * tested_count
+                case_study_return_observations += tested_count
+            if event_day:
+                if case_study_window_start is None or event_day < case_study_window_start:
+                    case_study_window_start = event_day
+                if case_study_window_end is None or event_day > case_study_window_end:
+                    case_study_window_end = event_day
         global_total_theses_tested += tested_count
         global_success_count += success_count
         target_count, stop_count, time_exit_count, open_count = _extract_outcome_counts(
@@ -2668,7 +2706,6 @@ def dashboard_summary(
                 time_weighted_return_sum += avg_result_pct * time_exit_count
                 time_return_observations += time_exit_count
 
-        event_day = as_day(event.created_at)
         if not event_day:
             continue
         day_row = thesis_daily_performance[event_day]
@@ -2838,6 +2875,36 @@ def dashboard_summary(
         },
     }
 
+    if case_study_total_tested > 0:
+        case_study_avg_expected_pct = (
+            round(case_study_expected_weighted_sum / case_study_expected_observations, 4)
+            if case_study_expected_observations > 0
+            else 0.0
+        )
+        case_study_avg_return_pct = (
+            round(case_study_return_weighted_sum / case_study_return_observations, 4)
+            if case_study_return_observations > 0
+            else 0.0
+        )
+        case_study_win_rate_pct = round(
+            (case_study_success_count / case_study_total_tested) * 100,
+            2,
+        )
+        historical_analysis_summary = {
+            "period_label": "historico acumulado (exercicio continuo)",
+            "thesis_count": int(case_study_total_tested),
+            "backtest_runs": int(case_study_total_tested),
+            "operacoes_simuladas": int(case_study_total_tested),
+            "total_trades": int(case_study_total_tested),
+            "avg_expected_pct": case_study_avg_expected_pct,
+            "avg_win_rate_pct": case_study_win_rate_pct,
+            "avg_return_pct": case_study_avg_return_pct,
+            "approved_count": int(case_study_success_count),
+            "avg_drawdown_pct": 0.0,
+            "window_start": case_study_window_start,
+            "window_end": case_study_window_end,
+        }
+
     historical_thesis_count = _safe_int(
         historical_analysis_summary.get("thesis_count"),
         _safe_int(historical_analysis_summary.get("backtest_runs")),
@@ -2896,139 +2963,240 @@ def dashboard_summary(
     }
 
     thesis_open_operations: list[dict[str, object]] = []
-    if case_study_latest is not None:
+
+    def _append_case_study_operation(
+        selected_case_dict: dict[str, object],
+        *,
+        fallback_raised_at: str = "",
+    ) -> int:
+        thesis = selected_case_dict.get("thesis")
+        thesis_dict = thesis if isinstance(thesis, dict) else {}
+        if not thesis_dict:
+            return 0
+        operation = selected_case_dict.get("structured_operation")
+        operation_dict = operation if isinstance(operation, dict) else {}
+        outcome = selected_case_dict.get("outcome")
+        outcome_dict = outcome if isinstance(outcome, dict) else {}
+        monitoring_timeline = selected_case_dict.get("monitoring_timeline")
+        monitoring_timeline_list = (
+            [event for event in monitoring_timeline if isinstance(event, dict)]
+            if isinstance(monitoring_timeline, list)
+            else []
+        )
+        direction = str(thesis_dict.get("direction") or "").lower()
+        if direction == "bullish":
+            operation_side = "Compra"
+        elif direction == "bearish":
+            operation_side = "Venda"
+        else:
+            operation_side = "Neutra"
+        exit_reason = str(outcome_dict.get("exit_reason") or "").lower()
+        entry_time = (
+            selected_case_dict.get("suggested_entry_time")
+            or selected_case_dict.get("thesis_raised_at")
+            or thesis_dict.get("entry_time")
+            or fallback_raised_at
+        )
+        exit_time = (
+            outcome_dict.get("exit_time")
+            or _extract_exit_datetime(
+                monitoring_timeline_list,
+                selected_case_dict.get("suggested_exit_time"),
+            )
+        )
+        duration_days = _duration_days(entry_time, exit_time)
+        realized_pct = round(
+            _safe_number(
+                outcome_dict.get("realized_financial_pct"),
+                selected_case_dict.get("kpis", {}).get("realized_financial_pct")
+                if isinstance(selected_case_dict.get("kpis"), dict)
+                else 0.0,
+            ),
+            4,
+        )
+        if "stop" in exit_reason or realized_pct < 0.0:
+            outcome_label = "Stop/Protecao"
+        elif "time" in exit_reason or "window" in exit_reason:
+            outcome_label = "Tempo"
+        elif "target" in exit_reason or realized_pct > 0.0:
+            outcome_label = "Alvo"
+        else:
+            outcome_label = "Encerrada"
+        strategy_name = str(
+            operation_dict.get("strategy_name") or operation_dict.get("strategy_id") or "n/d"
+        )
+        max_gain_pct = round(_safe_number(operation_dict.get("max_gain_pct"), 0.0), 4)
+        max_loss_pct = round(_safe_number(operation_dict.get("max_loss_pct"), 0.0), 4)
+        suggested_exit_time = str(selected_case_dict.get("suggested_exit_time") or "")
+        expected_result_pct = round(
+            _safe_number(
+                thesis_dict.get("expected_financial_pct"),
+                selected_case_dict.get("kpis", {}).get("expected_financial_pct")
+                if isinstance(selected_case_dict.get("kpis"), dict)
+                else 0.0,
+            ),
+            4,
+        )
+        entry_price = round(_safe_number(thesis_dict.get("entry_price"), 0.0), 4)
+        target_price = round(_safe_number(thesis_dict.get("target_price"), 0.0), 4)
+        stop_price = round(_safe_number(thesis_dict.get("stop_price"), 0.0), 4)
+        supporting_signals = thesis_dict.get("supporting_signals")
+        supporting_signals_list = (
+            [str(value) for value in supporting_signals if isinstance(value, (str, int, float))]
+            if isinstance(supporting_signals, list)
+            else []
+        )
+        thesis_reason = _build_thesis_candidate_reason(
+            instrument=str(thesis_dict.get("instrument") or ""),
+            reason_category="case study historico",
+            direction=str(thesis_dict.get("direction") or ""),
+            confidence_pct=round(_safe_number(thesis_dict.get("confidence_tese_pct"), 0.0), 4),
+            technical_support_pct=round(_safe_number(thesis_dict.get("technical_support_pct"), 0.0), 4),
+            fundamental_support_pct=round(_safe_number(thesis_dict.get("fundamental_support_pct"), 0.0), 4),
+            news_support_pct=round(_safe_number(thesis_dict.get("news_support_pct"), 0.0), 4),
+            why_signals=supporting_signals_list,
+        )
+        thesis_id_value = str(thesis_dict.get("thesis_id") or f"case-study-{len(thesis_open_operations) + 1}")
+        thesis_open_operations.append(
+            {
+                "phase": "historico",
+                "thesis_number": len(thesis_open_operations) + 1,
+                "thesis_id": thesis_id_value,
+                "thesis_raised_at": str(
+                    selected_case_dict.get("thesis_raised_at")
+                    or thesis_dict.get("entry_time")
+                    or fallback_raised_at
+                    or ""
+                ),
+                "action": str(thesis_dict.get("instrument") or "n/d"),
+                "thesis_reason": thesis_reason,
+                "expected_result_pct": expected_result_pct,
+                "operation_plan": _build_operation_plan_text(
+                    direction=direction,
+                    operation_side=operation_side,
+                    exit_day=as_day(suggested_exit_time) or suggested_exit_time or "-",
+                    entry_price=entry_price,
+                    target_price=target_price,
+                    stop_price=stop_price,
+                    expected_result_pct=expected_result_pct,
+                ),
+                "structured_operation": (
+                    f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
+                ),
+                "entry_price_brl": entry_price,
+                "exit_rule": (
+                    f"Sai se subir para R$ {target_price:.2f} ou cair para R$ {stop_price:.2f}"
+                ),
+                "status": "Fechada",
+                "outcome": outcome_label,
+                "moment_result_pct": realized_pct,
+                "duration_days": duration_days,
+                "learning_note": _build_learning_note(
+                    direction=direction,
+                    status="Fechada",
+                    outcome=outcome_label,
+                    expected_result_pct=expected_result_pct,
+                    realized_result_pct=realized_pct,
+                ),
+            }
+        )
+        return 1
+
+    def _append_case_study_operation_from_event(
+        details_dict: dict[str, object],
+        *,
+        fallback_raised_at: str = "",
+    ) -> int:
+        thesis_id_value = str(details_dict.get("selected_thesis_id") or "").strip()
+        if not thesis_id_value:
+            return 0
+
+        parts = thesis_id_value.split("-")
+        instrument = parts[1] if len(parts) >= 2 else "n/d"
+        direction = parts[2].lower() if len(parts) >= 3 else ""
+        if direction == "bullish":
+            operation_side = "Compra"
+        elif direction == "bearish":
+            operation_side = "Venda"
+        else:
+            operation_side = "Neutra"
+
+        expected_result_pct = round(_safe_number(details_dict.get("expected_financial_pct"), 0.0), 4)
+        realized_pct = round(_safe_number(details_dict.get("realized_financial_pct"), 0.0), 4)
+        confidence_pct = round(_safe_number(details_dict.get("confidence_tese_pct"), 0.0), 4)
+
+        strategy_id = str(details_dict.get("strategy_id") or "n/d")
+        strategy_name = strategy_id.replace("_", " ").title() if strategy_id and strategy_id != "n/d" else "n/d"
+        if realized_pct < 0.0:
+            outcome_label = "Stop/Protecao"
+        elif realized_pct > 0.0:
+            outcome_label = "Alvo"
+        else:
+            outcome_label = "Tempo"
+
+        thesis_reason = (
+            f"Tese historica {operation_side.lower()} para {instrument} no exercicio continuo. "
+            f"Registro legado com confianca {confidence_pct:.2f}% e retorno esperado {expected_result_pct:.2f}%."
+        )
+        operation_plan = (
+            f"{operation_side} ate - (case study historico continuo; "
+            "detalhes completos de prazo/preco nao persistidos no evento legado)"
+        )
+
+        thesis_open_operations.append(
+            {
+                "phase": "historico",
+                "thesis_number": len(thesis_open_operations) + 1,
+                "thesis_id": thesis_id_value,
+                "thesis_raised_at": str(fallback_raised_at or ""),
+                "action": instrument,
+                "thesis_reason": thesis_reason,
+                "expected_result_pct": expected_result_pct,
+                "operation_plan": operation_plan,
+                "structured_operation": f"{strategy_name} | ganho max n/d | perda max n/d",
+                "entry_price_brl": None,
+                "exit_rule": "Sai por alvo/stop/tempo da estrategia (detalhe de preco indisponivel no legado)",
+                "status": "Fechada",
+                "outcome": outcome_label,
+                "moment_result_pct": realized_pct,
+                "duration_days": None,
+                "learning_note": _build_learning_note(
+                    direction=direction,
+                    status="Fechada",
+                    outcome=outcome_label,
+                    expected_result_pct=expected_result_pct,
+                    realized_result_pct=realized_pct,
+                ),
+            }
+        )
+        return 1
+
+    historical_rows_added = 0
+    case_study_events_global = [
+        event
+        for event in thesis_audit_events_global
+        if event.event_type == "thesis.case_study.generated"
+    ]
+    for event in case_study_events_global:
+        details_dict = _parse_audit_details(event)
+        selected_case = details_dict.get("selected_case")
+        selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+        if selected_case_dict:
+            historical_rows_added += _append_case_study_operation(
+                selected_case_dict,
+                fallback_raised_at=str(event.created_at),
+            )
+        else:
+            historical_rows_added += _append_case_study_operation_from_event(
+                details_dict,
+                fallback_raised_at=str(event.created_at),
+            )
+
+    if historical_rows_added == 0 and case_study_latest is not None:
         selected_case = case_study_latest.get("selected_case")
         selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
         if selected_case_dict:
-            thesis = selected_case_dict.get("thesis")
-            thesis_dict = thesis if isinstance(thesis, dict) else {}
-            operation = selected_case_dict.get("structured_operation")
-            operation_dict = operation if isinstance(operation, dict) else {}
-            outcome = selected_case_dict.get("outcome")
-            outcome_dict = outcome if isinstance(outcome, dict) else {}
-            monitoring_timeline = selected_case_dict.get("monitoring_timeline")
-            monitoring_timeline_list = (
-                [event for event in monitoring_timeline if isinstance(event, dict)]
-                if isinstance(monitoring_timeline, list)
-                else []
-            )
-            direction = str(thesis_dict.get("direction") or "").lower()
-            if direction == "bullish":
-                operation_side = "Compra"
-            elif direction == "bearish":
-                operation_side = "Venda"
-            else:
-                operation_side = "Neutra"
-            exit_reason = str(outcome_dict.get("exit_reason") or "").lower()
-            entry_time = (
-                selected_case_dict.get("suggested_entry_time")
-                or selected_case_dict.get("thesis_raised_at")
-                or thesis_dict.get("entry_time")
-            )
-            exit_time = (
-                outcome_dict.get("exit_time")
-                or _extract_exit_datetime(
-                    monitoring_timeline_list,
-                    selected_case_dict.get("suggested_exit_time"),
-                )
-            )
-            duration_days = _duration_days(entry_time, exit_time)
-            realized_pct = round(
-                _safe_number(
-                    outcome_dict.get("realized_financial_pct"),
-                    selected_case_dict.get("kpis", {}).get("realized_financial_pct")
-                    if isinstance(selected_case_dict.get("kpis"), dict)
-                    else 0.0,
-                ),
-                4,
-            )
-            if "stop" in exit_reason or realized_pct < 0.0:
-                outcome_label = "Stop/Protecao"
-            elif "time" in exit_reason or "window" in exit_reason:
-                outcome_label = "Tempo"
-            elif "target" in exit_reason or realized_pct > 0.0:
-                outcome_label = "Alvo"
-            else:
-                outcome_label = "Encerrada"
-            strategy_name = str(
-                operation_dict.get("strategy_name") or operation_dict.get("strategy_id") or "n/d"
-            )
-            max_gain_pct = round(_safe_number(operation_dict.get("max_gain_pct"), 0.0), 4)
-            max_loss_pct = round(_safe_number(operation_dict.get("max_loss_pct"), 0.0), 4)
-            suggested_exit_time = str(selected_case_dict.get("suggested_exit_time") or "")
-            expected_result_pct = round(
-                _safe_number(
-                    thesis_dict.get("expected_financial_pct"),
-                    selected_case_dict.get("kpis", {}).get("expected_financial_pct")
-                    if isinstance(selected_case_dict.get("kpis"), dict)
-                    else 0.0,
-                ),
-                4,
-            )
-            entry_price = round(_safe_number(thesis_dict.get("entry_price"), 0.0), 4)
-            target_price = round(_safe_number(thesis_dict.get("target_price"), 0.0), 4)
-            stop_price = round(_safe_number(thesis_dict.get("stop_price"), 0.0), 4)
-            supporting_signals = thesis_dict.get("supporting_signals")
-            supporting_signals_list = (
-                [str(value) for value in supporting_signals if isinstance(value, (str, int, float))]
-                if isinstance(supporting_signals, list)
-                else []
-            )
-            thesis_reason = _build_thesis_candidate_reason(
-                instrument=str(thesis_dict.get("instrument") or ""),
-                reason_category="case study historico",
-                direction=str(thesis_dict.get("direction") or ""),
-                confidence_pct=round(_safe_number(thesis_dict.get("confidence_tese_pct"), 0.0), 4),
-                technical_support_pct=round(_safe_number(thesis_dict.get("technical_support_pct"), 0.0), 4),
-                fundamental_support_pct=round(_safe_number(thesis_dict.get("fundamental_support_pct"), 0.0), 4),
-                news_support_pct=round(_safe_number(thesis_dict.get("news_support_pct"), 0.0), 4),
-                why_signals=supporting_signals_list,
-            )
-            thesis_id_value = str(thesis_dict.get("thesis_id") or "case-study")
-            thesis_sequence = thesis_id_sequence_map.get(thesis_id_value, [])
-            thesis_number = thesis_sequence[-1] if thesis_sequence else len(thesis_open_operations) + 1
-            thesis_open_operations.append(
-                {
-                    "phase": "historico",
-                    "thesis_number": thesis_number,
-                    "thesis_id": thesis_id_value,
-                    "thesis_raised_at": str(
-                        selected_case_dict.get("thesis_raised_at")
-                        or thesis_dict.get("entry_time")
-                        or ""
-                    ),
-                    "action": str(thesis_dict.get("instrument") or "n/d"),
-                    "thesis_reason": thesis_reason,
-                    "expected_result_pct": expected_result_pct,
-                    "operation_plan": _build_operation_plan_text(
-                        direction=direction,
-                        operation_side=operation_side,
-                        exit_day=as_day(suggested_exit_time) or suggested_exit_time or "-",
-                        entry_price=entry_price,
-                        target_price=target_price,
-                        stop_price=stop_price,
-                        expected_result_pct=expected_result_pct,
-                    ),
-                    "structured_operation": (
-                        f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
-                    ),
-                    "entry_price_brl": entry_price,
-                    "exit_rule": (
-                        f"Sai se subir para R$ {target_price:.2f} ou cair para R$ {stop_price:.2f}"
-                    ),
-                    "status": "Fechada",
-                    "outcome": outcome_label,
-                    "moment_result_pct": realized_pct,
-                    "duration_days": duration_days,
-                    "learning_note": _build_learning_note(
-                        direction=direction,
-                        status="Fechada",
-                        outcome=outcome_label,
-                        expected_result_pct=expected_result_pct,
-                        realized_result_pct=realized_pct,
-                    ),
-                }
-            )
+            historical_rows_added += _append_case_study_operation(selected_case_dict)
 
     if current_monitor_latest is not None:
         theses_payload = current_monitor_latest.get("theses")
@@ -3037,7 +3205,6 @@ def dashboard_summary(
             if isinstance(theses_payload, list)
             else []
         )
-        theses_payload_list = _dedupe_thesis_cards(theses_payload_list)
         for index, item in enumerate(theses_payload_list):
             direction = str(item.get("direction") or "").lower()
             if direction == "bullish":

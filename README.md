@@ -73,6 +73,8 @@ This repository is structured to help coding agents implement the product safely
 - `python scripts/load_b3_silver_market.py --csv-path data/lake/b3/silver/market_daily.csv --database-path data/app.db --provider b3-cotahist-lake --truncate-provider-before-load`
 - `python scripts/run_b3_daily_job.py --user-id <id> --full-universe`
 - `python scripts/run_b3_daily_job.py --user-id <id> --skip-build --skip-load --case-study-instruments PETR4,VALE3 --horizon-bars 8`
+- `python scripts/run_b3_daily_job.py --user-id <id> --full-universe` (tambem atualiza `data/dashboard_seed.json` para publicacao)
+- `python scripts/publish_dashboard_seed.py` (commit + push somente do seed para disparar deploy na Vercel)
 
 ## Quick Test (Real Data, No Mock)
 1. Start app: `python -m uvicorn app.main:app --app-dir services/api --reload`
