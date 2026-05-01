@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-05-01T21:45:56+00:00",
+  "generated_at": "2026-05-01T21:54:38+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
     "period_label": "historico acumulado (exercicio continuo)",
-    "thesis_count": 163,
-    "backtest_runs": 163,
-    "operacoes_simuladas": 163,
-    "total_trades": 163,
-    "avg_expected_pct": 4.5351,
-    "avg_win_rate_pct": 96.93,
-    "avg_return_pct": 3.2412,
-    "approved_count": 158,
+    "thesis_count": 164,
+    "backtest_runs": 164,
+    "operacoes_simuladas": 164,
+    "total_trades": 164,
+    "avg_expected_pct": 4.5313,
+    "avg_win_rate_pct": 96.95,
+    "avg_return_pct": 3.2543,
+    "approved_count": 159,
     "avg_drawdown_pct": 0.0,
     "window_start": "2026-04-20",
     "window_end": "2026-05-01"
@@ -48,18 +48,18 @@
     }
   ],
   "thesis_history_overview": {
-    "total_tested": 168,
-    "success_count": 158,
-    "success_rate_pct": 94.05,
-    "avg_result_pct": 3.1002,
-    "expectancy_net_pct": 3.1002,
-    "target_rate_pct": 94.05,
-    "stop_rate_pct": 2.98,
-    "time_exit_rate_pct": 2.98,
+    "total_tested": 169,
+    "success_count": 159,
+    "success_rate_pct": 94.08,
+    "avg_result_pct": 3.1138,
+    "expectancy_net_pct": 3.1136,
+    "target_rate_pct": 94.08,
+    "stop_rate_pct": 2.96,
+    "time_exit_rate_pct": 2.96,
     "open_rate_pct": 0.0,
-    "resolved_count": 168,
+    "resolved_count": 169,
     "open_count": 0,
-    "avg_target_return_pct": 3.3904,
+    "avg_target_return_pct": 3.403,
     "avg_stop_return_pct": -1.473,
     "avg_time_return_pct": -1.4966,
     "window_start": "2026-04-20",
@@ -164,10 +164,10 @@
         "label": "Semana 3",
         "start_day": "2026-04-25",
         "end_day": "2026-05-01",
-        "total_tested": 115,
-        "success_count": 106,
-        "success_rate_pct": 92.17,
-        "avg_result_pct": 2.8551,
+        "total_tested": 116,
+        "success_count": 107,
+        "success_rate_pct": 92.24,
+        "avg_result_pct": 2.877,
         "series": [
           {
             "day": "2026-04-25",
@@ -201,18 +201,18 @@
           },
           {
             "day": "2026-05-01",
-            "avg_result_pct": 3.7861,
-            "tested": 7
+            "avg_result_pct": 3.9878,
+            "tested": 8
           }
         ]
       }
     ],
-    "event_count": 161,
-    "global_event_count": 164,
-    "global_total_tested": 168,
-    "user_total_tested": 165,
+    "event_count": 162,
+    "global_event_count": 165,
+    "global_total_tested": 169,
+    "user_total_tested": 166,
     "sources": {
-      "case_study_runs": 163,
+      "case_study_runs": 164,
       "current_monitor_runs": 1
     },
     "avg_resolution_days": null,
@@ -221,10 +221,10 @@
   "thesis_executive_summary": {
     "historical": {
       "period_label": "historico acumulado (exercicio continuo)",
-      "thesis_count": 163,
-      "expected_pct": 4.5351,
-      "achieved_pct": 3.2412,
-      "approved_count": 158
+      "thesis_count": 164,
+      "expected_pct": 4.5313,
+      "achieved_pct": 3.2543,
+      "approved_count": 159
     },
     "current": {
       "period_label": "desde 2026-04-27 (simulacao atual - teses monitoradas)",
@@ -3170,8 +3170,26 @@
       "learning_note": "A tese funcionou bem. Próxima: repetir os mesmos critérios de entrada, mantendo proteção de saída."
     },
     {
-      "phase": "pos_go_live",
+      "phase": "historico",
       "thesis_number": 164,
+      "thesis_id": "TH-PRIO3-bullish-15626",
+      "thesis_raised_at": "2026-05-01T21:54:35+00:00",
+      "action": "PRIO3",
+      "thesis_reason": "Tese historica compra para PRIO3 no exercicio continuo. Registro legado com confianca 72.52% e retorno esperado 3.92%.",
+      "expected_result_pct": 3.9218,
+      "operation_plan": "Compra ate - (case study historico continuo; detalhes completos de prazo/preco nao persistidos no evento legado)",
+      "structured_operation": "Bull Call Spread | ganho max n/d | perda max n/d",
+      "entry_price_brl": null,
+      "exit_rule": "Sai por alvo/stop/tempo da estrategia (detalhe de preco indisponivel no legado)",
+      "status": "Fechada",
+      "outcome": "Alvo",
+      "moment_result_pct": 5.4,
+      "duration_days": null,
+      "learning_note": "A tese funcionou bem. Próxima: repetir os mesmos critérios de entrada, mantendo proteção de saída."
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 165,
       "thesis_id": "TH-PETR4-range-4448",
       "thesis_raised_at": "2026-04-21T11:07:00+00:00",
       "action": "PETR4",
@@ -3189,7 +3207,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 165,
+      "thesis_number": 166,
       "thesis_id": "TH-PETR4-range-4449",
       "thesis_raised_at": "2026-04-21T11:07:00+00:00",
       "action": "PETR4",
@@ -3207,7 +3225,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 166,
+      "thesis_number": 167,
       "thesis_id": "TH-MGLU3-bullish-21238",
       "thesis_raised_at": "2026-04-15T00:00:00+00:00",
       "action": "MGLU3",
@@ -3225,7 +3243,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 167,
+      "thesis_number": 168,
       "thesis_id": "TH-MGLU3-bullish-21236",
       "thesis_raised_at": "2026-04-14T00:00:00+00:00",
       "action": "MGLU3",
@@ -3243,7 +3261,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 168,
+      "thesis_number": 169,
       "thesis_id": "TH-MGLU3-bullish-21237",
       "thesis_raised_at": "2026-04-15T00:00:00+00:00",
       "action": "MGLU3",
