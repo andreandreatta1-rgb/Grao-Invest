@@ -3,7 +3,7 @@
     return;
   }
 
-  const { useState, useEffect } = window.React;
+  const { useState, useEffect, useMemo } = window.React;
 
 const C = {
   bg: "#070b14", panel: "#0c1120", card: "#101828",
@@ -381,13 +381,14 @@ const tesesHistoricas = [
     esperado: "+4,82%",
     estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
     entrada: "40,53",
-    saida: "?43,37 / ?38,83",
+    saida: ">=43,37 / <=38,83",
     desfecho: "Tempo",
     dias: 13,
     status: "Fechada",
     resultado: 3.14,
-    porQue: "A tese foi aberta porque o pre?o reagiu em suporte t?cnico, com contexto favor?vel em fundamentos e fluxo mais comprador no per?odo.",
-    aprendizado: "Quando o alvo n?o vem no tempo esperado, a estrutura ainda protegeu o capital. Pr?xima melhoria: reduzir janela e usar sa?da parcial no meio do caminho.",
+    porQue: "A tese foi aberta porque o preco reagiu em suporte tecnico, com contexto favoravel em fundamentos e fluxo mais comprador no periodo.",
+    aprendizado: "Quando o alvo nao vem no tempo esperado, a estrutura protegeu o capital. Proxima melhoria: reduzir janela e usar saida parcial no meio do caminho.",
+    melhoriasAplicadas: ["tempo_da_tese", "saida_parcial"],
   },
 ];
 
@@ -399,13 +400,14 @@ const tesesPosGoLive = [
     esperado: "+0,82%",
     estrutura: "Iron Condor | ganho 2,40% | perda 3,80%",
     entrada: "41,03",
-    saida: "?41,03 / ?40,41",
+    saida: ">=41,03 / <=40,41",
     desfecho: "Alerta de stop",
     dias: 0,
     status: "Aberta",
     resultado: -3.88,
-    porQue: "Entramos com cen?rio de lateraliza??o, pois o ativo vinha oscilando em faixa estreita com volatilidade controlada e sem tend?ncia forte definida.",
-    aprendizado: "Com rompimento r?pido da faixa, refor?amos que cen?rios neutros precisam gatilho de sa?da mais cedo quando o mercado acelera para um lado.",
+    porQue: "Entramos com cenario de lateralizacao, pois o ativo vinha oscilando em faixa estreita com volatilidade controlada e sem tendencia forte definida.",
+    aprendizado: "Com rompimento rapido da faixa, reforcamos que cenarios neutros precisam gatilho de saida mais cedo quando o mercado acelera para um lado.",
+    melhoriasAplicadas: ["stop_antecipado", "range_break_rapido"],
   },
   {
     id: 161,
@@ -414,13 +416,14 @@ const tesesPosGoLive = [
     esperado: "+2,76%",
     estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
     entrada: "9,39",
-    saida: "?9,99 / ?9,03",
+    saida: ">=9,99 / <=9,03",
     desfecho: "Em monitoramento",
     dias: 0,
     status: "Aberta",
     resultado: -0.36,
-    porQue: "A tese surgiu por retomada de momentum de alta com confirma??o de pre?o acima de zona de suporte e assimetria favor?vel entre risco e retorno.",
-    aprendizado: "Em mercado mais ruidoso, manter prote??o curta continua importante. Vamos priorizar confirma??o de volume antes de repetir entradas parecidas.",
+    porQue: "A tese surgiu por retomada de momentum de alta com confirmacao de preco acima de zona de suporte e assimetria favoravel entre risco e retorno.",
+    aprendizado: "Em mercado mais ruidoso, manter protecao curta continua importante. Vamos priorizar confirmacao de volume antes de repetir entradas parecidas.",
+    melhoriasAplicadas: ["confirmacao_volume", "protecao_curta"],
   },
   {
     id: 162,
@@ -429,13 +432,14 @@ const tesesPosGoLive = [
     esperado: "+3,01%",
     estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
     entrada: "9,25",
-    saida: "?9,90 / ?8,86",
+    saida: ">=9,90 / <=8,86",
     desfecho: "Em monitoramento",
     dias: 0,
     status: "Aberta",
     resultado: 0.83,
-    porQue: "Entramos ap?s sinal t?cnico de continuidade da alta, com leitura de contexto menos adverso e rela??o risco-retorno dentro do limite definido.",
-    aprendizado: "A leitura inicial est? funcionando, mas ainda em fase aberta. Pr?ximo ajuste ser? calibrar tempo m?ximo da tese para capturar ganho sem prolongar exposi??o.",
+    porQue: "Entramos apos sinal tecnico de continuidade da alta, com leitura de contexto menos adverso e relacao risco-retorno dentro do limite definido.",
+    aprendizado: "A leitura inicial esta funcionando, mas ainda em fase aberta. Proximo ajuste sera calibrar tempo maximo da tese para capturar ganho sem prolongar exposicao.",
+    melhoriasAplicadas: ["tempo_maximo", "calibragem_alvo"],
   },
 ];
 
@@ -450,6 +454,53 @@ function GraoDashboard() {
     document.head.appendChild(link);
     return () => { link.remove(); };
   }, []);
+
+  const indicadorAprendizado = useMemo(() => {
+    const todas = [...tesesHistoricas, ...tesesPosGoLive];
+    const labels = {
+      stop_antecipado: "Stop antecipado",
+      range_break_rapido: "Quebra de faixa",
+      confirmacao_volume: "Confirmacao por volume",
+      protecao_curta: "Protecao curta",
+      tempo_maximo: "Tempo maximo",
+      calibragem_alvo: "Calibragem de alvo",
+      tempo_da_tese: "Janela da tese",
+      saida_parcial: "Saida parcial",
+    };
+
+    let tesesComAplicacao = 0;
+    const porCategoria = {};
+
+    todas.forEach((tese) => {
+      const aplicacoes = Array.isArray(tese.melhoriasAplicadas) ? tese.melhoriasAplicadas : [];
+      if (aplicacoes.length) {
+        tesesComAplicacao += 1;
+      }
+      aplicacoes.forEach((item) => {
+        porCategoria[item] = (porCategoria[item] || 0) + 1;
+      });
+    });
+
+    const categorias = Object.entries(porCategoria)
+      .map(([chave, qtd]) => ({
+        chave,
+        nome: labels[chave] || chave,
+        qtd,
+        pct: todas.length ? Math.round((qtd / todas.length) * 100) : 0,
+      }))
+      .sort((a, b) => b.qtd - a.qtd)
+      .slice(0, 6);
+
+    const taxaAplicacao = todas.length ? Math.round((tesesComAplicacao / todas.length) * 100) : 0;
+
+    return {
+      totalTeses: todas.length,
+      tesesComAplicacao,
+      taxaAplicacao,
+      categorias,
+    };
+  }, []);
+
 
   return (
     <div style={{
@@ -505,18 +556,42 @@ function GraoDashboard() {
             </div>
           </div>
 
-          {/* Exercício histórico + pós go-live */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            <TabelaExercicio
-              titulo="Exercício histórico"
-              periodo="até 2026-04-27 · base histórica global — case studies consolidados"
-              teses={97} esperado="4,43" alcancado="3,41" aprovadas={96}
-            />
-            <TabelaExercicio
-              titulo="Exercício pós go-live"
-              periodo="desde 2026-04-27 · simulação atual — teses monitoradas"
-              teses={3} esperado="2,20" alcancado="-1,11" aprovadas={0}
-            />
+          {/* Indicador de aprendizado aplicado */}
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div>
+                <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Indicador de aprendizado aplicado</div>
+                <div style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>Categorias de melhoria que ja estao sendo usadas nas novas teses.</div>
+              </div>
+              <Badge label={`${indicadorAprendizado.categorias.length} categorias`} type="info" />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Teses mapeadas</div>
+                <div style={{ color: C.text, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{indicadorAprendizado.totalTeses}</div>
+              </div>
+              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Com melhoria aplicada</div>
+                <div style={{ color: C.teal, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{indicadorAprendizado.tesesComAplicacao}</div>
+              </div>
+              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Taxa de adocao</div>
+                <div style={{ color: C.gold, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{indicadorAprendizado.taxaAplicacao}%</div>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {indicadorAprendizado.categorias.map((item) => (
+                <div key={item.chave} style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>{item.nome}</span>
+                    <span style={{ color: C.muted, fontSize: 11, fontFamily: mono }}>{item.qtd} teses</span>
+                  </div>
+                  <div style={{ height: 5, borderRadius: 99, background: C.line, overflow: "hidden" }}>
+                    <div style={{ width: `${Math.max(8, item.pct)}%`, height: "100%", borderRadius: 99, background: C.teal }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Teses históricas table */}
