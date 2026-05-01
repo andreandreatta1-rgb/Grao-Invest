@@ -930,7 +930,7 @@ function renderThesisOpenOperations(data) {
 
   const renderRows = (targetRows, emptyMessage) => {
     if (!targetRows.length) {
-      return `<tr><td colspan='11'>${escapeHtml(emptyMessage)}</td></tr>`;
+      return `<tr><td colspan='13'>${escapeHtml(emptyMessage)}</td></tr>`;
     }
     return targetRows
       .map((row) => {
@@ -952,6 +952,8 @@ function renderThesisOpenOperations(data) {
         : "-";
       const momentValue = Number(row.moment_result_pct || 0);
       const momentTone = momentValue >= 0 ? "tone-success" : "tone-danger";
+      const entryPrice = Number(row.entry_price_brl);
+      const entryLabel = Number.isFinite(entryPrice) && entryPrice > 0 ? formatMoney(entryPrice) : "-";
       return `
       <tr>
         <td class="mono">${escapeHtml(formatNumber(row.thesis_number || 0))}</td>
@@ -960,11 +962,13 @@ function renderThesisOpenOperations(data) {
         <td class="mono">${escapeHtml(formatMetric(row.expected_result_pct || 0))}%</td>
         <td>${escapeHtml(row.operation_plan || "-")}</td>
         <td>${escapeHtml(row.structured_operation || "-")}</td>
+        <td class="mono">${escapeHtml(entryLabel)}</td>
         <td>${escapeHtml(row.exit_rule || "-")}</td>
         <td class="${outcomeTone}"><strong>${escapeHtml(outcome)}</strong></td>
         <td class="mono">${escapeHtml(durationLabel)}</td>
         <td class="${statusTone}"><strong>${escapeHtml(status)}</strong></td>
         <td class="mono ${momentTone}">${escapeHtml(formatMetric(momentValue))}%</td>
+        <td>${escapeHtml(row.learning_note || "-")}</td>
       </tr>
     `;
       })

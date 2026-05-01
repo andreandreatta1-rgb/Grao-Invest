@@ -1991,6 +1991,59 @@ def dashboard_summary(
             f"Retorno esperado: {expected_result_pct:.2f}%."
         )
 
+    def _build_learning_note(
+        *,
+        direction: str,
+        status: str,
+        outcome: str,
+        expected_result_pct: float,
+        realized_result_pct: float,
+    ) -> str:
+        status_label = status.strip().lower()
+        outcome_label = outcome.strip().lower()
+        direction_label = direction.strip().lower()
+        if "aberta" in status_label or "monitor" in status_label:
+            return (
+                "Tese ainda em aberto: manter acompanhamento diário e só ajustar a operação "
+                "com novo sinal confirmado."
+            )
+        if "alvo" in outcome_label:
+            if expected_result_pct > 0 and realized_result_pct < expected_result_pct:
+                return (
+                    "A direção estava correta, mas o ganho veio abaixo do esperado. "
+                    "Próxima: calibrar melhor alvo e prazo."
+                )
+            return (
+                "A tese funcionou bem. Próxima: repetir os mesmos critérios de entrada, "
+                "mantendo proteção de saída."
+            )
+        if "stop" in outcome_label:
+            if direction_label == "range":
+                return (
+                    "A proteção evitou perda maior. Próxima: só operar faixa lateral quando "
+                    "a estabilidade estiver mais clara."
+                )
+            return (
+                "O stop protegeu capital. Próxima: exigir confirmação adicional antes da entrada "
+                "e reduzir exposição inicial."
+            )
+        if "tempo" in outcome_label:
+            if realized_result_pct >= 0:
+                return (
+                    "O movimento foi mais lento que o esperado. Próxima: usar prazo um pouco maior "
+                    "ou saída parcial."
+                )
+            return (
+                "O tempo jogou contra a tese. Próxima: janela mais curta e gatilhos de saída antecipados."
+            )
+        if realized_result_pct >= 0:
+            return (
+                "Resultado positivo com margem para ajuste. Próxima: manter critérios e refinar alvo."
+            )
+        return (
+            "Resultado abaixo do esperado. Próxima: aumentar filtros de confirmação e reforçar proteção."
+        )
+
     def _load_json_dict(path: Path) -> dict[str, object] | None:
         if not path.exists():
             return None
@@ -2489,6 +2542,8 @@ def dashboard_summary(
         user_total_theses_tested += tested_count
 
     thesis_event_counts_global_by_type: dict[str, int] = defaultdict(int)
+    thesis_id_sequence_map: dict[str, list[int]] = defaultdict(list)
+    thesis_global_sequence_cursor = 0
     global_total_theses_tested = 0
     global_success_count = 0
     global_weighted_return_sum = 0.0
@@ -2520,6 +2575,42 @@ def dashboard_summary(
         )
         if tested_count <= 0:
             continue
+
+        if event.event_type == "thesis.case_study.generated":
+            selected_case = details_dict.get("selected_case")
+            selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+            thesis = selected_case_dict.get("thesis")
+            thesis_dict = thesis if isinstance(thesis, dict) else {}
+            thesis_id = str(
+                thesis_dict.get("thesis_id")
+                or details_dict.get("selected_thesis_id")
+                or f"case-study-{event.id}"
+            )
+            thesis_global_sequence_cursor += 1
+            thesis_id_sequence_map[thesis_id].append(thesis_global_sequence_cursor)
+            if tested_count > 1:
+                thesis_global_sequence_cursor += tested_count - 1
+        elif event.event_type == "thesis.current_monitor.generated":
+            theses_payload = details_dict.get("theses")
+            theses_payload_list = (
+                [item for item in theses_payload if isinstance(item, dict)]
+                if isinstance(theses_payload, list)
+                else []
+            )
+            if theses_payload_list:
+                for thesis_item in theses_payload_list:
+                    thesis_global_sequence_cursor += 1
+                    thesis_id = str(
+                        thesis_item.get("thesis_id") or f"monitor-thesis-{thesis_global_sequence_cursor}"
+                    )
+                    thesis_id_sequence_map[thesis_id].append(thesis_global_sequence_cursor)
+                if tested_count > len(theses_payload_list):
+                    thesis_global_sequence_cursor += tested_count - len(theses_payload_list)
+            else:
+                thesis_global_sequence_cursor += tested_count
+        else:
+            thesis_global_sequence_cursor += tested_count
+
         success_count = max(0, min(tested_count, success_count))
         global_total_theses_tested += tested_count
         global_success_count += success_count
@@ -2862,11 +2953,14 @@ def dashboard_summary(
                 news_support_pct=round(_safe_number(thesis_dict.get("news_support_pct"), 0.0), 4),
                 why_signals=supporting_signals_list,
             )
+            thesis_id_value = str(thesis_dict.get("thesis_id") or "case-study")
+            thesis_sequence = thesis_id_sequence_map.get(thesis_id_value, [])
+            thesis_number = thesis_sequence[-1] if thesis_sequence else len(thesis_open_operations) + 1
             thesis_open_operations.append(
                 {
                     "phase": "historico",
-                    "thesis_number": len(thesis_open_operations) + 1,
-                    "thesis_id": str(thesis_dict.get("thesis_id") or "case-study"),
+                    "thesis_number": thesis_number,
+                    "thesis_id": thesis_id_value,
                     "thesis_raised_at": str(
                         selected_case_dict.get("thesis_raised_at")
                         or thesis_dict.get("entry_time")
@@ -2887,13 +2981,21 @@ def dashboard_summary(
                     "structured_operation": (
                         f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
                     ),
+                    "entry_price_brl": entry_price,
                     "exit_rule": (
-                        f"Sai acima de {target_price} ou abaixo de {stop_price}"
+                        f"Sai se subir para R$ {target_price:.2f} ou cair para R$ {stop_price:.2f}"
                     ),
                     "status": "Fechada",
                     "outcome": outcome_label,
                     "moment_result_pct": realized_pct,
                     "duration_days": duration_days,
+                    "learning_note": _build_learning_note(
+                        direction=direction,
+                        status="Fechada",
+                        outcome=outcome_label,
+                        expected_result_pct=expected_result_pct,
+                        realized_result_pct=realized_pct,
+                    ),
                 }
             )
 
@@ -3022,7 +3124,8 @@ def dashboard_summary(
                     "structured_operation": (
                         f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
                     ),
-                    "exit_rule": f"Sai acima de {target_price} ou abaixo de {stop_price}",
+                    "entry_price_brl": entry_price,
+                    "exit_rule": f"Sai se subir para R$ {target_price:.2f} ou cair para R$ {stop_price:.2f}",
                     "status": status_label,
                     "outcome": outcome_label,
                     "moment_result_pct": round(
@@ -3030,6 +3133,16 @@ def dashboard_summary(
                         4,
                     ),
                     "duration_days": duration_days,
+                    "learning_note": _build_learning_note(
+                        direction=direction,
+                        status=status_label,
+                        outcome=outcome_label,
+                        expected_result_pct=expected_result_pct,
+                        realized_result_pct=round(
+                            _safe_number(item.get("unrealized_financial_pct"), 0.0),
+                            4,
+                        ),
+                    ),
                 }
             )
 
@@ -3063,6 +3176,45 @@ def dashboard_summary(
         seed_open_operations = dashboard_seed.get("thesis_open_operations")
         if isinstance(seed_open_operations, list):
             thesis_open_operations = [item for item in seed_open_operations if isinstance(item, dict)]
+
+    for row in thesis_open_operations:
+        if not str(row.get("phase") or "").strip():
+            operation_plan_hint = str(row.get("operation_plan") or "").lower()
+            thesis_day_hint = str(row.get("thesis_raised_at") or "")[:10]
+            if "case study historico" in operation_plan_hint:
+                row["phase"] = "historico"
+            elif thesis_day_hint and thesis_day_hint < phase_kickoff_date:
+                row["phase"] = "historico"
+            else:
+                row["phase"] = "pos_go_live"
+
+        if not str(row.get("learning_note") or "").strip():
+            direction_hint = str(row.get("direction") or "").lower()
+            operation_plan_hint = str(row.get("operation_plan") or "").lower()
+            if not direction_hint:
+                if "neutra" in operation_plan_hint or "faixa" in operation_plan_hint:
+                    direction_hint = "range"
+                elif "compra" in operation_plan_hint:
+                    direction_hint = "bullish"
+                elif "venda" in operation_plan_hint:
+                    direction_hint = "bearish"
+                else:
+                    direction_hint = "mixed"
+            row["learning_note"] = _build_learning_note(
+                direction=direction_hint,
+                status=str(row.get("status") or ""),
+                outcome=str(row.get("outcome") or ""),
+                expected_result_pct=_safe_number(row.get("expected_result_pct"), 0.0),
+                realized_result_pct=_safe_number(row.get("moment_result_pct"), 0.0),
+            )
+
+    total_tested_for_numbering = _safe_int(
+        thesis_history_overview.get("total_tested"),
+        len(thesis_open_operations),
+    )
+    fallback_start_number = max(1, total_tested_for_numbering - len(thesis_open_operations) + 1)
+    for index, row in enumerate(thesis_open_operations):
+        row["thesis_number"] = fallback_start_number + index
 
     resolved_durations = [
         float(row["duration_days"])
