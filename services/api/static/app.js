@@ -1,4 +1,4 @@
-﻿const TOKEN_KEY = "ia_session_token";
+const TOKEN_KEY = "ia_session_token";
 const USER_KEY = "ia_session_user";
 const SIDEBAR_COLLAPSED_KEY = "sidebar_collapsed";
 const AUTH_REQUIRED = false;
@@ -30,19 +30,19 @@ const realtime = {
 const viewMeta = {
   dashboard: {
     title: "Dashboard",
-    subtitle: "VisÃ£o consolidada da simulaÃ§Ã£o, risco e trilha operacional.",
+    subtitle: "Visão consolidada da simulação, risco e trilha operacional.",
   },
   mercado: {
     title: "Mercado",
-    subtitle: "IngestÃ£o de ticks e notÃ­cias com anÃ¡lise tÃ©cnica point-in-time.",
+    subtitle: "Ingestão de ticks e notícias com análise técnica point-in-time.",
   },
   operacoes: {
-    title: "OperaÃ§Ãµes",
-    subtitle: "Paper trading sem execuÃ§Ã£o real em corretora.",
+    title: "Operações",
+    subtitle: "Paper trading sem execução real em corretora.",
   },
   backtest: {
     title: "Backtest",
-    subtitle: "ReexecuÃ§Ã£o histÃ³rica com mÃ©tricas e rationale auditÃ¡vel.",
+    subtitle: "Reexecução histórica com métricas e rationale auditável.",
   },
   risco: {
     title: "Risco",
@@ -50,15 +50,15 @@ const viewMeta = {
   },
   game: {
     title: "Game",
-    subtitle: "SimulaÃ§Ã£o interativa com 5 teses, contexto histÃ³rico e carteira virtual.",
+    subtitle: "Simulação interativa com 5 teses, contexto histórico e carteira virtual.",
   },
   alertas: {
     title: "Alertas",
-    subtitle: "Regras de alerta e relatÃ³rio consolidado por usuÃ¡rio.",
+    subtitle: "Regras de alerta e relatório consolidado por usuário.",
   },
   finvest: {
-    title: "GrÃ£o Invest",
-    subtitle: "Painel visual para exercÃ­cios de teses, metas e planejamento financeiro.",
+    title: "Grão Invest",
+    subtitle: "Painel visual para exercícios de teses, metas e planejamento financeiro.",
   },
 };
 
@@ -170,7 +170,7 @@ function valueAsString(value) {
     return "-";
   }
   if (typeof value === "boolean") {
-    return value ? "Sim" : "NÃ£o";
+    return value ? "Sim" : "Não";
   }
   if (typeof value === "number") {
     if (Number.isInteger(value)) {
@@ -342,7 +342,7 @@ function handleSessionExpired() {
   clearSession();
   showAuthGate();
   showAuthPanel("login");
-  showToast("warning", "SessÃ£o expirada. FaÃ§a login novamente.");
+  showToast("warning", "Sessão expirada. Faça login novamente.");
 }
 
 async function apiRequest(method, url, payload = null, { auth = true, timeoutMs = 45000 } = {}) {
@@ -512,7 +512,7 @@ function renderPositionsTable(data) {
   }
   const positions = data.open_positions || [];
   if (positions.length === 0) {
-    body.innerHTML = "<tr><td colspan='4'>Sem posiÃ§Ãµes abertas para este usuÃ¡rio.</td></tr>";
+    body.innerHTML = "<tr><td colspan='4'>Sem posições abertas para este usuário.</td></tr>";
     return;
   }
 
@@ -550,7 +550,7 @@ function renderCoverage(coverage) {
   }
   if (!coverage || !Array.isArray(coverage.instruments)) {
     summaryNode.innerHTML =
-      "<div class='list-row'><p class='list-meta'>Cobertura indisponÃ­vel no momento.</p></div>";
+      "<div class='list-row'><p class='list-meta'>Cobertura indisponível no momento.</p></div>";
     tableBody.innerHTML = "<tr><td colspan='5'>Sem dados de cobertura.</td></tr>";
     return;
   }
@@ -565,10 +565,10 @@ function renderCoverage(coverage) {
     </div>
     <div class="list-row">
       <div class="list-main">
-        <p class="list-title">Ãšltimo evento de mercado</p>
+        <p class="list-title">Último evento de mercado</p>
         <p class="list-meta">${escapeHtml(formatDate(coverage.latest_market_event_time))}</p>
       </div>
-      <p class="list-meta">Ãšltimo ingest ${escapeHtml(formatDate(coverage.latest_ingest_time))}</p>
+      <p class="list-meta">Último ingest ${escapeHtml(formatDate(coverage.latest_ingest_time))}</p>
     </div>
   `;
 
@@ -599,8 +599,8 @@ function renderDataQualityGate(gate) {
   }
   if (!gate || !gate.summary || !Array.isArray(gate.checks)) {
     summaryNode.innerHTML =
-      "<div class='list-row'><p class='list-meta'>Data quality gate indisponÃ­vel.</p></div>";
-    tableBody.innerHTML = "<tr><td colspan='5'>Sem checks disponÃ­veis.</td></tr>";
+      "<div class='list-row'><p class='list-meta'>Data quality gate indisponível.</p></div>";
+    tableBody.innerHTML = "<tr><td colspan='5'>Sem checks disponíveis.</td></tr>";
     return;
   }
 
@@ -624,8 +624,8 @@ function renderDataQualityGate(gate) {
       <p class="list-meta">Falhas ${escapeHtml(formatNumber(summary.failed_checks || 0))}</p>
     </div>
     <div class="list-row">
-      <p class="list-title">AÃ§Ãµes recomendadas</p>
-      <p class="list-meta">${escapeHtml(actions.length ? actions.join(" | ") : "Sem pendÃªncias no gate.")}</p>
+      <p class="list-title">Ações recomendadas</p>
+      <p class="list-meta">${escapeHtml(actions.length ? actions.join(" | ") : "Sem pendências no gate.")}</p>
     </div>
   `;
 
@@ -662,7 +662,7 @@ function renderThesisHistoryOverview(data) {
   const overview = data.thesis_history_overview || null;
   if (!overview || typeof overview !== "object") {
     metricsNode.innerHTML = "";
-    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>HistÃ³rico acumulado indisponÃ­vel no momento.</p></div>";
+    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>Histórico acumulado indisponível no momento.</p></div>";
     return;
   }
 
@@ -684,18 +684,18 @@ function renderThesisHistoryOverview(data) {
 
   const cards = [
     {
-      label: "Teses testadas atÃ© hoje",
+      label: "Teses testadas até hoje",
       value: formatNumber(totalTested),
       tone: "tone-success",
       mono: true,
-      sub: `PerÃ­odo ${windowStart} atÃ© ${windowEnd}`,
+      sub: `Período ${windowStart} até ${windowEnd}`,
     },
     {
-      label: "ExpectÃ¢ncia lÃ­quida",
+      label: "Expectância líquida",
       value: formatSignedMetricPercent(expectancyNetPct),
       tone: expectancyNetPct >= 0 ? "tone-success" : "tone-danger",
       mono: true,
-      sub: "MÃ©dia esperada por tese resolvida",
+      sub: "Média esperada por tese resolvida",
     },
     {
       label: "Teses com sucesso",
@@ -712,7 +712,7 @@ function renderThesisHistoryOverview(data) {
       sub: `Em monitoramento: ${formatMetric(openRatePct)}% (${formatNumber(openCount)})`,
     },
     {
-      label: "Tempo mÃ©dio atÃ© resultado",
+      label: "Tempo médio até resultado",
       value: hasAvgResolutionDays ? `${formatMetric(avgResolutionDays)} dias` : "-",
       tone: "tone-accent",
       mono: true,
@@ -733,7 +733,7 @@ function renderThesisHistoryOverview(data) {
 
   const last3Weeks = Array.isArray(overview.last_3_weeks) ? overview.last_3_weeks : [];
   if (!last3Weeks.length) {
-    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>Sem dados para as Ãºltimas 3 semanas.</p></div>";
+    chartNode.innerHTML = "<div class='list-row'><p class='list-meta'>Sem dados para as últimas 3 semanas.</p></div>";
     return;
   }
 
@@ -760,7 +760,7 @@ function renderThesisHistoryOverview(data) {
             <p class="list-title">${escapeHtml(label)} (${escapeHtml(formatDayShort(startDay))} a ${escapeHtml(formatDayShort(endDay))})</p>
             <p class="list-meta mono">${escapeHtml(formatSignedMetricPercent(weekAvg))}</p>
           </div>
-          <p class="list-meta">Sem pontos suficientes para evoluÃ§Ã£o diÃ¡ria.</p>
+          <p class="list-meta">Sem pontos suficientes para evolução diária.</p>
           <p class="list-meta">Teses: ${escapeHtml(formatNumber(weekTested))} | Sucesso: ${escapeHtml(formatMetric(weekSuccessRate))}%</p>
         </article>
       `;
@@ -795,7 +795,7 @@ function renderThesisHistoryOverview(data) {
             <p class="list-title">${escapeHtml(label)} (${escapeHtml(formatDayShort(startDay))} a ${escapeHtml(formatDayShort(endDay))})</p>
             <p class="list-meta mono ${weekAvg >= 0 ? "tone-success" : "tone-danger"}">${escapeHtml(formatSignedMetricPercent(weekAvg))}</p>
           </div>
-          <svg class="week-evolution-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="EvoluÃ§Ã£o semanal de rendimento das teses">
+          <svg class="week-evolution-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Evolução semanal de rendimento das teses">
             <line x1="${padX}" y1="${zeroY}" x2="${width - padX}" y2="${zeroY}" class="week-evolution-zero" />
             <polyline fill="none" stroke="var(--c-accent)" stroke-width="2.5" points="${points}" />
           </svg>
@@ -812,8 +812,8 @@ function renderThesisHistoryOverview(data) {
   chartNode.innerHTML = `
     <div class="list-row">
       <div class="list-main">
-        <p class="list-title">EvoluÃ§Ã£o do rendimento (%) nas 3 Ãºltimas semanas</p>
-        <p class="list-meta">Objetivo: comprovar se as teses melhoram a chance de ganho em renda variÃ¡vel</p>
+        <p class="list-title">Evolução do rendimento (%) nas 3 últimas semanas</p>
+        <p class="list-meta">Objetivo: comprovar se as teses melhoram a chance de ganho em renda variável</p>
       </div>
     </div>
     <div class="history-weeks-grid">
@@ -821,8 +821,8 @@ function renderThesisHistoryOverview(data) {
     </div>
     <div class="list-row">
       <p class="list-meta">
-        % mÃ©dio observado: ${escapeHtml(formatSignedMetricPercent(avgResultPct))}. Fonte: case study e monitor diÃ¡rio de teses.
-        Janela histÃ³rica disponÃ­vel: ${escapeHtml(windowStart)} atÃ© ${escapeHtml(windowEnd)}.
+        % médio observado: ${escapeHtml(formatSignedMetricPercent(avgResultPct))}. Fonte: case study e monitor diário de teses.
+        Janela histórica disponível: ${escapeHtml(windowStart)} até ${escapeHtml(windowEnd)}.
       </p>
     </div>
   `;
@@ -942,9 +942,9 @@ function renderDashboard(data) {
   renderThesisOpenOperations(data);
 }
 
-function renderDashboardFallback(message = "Dashboard temporariamente indisponÃ­vel.") {
+function renderDashboardFallback(message = "Dashboard temporariamente indisponível.") {
   renderDashboard({
-    investor_profile: "IndisponÃ­vel",
+    investor_profile: "Indisponível",
     open_positions: [],
     latest_signals: [],
     latest_backtests: [],
@@ -1013,7 +1013,7 @@ async function refreshFeedStatus() {
       return;
     }
     if (Number(summary.critical_count || 0) > 0) {
-      setFeedPill("danger", `Feed crÃ­tico (${summary.critical_count})`);
+      setFeedPill("danger", `Feed crítico (${summary.critical_count})`);
       return;
     }
     if (Number(summary.warning_count || 0) > 0) {
@@ -1024,9 +1024,9 @@ async function refreshFeedStatus() {
       const current = Number(item.tick_lag_seconds || 0);
       return Number.isFinite(current) && current > acc ? current : acc;
     }, 0);
-    setFeedPill("success", `Feed ativo Â· lag mÃ¡x ${formatNumber(maxLag)}s`);
+    setFeedPill("success", `Feed ativo · lag máx ${formatNumber(maxLag)}s`);
   } catch {
-    setFeedPill("danger", "Feed indisponÃ­vel");
+    setFeedPill("danger", "Feed indisponível");
   }
 }
 
@@ -1079,7 +1079,7 @@ function updateUserChip() {
   if (!user) {
     return;
   }
-  const full = String(user.full_name || user.email || "UsuÃ¡rio");
+  const full = String(user.full_name || user.email || "Usuário");
   const firstName = full.split(" ")[0];
   const initial = firstName.charAt(0).toUpperCase();
   const avatarNode = byId("user-avatar-initial");
@@ -1088,7 +1088,7 @@ function updateUserChip() {
     avatarNode.textContent = initial || "U";
   }
   if (nameNode) {
-    nameNode.textContent = firstName || "UsuÃ¡rio";
+    nameNode.textContent = firstName || "Usuário";
   }
 }
 
@@ -1190,7 +1190,7 @@ function createMfaInputs() {
     input.maxLength = 1;
     input.inputMode = "numeric";
     input.className = "mfa-digit";
-    input.setAttribute("aria-label", `DÃ­gito ${index + 1} do cÃ³digo MFA`);
+    input.setAttribute("aria-label", `Dígito ${index + 1} do código MFA`);
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D/g, "");
       if (input.value && index < 5) {
@@ -1239,13 +1239,13 @@ function showMfaStep({ mode, userId = null } = { mode: "login", userId: null }) 
 function completeLogin(loginResult, fallback = {}) {
   const token = loginResult?.access_token;
   if (!token) {
-    throw new Error("Resposta de autenticaÃ§Ã£o sem token.");
+    throw new Error("Resposta de autenticação sem token.");
   }
   const payload = decodeJwtPayload(token) || {};
   const userData = {
     sub: Number(payload.sub || loginResult.user_id || fallback.sub || 0),
     email: String(payload.email || loginResult.email || fallback.email || ""),
-    full_name: String(fallback.full_name || fallback.name || "UsuÃ¡rio"),
+    full_name: String(fallback.full_name || fallback.name || "Usuário"),
   };
   saveSession(token, userData);
   state.pendingLogin = null;
@@ -1269,7 +1269,7 @@ function updateWizardSteps(activeIndex) {
     const welcome = byId("wizard-welcome-msg");
     const user = state.user || getAuthUser();
     if (welcome && user?.full_name) {
-      welcome.textContent = `OlÃ¡, ${user.full_name}. Vamos configurar seu perfil de investidor.`;
+      welcome.textContent = `Olá, ${user.full_name}. Vamos configurar seu perfil de investidor.`;
     }
   }
 }
@@ -1335,7 +1335,7 @@ function renderProfileSummary(payload, result) {
   const labels = {
     time_horizon: {
       curto: "Curto prazo",
-      medio: "MÃ©dio prazo",
+      medio: "Médio prazo",
       longo: "Longo prazo",
     },
     risk_tolerance: {
@@ -1345,15 +1345,15 @@ function renderProfileSummary(payload, result) {
     },
     investment_experience: {
       iniciante: "Iniciante",
-      intermediaria: "IntermediÃ¡rio",
-      avancada: "AvanÃ§ado",
+      intermediaria: "Intermediário",
+      avancada: "Avançado",
     },
   };
   const chips = [
     ["Horizonte", labels.time_horizon[payload.time_horizon] || payload.time_horizon],
     ["Perfil", labels.risk_tolerance[payload.risk_tolerance] || payload.risk_tolerance],
     [
-      "ExperiÃªncia",
+      "Experiência",
       labels.investment_experience[payload.investment_experience] || payload.investment_experience,
     ],
     ["Resultado", result?.investor_profile || "Perfil registrado"],
@@ -1383,7 +1383,7 @@ function bindWizardHandlers() {
   if (finish) {
     finish.addEventListener("click", () => {
       hideOnboardingWizard();
-      showToast("success", "Perfil concluÃ­do. Bem-vindo Ã  plataforma.");
+      showToast("success", "Perfil concluído. Bem-vindo à plataforma.");
     });
   }
 
@@ -1407,7 +1407,7 @@ function bindWizardHandlers() {
       try {
         const payload = collectSuitabilityPayload();
         if (!payload.user_id) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const result = await apiRequest("POST", "/api/suitability", payload);
         renderProfileSummary(payload, result);
@@ -1429,7 +1429,7 @@ function bindAuthHandlers() {
   if (forgotLink) {
     forgotLink.addEventListener("click", (event) => {
       event.preventDefault();
-      showToast("info", "Fluxo de recuperaÃ§Ã£o serÃ¡ disponibilizado em breve.");
+      showToast("info", "Fluxo de recuperação será disponibilizado em breve.");
     });
   }
 
@@ -1438,7 +1438,7 @@ function bindAuthHandlers() {
     mfaResendLink.addEventListener("click", (event) => {
       event.preventDefault();
       createMfaInputs();
-      showToast("info", "Digite o novo cÃ³digo do seu app autenticador.");
+      showToast("info", "Digite o novo código do seu app autenticador.");
     });
   }
 
@@ -1476,7 +1476,7 @@ function bindAuthHandlers() {
           email: signupResult.email,
           full_name: payload.full_name,
         });
-        showToast("success", "Conta criada e sessÃ£o autenticada.");
+        showToast("success", "Conta criada e sessão autenticada.");
       } catch (error) {
         showToast("error", `Falha no cadastro: ${error.message}`);
       } finally {
@@ -1502,12 +1502,12 @@ function bindAuthHandlers() {
           { auth: false, timeoutMs: 20000 },
         );
         completeLogin(loginResult, { email });
-        showToast("success", "Login concluÃ­do.");
+        showToast("success", "Login concluído.");
       } catch (error) {
         if (String(error.message || "").toLowerCase().includes("mfa")) {
           state.pendingLogin = { email, password };
           showMfaStep({ mode: "login" });
-          showToast("warning", "MFA obrigatÃ³rio. Digite o cÃ³digo para continuar.");
+          showToast("warning", "MFA obrigatório. Digite o código para continuar.");
         } else {
           showToast("error", `Falha no login: ${error.message}`);
         }
@@ -1526,13 +1526,13 @@ function bindAuthHandlers() {
       try {
         const otpCode = readMfaCode();
         if (!/^\d{6}$/.test(otpCode)) {
-          throw new Error("Informe os 6 dÃ­gitos do cÃ³digo MFA.");
+          throw new Error("Informe os 6 dígitos do código MFA.");
         }
         const panel = byId("auth-panel-mfa");
         const mode = panel?.dataset.mode || "login";
         if (mode === "login") {
           if (!state.pendingLogin) {
-            throw new Error("Fluxo de login MFA nÃ£o encontrado. FaÃ§a login novamente.");
+            throw new Error("Fluxo de login MFA não encontrado. Faça login novamente.");
           }
           const result = await apiRequest(
             "POST",
@@ -1549,7 +1549,7 @@ function bindAuthHandlers() {
         } else {
           const userId = Number(panel?.dataset.userId || getAuthUserId());
           if (!Number.isFinite(userId)) {
-            throw new Error("UsuÃ¡rio invÃ¡lido para validaÃ§Ã£o MFA.");
+            throw new Error("Usuário inválido para validação MFA.");
           }
           const result = await apiRequest(
             "POST",
@@ -1562,7 +1562,7 @@ function bindAuthHandlers() {
           showToast("success", "MFA habilitado com sucesso.");
         }
       } catch (error) {
-        showToast("error", `Falha na validaÃ§Ã£o MFA: ${error.message}`);
+        showToast("error", `Falha na validação MFA: ${error.message}`);
       } finally {
         setButtonLoading(button, false);
       }
@@ -1628,7 +1628,7 @@ function bindMarketHandlers() {
         const form = Object.fromEntries(new FormData(event.currentTarget).entries());
         const userId = getAuthUserId();
         if (!userId) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const payload = {
           user_id: userId,
@@ -1643,11 +1643,11 @@ function bindMarketHandlers() {
         setOutput("market-output", result);
         showToast(
           "success",
-          `HistÃ³rico B3 sincronizado: ${formatNumber(result.sync_result?.inserted || 0)} inserts.`,
+          `Histórico B3 sincronizado: ${formatNumber(result.sync_result?.inserted || 0)} inserts.`,
         );
       } catch (error) {
         setOutput("market-output", { erro: error.message, detalhe: error.data || null });
-        showToast("error", `Falha na sincronizaÃ§Ã£o B3: ${error.message}`);
+        showToast("error", `Falha na sincronização B3: ${error.message}`);
       } finally {
         setButtonLoading(button, false);
       }
@@ -1659,12 +1659,12 @@ function bindMarketHandlers() {
     newsForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const button = event.currentTarget.querySelector('button[type="submit"]');
-      setButtonLoading(button, true, "Buscando notÃ­cias...");
+      setButtonLoading(button, true, "Buscando notícias...");
       try {
         const form = new FormData(event.currentTarget);
         const userId = getAuthUserId();
         if (!userId) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const instruments = String(form.get("instruments") || "")
           .split(",")
@@ -1685,11 +1685,11 @@ function bindMarketHandlers() {
         setOutput("market-output", result);
         showToast(
           "success",
-          `NotÃ­cias reais sincronizadas: ${formatNumber(result.inserted || 0)} inseridas.`,
+          `Notícias reais sincronizadas: ${formatNumber(result.inserted || 0)} inseridas.`,
         );
       } catch (error) {
         setOutput("market-output", { erro: error.message, detalhe: error.data || null });
-        showToast("error", `Falha na sincronizaÃ§Ã£o de notÃ­cias: ${error.message}`);
+        showToast("error", `Falha na sincronização de notícias: ${error.message}`);
       } finally {
         setButtonLoading(button, false);
       }
@@ -1709,7 +1709,7 @@ function bindMarketHandlers() {
         showToast("success", `Indicadores ${state.selectedTicker} atualizados.`);
       } catch (error) {
         setOutput("market-output", { erro: error.message, detalhe: error.data || null });
-        showToast("error", `Falha no recÃ¡lculo: ${error.message}`);
+        showToast("error", `Falha no recálculo: ${error.message}`);
       } finally {
         setButtonLoading(button, false);
       }
@@ -1729,7 +1729,7 @@ function bindMarketHandlers() {
         showToast("success", "Batch de indicadores atualizado.");
       } catch (error) {
         setOutput("market-output", { erro: error.message, detalhe: error.data || null });
-        showToast("error", `Falha no recÃ¡lculo batch: ${error.message}`);
+        showToast("error", `Falha no recálculo batch: ${error.message}`);
       } finally {
         setButtonLoading(button, false);
       }
@@ -1754,7 +1754,7 @@ function bindMarketHandlers() {
         });
         renderCoverage(coverage);
         renderDataQualityGate(gate);
-        showToast("success", "SaÃºde e cobertura do feed atualizadas.");
+        showToast("success", "Saúde e cobertura do feed atualizadas.");
         await refreshFeedStatus();
       } catch (error) {
         setOutput("market-output", { erro: error.message, detalhe: error.data || null });
@@ -1775,7 +1775,7 @@ function bindMarketHandlers() {
         const form = new FormData(event.currentTarget);
         const userId = getAuthUserId();
         if (!userId) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const instruments = String(form.get("instruments") || "")
           .split(",")
@@ -1794,12 +1794,12 @@ function bindMarketHandlers() {
         setOutput("market-output", result);
         showToast(
           "success",
-          `IngestÃ£o intraday concluÃ­da: ${formatNumber(result.processed_count || 0)} ativos.`,
+          `Ingestão intraday concluída: ${formatNumber(result.processed_count || 0)} ativos.`,
         );
         await refreshFeedStatus();
       } catch (error) {
         setOutput("market-output", { erro: error.message, detalhe: error.data || null });
-        showToast("error", `Falha na ingestÃ£o intraday: ${error.message}`);
+        showToast("error", `Falha na ingestão intraday: ${error.message}`);
       } finally {
         setButtonLoading(button, false);
       }
@@ -1816,7 +1816,7 @@ function bindMarketHandlers() {
         const form = Object.fromEntries(new FormData(event.currentTarget).entries());
         const userId = getAuthUserId();
         if (!userId) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const result = await apiRequest("POST", "/api/signals/generate", {
           user_id: userId,
@@ -1824,7 +1824,7 @@ function bindMarketHandlers() {
         });
         syncSignalId(result.signal_id);
         setOutput("market-output", result);
-        showToast("success", "Sinal gerado e vinculado ao formulÃ¡rio de ordem.");
+        showToast("success", "Sinal gerado e vinculado ao formulário de ordem.");
       } catch (error) {
         setOutput("market-output", { erro: error.message, detalhe: error.data || null });
         showToast("error", `Falha ao gerar sinal: ${error.message}`);
@@ -1858,7 +1858,7 @@ function bindOperationsHandlers() {
         const form = Object.fromEntries(new FormData(event.currentTarget).entries());
         const userId = getAuthUserId();
         if (!userId) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const signalId = Number(form.signal_id || state.signalId);
         if (!Number.isFinite(signalId)) {
@@ -1866,7 +1866,7 @@ function bindOperationsHandlers() {
         }
         const quantity = Number(form.quantity);
         if (!Number.isFinite(quantity) || quantity <= 0) {
-          throw new Error("Informe uma quantidade vÃ¡lida.");
+          throw new Error("Informe uma quantidade válida.");
         }
         const side = String(form.side || "BUY").toUpperCase();
         const result = await apiRequest("POST", `/api/paper/orders/from-signal/${signalId}`, {
@@ -1910,7 +1910,7 @@ async function loadDashboard() {
       renderDashboard(state.dashboardSnapshot);
       return;
     }
-    renderDashboardFallback("NÃ£o foi possÃ­vel carregar os dados agora. Tente novamente.");
+    renderDashboardFallback("Não foi possível carregar os dados agora. Tente novamente.");
   }
 }
 
@@ -1973,7 +1973,7 @@ function bindBacktestHandlers() {
       const form = Object.fromEntries(new FormData(event.currentTarget).entries());
       const userId = getAuthUserId();
       if (!userId) {
-        throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+        throw new Error("Sessão inválida. Faça login novamente.");
       }
       const run = await apiRequest("POST", "/api/backtests/run", {
         user_id: userId,
@@ -1991,7 +1991,7 @@ function bindBacktestHandlers() {
         total_return_pct: detail.total_return_pct,
         max_drawdown_pct: detail.max_drawdown_pct,
       });
-      showToast("success", "Backtest concluÃ­do.");
+      showToast("success", "Backtest concluído.");
       await loadDashboard();
     } catch (error) {
       setOutput("backtest-output", { erro: error.message, detalhe: error.data || null });
@@ -2013,7 +2013,7 @@ function renderCircuitBreakerStatus(instrument, data) {
     <div class="status-card ${isClear ? "status-ok" : "status-alert"}">
       <span class="status-ticker">${escapeHtml(instrument)}</span>
       <span class="status-tag">${escapeHtml(status.toUpperCase())}</span>
-      <p class="status-reason">${escapeHtml(data.reason || "Sem restriÃ§Ãµes ativas para o ativo.")}</p>
+      <p class="status-reason">${escapeHtml(data.reason || "Sem restrições ativas para o ativo.")}</p>
     </div>
   `;
 }
@@ -2091,7 +2091,7 @@ function bindRiskHandlers() {
       const status = String(byId("ks-status-hidden")?.value || "active");
       if (status === "active") {
         const confirmed = window.confirm(
-          "ATENÃ‡ÃƒO: Ativar o kill-switch bloquearÃ¡ operaÃ§Ãµes no escopo selecionado.\n\nDeseja confirmar?",
+          "ATENÇÃO: Ativar o kill-switch bloqueará operações no escopo selecionado.\n\nDeseja confirmar?",
         );
         if (!confirmed) {
           return;
@@ -2104,7 +2104,7 @@ function bindRiskHandlers() {
         if (form.scope_type === "user" && !form.scope_id) {
           const userId = getAuthUserId();
           if (!userId) {
-            throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+            throw new Error("Sessão inválida. Faça login novamente.");
           }
           form.scope_id = String(userId);
         }
@@ -2199,7 +2199,7 @@ function bindAlertsHandlers() {
       try {
         const userId = getAuthUserId();
         if (!userId) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const form = Object.fromEntries(new FormData(event.currentTarget).entries());
         const payload = {
@@ -2230,14 +2230,14 @@ function bindAlertsHandlers() {
       try {
         const userId = getAuthUserId();
         if (!userId) {
-          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+          throw new Error("Sessão inválida. Faça login novamente.");
         }
         const report = await apiRequest("GET", `/api/reports/summary/${userId}`);
         setOutput("alerts-output", report);
-        showToast("success", "RelatÃ³rio consolidado carregado.");
+        showToast("success", "Relatório consolidado carregado.");
       } catch (error) {
         setOutput("alerts-output", { erro: error.message, detalhe: error.data || null });
-        showToast("error", `Falha ao carregar relatÃ³rio: ${error.message}`);
+        showToast("error", `Falha ao carregar relatório: ${error.message}`);
       } finally {
         setButtonLoading(reportButton, false);
       }
@@ -2302,7 +2302,7 @@ function renderGameResult() {
     return;
   }
   if (!state.game || state.game.steps.length === 0) {
-    summaryNode.innerHTML = "<div class='list-row'><p class='list-meta'>Resultado final serÃ¡ exibido apÃ³s a tese 5.</p></div>";
+    summaryNode.innerHTML = "<div class='list-row'><p class='list-meta'>Resultado final será exibido após a tese 5.</p></div>";
     stepsNode.innerHTML = "";
     return;
   }
@@ -2325,7 +2325,7 @@ function renderGameResult() {
         <p class="list-meta mono">${escapeHtml(formatMoney(snapshot.final_capital))}</p>
       </div>
       <p class="list-meta ${snapshot.total_pnl >= 0 ? "tone-success" : "tone-danger"} mono">
-        PnL ${escapeHtml(formatMoney(snapshot.total_pnl))} Â· ${escapeHtml(formatPercent(snapshot.total_return_pct))}
+        PnL ${escapeHtml(formatMoney(snapshot.total_pnl))} · ${escapeHtml(formatPercent(snapshot.total_return_pct))}
       </p>
     </div>
   `;
@@ -2335,7 +2335,7 @@ function renderGameResult() {
       (step) => `
       <tr>
         <td>${escapeHtml(step.thesis_id)}</td>
-        <td>${step.follow ? "Sim" : "NÃ£o"}</td>
+        <td>${step.follow ? "Sim" : "Não"}</td>
         <td>${escapeHtml(step.option_id)}</td>
         <td class="mono">${escapeHtml(formatPercent(step.allocation_pct))}</td>
         <td class="mono">${escapeHtml(formatPercent(step.realized_return_pct))}</td>
@@ -2368,12 +2368,12 @@ function renderGameRound() {
   }
 
   if (!state.game) {
-    titleNode.textContent = "Aguardando inÃ­cio do game";
-    thesisNode.innerHTML = "<div class='list-row'><p class='list-meta'>Inicie o game para carregar a tese 1 com contexto histÃ³rico e imagens do dia.</p></div>";
+    titleNode.textContent = "Aguardando início do game";
+    thesisNode.innerHTML = "<div class='list-row'><p class='list-meta'>Inicie o game para carregar a tese 1 com contexto histórico e imagens do dia.</p></div>";
     imageNode.innerHTML = "";
     optionsNode.innerHTML = "";
     nextButton.disabled = true;
-    nextButton.textContent = "PrÃ³xima tese";
+    nextButton.textContent = "Próxima tese";
     return;
   }
 
@@ -2381,7 +2381,7 @@ function renderGameRound() {
   const thesis = state.game.theses[index] || null;
   if (!thesis) {
     titleNode.textContent = "Game finalizado";
-    thesisNode.innerHTML = "<div class='list-row'><p class='list-meta'>Rodadas concluÃ­das. Confira o resumo final abaixo.</p></div>";
+    thesisNode.innerHTML = "<div class='list-row'><p class='list-meta'>Rodadas concluídas. Confira o resumo final abaixo.</p></div>";
     imageNode.innerHTML = "";
     optionsNode.innerHTML = "";
     nextButton.disabled = true;
@@ -2399,10 +2399,10 @@ function renderGameRound() {
   thesisNode.innerHTML = `
     <div class="list-row">
       <div class="list-main">
-        <p class="list-title">${escapeHtml(thesis.thesis_id)} Â· ${escapeHtml(thesis.instrument)}</p>
+        <p class="list-title">${escapeHtml(thesis.thesis_id)} · ${escapeHtml(thesis.instrument)}</p>
         <p class="list-meta">${escapeHtml(formatDate(thesis.thesis_raised_at))}</p>
       </div>
-      <p class="list-meta">DireÃ§Ã£o: ${escapeHtml(thesis.direction)}</p>
+      <p class="list-meta">Direção: ${escapeHtml(thesis.direction)}</p>
     </div>
     <div class="list-row">
       <p class="list-title">Contexto do dia</p>
@@ -2414,9 +2414,9 @@ function renderGameRound() {
       <p class="list-meta">${escapeHtml(thesis.thesis_statement)}</p>
       <p class="list-title">Objetivo</p>
       <p class="list-meta">${escapeHtml(thesis.objective)}</p>
-      <p class="list-title">SugestÃ£o de operaÃ§Ã£o</p>
-      <p class="list-meta">${escapeHtml(thesis.suggested_operation.strategy_name)} (OpÃ§Ã£o ${escapeHtml(thesis.suggested_operation.option_id)})</p>
-      <p class="list-meta">Entrada: ${escapeHtml(formatDate(thesis.suggested_entry_time))} | SaÃ­da: ${escapeHtml(formatDate(thesis.suggested_exit_time))}</p>
+      <p class="list-title">Sugestão de operação</p>
+      <p class="list-meta">${escapeHtml(thesis.suggested_operation.strategy_name)} (Opção ${escapeHtml(thesis.suggested_operation.option_id)})</p>
+      <p class="list-meta">Entrada: ${escapeHtml(formatDate(thesis.suggested_entry_time))} | Saída: ${escapeHtml(formatDate(thesis.suggested_exit_time))}</p>
     </div>
     <div class="list-row">
       <p class="list-title">Por que esta tese foi levantada?</p>
@@ -2430,16 +2430,16 @@ function renderGameRound() {
         .map(
           (item) => `
           <figure class="game-image-card">
-            <img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.caption || "Imagem do contexto histÃ³rico")}" loading="lazy" />
+            <img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.caption || "Imagem do contexto histórico")}" loading="lazy" />
             <figcaption class="game-image-caption">
-              ${escapeHtml(item.caption || "Fonte externa")} Â·
+              ${escapeHtml(item.caption || "Fonte externa")} ·
               <a href="${escapeHtml(item.source_url)}" target="_blank" rel="noreferrer">fonte</a>
             </figcaption>
           </figure>
         `,
         )
         .join("")
-    : "<div class='list-row'><p class='list-meta'>Sem imagem disponÃ­vel para o evento selecionado.</p></div>";
+    : "<div class='list-row'><p class='list-meta'>Sem imagem disponível para o evento selecionado.</p></div>";
 
   optionsNode.innerHTML = (thesis.options || [])
     .map(
@@ -2460,16 +2460,16 @@ function renderGameRound() {
     optionField.value = "A";
   }
   nextButton.disabled = false;
-  nextButton.textContent = index === totalRounds - 1 ? "Finalizar game" : "PrÃ³xima tese";
+  nextButton.textContent = index === totalRounds - 1 ? "Finalizar game" : "Próxima tese";
 }
 
 function applyGameDecision(formNode) {
   if (!state.game) {
-    throw new Error("Inicie o game antes de registrar decisÃµes.");
+    throw new Error("Inicie o game antes de registrar decisões.");
   }
   const thesis = state.game.theses[state.game.currentIndex];
   if (!thesis) {
-    throw new Error("Todas as teses jÃ¡ foram processadas.");
+    throw new Error("Todas as teses já foram processadas.");
   }
 
   const formData = new FormData(formNode);
@@ -2478,12 +2478,12 @@ function applyGameDecision(formNode) {
   const rawAllocation = Number(formData.get("allocation_pct") || 0);
   const allocationPct = follow ? rawAllocation : 0;
   if (follow && (!Number.isFinite(allocationPct) || allocationPct <= 0 || allocationPct > 100)) {
-    throw new Error("Informe um percentual vÃ¡lido de 1 a 100 para seguir a tese.");
+    throw new Error("Informe um percentual válido de 1 a 100 para seguir a tese.");
   }
 
   const selectedOption = (thesis.options || []).find((option) => option.option_id === optionId);
   if (!selectedOption) {
-    throw new Error("OpÃ§Ã£o de operaÃ§Ã£o invÃ¡lida para esta tese.");
+    throw new Error("Opção de operação inválida para esta tese.");
   }
 
   const capitalBefore = Number(state.game.currentCapital || 0);
@@ -2566,12 +2566,12 @@ function bindGameHandlers() {
       const formData = new FormData(event.currentTarget);
       const userId = getAuthUserId();
       if (!userId) {
-        throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+        throw new Error("Sessão inválida. Faça login novamente.");
       }
       const playerName = String(formData.get("player_name") || "Jogador").trim();
       const initialCapital = Number(formData.get("initial_capital") || 100000);
       if (!Number.isFinite(initialCapital) || initialCapital <= 0) {
-        throw new Error("Capital inicial invÃ¡lido.");
+        throw new Error("Capital inicial inválido.");
       }
       const instruments = String(formData.get("instruments") || "")
         .split(",")
@@ -2600,7 +2600,7 @@ function bindGameHandlers() {
         thesis_count: state.game.theses.length,
         scan_scope: result.scan_scope,
       });
-      showToast("success", "Game carregado. Registre sua decisÃ£o na tese 1.");
+      showToast("success", "Game carregado. Registre sua decisão na tese 1.");
     } catch (error) {
       state.game = null;
       renderGameRound();
@@ -2619,11 +2619,11 @@ function bindGameHandlers() {
       const hasNext = Boolean(state.game && state.game.theses[state.game.currentIndex]);
       showToast(
         "success",
-        hasNext ? "DecisÃ£o registrada. Avance para a prÃ³xima tese." : "Game concluÃ­do com sucesso.",
+        hasNext ? "Decisão registrada. Avance para a próxima tese." : "Game concluído com sucesso.",
       );
     } catch (error) {
       setOutput("game-output", { erro: error.message });
-      showToast("error", `Falha ao registrar decisÃ£o: ${error.message}`);
+      showToast("error", `Falha ao registrar decisão: ${error.message}`);
     }
   });
 
@@ -2658,7 +2658,7 @@ function renderSignalsFromPolling(signals) {
     (signal) => `
       <div class="list-row">
         <div class="list-main">
-          <p class="list-title">${escapeHtml(signal.instrument)} Â· <span class="${toSignalTone(signal.signal_type)}">${escapeHtml(signal.signal_type)}</span></p>
+          <p class="list-title">${escapeHtml(signal.instrument)} · <span class="${toSignalTone(signal.signal_type)}">${escapeHtml(signal.signal_type)}</span></p>
           <p class="list-meta mono">Conf. ${escapeHtml(formatNumber(Number(signal.confidence || 0) * 100))}%</p>
         </div>
         <p class="list-meta">${escapeHtml(signal.rationale || "Sem rationale")}</p>

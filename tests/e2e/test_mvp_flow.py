@@ -166,6 +166,33 @@ def test_dashboard_anonymous_bootstrap_without_seed_user(client) -> None:
     assert payload["open_positions"] == []
 
 
+def test_dashboard_uses_seed_when_runtime_snapshots_are_missing(client, tmp_path) -> None:
+    from app import main as main_module
+
+    if not AUTH_DISABLED:
+        pytest.skip("Modo anonimo desativado no ambiente de teste.")
+
+    seed_source = main_module.data_dir / "dashboard_seed.json"
+    assert seed_source.exists()
+    seed_data_dir = tmp_path / "data"
+    seed_data_dir.mkdir(parents=True, exist_ok=True)
+    (seed_data_dir / "dashboard_seed.json").write_text(
+        seed_source.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+
+    original_data_dir = main_module.data_dir
+    main_module.data_dir = seed_data_dir
+    try:
+        response = client.get("/api/dashboard/summary/1")
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["thesis_history_overview"]["total_tested"] > 0
+        assert len(payload["thesis_open_operations"]) > 0
+    finally:
+        main_module.data_dir = original_data_dir
+
+
 def test_end_to_end_mvp_flow(client) -> None:
     user_id = signup_and_authenticate(
         client,

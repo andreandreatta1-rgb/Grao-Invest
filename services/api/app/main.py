@@ -2055,6 +2055,7 @@ def dashboard_summary(
         )
     )
     case_study_latest = _load_json_dict(data_dir / "case_study_latest.json")
+    dashboard_seed = _load_json_dict(data_dir / "dashboard_seed.json")
     if historical_empty and historical_case_study_events:
         expected_values: list[float] = []
         realized_values: list[float] = []
@@ -2102,7 +2103,7 @@ def dashboard_summary(
 
         thesis_count = len(historical_case_study_events)
         historical_analysis_summary = {
-            "period_label": f"ate {phase_kickoff_date} (base historica global Â· case studies consolidados)",
+            "period_label": f"ate {phase_kickoff_date} (base historica global - case studies consolidados)",
             "thesis_count": thesis_count,
             "backtest_runs": thesis_count,
             "operacoes_simuladas": thesis_count,
@@ -2153,7 +2154,7 @@ def dashboard_summary(
             )
             success = bool(outcome_dict.get("success"))
             historical_analysis_summary = {
-                "period_label": f"ate {phase_kickoff_date} (base historica · case study)",
+                "period_label": f"ate {phase_kickoff_date} (base historica - case study)",
                 "thesis_count": 1,
                 "backtest_runs": 1,
                 "operacoes_simuladas": 1,
@@ -2192,7 +2193,7 @@ def dashboard_summary(
             4,
         )
         current_simulation_summary = {
-            "period_label": f"desde {phase_kickoff_date} (simulacao atual · teses monitoradas)",
+            "period_label": f"desde {phase_kickoff_date} (simulacao atual - teses monitoradas)",
             "thesis_count": thesis_count,
             "paper_orders": thesis_count,
             "accepted_orders": monitoring_count + target_hits,
@@ -2888,6 +2889,37 @@ def dashboard_summary(
                     "duration_days": duration_days,
                 }
             )
+
+    if (
+        dashboard_seed is not None
+        and _safe_int(historical_analysis_summary.get("thesis_count")) == 0
+        and _safe_int(current_simulation_summary.get("thesis_count")) == 0
+        and _safe_int(thesis_history_overview.get("total_tested")) == 0
+        and not thesis_open_operations
+    ):
+        seed_historical = dashboard_seed.get("historical_analysis_summary")
+        if isinstance(seed_historical, dict):
+            historical_analysis_summary = cast(dict[str, object], seed_historical)
+
+        seed_current = dashboard_seed.get("current_simulation_summary")
+        if isinstance(seed_current, dict):
+            current_simulation_summary = cast(dict[str, object], seed_current)
+
+        seed_current_daily = dashboard_seed.get("current_simulation_daily")
+        if isinstance(seed_current_daily, list):
+            current_simulation_daily = [item for item in seed_current_daily if isinstance(item, dict)]
+
+        seed_overview = dashboard_seed.get("thesis_history_overview")
+        if isinstance(seed_overview, dict):
+            thesis_history_overview = cast(dict[str, object], seed_overview)
+
+        seed_exec_summary = dashboard_seed.get("thesis_executive_summary")
+        if isinstance(seed_exec_summary, dict):
+            thesis_executive_summary = cast(dict[str, object], seed_exec_summary)
+
+        seed_open_operations = dashboard_seed.get("thesis_open_operations")
+        if isinstance(seed_open_operations, list):
+            thesis_open_operations = [item for item in seed_open_operations if isinstance(item, dict)]
 
     resolved_durations = [
         float(row["duration_days"])

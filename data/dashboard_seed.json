@@ -1,0 +1,321 @@
+{
+  "historical_analysis_summary": {
+    "period_label": "ate 2026-04-27 (base historica global - case studies consolidados)",
+    "thesis_count": 97,
+    "backtest_runs": 97,
+    "operacoes_simuladas": 97,
+    "total_trades": 97,
+    "avg_expected_pct": 4.4303,
+    "avg_win_rate_pct": 98.97,
+    "avg_return_pct": 3.409,
+    "approved_count": 96,
+    "avg_drawdown_pct": 0.0,
+    "window_start": "2026-04-20",
+    "window_end": "2026-04-26"
+  },
+  "current_simulation_summary": {
+    "period_label": "desde 2026-04-27 (simulacao atual - teses monitoradas)",
+    "thesis_count": 5,
+    "paper_orders": 5,
+    "accepted_orders": 5,
+    "rejected_orders": 0,
+    "gross_amount_brl": 0.0,
+    "estimated_cost_brl": 0.0,
+    "estimated_tax_brl": 0.0,
+    "backtest_runs": 0,
+    "backtest_trades": 5,
+    "avg_expected_pct": 2.0318,
+    "avg_backtest_return_pct": -1.4966,
+    "approved_count": 0,
+    "monitoring_days": 1,
+    "last_order_at": "2026-04-28T02:25:24+00:00"
+  },
+  "current_simulation_daily": [
+    {
+      "day": "2026-04-28",
+      "paper_orders": 5,
+      "accepted_orders": 5,
+      "rejected_orders": 0,
+      "gross_amount_brl": 0.0,
+      "estimated_cost_brl": 0.0,
+      "estimated_tax_brl": 0.0,
+      "backtest_runs": 0,
+      "backtest_trades": 5,
+      "avg_backtest_return_pct": -1.4966
+    }
+  ],
+  "thesis_history_overview": {
+    "total_tested": 162,
+    "success_count": 152,
+    "success_rate_pct": 93.83,
+    "avg_result_pct": 3.0708,
+    "expectancy_net_pct": 3.0708,
+    "target_rate_pct": 93.83,
+    "stop_rate_pct": 3.09,
+    "time_exit_rate_pct": 3.09,
+    "open_rate_pct": 0.0,
+    "resolved_count": 162,
+    "open_count": 0,
+    "avg_target_return_pct": 3.3705,
+    "avg_stop_return_pct": -1.473,
+    "avg_time_return_pct": -1.4966,
+    "window_start": "2026-04-20",
+    "window_end": "2026-05-01",
+    "last_3_weeks": [
+      {
+        "week_index": 1,
+        "label": "Semana 1",
+        "start_day": "2026-04-11",
+        "end_day": "2026-04-17",
+        "total_tested": 0,
+        "success_count": 0,
+        "success_rate_pct": 0.0,
+        "avg_result_pct": null,
+        "series": [
+          {
+            "day": "2026-04-11",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-12",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-13",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-14",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-15",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-16",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-17",
+            "avg_result_pct": null,
+            "tested": 0
+          }
+        ]
+      },
+      {
+        "week_index": 2,
+        "label": "Semana 2",
+        "start_day": "2026-04-18",
+        "end_day": "2026-04-24",
+        "total_tested": 53,
+        "success_count": 52,
+        "success_rate_pct": 98.11,
+        "avg_result_pct": 3.6319,
+        "series": [
+          {
+            "day": "2026-04-18",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-19",
+            "avg_result_pct": null,
+            "tested": 0
+          },
+          {
+            "day": "2026-04-20",
+            "avg_result_pct": 1.1164,
+            "tested": 3
+          },
+          {
+            "day": "2026-04-21",
+            "avg_result_pct": 5.2,
+            "tested": 6
+          },
+          {
+            "day": "2026-04-22",
+            "avg_result_pct": 4.2158,
+            "tested": 20
+          },
+          {
+            "day": "2026-04-23",
+            "avg_result_pct": 2.8915,
+            "tested": 7
+          },
+          {
+            "day": "2026-04-24",
+            "avg_result_pct": 3.1405,
+            "tested": 17
+          }
+        ]
+      },
+      {
+        "week_index": 3,
+        "label": "Semana 3",
+        "start_day": "2026-04-25",
+        "end_day": "2026-05-01",
+        "total_tested": 109,
+        "success_count": 100,
+        "success_rate_pct": 91.74,
+        "avg_result_pct": 2.7979,
+        "series": [
+          {
+            "day": "2026-04-25",
+            "avg_result_pct": 3.1405,
+            "tested": 25
+          },
+          {
+            "day": "2026-04-26",
+            "avg_result_pct": 3.1405,
+            "tested": 19
+          },
+          {
+            "day": "2026-04-27",
+            "avg_result_pct": 3.1405,
+            "tested": 27
+          },
+          {
+            "day": "2026-04-28",
+            "avg_result_pct": 1.8529,
+            "tested": 29
+          },
+          {
+            "day": "2026-04-29",
+            "avg_result_pct": 3.1405,
+            "tested": 7
+          },
+          {
+            "day": "2026-04-30",
+            "avg_result_pct": 3.1405,
+            "tested": 1
+          },
+          {
+            "day": "2026-05-01",
+            "avg_result_pct": 3.1405,
+            "tested": 1
+          }
+        ]
+      }
+    ],
+    "event_count": 155,
+    "global_event_count": 158,
+    "global_total_tested": 162,
+    "user_total_tested": 159,
+    "sources": {
+      "case_study_runs": 157,
+      "current_monitor_runs": 1
+    },
+    "avg_resolution_days": 6.73,
+    "resolution_sample_count": 6
+  },
+  "thesis_executive_summary": {
+    "historical": {
+      "period_label": "ate 2026-04-27 (base historica global - case studies consolidados)",
+      "thesis_count": 97,
+      "expected_pct": 4.4303,
+      "achieved_pct": 3.409,
+      "approved_count": 96
+    },
+    "current": {
+      "period_label": "desde 2026-04-27 (simulacao atual - teses monitoradas)",
+      "thesis_count": 5,
+      "expected_pct": 2.0318,
+      "achieved_pct": -1.4966,
+      "approved_count": 0
+    }
+  },
+  "thesis_open_operations": [
+    {
+      "thesis_number": 1,
+      "thesis_id": "TH-PETR4-bullish-3514",
+      "action": "PETR4",
+      "thesis_reason": "Candidato por case study historico (bullish). Confianca 80.58%. Suportes T/F/N: 94.37%/95.00%/77.08%. Sinais chave: momento bullish 6.38pct, volatilidade 1.63pct, suporte historico 25.99pct.",
+      "expected_result_pct": 4.8248,
+      "operation_plan": "Compra ate 2024-05-02 (case study historico)",
+      "structured_operation": "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
+      "exit_rule": "Sai acima de 43.3671 ou abaixo de 38.8277",
+      "status": "Fechada",
+      "outcome": "Tempo",
+      "moment_result_pct": 3.1405,
+      "duration_days": 13.0
+    },
+    {
+      "thesis_number": 2,
+      "thesis_id": "TH-PETR4-range-4448",
+      "action": "PETR4",
+      "thesis_reason": "Candidato por grafico/tecnico + fundamentalista + noticias/contexto externo + geopolitico (range). Confianca 71.59%. Suportes T/F/N: 0.00%/0.00%/0.00%. Sinais chave: momento range 0.66pct, volatilidade 0.24pct, suporte historico 36.04pct.",
+      "expected_result_pct": 0.8181,
+      "operation_plan": "Neutra ate 2026-04-22 (Estrutura alinhada ao cenario range com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.)",
+      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
+      "exit_rule": "Sai acima de 41.03 ou abaixo de 40.4145",
+      "status": "Fechada",
+      "outcome": "Stop/Protecao",
+      "moment_result_pct": -3.8,
+      "duration_days": 1.4
+    },
+    {
+      "thesis_number": 3,
+      "thesis_id": "TH-PETR4-range-4449",
+      "action": "PETR4",
+      "thesis_reason": "Candidato por grafico/tecnico + fundamentalista + noticias/contexto externo + geopolitico (range). Confianca 71.57%. Suportes T/F/N: 0.00%/0.00%/0.00%. Sinais chave: momento range 0.66pct, volatilidade 0.23pct, suporte historico 36.04pct.",
+      "expected_result_pct": 0.8178,
+      "operation_plan": "Neutra ate 2026-04-22 (Estrutura alinhada ao cenario range com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.)",
+      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
+      "exit_rule": "Sai acima de 41.03 ou abaixo de 40.4145",
+      "status": "Fechada",
+      "outcome": "Stop/Protecao",
+      "moment_result_pct": -3.8,
+      "duration_days": 1.4
+    },
+    {
+      "thesis_number": 4,
+      "thesis_id": "TH-MGLU3-bullish-21238",
+      "action": "MGLU3",
+      "thesis_reason": "Candidato por grafico/tecnico + fundamentalista + noticias/contexto externo (bullish). Confianca 64.51%. Suportes T/F/N: 0.00%/0.00%/0.00%. Sinais chave: momento bullish 4.92pct, volatilidade 1.24pct, suporte historico 38.90pct.",
+      "expected_result_pct": 2.7626,
+      "operation_plan": "Compra ate 2026-04-22 (Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.)",
+      "structured_operation": "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
+      "exit_rule": "Sai acima de 9.9904 ou abaixo de 9.0298",
+      "status": "Fechada",
+      "outcome": "Tempo",
+      "moment_result_pct": -0.3598,
+      "duration_days": 7.87
+    },
+    {
+      "thesis_number": 5,
+      "thesis_id": "TH-MGLU3-bullish-21236",
+      "action": "MGLU3",
+      "thesis_reason": "Candidato por grafico/tecnico + fundamentalista + noticias/contexto externo (bullish). Confianca 64.35%. Suportes T/F/N: 0.00%/0.00%/0.00%. Sinais chave: momento bullish 5.35pct, volatilidade 1.65pct, suporte historico 38.90pct.",
+      "expected_result_pct": 3.0067,
+      "operation_plan": "Compra ate 2026-04-22 (Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.)",
+      "structured_operation": "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
+      "exit_rule": "Sai acima de 9.8975 ou abaixo de 8.8615",
+      "status": "Fechada",
+      "outcome": "Tempo",
+      "moment_result_pct": 0.834,
+      "duration_days": 8.87
+    },
+    {
+      "thesis_number": 6,
+      "thesis_id": "TH-MGLU3-bullish-21237",
+      "action": "MGLU3",
+      "thesis_reason": "Candidato por grafico/tecnico + fundamentalista + noticias/contexto externo (bullish). Confianca 64.23%. Suportes T/F/N: 0.00%/0.00%/0.00%. Sinais chave: momento bullish 4.92pct, volatilidade 1.35pct, suporte historico 38.90pct.",
+      "expected_result_pct": 2.754,
+      "operation_plan": "Compra ate 2026-04-22 (Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.)",
+      "structured_operation": "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
+      "exit_rule": "Sai acima de 9.9946 ou abaixo de 9.0273",
+      "status": "Fechada",
+      "outcome": "Tempo",
+      "moment_result_pct": -0.3573,
+      "duration_days": 7.87
+    }
+  ],
+  "seed_generated_at": "2026-04-27"
+}
