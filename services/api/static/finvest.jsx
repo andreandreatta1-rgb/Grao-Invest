@@ -26,6 +26,31 @@ const fmt = (v, decimals = 2) => {
   return `${sign}${n.toFixed(decimals)}%`;
 };
 
+const teseCountLabel = (n) => `${n} ${n === 1 ? "tese" : "teses"}`;
+
+const avg = (arr) => {
+  if (!arr.length) return null;
+  const total = arr.reduce((acc, n) => acc + n, 0);
+  return total / arr.length;
+};
+
+const pct = (part, whole) => {
+  if (!whole) return 0;
+  return Math.round((part / whole) * 100);
+};
+
+const semaforoPorPercentual = (valor, verde = 70, amarelo = 45) => {
+  if (valor >= verde) return { label: "Verde", type: "success", color: C.green };
+  if (valor >= amarelo) return { label: "Amarelo", type: "warning", color: C.amber };
+  return { label: "Vermelho", type: "danger", color: C.coral };
+};
+
+const semaforoAmostra = (fechadas) => {
+  if (fechadas >= 5) return { label: "Verde", type: "success", color: C.green };
+  if (fechadas >= 2) return { label: "Amarelo", type: "warning", color: C.amber };
+  return { label: "Vermelho", type: "danger", color: C.coral };
+};
+
 function Badge({ label, type = "neutral" }) {
   const styles = {
     open:    { bg: C.teal + "20",  color: C.teal,  border: C.teal + "40" },
@@ -260,12 +285,15 @@ function TabelaTeses({ rows, titulo }) {
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
       <div style={{ padding: "16px 20px", borderBottom: `1px solid ${C.border}` }}>
         <div style={{ color: C.text, fontWeight: 700, fontSize: 14 }}>{titulo}</div>
+        <div style={{ color: C.muted, fontSize: 11, marginTop: 6 }}>
+          Clique na linha para abrir ou fechar os detalhes da tese.
+        </div>
       </div>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
           <thead>
             <tr style={{ background: C.panel }}>
-              {["#", "A??o", "Dire??o", "Esperado", "Estrutura", "Entrada", "Sa?da se", "Desfecho", "Dias", "Status", "Resultado", "Detalhe"].map((h) => (
+              {["#", "A??o", "Dire??o", "Esperado", "Estrutura", "Entrada", "Sa?da se", "Desfecho", "Dias", "Status", "Resultado"].map((h) => (
                 <th key={h} style={{ padding: "9px 12px", color: C.muted, fontWeight: 600, textAlign: "left", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
               ))}
             </tr>
@@ -278,7 +306,8 @@ function TabelaTeses({ rows, titulo }) {
               const mainRow = (
                 <tr
                   key={`row-${r.id}-${i}`}
-                  style={{ borderBottom: `1px solid ${C.line}`, transition: "background 0.1s" }}
+                  style={{ borderBottom: `1px solid ${C.line}`, transition: "background 0.1s", cursor: "pointer" }}
+                  onClick={() => toggleDetail(r.id)}
                   onMouseEnter={(e) => e.currentTarget.style.background = C.hover}
                   onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                 >
@@ -293,32 +322,12 @@ function TabelaTeses({ rows, titulo }) {
                   <td style={{ padding: "10px 12px", color: C.muted, fontFamily: mono }}>{r.dias}d</td>
                   <td style={{ padding: "10px 12px" }}><Badge label={r.status} type={r.status === "Aberta" ? "open" : "closed"} /></td>
                   <td style={{ padding: "10px 12px", color: resColor, fontFamily: mono, fontWeight: 700 }}>{r.resultado > 0 ? "+" : ""}{r.resultado?.toFixed(2)}%</td>
-                  <td style={{ padding: "10px 12px" }}>
-                    <button
-                      type="button"
-                      onClick={() => toggleDetail(r.id)}
-                      style={{
-                        background: isExpanded ? `${C.gold}22` : C.panel,
-                        color: isExpanded ? C.gold : C.sky,
-                        border: `1px solid ${isExpanded ? `${C.gold}66` : C.border}`,
-                        borderRadius: 8,
-                        padding: "5px 9px",
-                        fontSize: 10,
-                        fontWeight: 700,
-                        letterSpacing: "0.04em",
-                        textTransform: "uppercase",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {isExpanded ? "Ocultar" : "Abrir"}
-                    </button>
-                  </td>
                 </tr>
               );
 
               const detailRow = isExpanded ? (
                 <tr key={`detail-${r.id}-${i}`}>
-                  <td colSpan={12} style={{ padding: "12px 14px", background: C.panel, borderBottom: `1px solid ${C.line}` }}>
+                  <td colSpan={11} style={{ padding: "12px 14px", background: C.panel, borderBottom: `1px solid ${C.line}` }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
                         <p style={{ margin: "0 0 6px", color: C.gold, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>
@@ -389,6 +398,8 @@ const tesesHistoricas = [
     porQue: "A tese foi aberta porque o preco reagiu em suporte tecnico, com contexto favoravel em fundamentos e fluxo mais comprador no periodo.",
     aprendizado: "Quando o alvo nao vem no tempo esperado, a estrutura protegeu o capital. Proxima melhoria: reduzir janela e usar saida parcial no meio do caminho.",
     melhoriasAplicadas: ["tempo_da_tese", "saida_parcial"],
+    sintomaDetectado: true,
+    sintomaConfirmado: true,
   },
 ];
 
@@ -408,6 +419,8 @@ const tesesPosGoLive = [
     porQue: "Entramos com cenario de lateralizacao, pois o ativo vinha oscilando em faixa estreita com volatilidade controlada e sem tendencia forte definida.",
     aprendizado: "Com rompimento rapido da faixa, reforcamos que cenarios neutros precisam gatilho de saida mais cedo quando o mercado acelera para um lado.",
     melhoriasAplicadas: ["stop_antecipado", "range_break_rapido"],
+    sintomaDetectado: true,
+    sintomaConfirmado: true,
   },
   {
     id: 161,
@@ -424,6 +437,8 @@ const tesesPosGoLive = [
     porQue: "A tese surgiu por retomada de momentum de alta com confirmacao de preco acima de zona de suporte e assimetria favoravel entre risco e retorno.",
     aprendizado: "Em mercado mais ruidoso, manter protecao curta continua importante. Vamos priorizar confirmacao de volume antes de repetir entradas parecidas.",
     melhoriasAplicadas: ["confirmacao_volume", "protecao_curta"],
+    sintomaDetectado: true,
+    sintomaConfirmado: false,
   },
   {
     id: 162,
@@ -440,6 +455,8 @@ const tesesPosGoLive = [
     porQue: "Entramos apos sinal tecnico de continuidade da alta, com leitura de contexto menos adverso e relacao risco-retorno dentro do limite definido.",
     aprendizado: "A leitura inicial esta funcionando, mas ainda em fase aberta. Proximo ajuste sera calibrar tempo maximo da tese para capturar ganho sem prolongar exposicao.",
     melhoriasAplicadas: ["tempo_maximo", "calibragem_alvo"],
+    sintomaDetectado: false,
+    sintomaConfirmado: false,
   },
 ];
 
@@ -455,49 +472,121 @@ function GraoDashboard() {
     return () => { link.remove(); };
   }, []);
 
-  const indicadorAprendizado = useMemo(() => {
-    const todas = [...tesesHistoricas, ...tesesPosGoLive];
-    const labels = {
-      stop_antecipado: "Stop antecipado",
-      range_break_rapido: "Quebra de faixa",
-      confirmacao_volume: "Confirmacao por volume",
-      protecao_curta: "Protecao curta",
-      tempo_maximo: "Tempo maximo",
-      calibragem_alvo: "Calibragem de alvo",
-      tempo_da_tese: "Janela da tese",
-      saida_parcial: "Saida parcial",
+  const provaAprendizado = useMemo(() => {
+    const mapaLicoes = {
+      tempo_da_tese: {
+        ordem: 1,
+        dor: "Tese fica aberta sem andar",
+        sintoma: "3 a 5 pregoes sem tracao",
+        remedio: "Definir janela maxima e encerrar por tempo",
+      },
+      saida_parcial: {
+        ordem: 2,
+        dor: "Lucro devolvido no fim",
+        sintoma: "Ativo bate parte do alvo e perde forca",
+        remedio: "Realizar parcial e proteger o restante",
+      },
+      stop_antecipado: {
+        ordem: 3,
+        dor: "Perda acelera rapido",
+        sintoma: "Perda de suporte com aumento de volatilidade",
+        remedio: "Antecipar stop antes do limite final",
+      },
+      range_break_rapido: {
+        ordem: 4,
+        dor: "Cenario neutro quebra cedo",
+        sintoma: "Rompimento forte da faixa",
+        remedio: "Sair sem esperar retorno para a faixa",
+      },
+      confirmacao_volume: {
+        ordem: 5,
+        dor: "Entrada em rompimento falso",
+        sintoma: "Movimento sem volume de confirmacao",
+        remedio: "Entrar so com volume acima da media",
+      },
+      protecao_curta: {
+        ordem: 6,
+        dor: "Ruido tira resultado",
+        sintoma: "Oscilacao curta contra a tese",
+        remedio: "Manter protecao curta e revisar rapido",
+      },
+      tempo_maximo: {
+        ordem: 7,
+        dor: "Exposicao longa sem premio",
+        sintoma: "Ganho nao acelera dentro da janela",
+        remedio: "Calibrar tempo maximo por padrao",
+      },
+      calibragem_alvo: {
+        ordem: 8,
+        dor: "Alvo distante demais",
+        sintoma: "Preco evolui, mas nao completa o alvo",
+        remedio: "Reduzir alvo para capturar ganho mais cedo",
+      },
     };
 
-    let tesesComAplicacao = 0;
-    const porCategoria = {};
+    const todas = [...tesesHistoricas, ...tesesPosGoLive];
+    const posGoLive = [...tesesPosGoLive];
 
+    const posComRemedio = posGoLive.filter((tese) => Array.isArray(tese.melhoriasAplicadas) && tese.melhoriasAplicadas.length > 0).length;
+    const adocaoRemedioPct = pct(posComRemedio, posGoLive.length);
+    const semaforoAdocao = semaforoPorPercentual(adocaoRemedioPct, 80, 50);
+
+    const comSintomaDetectado = todas.filter((tese) => tese.sintomaDetectado).length;
+    const comSintomaConfirmado = todas.filter((tese) => tese.sintomaDetectado && tese.sintomaConfirmado).length;
+    const acertoDiagnosticoPct = pct(comSintomaConfirmado, comSintomaDetectado);
+    const semaforoDiagnostico = semaforoPorPercentual(acertoDiagnosticoPct, 70, 45);
+
+    const historicasFechadas = tesesHistoricas.filter((tese) => tese.status === "Fechada");
+    const posFechadas = tesesPosGoLive.filter((tese) => tese.status === "Fechada");
+    const mediaHistorica = avg(historicasFechadas.map((tese) => tese.resultado));
+    const mediaPos = avg(posFechadas.map((tese) => tese.resultado));
+    const deltaMediaPos = mediaPos !== null && mediaHistorica !== null ? mediaPos - mediaHistorica : null;
+
+    const semaforoEfeito = deltaMediaPos === null
+      ? { label: "Amarelo", type: "warning", color: C.amber, observacao: "Ainda sem teses fechadas no pos go-live" }
+      : deltaMediaPos >= 0
+        ? { label: "Verde", type: "success", color: C.green, observacao: "Media pos go-live acima do historico" }
+        : { label: "Vermelho", type: "danger", color: C.coral, observacao: "Media pos go-live abaixo do historico" };
+
+    const semaforoMaturidade = semaforoAmostra(posFechadas.length);
+
+    const porLicao = {};
     todas.forEach((tese) => {
       const aplicacoes = Array.isArray(tese.melhoriasAplicadas) ? tese.melhoriasAplicadas : [];
-      if (aplicacoes.length) {
-        tesesComAplicacao += 1;
-      }
       aplicacoes.forEach((item) => {
-        porCategoria[item] = (porCategoria[item] || 0) + 1;
+        porLicao[item] = (porLicao[item] || 0) + 1;
       });
     });
 
-    const categorias = Object.entries(porCategoria)
+    const licoes = Object.entries(porLicao)
       .map(([chave, qtd]) => ({
         chave,
-        nome: labels[chave] || chave,
         qtd,
-        pct: todas.length ? Math.round((qtd / todas.length) * 100) : 0,
+        ...mapaLicoes[chave],
       }))
-      .sort((a, b) => b.qtd - a.qtd)
+      .filter((item) => item.dor && item.sintoma && item.remedio)
+      .sort((a, b) => {
+        if (b.qtd !== a.qtd) return b.qtd - a.qtd;
+        return (a.ordem || 99) - (b.ordem || 99);
+      })
       .slice(0, 6);
 
-    const taxaAplicacao = todas.length ? Math.round((tesesComAplicacao / todas.length) * 100) : 0;
-
     return {
-      totalTeses: todas.length,
-      tesesComAplicacao,
-      taxaAplicacao,
-      categorias,
+      adocaoRemedioPct,
+      posComRemedio,
+      totalPosGoLive: posGoLive.length,
+      semaforoAdocao,
+      acertoDiagnosticoPct,
+      comSintomaConfirmado,
+      comSintomaDetectado,
+      semaforoDiagnostico,
+      deltaMediaPos,
+      mediaPos,
+      mediaHistorica,
+      semaforoEfeito,
+      posFechadas: posFechadas.length,
+      semaforoMaturidade,
+      licoes,
     };
   }, []);
 
@@ -556,39 +645,73 @@ function GraoDashboard() {
             </div>
           </div>
 
-          {/* Indicador de aprendizado aplicado */}
+          {/* Prova de aprendizado */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div>
-                <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Indicador de aprendizado aplicado</div>
-                <div style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>Categorias de melhoria que ja estao sendo usadas nas novas teses.</div>
+                <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Prova de aprendizado</div>
+                <div style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>Dor, sintoma e remedio com status executivo de evolucao.</div>
               </div>
-              <Badge label={`${indicadorAprendizado.categorias.length} categorias`} type="info" />
+              <Badge label="Evidencia objetiva" type="info" />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Teses mapeadas</div>
-                <div style={{ color: C.text, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{indicadorAprendizado.totalTeses}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Adocao de remedio</div>
+                  <Badge label={provaAprendizado.semaforoAdocao.label} type={provaAprendizado.semaforoAdocao.type} />
+                </div>
+                <div style={{ color: provaAprendizado.semaforoAdocao.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{provaAprendizado.adocaoRemedioPct}%</div>
+                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>
+                  {teseCountLabel(provaAprendizado.posComRemedio)} com remedio em {teseCountLabel(provaAprendizado.totalPosGoLive)}
+                </div>
               </div>
               <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Com melhoria aplicada</div>
-                <div style={{ color: C.teal, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{indicadorAprendizado.tesesComAplicacao}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Acerto de diagnostico</div>
+                  <Badge label={provaAprendizado.semaforoDiagnostico.label} type={provaAprendizado.semaforoDiagnostico.type} />
+                </div>
+                <div style={{ color: provaAprendizado.semaforoDiagnostico.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{provaAprendizado.acertoDiagnosticoPct}%</div>
+                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>
+                  {provaAprendizado.comSintomaConfirmado} confirmados de {provaAprendizado.comSintomaDetectado} sinais
+                </div>
               </div>
               <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Taxa de adocao</div>
-                <div style={{ color: C.gold, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{indicadorAprendizado.taxaAplicacao}%</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Efeito pos go-live</div>
+                  <Badge label={provaAprendizado.semaforoEfeito.label} type={provaAprendizado.semaforoEfeito.type} />
+                </div>
+                <div style={{ color: provaAprendizado.semaforoEfeito.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>
+                  {provaAprendizado.deltaMediaPos === null ? "Em formacao" : `${provaAprendizado.deltaMediaPos >= 0 ? "+" : ""}${provaAprendizado.deltaMediaPos.toFixed(2)}pp`}
+                </div>
+                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>
+                  {provaAprendizado.deltaMediaPos === null
+                    ? provaAprendizado.semaforoEfeito.observacao
+                    : `Pos ${fmt(provaAprendizado.mediaPos)} vs hist ${fmt(provaAprendizado.mediaHistorica)}`}
+                </div>
+              </div>
+              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Maturidade da amostra</div>
+                  <Badge label={provaAprendizado.semaforoMaturidade.label} type={provaAprendizado.semaforoMaturidade.type} />
+                </div>
+                <div style={{ color: provaAprendizado.semaforoMaturidade.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>
+                  {teseCountLabel(provaAprendizado.posFechadas)}
+                </div>
+                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>Teses fechadas apos o kickoff (27/04/2026)</div>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {indicadorAprendizado.categorias.map((item) => (
-                <div key={item.chave} style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <span style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>{item.nome}</span>
-                    <span style={{ color: C.muted, fontSize: 11, fontFamily: mono }}>{item.qtd} teses</span>
-                  </div>
-                  <div style={{ height: 5, borderRadius: 99, background: C.line, overflow: "hidden" }}>
-                    <div style={{ width: `${Math.max(8, item.pct)}%`, height: "100%", borderRadius: 99, background: C.teal }} />
-                  </div>
+            <div style={{ background: C.panel, borderRadius: 10, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1.2fr 1.1fr 120px", gap: 0, borderBottom: `1px solid ${C.border}` }}>
+                {["Dor", "Sintoma precoce", "Remedio aplicado", "Aplicada em"].map((h) => (
+                  <div key={h} style={{ padding: "10px 12px", color: C.muted, fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</div>
+                ))}
+              </div>
+              {provaAprendizado.licoes.map((item) => (
+                <div key={item.chave} style={{ display: "grid", gridTemplateColumns: "1.1fr 1.2fr 1.1fr 120px", borderBottom: `1px solid ${C.border}` }}>
+                  <div style={{ padding: "10px 12px", color: C.text, fontSize: 12 }}>{item.dor}</div>
+                  <div style={{ padding: "10px 12px", color: C.muted, fontSize: 12 }}>{item.sintoma}</div>
+                  <div style={{ padding: "10px 12px", color: C.teal, fontSize: 12 }}>{item.remedio}</div>
+                  <div style={{ padding: "10px 12px", color: C.gold, fontSize: 12, fontFamily: mono }}>{teseCountLabel(item.qtd)}</div>
                 </div>
               ))}
             </div>
