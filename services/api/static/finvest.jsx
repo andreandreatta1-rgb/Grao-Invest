@@ -1,549 +1,453 @@
-(() => {
-  if (!window.React || !window.ReactDOM || !window.Recharts || !window.LucideReact) {
+﻿(() => {
+  if (!window.React || !window.ReactDOM) {
     return;
   }
 
-  const { useEffect, useMemo, useState } = window.React;
-  const {
-    ResponsiveContainer,
-    AreaChart,
-    Area,
-    CartesianGrid,
-    XAxis,
-    YAxis,
-    Tooltip,
-    PieChart,
-    Pie,
-    Cell,
-    BarChart,
-    Bar,
-  } = window.Recharts;
-  const {
-    LayoutDashboard,
-    PiggyBank,
-    Radar,
-    ShieldCheck,
-    BarChart3,
-    Wallet,
-    ArrowUpRight,
-    Activity,
-    Target,
-  } = window.LucideReact;
+  const { useState, useEffect } = window.React;
 
-  const C = Object.freeze({
-    bg: "#06090f",
-    card: "#0b1020",
-    border: "#182038",
-    hover: "#111929",
-    faint: "#0d1630",
-    gold: "#c8a444",
-    goldLight: "#e8c870",
-    teal: "#00b896",
-    purple: "#8b7fff",
-    coral: "#ff6b6b",
-    sky: "#4a9eff",
-    text: "#dce4f0",
-    muted: "#546880",
-    dim: "#3a4e68",
-    green: "#22c55e",
-    red: "#ef4444",
-    amber: "#f59e0b",
-    tooltipBg: "#0d1325",
-  });
+const C = {
+  bg: "#070b14", panel: "#0c1120", card: "#101828",
+  border: "#1a2540", hover: "#141f35", line: "#1e2d4a",
+  gold: "#c8a444", goldLight: "#e8c870", goldDim: "#8a6e2c",
+  teal: "#00c896", tealDim: "#006b50",
+  sky: "#3b9eff", skyDim: "#1a4d8c",
+  coral: "#ff5e5e", coralDim: "#7a2020",
+  amber: "#f5a623", amberDim: "#7a4e05",
+  green: "#22c55e", greenDim: "#14532d",
+  purple: "#a78bfa",
+  text: "#e2eaf8", muted: "#5a7090", dim: "#2e4060",
+};
 
-  const fmt = (n) => {
-    if (n >= 1e6) return `R$ ${(n / 1e6).toFixed(2).replace(".", ",")}M`;
-    if (n >= 1e3) return `R$ ${(n / 1e3).toFixed(1).replace(".", ",")}K`;
-    return `R$ ${Math.round(n).toLocaleString("pt-BR")}`;
+const mono = "'JetBrains Mono', 'Fira Code', monospace";
+
+const fmt = (v, decimals = 2) => {
+  const n = parseFloat(v);
+  const sign = n > 0 ? "+" : "";
+  return `${sign}${n.toFixed(decimals)}%`;
+};
+
+function Badge({ label, type = "neutral" }) {
+  const styles = {
+    open:    { bg: C.teal + "20",  color: C.teal,  border: C.teal + "40" },
+    closed:  { bg: C.muted + "20", color: C.muted, border: C.muted + "40" },
+    warning: { bg: C.amber + "20", color: C.amber, border: C.amber + "40" },
+    success: { bg: C.green + "20", color: C.green, border: C.green + "40" },
+    danger:  { bg: C.coral + "20", color: C.coral, border: C.coral + "40" },
+    neutral: { bg: C.dim + "60",   color: C.muted, border: C.dim },
+    high:    { bg: C.gold + "20",  color: C.gold,  border: C.gold + "40" },
+    bull:    { bg: C.teal + "20",  color: C.teal,  border: C.teal + "40" },
+    bear:    { bg: C.coral + "20", color: C.coral, border: C.coral + "40" },
+    info:    { bg: C.sky + "20",   color: C.sky,   border: C.sky + "40" },
   };
+  const s = styles[type] || styles.neutral;
+  return (
+    <span style={{
+      background: s.bg, color: s.color,
+      border: `1px solid ${s.border}`,
+      fontSize: 10, fontWeight: 700,
+      padding: "2px 8px", borderRadius: 6,
+      letterSpacing: "0.04em", textTransform: "uppercase",
+      fontFamily: mono, whiteSpace: "nowrap",
+    }}>{label}</span>
+  );
+}
 
-  const fmtK = (n) =>
-    n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(0)}K` : Math.round(n);
-
-  function Card({ children, style = {} }) {
-    return (
-      <div
-        style={{
-          background: C.card,
-          border: `1px solid ${C.border}`,
-          borderRadius: 16,
-          padding: 20,
-          ...style,
-        }}
-      >
-        {children}
+function KPICard({ label, value, sub, valueColor, accent, icon }) {
+  return (
+    <div style={{
+      background: C.card,
+      border: `1px solid ${C.border}`,
+      borderTop: `2px solid ${accent || C.border}`,
+      borderRadius: 14,
+      padding: "18px 20px",
+      display: "flex", flexDirection: "column", gap: 6,
+      position: "relative", overflow: "hidden",
+    }}>
+      <div style={{
+        position: "absolute", top: 0, right: 0,
+        width: 80, height: 80,
+        background: `radial-gradient(circle at top right, ${(accent || C.gold) + "18"}, transparent 70%)`,
+        borderRadius: "0 14px 0 0",
+        pointerEvents: "none",
+      }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+        {icon && <span style={{ fontSize: 13 }}>{icon}</span>}
+        <span style={{ color: C.muted, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</span>
       </div>
-    );
-  }
+      <span style={{ color: valueColor || C.text, fontSize: 26, fontWeight: 700, fontFamily: mono, letterSpacing: "-0.02em", lineHeight: 1 }}>{value}</span>
+      {sub && <span style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>{sub}</span>}
+    </div>
+  );
+}
 
-  function MetricCard({ label, value, sub, color = C.text, large = false }) {
-    return (
-      <Card style={{ padding: "16px 20px" }}>
-        <p
-          style={{
-            color: C.muted,
-            fontSize: 10,
-            margin: "0 0 8px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}
-        >
-          {label}
-        </p>
-        <p
-          style={{
-            color,
-            fontSize: large ? 30 : 20,
-            fontWeight: 700,
-            margin: "0 0 3px",
-            fontFamily: "Space Mono, monospace",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {value}
-        </p>
-        {sub && <p style={{ color: C.muted, fontSize: 11, margin: 0 }}>{sub}</p>}
-      </Card>
-    );
-  }
+function ThesisCard({ thesis }) {
+  const isWarning = thesis.desfecho?.toLowerCase().includes("stop");
+  const statusType = thesis.status === "Aberta" ? (isWarning ? "warning" : "open") : "closed";
+  const momentumColor = thesis.momentum >= 0 ? C.teal : C.coral;
+  const expectedColor = thesis.expected >= 0 ? C.teal : C.coral;
 
-  function Bar2({ pct, color = C.gold, h = 6 }) {
-    return (
-      <div style={{ background: C.faint, borderRadius: 99, height: h, overflow: "hidden" }}>
-        <div
-          style={{
-            width: `${Math.min(100, Math.max(0, pct))}%`,
-            height: "100%",
-            background: color,
-            borderRadius: 99,
-            transition: "width 0.7s cubic-bezier(.4,0,.2,1)",
-          }}
-        />
+  return (
+    <div style={{
+      background: C.card,
+      border: `1px solid ${isWarning ? C.amber + "55" : C.border}`,
+      borderLeft: `3px solid ${isWarning ? C.amber : C.teal}`,
+      borderRadius: 12,
+      padding: 16,
+      display: "flex", flexDirection: "column", gap: 10,
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color: C.muted, fontSize: 10, fontFamily: mono }}>#{thesis.id}</span>
+          <span style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>{thesis.ativo}</span>
+          <Badge label={thesis.direcao} type={thesis.direcao === "Alta" ? "bull" : "bear"} />
+        </div>
+        <Badge label={thesis.desfecho || thesis.status} type={statusType} />
       </div>
-    );
-  }
 
-  function Tag({ color, children }) {
-    return (
-      <span
-        style={{
-          background: `${color}28`,
-          color,
-          fontSize: 10,
-          fontWeight: 700,
-          padding: "3px 7px",
-          borderRadius: 6,
-          letterSpacing: "0.04em",
-          textTransform: "uppercase",
-        }}
-      >
-        {children}
-      </span>
-    );
-  }
-
-  const TooltipBox = ({ active, payload, label }) => {
-    if (!active || !payload?.length) return null;
-    return (
-      <div
-        style={{
-          background: C.tooltipBg,
-          border: `1px solid ${C.border}`,
-          borderRadius: 10,
-          padding: "10px 14px",
-          fontSize: 12,
-        }}
-      >
-        {label && <p style={{ color: C.muted, margin: "0 0 6px" }}>{label}</p>}
-        {payload.map((p, i) => (
-          <p key={i} style={{ color: p.color || C.gold, margin: "2px 0", fontWeight: 600 }}>
-            {p.name ? `${p.name}: ` : ""}
-            {typeof p.value === "number" && p.value > 5000 ? fmt(p.value) : p.value}
-          </p>
+      {/* Metrics row */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+        {[
+          { label: "Entrada", value: `R$ ${thesis.entrada}`, color: C.text },
+          { label: "Esperado", value: fmt(thesis.expected), color: expectedColor },
+          { label: "Momento", value: fmt(thesis.momentum), color: momentumColor },
+        ].map((m) => (
+          <div key={m.label} style={{ background: C.panel, borderRadius: 8, padding: "8px 10px" }}>
+            <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{m.label}</div>
+            <div style={{ color: m.color, fontSize: 13, fontWeight: 700, fontFamily: mono }}>{m.value}</div>
+          </div>
         ))}
       </div>
-    );
-  };
 
-  function Slider({ label, value, min, max, step, onChange, display }) {
-    return (
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-          <span style={{ color: C.muted, fontSize: 12 }}>{label}</span>
-          <span
-            style={{
-              color: C.gold,
-              fontSize: 14,
-              fontWeight: 700,
-              fontFamily: "Space Mono, monospace",
-            }}
-          >
-            {display(value)}
-          </span>
+      {/* Structure */}
+      <div style={{ background: C.panel, borderRadius: 8, padding: "8px 12px" }}>
+        <span style={{ color: C.muted, fontSize: 10, marginRight: 8 }}>Estrutura</span>
+        <span style={{ color: C.sky, fontSize: 12, fontWeight: 500 }}>{thesis.estrutura}</span>
+      </div>
+
+      {/* Levels */}
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <span style={{ color: C.muted, fontSize: 10 }}>SaÃ­da</span>
+        <span style={{ color: C.green, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>â–² R$ {thesis.saiGanho}</span>
+        <div style={{ width: 1, height: 12, background: C.border }} />
+        <span style={{ color: C.coral, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>â–¼ R$ {thesis.saiStop}</span>
+        {thesis.inicio && <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>go-live {thesis.inicio}</span>}
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({ active, setActive }) {
+  const items = [
+    { id: "dashboard", label: "Dashboard", icon: "â—‰" },
+    { id: "mercado",   label: "Mercado",   icon: "ã€œ" },
+    { id: "operacoes", label: "OperaÃ§Ãµes",  icon: "â‡„" },
+    { id: "backtest",  label: "Backtest",   icon: "â†º" },
+    { id: "risco",     label: "Risco",      icon: "â—¬" },
+    { id: "game",      label: "Game",       icon: "â—ˆ" },
+    { id: "alertas",   label: "Alertas",    icon: "â—Ž" },
+  ];
+
+  return (
+    <aside style={{
+      width: 220, background: C.panel,
+      borderRight: `1px solid ${C.border}`,
+      display: "flex", flexDirection: "column",
+      flexShrink: 0,
+    }}>
+      {/* Logo */}
+      <div style={{ padding: "22px 20px 18px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+          <div style={{
+            width: 32, height: 32, background: C.gold + "22",
+            border: `1px solid ${C.gold}55`,
+            borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 14, fontWeight: 700, color: C.gold, fontFamily: mono,
+          }}>G</div>
+          <div>
+            <div style={{ color: C.text, fontSize: 14, fontWeight: 700, letterSpacing: "0.04em" }}>GRÃƒO</div>
+            <div style={{ color: C.muted, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>Invest</div>
+          </div>
         </div>
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onChange(+e.target.value)}
-          style={{ width: "100%", accentColor: C.gold, cursor: "pointer", height: 4 }}
-        />
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.amber + "18", border: `1px solid ${C.amber}40`, borderRadius: 6, padding: "3px 8px" }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.amber, display: "inline-block" }} />
+          <span style={{ color: C.amber, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>FASE 1 Â· SIMULAÃ‡ÃƒO</span>
+        </div>
       </div>
-    );
-  }
 
-  function SidebarItem({ icon: Icon, label, active, onClick }) {
-    return (
-      <button
-        onClick={onClick}
-        type="button"
-        style={{
-          background: active ? `${C.gold}22` : "transparent",
-          border: `1px solid ${active ? `${C.gold}66` : C.border}`,
-          borderRadius: 12,
-          color: active ? C.gold : C.muted,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "10px 12px",
-          fontSize: 12,
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
-      >
-        <Icon size={14} />
-        <span>{label}</span>
-      </button>
-    );
-  }
+      {/* Nav */}
+      <nav style={{ padding: "12px 10px", flex: 1 }}>
+        {items.map((item) => {
+          const isActive = active === item.id;
+          return (
+            <button key={item.id} onClick={() => setActive(item.id)} style={{
+              display: "flex", alignItems: "center", gap: 10,
+              width: "100%", background: isActive ? C.gold + "18" : "transparent",
+              color: isActive ? C.gold : C.muted,
+              border: isActive ? `1px solid ${C.gold}35` : "1px solid transparent",
+              borderRadius: 10, padding: "10px 12px",
+              fontSize: 13, fontWeight: isActive ? 600 : 400,
+              cursor: "pointer", textAlign: "left", marginBottom: 2,
+              transition: "all 0.15s", fontFamily: "inherit",
+            }}>
+              <span style={{ fontSize: 12, width: 16, textAlign: "center", opacity: isActive ? 1 : 0.6 }}>{item.icon}</span>
+              {item.label}
+            </button>
+          );
+        })}
+      </nav>
 
-  function Finvest() {
-    const [width, setWidth] = useState(window.innerWidth || 1200);
-    const [tab, setTab] = useState("visao");
-    const [monthlyExpense, setMonthlyExpense] = useState(4500);
-    const [reserveNow, setReserveNow] = useState(17800);
-
-    useEffect(() => {
-      const el = document.createElement("link");
-      el.rel = "stylesheet";
-      el.href =
-        "https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap";
-      document.head.appendChild(el);
-      return () => el.remove();
-    }, []);
-
-    useEffect(() => {
-      const onResize = () => setWidth(window.innerWidth || 1200);
-      window.addEventListener("resize", onResize);
-      return () => window.removeEventListener("resize", onResize);
-    }, []);
-
-    const compact = width < 1024;
-    const stack = width < 820;
-
-    const reserveTarget = useMemo(() => monthlyExpense * 6, [monthlyExpense]);
-    const reservePct = useMemo(() => (reserveTarget > 0 ? (reserveNow / reserveTarget) * 100 : 0), [reserveNow, reserveTarget]);
-    const estMonths = useMemo(() => {
-      const gap = Math.max(0, reserveTarget - reserveNow);
-      return gap === 0 ? 0 : Math.ceil(gap / 2200);
-    }, [reserveNow, reserveTarget]);
-
-    const wealthSeries = [
-      { mes: "Nov", v: 101000 },
-      { mes: "Dez", v: 104500 },
-      { mes: "Jan", v: 108900 },
-      { mes: "Fev", v: 106800 },
-      { mes: "Mar", v: 112400 },
-      { mes: "Abr", v: 118300 },
-    ];
-
-    const cashFlow = [
-      { mes: "Nov", entradas: 8200 },
-      { mes: "Dez", entradas: 9100 },
-      { mes: "Jan", entradas: 8700 },
-      { mes: "Fev", entradas: 9000 },
-      { mes: "Mar", entradas: 9600 },
-      { mes: "Abr", entradas: 10100 },
-    ];
-
-    const theses = [
-      { tese: "Macro Brasil", conv: 74, retorno: 13 },
-      { tese: "Commodities", conv: 62, retorno: 9 },
-      { tese: "Consumo", conv: 55, retorno: 7 },
-      { tese: "Financeiro", conv: 69, retorno: 11 },
-    ];
-
-    const alocacao = [
-      { nome: "Acoes BR", pct: 46, color: C.gold },
-      { nome: "Renda Fixa", pct: 31, color: C.teal },
-      { nome: "Caixa", pct: 14, color: C.sky },
-      { nome: "Internacional", pct: 9, color: C.purple },
-    ];
-
-    const reserveHints = [
-      { nome: "Tesouro Selic", prazo: "D+1", risco: "baixo", cor: C.teal },
-      { nome: "CDB D+1", prazo: "D+1", risco: "baixo", cor: C.sky },
-      { nome: "Conta remunerada", prazo: "D+0", risco: "baixo", cor: C.gold },
-    ];
-
-    const modules = [
-      { id: "visao", label: "Visao Geral", icon: LayoutDashboard },
-      { id: "reserva", label: "Reserva", icon: PiggyBank },
-      { id: "teses", label: "Teses", icon: Radar },
-      { id: "risco", label: "Risco", icon: ShieldCheck },
-      { id: "metricas", label: "Metricas", icon: BarChart3 },
-    ];
-
-    const reserveState =
-      reservePct < 40
-        ? { background: `${C.amber}18`, border: `1px solid ${C.amber}44`, color: C.amber, label: "Abaixo da faixa sugerida" }
-        : reservePct < 80
-          ? { background: `${C.teal}18`, border: `1px solid ${C.teal}44`, color: C.teal, label: "Progresso consistente" }
-          : { background: `${C.gold}22`, border: `1px solid ${C.gold}66`, color: C.gold, label: "Reserva em faixa robusta" };
-
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: compact ? "column" : "row",
-          background: `radial-gradient(circle at 14% 8%, ${C.faint} 0%, ${C.bg} 60%)`,
-          minHeight: 640,
-          fontFamily: "Sora, system-ui, sans-serif",
-          color: C.text,
-          borderRadius: 20,
-          overflow: "hidden",
-          border: `1px solid ${C.border}`,
-        }}
-      >
-        <aside
-          style={{
-            width: compact ? "100%" : 210,
-            background: C.card,
-            borderRight: compact ? "none" : `1px solid ${C.border}`,
-            borderBottom: compact ? `1px solid ${C.border}` : "none",
-            padding: compact ? 14 : 16,
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
-          <div
-            style={{
-              border: `1px solid ${C.border}`,
-              borderRadius: 14,
-              background: C.faint,
-              padding: "12px 12px",
-            }}
-          >
-            <p style={{ margin: 0, color: C.goldLight, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em" }}>GRÃO INVEST</p>
-            <p style={{ margin: "4px 0 0", color: C.muted, fontSize: 11 }}>Suite de simulacao e tese</p>
+      {/* Bottom */}
+      <div style={{ padding: "14px 16px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 30, height: 30, background: C.sky + "30", border: `1px solid ${C.sky}44`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: C.sky }}>AI</div>
+          <div>
+            <div style={{ color: C.text, fontSize: 12, fontWeight: 500 }}>Convidado</div>
+            <div style={{ color: C.muted, fontSize: 10 }}>ConfiguraÃ§Ãµes</div>
           </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: compact ? "repeat(3, minmax(0, 1fr))" : "1fr",
-              gap: 8,
-            }}
-          >
-            {modules.map((item) => (
-              <SidebarItem key={item.id} icon={item.icon} label={item.label} active={tab === item.id} onClick={() => setTab(item.id)} />
-            ))}
+function TabelaExercicio({ titulo, periodo, teses, esperado, alcancado, aprovadas }) {
+  const gapColor = parseFloat(alcancado) >= parseFloat(esperado) ? C.green : C.coral;
+  const gap = (parseFloat(alcancado) - parseFloat(esperado)).toFixed(2);
+
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ padding: "16px 20px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ color: C.text, fontWeight: 700, fontSize: 14 }}>{titulo}</div>
+          <div style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>{periodo}</div>
+        </div>
+        <Badge label={`${teses} teses`} type="info" />
+      </div>
+      <div style={{ padding: "14px 20px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+        {[
+          { label: "Teses", value: teses, color: C.text },
+          { label: "Esperado", value: `${esperado}%`, color: C.sky },
+          { label: "AlcanÃ§ado", value: `${alcancado}%`, color: parseFloat(alcancado) >= 0 ? C.teal : C.coral },
+          { label: "Gap", value: `${gap > 0 ? "+" : ""}${gap}pp`, color: gapColor },
+        ].map((s) => (
+          <div key={s.label} style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
+            <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{s.label}</div>
+            <div style={{ color: s.color, fontSize: 18, fontWeight: 700, fontFamily: mono }}>{s.value}</div>
           </div>
+        ))}
+      </div>
+      <div style={{ padding: "0 20px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ color: C.muted, fontSize: 11 }}>Aprovadas:</span>
+        <span style={{ color: C.green, fontWeight: 700, fontFamily: mono, fontSize: 13 }}>{aprovadas}</span>
+        <div style={{ flex: 1, height: 4, background: C.line, borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ width: `${(aprovadas / teses) * 100}%`, height: "100%", background: C.teal, borderRadius: 99 }} />
+        </div>
+        <span style={{ color: C.muted, fontSize: 10 }}>{Math.round((aprovadas / teses) * 100)}%</span>
+      </div>
+    </div>
+  );
+}
 
-          <Card style={{ padding: 12, marginTop: compact ? 0 : "auto" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <Activity size={14} color={C.teal} />
-              <p style={{ margin: 0, color: C.muted, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Status</p>
+function TabelaTeses({ rows, titulo }) {
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ padding: "16px 20px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ color: C.text, fontWeight: 700, fontSize: 14 }}>{titulo}</div>
+      </div>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+          <thead>
+            <tr style={{ background: C.panel }}>
+              {["#", "AÃ§Ã£o", "DireÃ§Ã£o", "Esperado", "Estrutura", "Entrada", "SaÃ­da se", "Desfecho", "Dias", "Status", "Resultado"].map((h) => (
+                <th key={h} style={{ padding: "9px 12px", color: C.muted, fontWeight: 600, textAlign: "left", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const resColor = r.resultado > 0 ? C.teal : r.resultado < 0 ? C.coral : C.muted;
+              return (
+                <tr key={i} style={{ borderBottom: `1px solid ${C.line}`, transition: "background 0.1s" }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = C.hover}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                  <td style={{ padding: "10px 12px", color: C.dim, fontFamily: mono }}>{r.id}</td>
+                  <td style={{ padding: "10px 12px", color: C.text, fontWeight: 700 }}>{r.ativo}</td>
+                  <td style={{ padding: "10px 12px" }}><Badge label={r.direcao} type={r.direcao === "Alta" ? "bull" : "bear"} /></td>
+                  <td style={{ padding: "10px 12px", color: C.sky, fontFamily: mono }}>{r.esperado}</td>
+                  <td style={{ padding: "10px 12px", color: C.muted, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.estrutura}</td>
+                  <td style={{ padding: "10px 12px", color: C.text, fontFamily: mono }}>R$ {r.entrada}</td>
+                  <td style={{ padding: "10px 12px", color: C.muted, fontFamily: mono, fontSize: 10 }}>{r.saida}</td>
+                  <td style={{ padding: "10px 12px" }}><Badge label={r.desfecho} type={r.desfecho?.includes("stop") ? "warning" : r.desfecho === "Tempo" ? "neutral" : "open"} /></td>
+                  <td style={{ padding: "10px 12px", color: C.muted, fontFamily: mono }}>{r.dias}d</td>
+                  <td style={{ padding: "10px 12px" }}><Badge label={r.status} type={r.status === "Aberta" ? "open" : "closed"} /></td>
+                  <td style={{ padding: "10px 12px", color: resColor, fontFamily: mono, fontWeight: 700 }}>{r.resultado > 0 ? "+" : ""}{r.resultado?.toFixed(2)}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+const tesisAbertas = [
+  {
+    id: 162, ativo: "MGLU3", direcao: "Alta", entrada: "9,25",
+    expected: 3.01, momentum: 0.83, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
+    saiGanho: "9,90", saiStop: "8,86", status: "Aberta", desfecho: "Em monitoramento",
+    inicio: "14/04",
+  },
+  {
+    id: 161, ativo: "MGLU3", direcao: "Alta", entrada: "9,39",
+    expected: 2.76, momentum: -0.36, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
+    saiGanho: "9,99", saiStop: "9,03", status: "Aberta", desfecho: "Em monitoramento",
+    inicio: "15/04",
+  },
+  {
+    id: 160, ativo: "PETR4", direcao: "Neutro", entrada: "41,03",
+    expected: 0.82, momentum: -3.88, estrutura: "Iron Condor Â· ganho 2,40% Â· perda 3,80%",
+    saiGanho: "41,03", saiStop: "40,41", status: "Aberta", desfecho: "Alerta de stop",
+    inicio: "21/04",
+  },
+];
+
+const tesesHistoricas = [
+  { id: 159, ativo: "PETR4", direcao: "Alta", esperado: "+4,82%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "40,53", saida: "â‰¥43,37 / â‰¤38,83", desfecho: "Tempo", dias: 13, status: "Fechada", resultado: 3.14 },
+];
+
+const tesesPosGoLive = [
+  { id: 160, ativo: "PETR4", direcao: "Neutro", esperado: "+0,82%", estrutura: "Iron Condor | ganho 2,40% | perda 3,80%", entrada: "41,03", saida: "â‰¥41,03 / â‰¤40,41", desfecho: "Alerta de stop", dias: 0, status: "Aberta", resultado: -3.88 },
+  { id: 161, ativo: "MGLU3", direcao: "Alta", esperado: "+2,76%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,39", saida: "â‰¥9,99 / â‰¤9,03", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: -0.36 },
+  { id: 162, ativo: "MGLU3", direcao: "Alta", esperado: "+3,01%", estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%", entrada: "9,25", saida: "â‰¥9,90 / â‰¤8,86", desfecho: "Em monitoramento", dias: 0, status: "Aberta", resultado: 0.83 },
+];
+
+// â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function GraoDashboard() {
+  const [activeNav, setActiveNav] = useState("dashboard");
+  const [now, setNow] = useState("");
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap";
+    document.head.appendChild(link);
+    const tick = () => setNow(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => { clearInterval(t); link.remove(); };
+  }, []);
+
+  return (
+    <div style={{
+      display: "flex", background: C.bg, minHeight: 640,
+      fontFamily: "Sora, system-ui, sans-serif", color: C.text,
+      borderRadius: 18, overflow: "hidden", border: `1px solid ${C.border}`,
+    }}>
+      <Sidebar active={activeNav} setActive={setActiveNav} />
+
+      {/* Main */}
+      <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
+
+        {/* Topbar */}
+        <div style={{ borderBottom: `1px solid ${C.border}`, padding: "14px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", background: C.panel, flexShrink: 0 }}>
+          <div>
+            <div style={{ color: C.text, fontSize: 17, fontWeight: 700, letterSpacing: "-0.02em" }}>Dashboard</div>
+            <div style={{ color: C.muted, fontSize: 11, marginTop: 1 }}>VisÃ£o consolidada da simulaÃ§Ã£o, risco e trilha operacional</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, background: C.amber + "18", border: `1px solid ${C.amber}35`, borderRadius: 8, padding: "5px 10px" }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.amber, display: "inline-block", boxShadow: `0 0 8px ${C.amber}` }} />
+              <span style={{ color: C.amber, fontSize: 11, fontWeight: 600 }}>Feed sem telemetria</span>
             </div>
-            <p style={{ margin: 0, color: C.text, fontSize: 12 }}>Dados sincronizados ate 09:30 BRT</p>
-          </Card>
-        </aside>
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 12px" }}>
+              <span style={{ color: C.muted, fontSize: 11, fontFamily: mono }}>01/05 Â· {now}</span>
+            </div>
+            <button style={{ background: C.gold, color: "#000", border: "none", borderRadius: 9, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", letterSpacing: "0.02em" }}>
+              Atualizar â†º
+            </button>
+          </div>
+        </div>
 
-        <main style={{ flex: 1, overflow: "auto", padding: compact ? "18px 16px 26px" : "28px 28px 40px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: stack ? "flex-start" : "center", gap: 10, marginBottom: 18, flexDirection: stack ? "column" : "row" }}>
+        {/* Content */}
+        <div style={{ padding: "24px 28px 40px", display: "flex", flexDirection: "column", gap: 24 }}>
+
+          {/* Section title */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: C.text, margin: 0 }}>Painel de Planejamento e Teses</h2>
-              <p style={{ margin: "5px 0 0", color: C.muted, fontSize: 12 }}>Visao integrada de patrimonio, reserva e acompanhamento das hipoteses.</p>
+              <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>Resumo de teses</div>
+              <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>PerÃ­odo: 20/04/2026 â†’ 01/05/2026 Â· histÃ³rico total</div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.green, fontSize: 12, fontWeight: 600 }}>
-              <ArrowUpRight size={14} />
-              <span>Capital em alta no mes</span>
+            <Badge label="162 teses testadas" type="info" />
+          </div>
+
+          {/* KPI grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+            <KPICard label="Teses testadas" value="162" sub="20/04 â†’ 01/05" accent={C.sky} icon="â—Ž" />
+            <KPICard label="ExpectÃ¢ncia lÃ­quida" value="+3,07%" sub="MÃ©dia por tese resolvida" valueColor={C.teal} accent={C.teal} icon="ã€œ" />
+            <KPICard label="Taxa de sucesso" value="93,83%" sub="152 de 162 teses" valueColor={C.green} accent={C.green} icon="âœ“" />
+            <KPICard
+              label="Alvo / Stop / Tempo"
+              value={<span style={{ fontSize: 15, letterSpacing: 0 }}>
+                <span style={{ color: C.teal }}>93,83%</span>
+                <span style={{ color: C.dim }}> / </span>
+                <span style={{ color: C.coral }}>3,09%</span>
+                <span style={{ color: C.dim }}> / </span>
+                <span style={{ color: C.gold }}>3,09%</span>
+              </span>}
+              sub="Em monitoramento: 0,00%"
+              accent={C.gold}
+              icon="â—¬"
+            />
+            <KPICard label="Tempo mÃ©dio" value="13 dias" sub="Amostra: 1 tese" valueColor={C.amber} accent={C.amber} icon="â—·" />
+          </div>
+
+          {/* Active theses */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>OperaÃ§Ãµes ativas das teses</div>
+              <Badge label="3 abertas" type="open" />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+              {tesisAbertas.map((t) => <ThesisCard key={t.id} thesis={t} />)}
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: stack ? "1fr" : "1fr 1fr 1fr", gap: 12, marginBottom: 18 }}>
-            <MetricCard label="Patrimonio Atual" value={fmt(118300)} sub="Fechamento parcial do mes" large />
-            <MetricCard label="PnL MTD" value={fmt(5900)} sub="Variacao acumulada em abril" color={C.green} />
-            <MetricCard label="Caixa Disponivel" value={fmt(16500)} sub={`Cobertura de ${fmtK(reservePct)}% da reserva alvo`} color={C.teal} />
+          {/* ExercÃ­cio histÃ³rico + pÃ³s go-live */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <TabelaExercicio
+              titulo="ExercÃ­cio histÃ³rico"
+              periodo="atÃ© 2026-04-27 Â· base histÃ³rica global â€” case studies consolidados"
+              teses={97} esperado="4,43" alcancado="3,41" aprovadas={96}
+            />
+            <TabelaExercicio
+              titulo="ExercÃ­cio pÃ³s go-live"
+              periodo="desde 2026-04-27 Â· simulaÃ§Ã£o atual â€” teses monitoradas"
+              teses={3} esperado="2,20" alcancado="-1,11" aprovadas={0}
+            />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: stack ? "1fr" : "1fr 1.5fr", gap: 18, marginBottom: 18 }}>
-            <Card>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: C.text }}>Reserva de Emergencia</h3>
-                <Tag color={reserveState.color}>6x despesas</Tag>
-              </div>
+          {/* Teses histÃ³ricas table */}
+          <TabelaTeses titulo="Teses histÃ³ricas (encerradas)" rows={tesesHistoricas} />
 
-              <Slider label="Despesas mensais" value={monthlyExpense} min={1000} max={15000} step={100} onChange={setMonthlyExpense} display={fmt} />
-              <Slider
-                label="Reserva atual"
-                value={reserveNow}
-                min={0}
-                max={Math.max(20000, reserveTarget * 2)}
-                step={100}
-                onChange={setReserveNow}
-                display={fmt}
-              />
+          {/* Teses pÃ³s go-live table */}
+          <TabelaTeses titulo="Teses pÃ³s go-live (em aberto)" rows={tesesPosGoLive} />
 
-              <MetricCard label="Valor alvo da reserva" value={fmt(reserveTarget)} sub={`Aporte estimado para concluir em ${fmtK(estMonths)} meses`} color={C.gold} />
-
-              <div style={{ marginTop: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, color: C.muted, fontSize: 12 }}>
-                  <span>Progresso</span>
-                  <span style={{ color: C.gold, fontFamily: "Space Mono, monospace" }}>{fmtK(reservePct)}%</span>
-                </div>
-                <Bar2 pct={reservePct} color={reservePct >= 100 ? C.green : C.gold} h={8} />
-              </div>
-
-              <div style={{ marginTop: 14, borderRadius: 10, padding: "10px 12px", ...reserveState }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 600 }}>{reserveState.label}</p>
-              </div>
-
-              <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
-                {reserveHints.map((item) => (
-                  <Card key={item.nome} style={{ padding: "10px 12px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                      <div>
-                        <p style={{ margin: 0, color: C.text, fontSize: 13, fontWeight: 600 }}>{item.nome}</p>
-                        <p style={{ margin: "2px 0 0", color: C.muted, fontSize: 12 }}>Liquidez {item.prazo} · Risco {item.risco}</p>
-                      </div>
-                      <Tag color={item.cor}>Liquidez</Tag>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </Card>
-
-            <Card style={{ minHeight: 360 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: C.text }}>Evolucao do Patrimonio</h3>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.gold, fontSize: 12 }}>
-                  <Wallet size={14} />
-                  <span>{fmt(wealthSeries[wealthSeries.length - 1].v)}</span>
-                </div>
-              </div>
-              <div style={{ height: 290 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={wealthSeries} margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
-                    <defs>
-                      <linearGradient id="grad-patrimonio" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={C.gold} stopOpacity={0.4} />
-                        <stop offset="100%" stopColor={C.gold} stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid stroke={C.border} strokeDasharray="3 3" />
-                    <XAxis dataKey="mes" tick={{ fill: C.muted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={fmtK} />
-                    <Tooltip content={<TooltipBox />} />
-                    <Area type="monotone" dataKey="v" stroke={C.gold} strokeWidth={2.5} fill="url(#grad-patrimonio)" dot={false} name="Patrimonio" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: stack ? "1fr" : "1fr 1fr", gap: 18 }}>
-            <Card>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: C.text }}>Alocacao Atual</h3>
-                <Tag color={C.sky}>Carteira</Tag>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: stack ? "1fr" : "220px 1fr", gap: 8, alignItems: "center" }}>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <PieChart width={200} height={200}>
-                    <Pie data={alocacao} cx={100} cy={100} innerRadius={52} outerRadius={88} dataKey="pct" paddingAngle={3} nameKey="nome">
-                      {alocacao.map((item, i) => (
-                        <Cell key={i} fill={item.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<TooltipBox />} formatter={(value) => [`${fmtK(value)}%`]} />
-                  </PieChart>
-                </div>
-                <div style={{ display: "grid", gap: 10 }}>
-                  {alocacao.map((item) => (
-                    <div key={item.nome}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                        <span style={{ color: C.muted, fontSize: 12 }}>{item.nome}</span>
-                        <span style={{ color: item.color, fontSize: 12, fontFamily: "Space Mono, monospace" }}>{fmtK(item.pct)}%</span>
-                      </div>
-                      <Bar2 pct={item.pct} color={item.color} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
-
-            <Card style={{ minHeight: 290 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: C.text }}>Radar de Teses</h3>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.teal, fontSize: 12 }}>
-                  <Target size={14} />
-                  <span>Cenarios em observacao</span>
-                </div>
-              </div>
-              <div style={{ height: 220 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={theses} margin={{ top: 0, right: 12, bottom: 0, left: 0 }}>
-                    <CartesianGrid stroke={C.border} strokeDasharray="3 3" />
-                    <XAxis dataKey="tese" tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={fmtK} />
-                    <Tooltip content={<TooltipBox />} />
-                    <Bar dataKey="conv" name="Conviccao" fill={C.sky} radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="retorno" name="Retorno esp." fill={C.teal} radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </div>
-
-          <Card style={{ marginTop: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: C.text }}>Fluxo de Entradas Simulado</h3>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.purple, fontSize: 12 }}>
-                <Activity size={14} />
-                <span>Media mensal {fmt(9283)}</span>
-              </div>
-            </div>
-            <div style={{ height: 200 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={cashFlow} margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
-                  <defs>
-                    <linearGradient id="grad-cashflow" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={C.teal} stopOpacity={0.35} />
-                      <stop offset="100%" stopColor={C.teal} stopOpacity={0.02} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke={C.border} strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" tick={{ fill: C.muted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={fmtK} />
-                  <Tooltip content={<TooltipBox />} />
-                  <Area type="monotone" dataKey="entradas" stroke={C.teal} strokeWidth={2.5} fill="url(#grad-cashflow)" dot={false} name="Entradas" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </main>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   const rootNode = document.getElementById("finvest-root");
   if (!rootNode) {
     return;
   }
   const root = window.ReactDOM.createRoot(rootNode);
-  root.render(<Finvest />);
+  root.render(<GraoDashboard />);
 })();

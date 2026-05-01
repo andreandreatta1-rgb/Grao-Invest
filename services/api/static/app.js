@@ -335,7 +335,7 @@ function handleSessionExpired() {
   if (!AUTH_REQUIRED) {
     enableAnonymousSession();
     hideAuthGate();
-    switchView("dashboard");
+    switchView("finvest");
     void loadDashboard();
     return;
   }
@@ -1205,7 +1205,7 @@ function bindNavigation() {
         enableAnonymousSession();
         hideAuthGate();
         updateUserChip();
-        switchView("dashboard");
+        switchView("finvest");
         void loadDashboard();
         showToast("info", "Sessao reiniciada.");
       } else {
@@ -1336,7 +1336,7 @@ function completeLogin(loginResult, fallback = {}) {
   state.pendingLogin = null;
   hideAuthGate();
   updateUserChip();
-  switchView("dashboard");
+  switchView("finvest");
   checkAndShowOnboarding();
   void loadDashboard();
   void refreshFeedStatus();
@@ -2875,7 +2875,7 @@ function showAuthenticatedExperience() {
   hideAuthGate();
   updateUserChip();
   restoreSidebarState();
-  switchView("dashboard");
+  switchView("finvest");
   checkAndShowOnboarding();
   startRealtimeStreams();
   void loadDashboard();
@@ -2895,7 +2895,7 @@ function bootstrap() {
   bindGameHandlers();
   bindAlertsHandlers();
 
-  switchView("dashboard");
+  switchView("finvest");
   updateClock();
   void refreshFeedStatus();
   ensureLucideIcons();

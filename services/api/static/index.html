@@ -187,7 +187,7 @@
         </div>
 
         <nav class="menu" aria-label="Módulos">
-          <button class="menu-item is-active" data-view-button="dashboard" type="button">
+          <button class="menu-item" data-view-button="dashboard" type="button">
             <i data-lucide="layout-dashboard"></i>
             <span class="menu-label">Dashboard</span>
           </button>
@@ -215,7 +215,7 @@
             <i data-lucide="bell"></i>
             <span class="menu-label">Alertas</span>
           </button>
-          <button class="menu-item" data-view-button="finvest" type="button">
+          <button class="menu-item is-active" data-view-button="finvest" type="button">
             <i data-lucide="radar"></i>
             <span class="menu-label">Grão Invest</span>
           </button>
@@ -257,7 +257,7 @@
         </header>
 
         <main class="main-content">
-          <section class="view-panel is-active" data-view="dashboard">
+          <section class="view-panel" data-view="dashboard">
             <div class="panel-head panel-head-inline">
               <h2>Resumo de teses</h2>
               <button id="dashboard-refresh" type="button">Atualizar dashboard</button>
@@ -606,7 +606,7 @@
             </article>
           </section>
 
-          <section class="view-panel" data-view="finvest">
+          <section class="view-panel is-active" data-view="finvest">
             <div id="finvest-root" aria-label="Painel Grão Invest"></div>
           </section>
         </main>
@@ -620,7 +620,7 @@
       Operações são simuladas. CVM Res. 19/2021.
     </footer>
 
-    <script src="/static/app.js?v=20260501n"></script>
+    <script src="/static/app.js?v=20260501o"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
@@ -630,9 +630,10 @@
     </script>
     <script crossorigin src="https://cdn.jsdelivr.net/npm/lucide-react@0.468.0/dist/umd/lucide-react.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel" data-presets="react" src="/static/finvest.jsx"></script>
+    <script type="text/babel" data-presets="react" src="/static/finvest.jsx?v=20260501a"></script>
   </body>
 </html>
+
 
 
 
