@@ -434,6 +434,8 @@ function renderDashboardLoading() {
     "dashboard-history-metrics",
     "dashboard-history-evolution",
     "dashboard-thesis-open-operations",
+    "dashboard-thesis-historical-operations",
+    "dashboard-thesis-current-operations",
     "dashboard-current-daily-table",
     "dashboard-coverage-summary",
     "dashboard-coverage-table",
@@ -889,18 +891,49 @@ function renderPhaseSummaries(data) {
 }
 
 function renderThesisOpenOperations(data) {
-  const body = byId("dashboard-thesis-open-operations");
-  if (!body) {
+  const historicalBody = byId("dashboard-thesis-historical-operations");
+  const currentBody = byId("dashboard-thesis-current-operations");
+  const legacyBody = byId("dashboard-thesis-open-operations");
+  if (!historicalBody && !currentBody && !legacyBody) {
     return;
   }
   const rows = Array.isArray(data.thesis_open_operations) ? data.thesis_open_operations : [];
-  if (!rows.length) {
-    body.innerHTML = "<tr><td colspan='11'>Sem resultados de teses no momento.</td></tr>";
-    return;
-  }
 
-  body.innerHTML = rows
-    .map((row) => {
+  const kickoffDate = String(data.phase_kickoff_date || "2026-04-27");
+
+  const classifyPhase = (row) => {
+    const explicitPhase = String(row.phase || row.source_phase || "").toLowerCase();
+    if (explicitPhase.includes("histor")) {
+      return "historical";
+    }
+    if (
+      explicitPhase.includes("pos")
+      || explicitPhase.includes("go_live")
+      || explicitPhase.includes("go-live")
+      || explicitPhase.includes("current")
+    ) {
+      return "current";
+    }
+    const operationPlan = String(row.operation_plan || "").toLowerCase();
+    if (operationPlan.includes("case study historico")) {
+      return "historical";
+    }
+    const thesisDateRaw = String(
+      row.thesis_raised_at || row.entry_time || row.reference_day || row.suggested_entry_time || "",
+    );
+    const thesisDay = thesisDateRaw.length >= 10 ? thesisDateRaw.slice(0, 10) : "";
+    if (thesisDay && kickoffDate && thesisDay < kickoffDate) {
+      return "historical";
+    }
+    return "current";
+  };
+
+  const renderRows = (targetRows, emptyMessage) => {
+    if (!targetRows.length) {
+      return `<tr><td colspan='11'>${escapeHtml(emptyMessage)}</td></tr>`;
+    }
+    return targetRows
+      .map((row) => {
       const status = String(row.status || "-");
       const statusLower = status.toLowerCase();
       const statusTone = statusLower.includes("aberta") ? "tone-warning" : "tone-success";
@@ -914,7 +947,9 @@ function renderThesisOpenOperations(data) {
             ? "tone-warning"
             : "tone-accent";
       const durationDays = Number(row.duration_days);
-      const durationLabel = Number.isFinite(durationDays) ? `${formatMetric(durationDays)} d` : "-";
+      const durationLabel = Number.isFinite(durationDays)
+        ? `${formatNumber(Math.round(durationDays))} d`
+        : "-";
       const momentValue = Number(row.moment_result_pct || 0);
       const momentTone = momentValue >= 0 ? "tone-success" : "tone-danger";
       return `
@@ -932,8 +967,35 @@ function renderThesisOpenOperations(data) {
         <td class="mono ${momentTone}">${escapeHtml(formatMetric(momentValue))}%</td>
       </tr>
     `;
-    })
-    .join("");
+      })
+      .join("");
+  };
+
+  const historicalRows = [];
+  const currentRows = [];
+  rows.forEach((row) => {
+    if (classifyPhase(row) === "historical") {
+      historicalRows.push(row);
+    } else {
+      currentRows.push(row);
+    }
+  });
+
+  if (historicalBody) {
+    historicalBody.innerHTML = renderRows(
+      historicalRows,
+      "Sem teses históricas no momento.",
+    );
+  }
+  if (currentBody) {
+    currentBody.innerHTML = renderRows(
+      currentRows,
+      "Sem teses pós go-live no momento.",
+    );
+  }
+  if (legacyBody && !historicalBody && !currentBody) {
+    legacyBody.innerHTML = renderRows(rows, "Sem resultados de teses no momento.");
+  }
 }
 
 function renderDashboard(data) {

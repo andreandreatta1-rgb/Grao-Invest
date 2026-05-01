@@ -1847,13 +1847,13 @@ def dashboard_summary(
             return max(valid_exit_times)
         return _safe_datetime(fallback)
 
-    def _duration_days(entry_time: object, exit_time: object) -> float | None:
+    def _duration_days(entry_time: object, exit_time: object) -> int | None:
         start_dt = _safe_datetime(entry_time)
         end_dt = _safe_datetime(exit_time)
         if start_dt is None or end_dt is None:
             return None
         delta_days = (end_dt - start_dt).total_seconds() / 86400.0
-        return round(max(0.0, delta_days), 2)
+        return int(round(max(0.0, delta_days)))
 
     def _humanize_signal(signal: object) -> str:
         raw = str(signal or "").strip()
@@ -1864,6 +1864,7 @@ def dashboard_summary(
 
     def _build_thesis_candidate_reason(
         *,
+        instrument: str,
         reason_category: str,
         direction: str,
         confidence_pct: float,
@@ -1872,15 +1873,122 @@ def dashboard_summary(
         news_support_pct: float,
         why_signals: list[str],
     ) -> str:
-        direction_label = direction.strip().lower() or "misto"
-        category_label = reason_category.strip() or "sinais combinados"
-        top_signals = [_humanize_signal(item) for item in why_signals if _humanize_signal(item)]
-        signal_excerpt = ", ".join(top_signals[:3]) if top_signals else "sem sinais detalhados"
+        def _friendly_direction(raw_direction: str) -> str:
+            normalized = raw_direction.strip().lower()
+            if normalized == "bullish":
+                return "de alta"
+            if normalized == "bearish":
+                return "de queda"
+            if normalized == "range":
+                return "de estabilidade"
+            return "de movimento misto"
+
+        def _friendly_category(raw_category: str) -> str:
+            normalized = raw_category.strip().lower()
+            if "case study" in normalized or "historico" in normalized:
+                return "comparamos com situações parecidas do histórico e encontramos um padrão semelhante"
+            if "grafico" in normalized or "tecnico" in normalized:
+                return "o comportamento recente do preço indicou uma oportunidade"
+            return "o conjunto de sinais apontou uma oportunidade com boa consistência"
+
+        def _friendly_signal(raw_signal: str) -> str:
+            normalized = _humanize_signal(raw_signal).lower()
+            if not normalized:
+                return ""
+            signal_map: list[tuple[str, str]] = [
+                ("momento bullish", "preço com sinal de subida"),
+                ("momento bearish", "preço com sinal de queda"),
+                ("momento range", "preço em faixa estável"),
+                ("suporte tecnico", "gráfico confirmou o movimento"),
+                ("suporte fundamental", "dados da empresa favoráveis"),
+                ("suporte news", "notícias mais positivas"),
+                ("suporte historico", "padrão parecido com casos anteriores"),
+                ("volatilidade", "oscilações em nível controlado"),
+                ("valuation", "preço considerado atrativo"),
+                ("rentabilidade", "rentabilidade da empresa consistente"),
+                ("crescimento receita", "receita em crescimento"),
+                ("dividend yield", "dividendos em nível favorável"),
+            ]
+            for token, label in signal_map:
+                if token in normalized:
+                    return label
+            return normalized[:56]
+
+        direction_label = _friendly_direction(direction)
+        category_label = _friendly_category(reason_category)
+        top_signals: list[str] = []
+        for item in why_signals:
+            friendly = _friendly_signal(item)
+            if friendly and friendly not in top_signals:
+                top_signals.append(friendly)
+            if len(top_signals) >= 3:
+                break
+        signal_excerpt = (
+            ", ".join(top_signals)
+            if top_signals
+            else "preço, fundamentos e contexto"
+        )
+        confidence_label = (
+            "alto"
+            if confidence_pct >= 75.0
+            else "médio"
+            if confidence_pct >= 60.0
+            else "em observação"
+        )
+        support_score = (technical_support_pct + fundamental_support_pct + news_support_pct) / 3.0
+        support_label = (
+            "forte"
+            if support_score >= 75.0
+            else "razoável"
+            if support_score >= 55.0
+            else "mista"
+        )
+        instrument_label = instrument.strip().upper() if instrument.strip() else "o ativo"
+        direction_label = _friendly_direction(direction)
         return (
-            f"Candidato por {category_label} ({direction_label}). "
-            f"Confianca {confidence_pct:.2f}%. "
-            f"Suportes T/F/N: {technical_support_pct:.2f}%/{fundamental_support_pct:.2f}%/{news_support_pct:.2f}%. "
-            f"Sinais chave: {signal_excerpt}."
+            f"Tese {direction_label} para {instrument_label}: {category_label}. "
+            f"O que pesou na decisão: {signal_excerpt}. "
+            f"Nível de confiança {confidence_label} e sustentação {support_label}."
+        )
+
+    def _build_operation_plan_text(
+        *,
+        direction: str,
+        operation_side: str,
+        exit_day: str,
+        entry_price: float,
+        target_price: float,
+        stop_price: float,
+        expected_result_pct: float,
+    ) -> str:
+        direction_label = direction.strip().lower()
+        prazo = exit_day or "-"
+        if direction_label == "bullish":
+            return (
+                f"{operation_side} até {prazo}. "
+                f"Plano: buscar alta de {entry_price:.2f} para perto de {target_price:.2f}. "
+                f"Se cair para {stop_price:.2f}, encerramos para proteger a posição. "
+                f"Retorno esperado: {expected_result_pct:.2f}%."
+            )
+        if direction_label == "bearish":
+            return (
+                f"{operation_side} até {prazo}. "
+                f"Plano: capturar queda de {entry_price:.2f} em direção a {target_price:.2f}. "
+                f"Se subir para {stop_price:.2f}, encerramos para limitar perda. "
+                f"Retorno esperado: {expected_result_pct:.2f}%."
+            )
+        if direction_label == "range":
+            lower_bound = min(stop_price, target_price)
+            upper_bound = max(stop_price, target_price)
+            return (
+                f"{operation_side} até {prazo}. "
+                f"Plano: operar em faixa, esperando preço entre {lower_bound:.2f} e {upper_bound:.2f}. "
+                f"Se sair dessa faixa, encerramos para proteção. "
+                f"Retorno esperado: {expected_result_pct:.2f}%."
+            )
+        return (
+            f"{operation_side} até {prazo}, com saída por alvo ou stop de proteção. "
+            f"Retorno esperado: {expected_result_pct:.2f}%."
         )
 
     def _load_json_dict(path: Path) -> dict[str, object] | None:
@@ -2726,6 +2834,18 @@ def dashboard_summary(
             max_gain_pct = round(_safe_number(operation_dict.get("max_gain_pct"), 0.0), 4)
             max_loss_pct = round(_safe_number(operation_dict.get("max_loss_pct"), 0.0), 4)
             suggested_exit_time = str(selected_case_dict.get("suggested_exit_time") or "")
+            expected_result_pct = round(
+                _safe_number(
+                    thesis_dict.get("expected_financial_pct"),
+                    selected_case_dict.get("kpis", {}).get("expected_financial_pct")
+                    if isinstance(selected_case_dict.get("kpis"), dict)
+                    else 0.0,
+                ),
+                4,
+            )
+            entry_price = round(_safe_number(thesis_dict.get("entry_price"), 0.0), 4)
+            target_price = round(_safe_number(thesis_dict.get("target_price"), 0.0), 4)
+            stop_price = round(_safe_number(thesis_dict.get("stop_price"), 0.0), 4)
             supporting_signals = thesis_dict.get("supporting_signals")
             supporting_signals_list = (
                 [str(value) for value in supporting_signals if isinstance(value, (str, int, float))]
@@ -2733,6 +2853,7 @@ def dashboard_summary(
                 else []
             )
             thesis_reason = _build_thesis_candidate_reason(
+                instrument=str(thesis_dict.get("instrument") or ""),
                 reason_category="case study historico",
                 direction=str(thesis_dict.get("direction") or ""),
                 confidence_pct=round(_safe_number(thesis_dict.get("confidence_tese_pct"), 0.0), 4),
@@ -2743,29 +2864,31 @@ def dashboard_summary(
             )
             thesis_open_operations.append(
                 {
+                    "phase": "historico",
                     "thesis_number": len(thesis_open_operations) + 1,
                     "thesis_id": str(thesis_dict.get("thesis_id") or "case-study"),
+                    "thesis_raised_at": str(
+                        selected_case_dict.get("thesis_raised_at")
+                        or thesis_dict.get("entry_time")
+                        or ""
+                    ),
                     "action": str(thesis_dict.get("instrument") or "n/d"),
                     "thesis_reason": thesis_reason,
-                    "expected_result_pct": round(
-                        _safe_number(
-                            thesis_dict.get("expected_financial_pct"),
-                            selected_case_dict.get("kpis", {}).get("expected_financial_pct")
-                            if isinstance(selected_case_dict.get("kpis"), dict)
-                            else 0.0,
-                        ),
-                        4,
-                    ),
-                    "operation_plan": (
-                        f"{operation_side} ate {as_day(suggested_exit_time) or suggested_exit_time or '-'} "
-                        f"(case study historico)"
+                    "expected_result_pct": expected_result_pct,
+                    "operation_plan": _build_operation_plan_text(
+                        direction=direction,
+                        operation_side=operation_side,
+                        exit_day=as_day(suggested_exit_time) or suggested_exit_time or "-",
+                        entry_price=entry_price,
+                        target_price=target_price,
+                        stop_price=stop_price,
+                        expected_result_pct=expected_result_pct,
                     ),
                     "structured_operation": (
                         f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
                     ),
                     "exit_rule": (
-                        f"Sai acima de {round(_safe_number(thesis_dict.get('target_price'), 0.0), 4)} "
-                        f"ou abaixo de {round(_safe_number(thesis_dict.get('stop_price'), 0.0), 4)}"
+                        f"Sai acima de {target_price} ou abaixo de {stop_price}"
                     ),
                     "status": "Fechada",
                     "outcome": outcome_label,
@@ -2793,14 +2916,16 @@ def dashboard_summary(
             operation = item.get("suggested_operation")
             operation_dict = operation if isinstance(operation, dict) else {}
             strategy_name = str(operation_dict.get("strategy_name") or operation_dict.get("strategy_id") or "n/d")
-            operation_rationale = str(
-                operation_dict.get("rationale") or item.get("suggested_action") or "n/d"
-            )
             max_gain_pct = round(_safe_number(operation_dict.get("max_gain_pct"), 0.0), 4)
             max_loss_pct = round(_safe_number(operation_dict.get("max_loss_pct"), 0.0), 4)
             target_price = round(_safe_number(item.get("target_price"), 0.0), 4)
             stop_price = round(_safe_number(item.get("stop_price"), 0.0), 4)
+            entry_price = round(_safe_number(item.get("entry_price"), 0.0), 4)
             suggested_exit_time = str(item.get("suggested_exit_time") or "")
+            expected_result_pct = round(
+                _safe_number(item.get("expected_financial_pct"), 0.0),
+                4,
+            )
 
             why_thesis = item.get("why_thesis")
             why_list = (
@@ -2810,6 +2935,7 @@ def dashboard_summary(
             )
             thesis_reason = str(item.get("reason_category") or "")
             thesis_reason = _build_thesis_candidate_reason(
+                instrument=str(item.get("instrument") or ""),
                 reason_category=thesis_reason or "monitoramento atual",
                 direction=str(item.get("direction") or ""),
                 confidence_pct=round(_safe_number(item.get("confidence_tese_pct"), 0.0), 4),
@@ -2873,17 +2999,25 @@ def dashboard_summary(
 
             thesis_open_operations.append(
                 {
+                    "phase": "pos_go_live",
                     "thesis_number": len(thesis_open_operations) + 1,
                     "thesis_id": str(item.get("thesis_id") or f"Tese {index + 1}"),
+                    "thesis_raised_at": str(
+                        item.get("thesis_raised_at")
+                        or item.get("suggested_entry_time")
+                        or ""
+                    ),
                     "action": str(item.get("instrument") or "n/d"),
                     "thesis_reason": thesis_reason,
-                    "expected_result_pct": round(
-                        _safe_number(item.get("expected_financial_pct"), 0.0),
-                        4,
-                    ),
-                    "operation_plan": (
-                        f"{operation_side} ate {as_day(suggested_exit_time) or suggested_exit_time or '-'} "
-                        f"({operation_rationale})"
+                    "expected_result_pct": expected_result_pct,
+                    "operation_plan": _build_operation_plan_text(
+                        direction=direction,
+                        operation_side=operation_side,
+                        exit_day=as_day(suggested_exit_time) or suggested_exit_time or "-",
+                        entry_price=entry_price,
+                        target_price=target_price,
+                        stop_price=stop_price,
+                        expected_result_pct=expected_result_pct,
                     ),
                     "structured_operation": (
                         f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"

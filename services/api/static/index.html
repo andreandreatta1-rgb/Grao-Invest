@@ -282,8 +282,8 @@
             </div>
 
             <article class="subpanel">
-              <h3>Resultados das teses avaliadas</h3>
-              <table class="data-table" role="table" aria-label="Resultados das teses avaliadas">
+              <h3>Teses históricas</h3>
+              <table class="data-table" role="table" aria-label="Teses historicas avaliadas">
                 <thead>
                   <tr>
                     <th scope="col">Tese Nº</th>
@@ -299,7 +299,29 @@
                     <th scope="col">Resultado líquido</th>
                   </tr>
                 </thead>
-                <tbody id="dashboard-thesis-open-operations"></tbody>
+                <tbody id="dashboard-thesis-historical-operations"></tbody>
+              </table>
+            </article>
+
+            <article class="subpanel">
+              <h3>Teses pós go-live</h3>
+              <table class="data-table" role="table" aria-label="Teses pos go-live avaliadas">
+                <thead>
+                  <tr>
+                    <th scope="col">Tese Nº</th>
+                    <th scope="col">Ação</th>
+                    <th scope="col">Motivo da tese</th>
+                    <th scope="col">Resultado esperado</th>
+                    <th scope="col">Operação (lado, prazo e motivo)</th>
+                    <th scope="col">Operação estruturada</th>
+                    <th scope="col">Sai se</th>
+                    <th scope="col">Desfecho</th>
+                    <th scope="col">Dias até resultado</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Resultado líquido</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-thesis-current-operations"></tbody>
               </table>
             </article>
           </section>
@@ -594,7 +616,7 @@
       Operações são simuladas. CVM Res. 19/2021.
     </footer>
 
-    <script src="/static/app.js?v=20260501j"></script>
+    <script src="/static/app.js?v=20260501k"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
