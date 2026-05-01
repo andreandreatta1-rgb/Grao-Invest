@@ -1,0 +1,26 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/services/api/static/index.html"
+    },
+    {
+      "source": "/static/(.*)",
+      "destination": "/services/api/static/$1"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "https://YOUR_BACKEND_DOMAIN/api/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "https://YOUR_BACKEND_DOMAIN/health"
+    },
+    {
+      "source": "/ws/(.*)",
+      "destination": "https://YOUR_BACKEND_DOMAIN/ws/$1"
+    }
+  ]
+}
+

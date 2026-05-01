@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectone.local/specs/events/market_tick.schema.json",
+  "title": "MarketTickV1",
+  "type": "object",
+  "required": [
+    "event_type",
+    "version",
+    "instrument",
+    "provider",
+    "event_time",
+    "ingest_time",
+    "price",
+    "volume"
+  ],
+  "properties": {
+    "event_type": {
+      "const": "market.tick.normalized.v1"
+    },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "instrument": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingest_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "price": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "volume": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "BRL"
+    },
+    "source_payload_id": {
+      "type": ["string", "null"]
+    }
+  },
+  "additionalProperties": false
+}

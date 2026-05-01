@@ -1,0 +1,66 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+token.txt
+**/token.txt
+
+# Logs and temporary runtime files
+*.log
+.tmp_*.log
+cloudflared_tunnel.*.log
+uvicorn*.log
+
+# Local database and generated runtime data
+data/app.db
+data/app.db-*
+data/*.sqlite
+data/*.sqlite3
+data/b3/
+data/lake/
+data/reports/
+data/*_latest.json
+data/*_latest.md
+data/*_snapshot.svg
+data/*_state.json
+data/*_profile.json
+data/*_cycle.json
+data/kpi_*.json
+data/aie_spec_extracted.txt
+data/uiux_spec_extracted.txt
+data/instrucoes_redesign.txt
+
+# Keep small example inputs versioned
+data/*example*.json
+!data/fundamentals_seed_example.json
+!data/game_players_input.example.json
+
+# B3 scratch captures in project root
+tmp_b3_*.html
+tmp_b3_*.js
+
+# Build/install metadata
+*.egg-info/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectone.local/specs/events/fundamental_snapshot.schema.json",
+  "title": "FundamentalSnapshotV1",
+  "type": "object",
+  "required": [
+    "event_type",
+    "version",
+    "fundamental_id",
+    "instrument",
+    "source_name",
+    "source_type",
+    "reference_time",
+    "availability_time",
+    "pe_ratio",
+    "pb_ratio",
+    "ev_ebitda",
+    "dividend_yield",
+    "roe",
+    "net_margin",
+    "revenue_growth",
+    "payout_ratio",
+    "version_tag",
+    "value_score",
+    "quality_score"
+  ],
+  "properties": {
+    "event_type": {
+      "const": "fundamental.snapshot.normalized.v1"
+    },
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "fundamental_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "instrument": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reference_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "availability_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pe_ratio": {
+      "type": "number",
+      "minimum": 0
+    },
+    "pb_ratio": {
+      "type": "number",
+      "minimum": 0
+    },
+    "ev_ebitda": {
+      "type": "number",
+      "minimum": 0
+    },
+    "dividend_yield": {
+      "type": "number",
+      "minimum": 0
+    },
+    "roe": {
+      "type": "number"
+    },
+    "net_margin": {
+      "type": "number"
+    },
+    "revenue_growth": {
+      "type": "number"
+    },
+    "payout_ratio": {
+      "type": "number",
+      "minimum": 0
+    },
+    "version_tag": {
+      "type": "string",
+      "minLength": 1
+    },
+    "value_score": {
+      "type": "number"
+    },
+    "quality_score": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false
+}

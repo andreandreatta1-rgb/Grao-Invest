@@ -1,0 +1,138 @@
+{
+  "players": [
+    {
+      "name": "Andre",
+      "initial_capital": 100000.0,
+      "strategy_profile": "custom",
+      "decisions": [
+        {
+          "thesis_id": "TH-B3SA3-bearish-2868",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-B3SA3-bearish-2903",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0529",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0533",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-B3SA3-bearish-3287",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-B3SA3-bearish-3296",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-WEGE3-bullish-4228",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0666",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-WEGE3-bullish-4408",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0882",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Enzo",
+      "initial_capital": 100000.0,
+      "strategy_profile": "custom",
+      "decisions": [
+        {
+          "thesis_id": "TH-B3SA3-bearish-2868",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-B3SA3-bearish-2903",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0529",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0533",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-B3SA3-bearish-3287",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-B3SA3-bearish-3296",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-WEGE3-bullish-4228",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0666",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-WEGE3-bullish-4408",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        },
+        {
+          "thesis_id": "TH-PETR4-bullish-0882",
+          "follow": false,
+          "option_id": "A",
+          "allocation_pct": 0.0
+        }
+      ]
+    }
+  ]
+}
