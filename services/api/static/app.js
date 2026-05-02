@@ -979,16 +979,34 @@ function renderThesisOpenOperations(data) {
       .map((row) => {
       const status = String(row.status || "-");
       const statusLower = status.toLowerCase();
-      const statusTone = statusLower.includes("aberta") ? "tone-warning" : "tone-success";
+      const statusTone = statusLower.includes("invalid")
+        ? "tone-danger"
+        : statusLower.includes("aten")
+          ? "tone-warning"
+          : statusLower.includes("revisar")
+            ? "tone-accent"
+            : statusLower.includes("mantida")
+              ? "tone-success"
+              : statusLower.includes("aberta")
+                ? "tone-warning"
+                : "tone-success";
       const outcome = String(row.outcome || "-");
       const outcomeLower = outcome.toLowerCase();
-      const outcomeTone = outcomeLower.includes("alvo")
-        ? "tone-success"
-        : outcomeLower.includes("stop")
-          ? "tone-danger"
-          : outcomeLower.includes("tempo")
-            ? "tone-warning"
-            : "tone-accent";
+      const outcomeTone = outcomeLower.includes("invalid")
+        ? "tone-danger"
+        : outcomeLower.includes("aten")
+          ? "tone-warning"
+          : outcomeLower.includes("revisar")
+            ? "tone-accent"
+            : outcomeLower.includes("mantida")
+              ? "tone-success"
+              : outcomeLower.includes("alvo")
+                ? "tone-success"
+                : outcomeLower.includes("stop")
+                  ? "tone-danger"
+                  : outcomeLower.includes("tempo")
+                    ? "tone-warning"
+                    : "tone-accent";
       const durationDays = Number(row.duration_days);
       const durationLabel = Number.isFinite(durationDays)
         ? `${formatNumber(Math.round(durationDays))} d`
@@ -2479,6 +2497,15 @@ function bindMicrotradesHandlers() {
     if (!Number.isFinite(horizonBars) || horizonBars < 3 || horizonBars > 30) {
       throw new Error("Horizon bars deve ficar entre 3 e 30.");
     }
+    const interval = String(form.get("interval") || "5m").trim();
+    const lookbackHours = Number(form.get("lookback_hours") || 168);
+    if (!Number.isFinite(lookbackHours) || lookbackHours < 1 || lookbackHours > 24 * 365) {
+      throw new Error("Lookback deve ficar entre 1 e 8760 horas.");
+    }
+    const maxCandles = Number(form.get("max_candles_per_instrument") || 1200);
+    if (!Number.isFinite(maxCandles) || maxCandles < 50 || maxCandles > 5000) {
+      throw new Error("Max candles por ativo deve ficar entre 50 e 5000.");
+    }
     const quantity = Number(form.get("quantity") || 1);
     if (!Number.isFinite(quantity) || quantity <= 0) {
       throw new Error("Quantidade paper invalida.");
@@ -2489,6 +2516,9 @@ function bindMicrotradesHandlers() {
       userId,
       providerName,
       instruments,
+      interval,
+      lookbackHours: Math.round(lookbackHours),
+      maxCandles: Math.round(maxCandles),
       horizonBars: Math.round(horizonBars),
       quantity,
       signalId: Number.isFinite(parsedSignal) && parsedSignal > 0 ? parsedSignal : null,
@@ -2520,23 +2550,60 @@ function bindMicrotradesHandlers() {
       .map((thesis) => {
         const instrument = String(thesis.instrument || "-");
         const direction = String(thesis.direction || "-").toUpperCase();
-        const confidence = formatMetric(thesis.confidence_tese_pct);
+        const confidenceNow = Number(thesis.confidence_now_pct);
+        const confidence = Number.isFinite(confidenceNow)
+          ? `${formatMetric(thesis.confidence_tese_pct)}% -> ${formatMetric(confidenceNow)}%`
+          : `${formatMetric(thesis.confidence_tese_pct)}%`;
         const expected = formatSignedMetricPercent(thesis.expected_financial_pct);
-        const status = `${String(thesis.monitor_status || "-")} | ${String(thesis.suggested_action || "-")}`;
+        const status = String(thesis.executive_status_label || thesis.monitor_status || "-");
+        const action = String(thesis.executive_action || thesis.suggested_action || "-");
+        const trigger = String(thesis.next_trigger || "");
         const targetStop = `${formatMetric(thesis.target_price)} / ${formatMetric(thesis.stop_price)}`;
         return `
           <tr>
             <td class="mono">${escapeHtml(instrument)}</td>
             <td>${escapeHtml(direction)}</td>
-            <td class="mono">${escapeHtml(confidence)}%</td>
+            <td class="mono">${escapeHtml(confidence)}</td>
             <td class="mono">${escapeHtml(expected)}</td>
-            <td>${escapeHtml(status)}</td>
+            <td>
+              <strong>${escapeHtml(status)}</strong><br />
+              <span class="list-meta">${escapeHtml(action)}</span>
+              ${trigger ? `<br /><span class="list-meta">${escapeHtml(trigger)}</span>` : ""}
+            </td>
             <td class="mono">${escapeHtml(targetStop)}</td>
             <td class="mono">${escapeHtml(formatDate(thesis.thesis_raised_at))}</td>
           </tr>
         `;
       })
       .join("");
+  };
+
+  const runBackfill = async (config, { updateOutput = true } = {}) => {
+    const payload = {
+      user_id: config.userId,
+      provider_name: "binance",
+      instruments: config.instruments,
+      interval: config.interval,
+      lookback_hours: config.lookbackHours,
+      max_candles_per_instrument: config.maxCandles,
+      auto_recompute_indicators: true,
+    };
+    if (config.symbolOverrides) {
+      payload.symbol_overrides = config.symbolOverrides;
+    }
+    const result = await apiRequest("POST", "/api/market/crypto/backfill", payload);
+    if (updateOutput) {
+      setOutput("microtrades-output", {
+        etapa: "backfill_historico",
+        provider_name: result.provider_name,
+        interval: result.interval,
+        lookback_hours: result.lookback_hours,
+        requested_candles: result.requested_candles,
+        processed_count: result.processed_count,
+        failed_count: result.failed_count,
+      });
+    }
+    return result;
   };
 
   const runFetchLive = async (config, { updateOutput = true } = {}) => {
@@ -2701,28 +2768,47 @@ function bindMicrotradesHandlers() {
       const config = readConfig();
       pushStep(
         "Escopo",
-        `${config.instruments.join(", ")} | provider ${config.providerName}`,
+        `${config.instruments.join(", ")} | ${config.interval} | provider ${config.providerName}`,
       );
+      let backfill = null;
+      try {
+        backfill = await runBackfill(config, { updateOutput: false });
+        pushStep(
+          "0/5 Historico",
+          `${formatNumber(backfill.processed_count || 0)} candles importados (${config.lookbackHours}h).`,
+        );
+      } catch (backfillError) {
+        pushStep(
+          "0/5 Historico",
+          `Backfill automatico indisponivel agora (${errorMessageFrom(backfillError)}). Seguindo com base atual.`,
+          "tone-warning",
+        );
+      }
+
       const ingest = await runFetchLive(config, { updateOutput: false });
-      pushStep("1/4 Cotacao", `${formatNumber(ingest.processed_count || 0)} ativos processados.`);
+      pushStep("1/5 Cotacao", `${formatNumber(ingest.processed_count || 0)} ativos processados.`);
 
       const signal = await runGenerateSignal(config, { updateOutput: false });
       pushStep(
-        "2/4 Tese",
+        "2/5 Tese",
         `signal_id ${signal.signal_id || "-"} em ${signal.instrument || config.instruments[0]}.`,
       );
 
       const caseStudy = await runCaseStudy(config, { updateOutput: false });
       const selectedThesisId = caseStudy?.selected_case?.thesis?.thesis_id || "-";
-      pushStep("3/4 Comprovacao", `Case selecionado: ${selectedThesisId}.`);
+      pushStep("3/5 Comprovacao", `Case selecionado: ${selectedThesisId}.`);
 
       const monitor = await runMonitor(config, { updateOutput: false });
-      pushStep("4/4 Monitoramento", `${formatNumber(monitor.thesis_count || 0)} teses monitoradas.`);
+      pushStep("4/5 Monitoramento", `${formatNumber(monitor.thesis_count || 0)} teses monitoradas.`);
 
       setOutput("microtrades-output", {
         etapa: "ciclo_completo",
         provider_name: ingest.provider_name,
         instruments: config.instruments,
+        interval: config.interval,
+        lookback_hours: config.lookbackHours,
+        backfill_processed_count: backfill?.processed_count || 0,
+        backfill_failed_count: backfill?.failed_count || 0,
         processed_count: ingest.processed_count,
         signal_id: signal.signal_id,
         selected_thesis_id: selectedThesisId,

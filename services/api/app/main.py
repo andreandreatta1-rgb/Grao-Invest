@@ -49,6 +49,7 @@ from app.schemas import (
     B3MarketSyncUniverseRangeRequest,
     BacktestRunRequest,
     CreatePaperOrderRequest,
+    CryptoHistoryBackfillRequest,
     DashboardResponse,
     ExternalFundamentalsSyncRequest,
     ExternalNewsSyncRequest,
@@ -99,6 +100,10 @@ from app.services.backtest import (
     trades_for_run,
 )
 from app.services.data_quality import build_data_quality_gate_snapshot
+from app.services.crypto_history_provider import (
+    CryptoHistoryProviderError,
+    fetch_historical_crypto_candles,
+)
 from app.services.feed_health import provider_feed_health, universe_coverage_snapshot
 from app.services.fundamentals import fundamentals_to_response, ingest_fundamentals
 from app.services.fundamentals_external import (
@@ -591,6 +596,106 @@ def market_intraday_fetch_live(
         "failed_count": len(failed),
         "processed": processed,
         "failed": failed,
+    }
+
+
+@app.post("/api/market/crypto/backfill")
+def market_crypto_backfill(
+    payload: CryptoHistoryBackfillRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    assert_user_scope(payload.user_id, user)
+    end_time = utc_now()
+    start_time = end_time - timedelta(hours=payload.lookback_hours)
+    try:
+        candles = fetch_historical_crypto_candles(
+            payload.provider_name,
+            payload.instruments,
+            payload.interval,
+            start_time=start_time,
+            end_time=end_time,
+            symbol_overrides=payload.symbol_overrides,
+            max_candles_per_instrument=payload.max_candles_per_instrument,
+        )
+    except CryptoHistoryProviderError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    provider_label = f"crypto-{payload.provider_name.lower()}-{payload.interval}"
+    processed_count = 0
+    failed_count = 0
+    processed_preview: list[dict[str, object]] = []
+    failed_preview: list[dict[str, object]] = []
+    processed_by_instrument: defaultdict[str, int] = defaultdict(int)
+    failed_by_instrument: defaultdict[str, int] = defaultdict(int)
+    ingested_instruments: set[str] = set()
+
+    for candle in candles:
+        try:
+            tick = ingest_tick(
+                db,
+                MarketTickIngestRequest(
+                    instrument=candle["instrument"],
+                    provider=provider_label,
+                    event_time=candle["event_time"],
+                    price=candle["price"],
+                    volume=candle["volume"],
+                    currency=candle["currency"],
+                    source_payload_id=candle["source_payload_id"],
+                ),
+            )
+            processed_count += 1
+            processed_by_instrument[candle["instrument"]] += 1
+            ingested_instruments.add(candle["instrument"])
+            if len(processed_preview) < 60:
+                processed_preview.append(
+                    {
+                        "instrument": tick.instrument,
+                        "provider_symbol": candle["provider_symbol"],
+                        "event_time": tick.event_time,
+                        "price": tick.price,
+                        "volume": tick.volume,
+                    }
+                )
+        except ValueError as exc:
+            failed_count += 1
+            failed_by_instrument[candle["instrument"]] += 1
+            if len(failed_preview) < 30:
+                failed_preview.append(
+                    {
+                        "instrument": candle["instrument"],
+                        "provider_symbol": candle["provider_symbol"],
+                        "event_time": candle["event_time"].isoformat(),
+                        "error": str(exc),
+                    }
+                )
+
+    indicators_recomputed: list[str] = []
+    indicators_skipped: list[str] = []
+    if payload.auto_recompute_indicators:
+        for instrument in sorted(ingested_instruments):
+            try:
+                recompute_indicators(db, instrument)
+                indicators_recomputed.append(instrument)
+            except ValueError:
+                indicators_skipped.append(instrument)
+
+    return {
+        "provider_name": payload.provider_name,
+        "interval": payload.interval,
+        "lookback_hours": payload.lookback_hours,
+        "window_start": start_time.replace(microsecond=0).isoformat(),
+        "window_end": end_time.replace(microsecond=0).isoformat(),
+        "requested_instruments": payload.instruments,
+        "requested_candles": len(candles),
+        "processed_count": processed_count,
+        "failed_count": failed_count,
+        "processed_by_instrument": dict(sorted(processed_by_instrument.items())),
+        "failed_by_instrument": dict(sorted(failed_by_instrument.items())),
+        "indicators_recomputed": indicators_recomputed,
+        "indicators_skipped": indicators_skipped,
+        "processed_preview": processed_preview,
+        "failed_preview": failed_preview,
     }
 
 
@@ -3424,6 +3529,20 @@ def dashboard_summary(
                 if isinstance(monitoring_events, list)
                 else []
             )
+            revaluation = item.get("operation_revaluation")
+            revaluation_dict = revaluation if isinstance(revaluation, dict) else {}
+            executive_status = str(
+                item.get("executive_status") or revaluation_dict.get("executive_status") or ""
+            ).lower()
+            executive_status_label = str(
+                item.get("executive_status_label")
+                or revaluation_dict.get("executive_status_label")
+                or ""
+            )
+            next_trigger = str(item.get("next_trigger") or revaluation_dict.get("next_trigger") or "")
+            learning_signal = str(
+                item.get("learning_signal") or revaluation_dict.get("learning_signal") or ""
+            )
             has_exit_event = any(
                 str(event.get("event_type") or "").lower() == "exit_snapshot"
                 for event in monitoring_events_list
@@ -3450,12 +3569,22 @@ def dashboard_summary(
                 )
             )
             if status_label == "Aberta":
-                if monitor_status == "target_hit" or has_target_event:
+                if executive_status == "invalidada":
+                    outcome_label = "Tese invalidada"
+                elif executive_status == "revisar_saida":
+                    outcome_label = "Revisar saida"
+                elif executive_status == "atencao":
+                    outcome_label = "Atencao"
+                elif executive_status == "mantida":
+                    outcome_label = "Mantida"
+                elif monitor_status == "target_hit" or has_target_event:
                     outcome_label = "Alvo atingido (avaliar saida)"
                 elif monitor_status == "stop_alert" or has_stop_event:
                     outcome_label = "Alerta de stop"
                 else:
                     outcome_label = "Em monitoramento"
+                if executive_status_label:
+                    status_label = f"Aberta - {executive_status_label}"
             else:
                 if has_target_event:
                     outcome_label = "Alvo"
@@ -3502,7 +3631,8 @@ def dashboard_summary(
                         f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
                     ),
                     "entry_price_brl": entry_price,
-                    "exit_rule": f"Sai se subir para R$ {target_price:.2f} ou cair para R$ {stop_price:.2f}",
+                    "exit_rule": next_trigger
+                    or f"Sai se subir para R$ {target_price:.2f} ou cair para R$ {stop_price:.2f}",
                     "status": status_label,
                     "outcome": outcome_label,
                     "moment_result_pct": round(
@@ -3510,7 +3640,8 @@ def dashboard_summary(
                         4,
                     ),
                     "duration_days": duration_days,
-                    "learning_note": _build_learning_note(
+                    "learning_note": learning_signal
+                    or _build_learning_note(
                         direction=direction,
                         status=status_label,
                         outcome=outcome_label,

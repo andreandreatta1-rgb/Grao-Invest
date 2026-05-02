@@ -120,6 +120,17 @@ houver necessidade de disco persistente.
 - Intraday live exige token; sem token o endpoint retorna erro de validacao.
 - Then use `provider=finnhub` in UI or worker scripts.
 
+## Crypto Historical Backfill (Binance)
+- Endpoint: `POST /api/market/crypto/backfill`
+- Provider atual: `binance` (public klines/candles REST).
+- O endpoint importa candles historicos para `market_ticks` e opcionalmente recalcula indicadores.
+- Campos principais:
+  - `instruments`: ex. `["BTCUSDT","ETHUSDT"]`
+  - `interval`: `1m|3m|5m|15m|30m|1h|2h|4h|6h|8h|12h|1d`
+  - `lookback_hours`: janela retrospectiva (ex. `168`)
+  - `max_candles_per_instrument`: limite por ativo
+- Na aba `Microtrades`, o ciclo completo agora executa backfill automaticamente antes de gerar tese/comprovacao/monitoramento.
+
 ## Real Fundamentals Provider (Auto: Yahoo/Brapi)
 - Default mode: `provider=auto` (tenta Yahoo e fallback para Brapi).
 - Para cobertura ampla no Brapi, configure token:

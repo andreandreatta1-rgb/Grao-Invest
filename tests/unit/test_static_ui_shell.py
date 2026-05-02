@@ -80,6 +80,7 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert '"/api/market/feed/health"' in script
     assert '"/api/data-quality/gate"' in script
     assert '"/api/market/intraday/fetch-live"' in script
+    assert '"/api/market/crypto/backfill"' in script
     assert '"/api/theses/case-study"' in script
     assert '"/api/theses/current-monitor"' in script
     assert '"/api/theses/current-monitor/latest"' in script

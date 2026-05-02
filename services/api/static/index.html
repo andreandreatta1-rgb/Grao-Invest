@@ -336,7 +336,7 @@
                     <th scope="col">Sai se</th>
                     <th scope="col">Desfecho</th>
                     <th scope="col">Dias até resultado</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">Status executivo</th>
                     <th scope="col">Resultado líquido</th>
                     <th scope="col">Aprendizado e próxima ação</th>
                   </tr>
@@ -635,6 +635,22 @@
                 </label>
                 <label>Horizon bars
                   <input name="horizon_bars" value="8" />
+                </label>
+                <label>Intervalo candles
+                  <select name="interval">
+                    <option value="1m">1m</option>
+                    <option value="5m" selected>5m</option>
+                    <option value="15m">15m</option>
+                    <option value="1h">1h</option>
+                    <option value="4h">4h</option>
+                    <option value="1d">1d</option>
+                  </select>
+                </label>
+                <label>Lookback (horas)
+                  <input name="lookback_hours" value="168" />
+                </label>
+                <label>Max candles/ativo
+                  <input name="max_candles_per_instrument" value="1200" />
                 </label>
                 <label>Quantidade paper
                   <input name="quantity" value="1" />

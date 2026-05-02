@@ -333,3 +333,17 @@ class IntradayFetchRequest(BaseModel):
     instruments: list[str] = Field(min_length=1, max_length=100)
     symbol_overrides: dict[str, str] | None = None
     auto_recompute_indicators: bool = True
+
+
+class CryptoHistoryBackfillRequest(BaseModel):
+    user_id: int
+    provider_name: str = Field(default="binance", min_length=2, max_length=64)
+    instruments: list[str] = Field(min_length=1, max_length=100)
+    interval: str = Field(
+        default="5m",
+        pattern="^(1m|3m|5m|15m|30m|1h|2h|4h|6h|8h|12h|1d)$",
+    )
+    lookback_hours: int = Field(default=168, ge=1, le=24 * 365)
+    max_candles_per_instrument: int = Field(default=1500, ge=50, le=5000)
+    symbol_overrides: dict[str, str] | None = None
+    auto_recompute_indicators: bool = True

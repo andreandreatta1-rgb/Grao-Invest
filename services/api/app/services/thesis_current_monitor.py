@@ -16,6 +16,10 @@ from app.services.thesis_case_study import (
     _strategy_for_thesis,
     _ticks_for_instrument,
 )
+from app.services.thesis_operation_revaluation import (
+    OperationRevaluation,
+    build_operation_revaluation,
+)
 from app.services.thesis_policy import apply_active_policy
 from app.services.utils import DISCLAIMER
 from sqlalchemy import desc, select
@@ -42,8 +46,26 @@ class CurrentThesisCard(TypedDict):
     expected_financial_pct: float
     unrealized_financial_pct: float
     confidence_tese_pct: float
+    confidence_now_pct: float
+    confidence_delta_pct: float
+    support_rate_pct: float
+    technical_support_pct: float
+    fundamental_support_pct: float
+    news_support_pct: float
+    geo_oil_support_pct: float
+    fundamental_available: bool
+    news_available: bool
+    geo_oil_available: bool
     progress_to_target_pct: float
     distance_to_stop_pct: float
+    executive_status: str
+    executive_status_label: str
+    executive_action: str
+    thesis_validity: str
+    revaluation_reason: str
+    next_trigger: str
+    learning_signal: str
+    operation_revaluation: OperationRevaluation
     monitoring_events: list[dict[str, object]]
 
 
@@ -199,6 +221,14 @@ def run_current_thesis_monitor(
         unrealized_financial_pct = _realized_financial_pct(operation, thesis, latest_price)
         progress_to_target_pct, distance_to_stop_pct = _progress_metrics(thesis, latest_price)
         monitor_status, suggested_action = _monitor_status_and_action(thesis, latest_price)
+        revaluation = build_operation_revaluation(
+            thesis,
+            latest_price=latest_price,
+            monitor_status=monitor_status,
+            unrealized_financial_pct=unrealized_financial_pct,
+            progress_to_target_pct=progress_to_target_pct,
+            distance_to_stop_pct=distance_to_stop_pct,
+        )
         monitoring_events = _monitoring_timeline(
             ticks,
             thesis,
@@ -227,8 +257,26 @@ def run_current_thesis_monitor(
                 "expected_financial_pct": thesis["expected_financial_pct"],
                 "unrealized_financial_pct": unrealized_financial_pct,
                 "confidence_tese_pct": thesis["confidence_tese_pct"],
+                "confidence_now_pct": revaluation["confidence_now_pct"],
+                "confidence_delta_pct": revaluation["confidence_delta_pct"],
+                "support_rate_pct": thesis["support_rate_pct"],
+                "technical_support_pct": thesis["technical_support_pct"],
+                "fundamental_support_pct": thesis["fundamental_support_pct"],
+                "news_support_pct": thesis["news_support_pct"],
+                "geo_oil_support_pct": thesis["geo_oil_support_pct"],
+                "fundamental_available": thesis["fundamental_available"],
+                "news_available": thesis["news_available"],
+                "geo_oil_available": thesis["geo_oil_available"],
                 "progress_to_target_pct": progress_to_target_pct,
                 "distance_to_stop_pct": distance_to_stop_pct,
+                "executive_status": revaluation["executive_status"],
+                "executive_status_label": revaluation["executive_status_label"],
+                "executive_action": revaluation["suggested_action"],
+                "thesis_validity": revaluation["thesis_validity"],
+                "revaluation_reason": revaluation["revaluation_reason"],
+                "next_trigger": revaluation["next_trigger"],
+                "learning_signal": revaluation["learning_signal"],
+                "operation_revaluation": revaluation,
                 "monitoring_events": monitoring_events[-6:],
             }
         )
@@ -236,6 +284,10 @@ def run_current_thesis_monitor(
     target_hits = sum(1 for card in cards if card["monitor_status"] == "target_hit")
     stop_alerts = sum(1 for card in cards if card["monitor_status"] == "stop_alert")
     monitoring_count = sum(1 for card in cards if card["monitor_status"] == "monitoring")
+    executive_status_counts: dict[str, int] = {}
+    for card in cards:
+        status = card["executive_status"]
+        executive_status_counts[status] = executive_status_counts.get(status, 0) + 1
     avg_unrealized = (
         round(sum(card["unrealized_financial_pct"] for card in cards) / len(cards), 4)
         if cards
@@ -261,6 +313,10 @@ def run_current_thesis_monitor(
             "stop_alerts": stop_alerts,
             "monitoring_count": monitoring_count,
             "avg_unrealized_financial_pct": avg_unrealized,
+            "executive_status_counts": executive_status_counts,
+            "needs_attention_count": executive_status_counts.get("atencao", 0)
+            + executive_status_counts.get("invalidada", 0)
+            + executive_status_counts.get("revisar_saida", 0),
         },
         "theses": cards,
         "disclaimer": DISCLAIMER,
@@ -275,6 +331,7 @@ def run_current_thesis_monitor(
             "target_hits": target_hits,
             "stop_alerts": stop_alerts,
             "avg_unrealized_financial_pct": avg_unrealized,
+            "executive_status_counts": executive_status_counts,
         },
         user_id,
     )
