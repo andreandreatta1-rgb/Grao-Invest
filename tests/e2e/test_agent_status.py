@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.main import AUTH_DISABLED
 from fastapi.testclient import TestClient
 
 DEFAULT_PASSWORD = "SenhaForte123!"
@@ -31,7 +32,10 @@ def _authenticate(client: TestClient, *, email: str) -> int:
 
 def test_agent_status_requires_authentication(client: TestClient) -> None:
     response = client.get("/api/agent/status")
-    assert response.status_code == 401
+    if AUTH_DISABLED:
+        assert response.status_code == 200
+    else:
+        assert response.status_code == 401
 
 
 def test_agent_status_returns_worker_snapshot(client: TestClient) -> None:

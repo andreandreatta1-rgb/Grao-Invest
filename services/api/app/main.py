@@ -65,6 +65,7 @@ from app.schemas import (
     MarketTickLiveIngestRequest,
     MFASetupRequest,
     MFAVerifyRequest,
+    MicrotradesAutopilotRunRequest,
     NewsIngestRequest,
     PortfolioAllocateRequest,
     PortfolioRebalanceRequest,
@@ -72,6 +73,7 @@ from app.schemas import (
     RecomputePortfolioIndicatorsRequest,
     SignupRequest,
     SuitabilityRequest,
+    ThesisAiAnalysisRequest,
     ThesisCaseStudyRequest,
     ThesisCurrentMonitorRequest,
     ThesisGamePlaybookRequest,
@@ -128,6 +130,11 @@ from app.services.market import (
     recompute_indicators,
     update_provider_status,
 )
+from app.services.microtrades_autopilot import (
+    MicrotradesAutopilotConfig,
+    build_microtrades_autopilot_config,
+    run_microtrades_autopilot_cycle,
+)
 from app.services.news import (
     aggregate_sentiment_as_of,
     ingest_news,
@@ -162,6 +169,7 @@ from app.services.risk import evaluate_circuit_breaker, set_kill_switch
 from app.services.signals import generate_signal
 from app.services.suitability import save_suitability
 from app.services.thesis_case_study import CaseStudyPayload, run_thesis_case_study
+from app.services.thesis_ai_analysis import build_thesis_ai_analysis
 from app.services.thesis_current_monitor import (
     CurrentThesisMonitorPayload,
     run_current_thesis_monitor,
@@ -183,7 +191,7 @@ from app.services.utils import (
     isoformat,
     utc_now,
 )
-from app.workers import AgentLoop
+from app.workers import AgentLoop, update_worker_heartbeat
 
 Base.metadata.create_all(bind=engine)
 run_startup_migrations()
@@ -1213,6 +1221,92 @@ def _assert_cron_authorized(authorization: str | None) -> None:
         raise HTTPException(status_code=401, detail="Cron nao autorizado.")
 
 
+def _env_int(name: str, default: int, *, minimum: int, maximum: int) -> int:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return default
+    try:
+        parsed = int(raw)
+    except ValueError:
+        return default
+    return max(minimum, min(parsed, maximum))
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name, "").strip().lower()
+    if not raw:
+        return default
+    return raw in {"1", "true", "yes", "on"}
+
+
+def _env_csv(name: str, default: str) -> list[str]:
+    raw = os.getenv(name, default).strip()
+    if not raw:
+        return []
+    return [item.strip().upper() for item in raw.split(",") if item.strip()]
+
+
+def _execute_microtrades_autopilot(
+    db: Session,
+    *,
+    config: MicrotradesAutopilotConfig,
+) -> dict[str, object]:
+    worker_name = "microtrades_autopilot_worker"
+    update_worker_heartbeat(
+        db,
+        worker_name=worker_name,
+        status="running",
+        last_error=None,
+        increment_cycle=False,
+    )
+    try:
+        payload = run_microtrades_autopilot_cycle(db, config=config)
+    except Exception as exc:  # noqa: BLE001
+        update_worker_heartbeat(
+            db,
+            worker_name=worker_name,
+            status="error",
+            last_error=str(exc),
+            increment_cycle=True,
+        )
+        raise
+    status = str(payload.get("status") or "failed")
+    update_worker_heartbeat(
+        db,
+        worker_name=worker_name,
+        status="idle" if status in {"success", "partial"} else "error",
+        last_error=cast(str | None, payload.get("error")),
+        increment_cycle=True,
+    )
+    return payload
+
+
+@app.post("/api/microtrades/autopilot/run")
+def microtrades_autopilot_run(
+    payload: MicrotradesAutopilotRunRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    target_user_id = payload.user_id if payload.user_id is not None else user.id
+    assert_user_scope(target_user_id, user)
+    config = build_microtrades_autopilot_config(
+        user_id=target_user_id,
+        instruments=payload.instruments,
+        provider_name=payload.provider_name,
+        history_provider_name=payload.history_provider_name,
+        interval=payload.interval,
+        lookback_hours=payload.lookback_hours,
+        max_candles_per_instrument=payload.max_candles_per_instrument,
+        horizon_bars=payload.horizon_bars,
+        thesis_count=payload.thesis_count,
+        recent_bars_window=payload.recent_bars_window,
+        auto_recompute_indicators=payload.auto_recompute_indicators,
+        publish_decisions=payload.publish_decisions,
+        decision_cooldown_minutes=payload.decision_cooldown_minutes,
+    )
+    return _execute_microtrades_autopilot(db, config=config)
+
+
 @app.get("/api/cron/whatsapp-digest")
 @app.post("/api/cron/whatsapp-digest")
 def whatsapp_digest_cron(
@@ -1221,6 +1315,76 @@ def whatsapp_digest_cron(
 ) -> dict[str, object]:
     _assert_cron_authorized(authorization)
     return send_daily_digest_for_all(db)
+
+
+@app.get("/api/cron/microtrades-autopilot")
+@app.post("/api/cron/microtrades-autopilot")
+def microtrades_autopilot_cron(
+    authorization: Annotated[str | None, Header(alias="Authorization")] = None,
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    _assert_cron_authorized(authorization)
+    if not _env_bool("MICROTRADES_AUTOPILOT_ENABLED", True):
+        return {
+            "status": "disabled",
+            "reason": "MICROTRADES_AUTOPILOT_ENABLED desativado.",
+            "run_started_at": isoformat(utc_now()),
+            "run_finished_at": isoformat(utc_now()),
+        }
+
+    user_id = _env_int(
+        "MICROTRADES_AUTOPILOT_USER_ID",
+        DEFAULT_ANON_USER_ID,
+        minimum=1,
+        maximum=10_000_000,
+    )
+    if db.get(User, user_id) is None and AUTH_DISABLED and user_id == DEFAULT_ANON_USER_ID:
+        _resolve_anonymous_user(db)
+    if db.get(User, user_id) is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Usuario {user_id} nao encontrado para cron de microtrades.",
+        )
+
+    config = build_microtrades_autopilot_config(
+        user_id=user_id,
+        instruments=_env_csv("MICROTRADES_AUTOPILOT_INSTRUMENTS", "BTCUSDT,ETHUSDT,SOLUSDT"),
+        provider_name=os.getenv("MICROTRADES_AUTOPILOT_PROVIDER", "finnhub"),
+        history_provider_name=os.getenv("MICROTRADES_AUTOPILOT_HISTORY_PROVIDER", "binance"),
+        interval=os.getenv("MICROTRADES_AUTOPILOT_INTERVAL", "5m"),
+        lookback_hours=_env_int(
+            "MICROTRADES_AUTOPILOT_LOOKBACK_HOURS",
+            168,
+            minimum=1,
+            maximum=24 * 365,
+        ),
+        max_candles_per_instrument=_env_int(
+            "MICROTRADES_AUTOPILOT_MAX_CANDLES_PER_INSTRUMENT",
+            1200,
+            minimum=50,
+            maximum=5000,
+        ),
+        horizon_bars=_env_int("MICROTRADES_AUTOPILOT_HORIZON_BARS", 8, minimum=3, maximum=60),
+        thesis_count=_env_int("MICROTRADES_AUTOPILOT_THESIS_COUNT", 8, minimum=1, maximum=30),
+        recent_bars_window=_env_int(
+            "MICROTRADES_AUTOPILOT_RECENT_BARS_WINDOW",
+            7,
+            minimum=2,
+            maximum=40,
+        ),
+        auto_recompute_indicators=_env_bool(
+            "MICROTRADES_AUTOPILOT_AUTO_RECOMPUTE",
+            True,
+        ),
+        publish_decisions=_env_bool("MICROTRADES_AUTOPILOT_PUBLISH_DECISIONS", True),
+        decision_cooldown_minutes=_env_int(
+            "MICROTRADES_AUTOPILOT_DECISION_COOLDOWN_MINUTES",
+            45,
+            minimum=5,
+            maximum=24 * 12,
+        ),
+    )
+    return _execute_microtrades_autopilot(db, config=config)
 
 
 @app.get("/api/audit/events")
@@ -1840,6 +2004,25 @@ def thesis_case_study(
             payload.user_id,
             payload.instruments,
             payload.horizon_bars,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/theses/ai-analysis")
+def thesis_ai_analysis(
+    payload: ThesisAiAnalysisRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    assert_user_scope(payload.user_id, user)
+    try:
+        return build_thesis_ai_analysis(
+            db,
+            user_id=payload.user_id,
+            instrument=payload.instrument,
+            question=payload.question,
+            horizon_days=payload.horizon_days,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

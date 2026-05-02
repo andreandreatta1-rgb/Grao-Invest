@@ -97,12 +97,17 @@ Este e o caminho recomendado para publicar sem Render pago.
    - `DATABASE_URL`: string Postgres do Supabase.
    - `FINNHUB_API_TOKEN` (opcional, intraday real).
    - `BRAPI_TOKEN` (opcional, fundamentos externos).
+   - `CRON_SECRET` (obrigatorio para endpoints de cron).
+   - `MICROTRADES_AUTOPILOT_ENABLED` (default `true`).
+   - `MICROTRADES_AUTOPILOT_USER_ID` (default `1`).
+   - `MICROTRADES_AUTOPILOT_INSTRUMENTS` (default `BTCUSDT,ETHUSDT,SOLUSDT`).
 5. Faca deploy e abra `/health` na URL publica.
 
 Resultado:
 - Frontend e API FastAPI rodam na Vercel via [`api/index.py`](api/index.py).
 - O banco persistente fica no Supabase.
 - A pasta `data/` em producao e transitoria (`/tmp`) e nao deve guardar dados importantes.
+- O cron `/api/cron/microtrades-autopilot` roda a cada 30 min para atualizar ciclo de microtrades e publicar no Centro de decisoes.
 
 Observacao sobre B3 historico:
 - Os arquivos historicos B3/COTAHIST nao fazem parte da publicacao.

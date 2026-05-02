@@ -16,6 +16,7 @@ WORKER_INTERVAL_MINUTES: dict[str, int] = {
     "macro_sync_worker": 24 * 60,
     "signal_generator_worker": 30,
     "thesis_validator_worker": 24 * 60,
+    "microtrades_autopilot_worker": 30,
     "portfolio_monitor_worker": 5,
     "rebalance_worker": 7 * 24 * 60,
     "feed_health_worker": 1,

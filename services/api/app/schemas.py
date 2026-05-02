@@ -248,6 +248,13 @@ class ThesisCaseStudyRequest(BaseModel):
     horizon_bars: int = Field(default=8, ge=3, le=30)
 
 
+class ThesisAiAnalysisRequest(BaseModel):
+    user_id: int
+    instrument: str = Field(min_length=1, max_length=32)
+    question: str | None = Field(default=None, max_length=400)
+    horizon_days: int = Field(default=20, ge=1, le=365)
+
+
 class ThesisGamePlayerDecisionRequest(BaseModel):
     thesis_id: str = Field(min_length=6, max_length=120)
     follow: bool
@@ -365,3 +372,22 @@ class CryptoHistoryBackfillRequest(BaseModel):
     max_candles_per_instrument: int = Field(default=1500, ge=50, le=5000)
     symbol_overrides: dict[str, str] | None = None
     auto_recompute_indicators: bool = True
+
+
+class MicrotradesAutopilotRunRequest(BaseModel):
+    user_id: int | None = None
+    instruments: list[str] | None = Field(default=None, min_length=1, max_length=100)
+    provider_name: str = Field(default="finnhub", min_length=2, max_length=64)
+    history_provider_name: str = Field(default="binance", min_length=2, max_length=64)
+    interval: str = Field(
+        default="5m",
+        pattern="^(1m|3m|5m|15m|30m|1h|2h|4h|6h|8h|12h|1d)$",
+    )
+    lookback_hours: int = Field(default=168, ge=1, le=24 * 365)
+    max_candles_per_instrument: int = Field(default=1200, ge=50, le=5000)
+    horizon_bars: int = Field(default=8, ge=3, le=60)
+    thesis_count: int = Field(default=8, ge=1, le=30)
+    recent_bars_window: int = Field(default=7, ge=2, le=40)
+    auto_recompute_indicators: bool = True
+    publish_decisions: bool = True
+    decision_cooldown_minutes: int = Field(default=45, ge=5, le=24 * 12)
