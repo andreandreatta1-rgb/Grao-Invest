@@ -2431,6 +2431,8 @@ function bindMicrotradesHandlers() {
 
   const errorMessageFrom = (error) =>
     error && typeof error.message === "string" ? error.message : "Erro inesperado.";
+  const isSuitabilityMissingError = (error) =>
+    /suitability obrigatorio/i.test(errorMessageFrom(error));
 
   const renderStatus = (rows) => {
     if (!statusNode) {
@@ -2671,6 +2673,32 @@ function bindMicrotradesHandlers() {
     return result;
   };
 
+  const ensureSuitabilityProfile = async (config) => {
+    const payload = {
+      user_id: config.userId,
+      time_horizon: "medio",
+      risk_tolerance: "media",
+      investment_experience: "intermediaria",
+      liquidity_need: "media",
+    };
+    const result = await apiRequest("POST", "/api/suitability", payload);
+    return { payload, result };
+  };
+
+  const runCaseStudyWithAutoSuitability = async (config, { updateOutput = true } = {}) => {
+    try {
+      const result = await runCaseStudy(config, { updateOutput });
+      return { result, suitabilityAutoCreated: false };
+    } catch (error) {
+      if (!isSuitabilityMissingError(error)) {
+        throw error;
+      }
+      await ensureSuitabilityProfile(config);
+      const retried = await runCaseStudy(config, { updateOutput });
+      return { result: retried, suitabilityAutoCreated: true };
+    }
+  };
+
   const runMonitor = async (config, { updateOutput = true } = {}) => {
     const result = await apiRequest("POST", "/api/theses/current-monitor", {
       user_id: config.userId,
@@ -2692,6 +2720,20 @@ function bindMicrotradesHandlers() {
       });
     }
     return result;
+  };
+
+  const runMonitorWithAutoSuitability = async (config, { updateOutput = true } = {}) => {
+    try {
+      const result = await runMonitor(config, { updateOutput });
+      return { result, suitabilityAutoCreated: false };
+    } catch (error) {
+      if (!isSuitabilityMissingError(error)) {
+        throw error;
+      }
+      await ensureSuitabilityProfile(config);
+      const retried = await runMonitor(config, { updateOutput });
+      return { result: retried, suitabilityAutoCreated: true };
+    }
   };
 
   const runMonitorLatest = async ({ updateOutput = true } = {}) => {
@@ -2825,11 +2867,27 @@ function bindMicrotradesHandlers() {
         `signal_id ${signal.signal_id || "-"} em ${signal.instrument || config.instruments[0]}.`,
       );
 
-      const caseStudy = await runCaseStudy(config, { updateOutput: false });
+      const caseStudyRun = await runCaseStudyWithAutoSuitability(config, { updateOutput: false });
+      const caseStudy = caseStudyRun.result;
+      if (caseStudyRun.suitabilityAutoCreated) {
+        pushStep(
+          "Perfil de risco",
+          "Suitability nao encontrado. Perfil moderado criado automaticamente para continuar.",
+          "tone-warning",
+        );
+      }
       const selectedThesisId = caseStudy?.selected_case?.thesis?.thesis_id || "-";
       pushStep("3/5 Comprovacao", `Case selecionado: ${selectedThesisId}.`);
 
-      const monitor = await runMonitor(config, { updateOutput: false });
+      const monitorRun = await runMonitorWithAutoSuitability(config, { updateOutput: false });
+      const monitor = monitorRun.result;
+      if (monitorRun.suitabilityAutoCreated) {
+        pushStep(
+          "Perfil de risco",
+          "Suitability criado automaticamente antes do monitoramento.",
+          "tone-warning",
+        );
+      }
       pushStep("4/5 Monitoramento", `${formatNumber(monitor.thesis_count || 0)} teses monitoradas.`);
 
       setOutput("microtrades-output", {
@@ -2881,23 +2939,31 @@ function bindMicrotradesHandlers() {
 
   bindAction("microtrades-case-study", "Comprovando...", async () => {
     const config = readConfig();
-    const result = await runCaseStudy(config);
+    const caseStudyRun = await runCaseStudyWithAutoSuitability(config);
+    const result = caseStudyRun.result;
     const thesis = result?.selected_case?.thesis || {};
     const kpis = result?.selected_case?.kpis || {};
     setSingleStatus(
       "Tese comprovada",
       `${thesis.thesis_id || "-"} | conf ${formatMetric(kpis.confidence_tese_pct || thesis.confidence_tese_pct || 0)}%`,
     );
+    if (caseStudyRun.suitabilityAutoCreated) {
+      showToast("info", "Perfil de suitability criado automaticamente (moderado).");
+    }
     showToast("success", "Comprovacao de tese concluida.");
   });
 
   bindAction("microtrades-monitor", "Monitorando...", async () => {
     const config = readConfig();
-    const result = await runMonitor(config);
+    const monitorRun = await runMonitorWithAutoSuitability(config);
+    const result = monitorRun.result;
     setSingleStatus(
       "Monitor atualizado",
       `${formatNumber(result.thesis_count || 0)} teses | target ${formatNumber(result.summary?.target_hits || 0)} | stop ${formatNumber(result.summary?.stop_alerts || 0)}`,
     );
+    if (monitorRun.suitabilityAutoCreated) {
+      showToast("info", "Perfil de suitability criado automaticamente (moderado).");
+    }
     showToast("success", "Monitoramento atualizado.");
   });
 
