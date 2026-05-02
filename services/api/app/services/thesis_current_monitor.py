@@ -3,7 +3,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TypedDict
 
-from app.models import MarketTick, SuitabilityProfile
+import json
+
+from app.db import DATA_DIR
+from app.models import AuditEvent, MarketTick, SuitabilityProfile
 from app.services.audit import record_audit_event
 from app.services.notifications import notify_current_thesis_monitor
 from app.services.thesis_case_study import (
@@ -79,6 +82,73 @@ class CurrentThesisMonitorPayload(TypedDict):
     summary: dict[str, object]
     theses: list[CurrentThesisCard]
     disclaimer: str
+
+
+def persist_current_thesis_monitor_snapshot(
+    db: Session,
+    payload: CurrentThesisMonitorPayload | dict[str, object],
+    *,
+    user_id: int,
+) -> None:
+    output_path = DATA_DIR / "current_thesis_monitor_latest.json"
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            json.dumps(payload, ensure_ascii=True, indent=2),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+    record_audit_event(
+        db,
+        "thesis.current_monitor.snapshot",
+        {"payload": payload},
+        user_id,
+    )
+
+
+def load_latest_current_thesis_monitor(
+    db: Session,
+    *,
+    user_id: int | None = None,
+) -> dict[str, object] | None:
+    output_path = DATA_DIR / "current_thesis_monitor_latest.json"
+    if output_path.exists():
+        try:
+            return json.loads(output_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            pass
+
+    statement = (
+        select(AuditEvent)
+        .where(AuditEvent.event_type == "thesis.current_monitor.snapshot")
+        .order_by(AuditEvent.id.desc())
+        .limit(1)
+    )
+    if user_id is not None:
+        statement = (
+            select(AuditEvent)
+            .where(
+                AuditEvent.event_type == "thesis.current_monitor.snapshot",
+                AuditEvent.user_id == user_id,
+            )
+            .order_by(AuditEvent.id.desc())
+            .limit(1)
+        )
+    event = db.scalar(statement)
+    if event is None:
+        return None
+    try:
+        details = json.loads(event.details)
+    except ValueError:
+        return None
+    if isinstance(details, dict):
+        payload = details.get("payload")
+        if isinstance(payload, dict):
+            return payload
+        if "generated_at" in details and "theses" in details:
+            return details
+    return None
 
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:
@@ -321,6 +391,7 @@ def run_current_thesis_monitor(
         "theses": cards,
         "disclaimer": DISCLAIMER,
     }
+    persist_current_thesis_monitor_snapshot(db, payload, user_id=user_id)
     notify_current_thesis_monitor(db, payload)
     record_audit_event(
         db,
@@ -332,6 +403,7 @@ def run_current_thesis_monitor(
             "stop_alerts": stop_alerts,
             "avg_unrealized_financial_pct": avg_unrealized,
             "executive_status_counts": executive_status_counts,
+            "payload": payload,
         },
         user_id,
     )

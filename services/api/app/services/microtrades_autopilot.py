@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from typing import TypedDict
 
-from app.models import AssistantDecision as AssistantDecisionRecord
+from app.models import AssistantDecision as AssistantDecisionRecord, MarketTick
 from app.schemas import MarketTickIngestRequest, SuitabilityRequest
 from app.services.assistant_decisions import create_decision
 from app.services.crypto_history_provider import (
@@ -15,9 +15,12 @@ from app.services.market import ingest_tick, ingest_tick_live, recompute_indicat
 from app.services.signals import generate_signal
 from app.services.suitability import save_suitability
 from app.services.thesis_case_study import run_thesis_case_study
-from app.services.thesis_current_monitor import run_current_thesis_monitor
+from app.services.thesis_current_monitor import (
+    persist_current_thesis_monitor_snapshot,
+    run_current_thesis_monitor,
+)
 from app.services.utils import DISCLAIMER, isoformat, utc_now
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 
@@ -160,6 +163,60 @@ def _ensure_suitability_profile(db: Session, *, user_id: int) -> dict[str, objec
     }
 
 
+def _interval_to_minutes(interval: str) -> int:
+    raw = str(interval or "").strip().lower()
+    if len(raw) < 2:
+        return 5
+    amount_str = raw[:-1]
+    unit = raw[-1]
+    if not amount_str.isdigit():
+        return 5
+    amount = max(1, int(amount_str))
+    if unit == "m":
+        return amount
+    if unit == "h":
+        return amount * 60
+    if unit == "d":
+        return amount * 24 * 60
+    return 5
+
+
+def _has_recent_history(
+    db: Session,
+    *,
+    config: MicrotradesAutopilotConfig,
+    lookback_hours: int,
+    max_candles_per_instrument: int,
+) -> bool:
+    interval_minutes = _interval_to_minutes(config["interval"])
+    expected_candles = max(30, min(max_candles_per_instrument, int((lookback_hours * 60) / max(1, interval_minutes))))
+    minimum_candles = max(config["horizon_bars"] + 26, int(expected_candles * 0.75))
+    freshness_limit = timedelta(minutes=max(interval_minutes * 3, 30))
+    for instrument in config["instruments"]:
+        tick_count = int(
+            db.scalar(
+                select(func.count())
+                .select_from(MarketTick)
+                .where(MarketTick.instrument == instrument.upper())
+            )
+            or 0
+        )
+        latest_tick = db.scalar(
+            select(MarketTick)
+            .where(MarketTick.instrument == instrument.upper())
+            .order_by(MarketTick.event_time.desc())
+            .limit(1)
+        )
+        if latest_tick is None or tick_count < minimum_candles:
+            return False
+        latest_event_time = _safe_iso_to_utc(latest_tick.event_time)
+        if latest_event_time is None:
+            return False
+        if utc_now() - latest_event_time > freshness_limit:
+            return False
+    return True
+
+
 def _run_backfill(
     db: Session,
     *,
@@ -174,6 +231,24 @@ def _run_backfill(
         if max_candles_per_instrument is not None
         else config["max_candles_per_instrument"]
     )
+    if _has_recent_history(
+        db,
+        config=config,
+        lookback_hours=effective_lookback,
+        max_candles_per_instrument=effective_max_candles,
+    ):
+        return {
+            "provider_name": config["history_provider_name"],
+            "interval": config["interval"],
+            "lookback_hours": effective_lookback,
+            "requested_candles": 0,
+            "processed_count": 0,
+            "failed_count": 0,
+            "indicators_recomputed": [],
+            "indicators_skipped": [],
+            "skipped": True,
+            "skip_reason": "historico_recente_ja_disponivel",
+        }
     start_time = now - timedelta(hours=effective_lookback)
     symbol_overrides = _build_symbol_overrides(config["instruments"])
     candles = fetch_historical_crypto_candles(
@@ -425,7 +500,9 @@ def _run_monitor_with_auto_suitability(
             )
             return payload, True, False
         if _is_no_current_theses_error(message):
-            return _empty_monitor_payload(config=config, reason=message), False, True
+            payload = _empty_monitor_payload(config=config, reason=message)
+            persist_current_thesis_monitor_snapshot(db, payload, user_id=config["user_id"])
+            return payload, False, True
         raise
 
 
@@ -687,29 +764,43 @@ def run_microtrades_autopilot_cycle(
                 }
             )
 
-        case_study_payload, suitability_created_case = _run_case_study_with_auto_suitability(
-            db,
-            config=config,
-        )
-        if suitability_created_case:
+        try:
+            case_study_payload, suitability_created_case = _run_case_study_with_auto_suitability(
+                db,
+                config=config,
+            )
+            if suitability_created_case:
+                steps.append(
+                    {
+                        "title": "suitability",
+                        "status": "warning",
+                        "meta": "Perfil moderado criado automaticamente para case-study.",
+                    }
+                )
+            selected_case = case_study_payload.get("selected_case")
+            selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+            thesis = selected_case_dict.get("thesis")
+            thesis_dict = thesis if isinstance(thesis, dict) else {}
             steps.append(
                 {
-                    "title": "suitability",
-                    "status": "warning",
-                    "meta": "Perfil moderado criado automaticamente para case-study.",
+                    "title": "comprovacao",
+                    "status": "ok",
+                    "meta": f"Case selecionado: {thesis_dict.get('thesis_id', '-')}",
                 }
             )
-        selected_case = case_study_payload.get("selected_case")
-        selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
-        thesis = selected_case_dict.get("thesis")
-        thesis_dict = thesis if isinstance(thesis, dict) else {}
-        steps.append(
-            {
-                "title": "comprovacao",
-                "status": "ok",
-                "meta": f"Case selecionado: {thesis_dict.get('thesis_id', '-')}",
+        except Exception as exc:  # noqa: BLE001
+            status = "partial"
+            case_study_payload = {
+                "skipped": True,
+                "error": str(exc),
             }
-        )
+            steps.append(
+                {
+                    "title": "comprovacao",
+                    "status": "warning",
+                    "meta": f"Case-study indisponivel neste ciclo: {exc}",
+                }
+            )
 
         monitor_payload, suitability_created_monitor, monitor_empty = _run_monitor_with_auto_suitability(
             db,

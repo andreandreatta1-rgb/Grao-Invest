@@ -82,14 +82,14 @@ from app.schemas import (
     WhatsAppNotificationSettingsRequest,
     WhatsAppNotificationTestRequest,
 )
+from app.services.alerts import create_alert_rule
+from app.services.asset_classes import asset_class_label, classify_instrument
 from app.services.assistant_decisions import (
     answer_decision,
     create_decision,
     decision_inbox_payload,
     seed_away_plan_decision,
 )
-from app.services.alerts import create_alert_rule
-from app.services.asset_classes import asset_class_label, classify_instrument
 from app.services.auth import (
     authenticate_user,
     create_user,
@@ -109,11 +109,11 @@ from app.services.backtest import (
     run_backtest,
     trades_for_run,
 )
-from app.services.data_quality import build_data_quality_gate_snapshot
 from app.services.crypto_history_provider import (
     CryptoHistoryProviderError,
     fetch_historical_crypto_candles,
 )
+from app.services.data_quality import build_data_quality_gate_snapshot
 from app.services.feed_health import provider_feed_health, universe_coverage_snapshot
 from app.services.fundamentals import fundamentals_to_response, ingest_fundamentals
 from app.services.fundamentals_external import (
@@ -168,10 +168,11 @@ from app.services.reports import build_user_report
 from app.services.risk import evaluate_circuit_breaker, set_kill_switch
 from app.services.signals import generate_signal
 from app.services.suitability import save_suitability
-from app.services.thesis_case_study import CaseStudyPayload, run_thesis_case_study
 from app.services.thesis_ai_analysis import build_thesis_ai_analysis
+from app.services.thesis_case_study import CaseStudyPayload, run_thesis_case_study
 from app.services.thesis_current_monitor import (
     CurrentThesisMonitorPayload,
+    load_latest_current_thesis_monitor,
     run_current_thesis_monitor,
 )
 from app.services.thesis_gamification import (
@@ -635,7 +636,12 @@ def market_crypto_backfill(
             max_candles_per_instrument=payload.max_candles_per_instrument,
         )
     except CryptoHistoryProviderError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        status_code = (
+            status.HTTP_503_SERVICE_UNAVAILABLE
+            if exc.code.startswith("provider_") and exc.retryable
+            else status.HTTP_400_BAD_REQUEST
+        )
+        raise HTTPException(status_code=status_code, detail=exc.to_detail()) from exc
 
     provider_label = f"crypto-{payload.provider_name.lower()}-{payload.interval}"
     processed_count = 0
@@ -2066,35 +2072,20 @@ def thesis_current_monitor(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    output_path = data_dir / "current_thesis_monitor_latest.json"
-    output_path.write_text(
-        json.dumps(monitor_payload, ensure_ascii=True, indent=2),
-        encoding="utf-8",
-    )
     return monitor_payload
 
 
 @app.get("/api/theses/current-monitor/latest")
 def thesis_current_monitor_latest(
+    db: Session = Depends(get_db),
     user: User = Depends(current_user),
 ) -> dict[str, object]:
-    _ = user.id
-    output_path = data_dir / "current_thesis_monitor_latest.json"
-    if not output_path.exists():
+    payload = load_latest_current_thesis_monitor(db, user_id=user.id)
+    if payload is None:
         raise HTTPException(
             status_code=404,
             detail="Monitor diario de teses atuais ainda nao foi gerado.",
         )
-    try:
-        payload = cast(
-            dict[str, object],
-            json.loads(output_path.read_text(encoding="utf-8")),
-        )
-    except (OSError, ValueError) as exc:
-        raise HTTPException(
-            status_code=500,
-            detail="Falha ao carregar monitor diario de teses atuais.",
-        ) from exc
     return payload
 
 
