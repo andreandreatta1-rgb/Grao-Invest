@@ -21,6 +21,10 @@ const state = {
   microtradesAutoRunInFlight: false,
   microtradesLastAutoRunAt: 0,
   microtradesLastDecisionAt: 0,
+  microtradesLivePayload: null,
+  microtradesLiveFocusThesisId: null,
+  microtradesLiveInterval: "5m",
+  microtradesLiveHorizonBars: 8,
 };
 
 const realtime = {
@@ -420,9 +424,12 @@ async function apiRequest(method, url, payload = null, { auth = true, timeoutMs 
     if (response.status === 401 && auth) {
       handleSessionExpired();
     }
+    const detail = data && typeof data === "object" ? data.detail : null;
     const message =
-      data && typeof data === "object"
-        ? data.detail || data.message || `${response.status} ${response.statusText}`
+      detail && typeof detail === "object"
+        ? detail.user_message || detail.message || data.message || `${response.status} ${response.statusText}`
+        : data && typeof data === "object"
+          ? data.detail || data.message || `${response.status} ${response.statusText}`
         : `${response.status} ${response.statusText}`;
     const error = new Error(message);
     error.data = data;
@@ -1985,6 +1992,58 @@ function bindMarketHandlers() {
   }
 }
 
+function bindThesisAiAnalysisHandler() {
+  const button = byId("thesis-ai-analysis");
+  const signalForm = byId("signal-form");
+  if (!button || !signalForm) {
+    return;
+  }
+  button.addEventListener("click", async () => {
+    setButtonLoading(button, true, "Analisando...");
+    try {
+      const form = Object.fromEntries(new FormData(signalForm).entries());
+      const userId = getAuthUserId();
+      if (!userId) {
+        throw new Error("Sessão inválida. Faça login novamente.");
+      }
+      const instrument = String(form.instrument || state.selectedTicker).trim().toUpperCase();
+      if (!instrument) {
+        throw new Error("Informe um ticker para analisar.");
+      }
+      state.selectedTicker = instrument;
+      const result = await apiRequest(
+        "POST",
+        "/api/theses/ai-analysis",
+        {
+          user_id: userId,
+          instrument,
+          question: "Quais evidências, riscos, gatilhos e condições de saída observar?",
+          horizon_days: 20,
+        },
+        { timeoutMs: 65000 },
+      );
+      setOutput("market-output", result, {
+        summary: "Resumo",
+        thesis: "Tese",
+        evidence: "Evidências",
+        risks: "Riscos",
+        triggers: "Gatilhos",
+        exit_conditions: "Condições de saída",
+        macro_context: "Contexto macro",
+        confidence_score: "Confiança",
+        education_disclaimer: "Aviso",
+        provider: "Motor",
+      });
+      showToast("success", "Análise IA da tese concluída.");
+    } catch (error) {
+      setOutput("market-output", { erro: error.message, detalhe: error.data || null });
+      showToast("error", `Falha na análise IA: ${error.message}`);
+    } finally {
+      setButtonLoading(button, false);
+    }
+  });
+}
+
 function bindOperationsHandlers() {
   const sideButtons = document.querySelectorAll("#order-side-selector .side-btn");
   const sideHidden = byId("order-side-hidden");
@@ -2617,6 +2676,18 @@ function bindMicrotradesHandlers() {
 
   const errorMessageFrom = (error) =>
     error && typeof error.message === "string" ? error.message : "Erro inesperado.";
+  const errorDetailFrom = (error) => {
+    const detail = error?.data?.detail;
+    return detail && typeof detail === "object" ? detail : null;
+  };
+  function isDataGateBlockingError(error) {
+    const detail = errorDetailFrom(error);
+    return (
+      Boolean(detail) &&
+      detail.safe_to_continue === false &&
+      String(detail.code || "").startsWith("provider_")
+    );
+  }
   const isSuitabilityMissingError = (error) =>
     /suitability obrigatorio/i.test(errorMessageFrom(error));
   const isIndicatorsMissingError = (error) =>
@@ -2774,6 +2845,24 @@ function bindMicrotradesHandlers() {
     });
   };
 
+  const publishDataGateDecision = async ({ config, errorMessage }) => {
+    const scope =
+      config && Array.isArray(config.instruments)
+        ? `${config.instruments.join(", ")} | ${config.interval} | ${config.lookbackHours}h`
+        : "escopo nao disponivel";
+    return maybePublishDecisionCard({
+      title: "Microtrades: gate de dados em modo conservador",
+      context: `Gate de dados reprovado: ${errorMessage}. Escopo: ${scope}. Nao vou avaliar nova operacao ate recuperar historico confiavel.`,
+      question: "Qual postura devo manter enquanto a fonte historica nao normaliza?",
+      options: [
+        { option_id: "A", label: "Manter pausado para novas operacoes" },
+        { option_id: "B", label: "Tentar de novo apenas com BTCUSDT e ETHUSDT" },
+        { option_id: "C", label: "Aguardar troca ou reforco da fonte de dados" },
+      ],
+      priority: "normal",
+    });
+  };
+
   const renderStatus = (rows) => {
     if (!statusNode) {
       return;
@@ -2854,6 +2943,8 @@ function bindMicrotradesHandlers() {
     }
     const signalIdRaw = String(form.get("signal_id") || "").trim();
     const parsedSignal = Number(signalIdRaw || state.signalId);
+    state.microtradesLiveInterval = interval || state.microtradesLiveInterval || "5m";
+    state.microtradesLiveHorizonBars = Math.round(horizonBars);
     return {
       userId,
       providerName,
@@ -2879,13 +2970,333 @@ function bindMicrotradesHandlers() {
     syncSignalId(parsed);
   };
 
+  const liveNodes = {
+    thesisTitle: byId("microtrades-live-thesis-title"),
+    triggerStage: byId("microtrades-live-trigger-stage"),
+    expected: byId("microtrades-live-expected"),
+    window: byId("microtrades-live-window"),
+    countdown: byId("microtrades-live-countdown"),
+    trigger: byId("microtrades-live-trigger"),
+    nextTrigger: byId("microtrades-live-next-trigger"),
+    outcomePill: byId("microtrades-live-outcome-pill"),
+    realized: byId("microtrades-live-realized"),
+    pressureValue: byId("microtrades-live-pressure-value"),
+    confidence: byId("microtrades-live-confidence"),
+    action: byId("microtrades-live-action"),
+    pressureFill: byId("microtrades-live-pressure-fill"),
+    pressureNeedle: byId("microtrades-live-pressure-needle"),
+  };
+
+  const setNodeText = (node, value) => {
+    if (!node) {
+      return;
+    }
+    node.textContent = String(value ?? "-");
+  };
+
+  const clampValue = (value, minValue, maxValue) =>
+    Math.min(maxValue, Math.max(minValue, Number(value) || 0));
+
+  const readIntervalValue = () => {
+    const node = workflowForm.querySelector('select[name="interval"]');
+    const raw = String(node?.value || state.microtradesLiveInterval || "5m").trim();
+    return raw || "5m";
+  };
+
+  const readHorizonBarsValue = () => {
+    const node = workflowForm.querySelector('input[name="horizon_bars"]');
+    const parsed = Number(node?.value || state.microtradesLiveHorizonBars || 8);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return 8;
+    }
+    return Math.round(parsed);
+  };
+
+  const intervalToMs = (interval) => {
+    const match = /^(\d+)([mhd])$/i.exec(String(interval || "").trim());
+    if (!match) {
+      return 5 * 60 * 1000;
+    }
+    const amount = Math.max(1, Number(match[1]) || 1);
+    const unit = match[2].toLowerCase();
+    if (unit === "m") {
+      return amount * 60 * 1000;
+    }
+    if (unit === "h") {
+      return amount * 60 * 60 * 1000;
+    }
+    if (unit === "d") {
+      return amount * 24 * 60 * 60 * 1000;
+    }
+    return 5 * 60 * 1000;
+  };
+
+  const formatDuration = (durationMs) => {
+    if (!Number.isFinite(durationMs) || durationMs < 0) {
+      return "-";
+    }
+    const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (days > 0) {
+      return `${days}d ${hours}h`;
+    }
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    }
+    return `${seconds}s`;
+  };
+
+  const outcomeClass = (outcome) => {
+    if (outcome === "gain") {
+      return "is-gain";
+    }
+    if (outcome === "loss") {
+      return "is-loss";
+    }
+    if (outcome === "timeout") {
+      return "is-timeout";
+    }
+    if (outcome === "monitoring") {
+      return "is-monitoring";
+    }
+    return "is-neutral";
+  };
+
+  const outcomeLabel = (outcome) => {
+    if (outcome === "gain") {
+      return "Sair no gain";
+    }
+    if (outcome === "loss") {
+      return "Sair no loss";
+    }
+    if (outcome === "timeout") {
+      return "Sair por timeout";
+    }
+    return "Monitorando";
+  };
+
+  const stageLabel = (stage) => {
+    if (stage === "disparado") {
+      return "Disparado";
+    }
+    if (stage === "armado") {
+      return "Armado";
+    }
+    return "Preparando";
+  };
+
+  const setLiveNeutral = (message = "Sem tese ativa no monitor.") => {
+    setNodeText(liveNodes.thesisTitle, message);
+    setNodeText(liveNodes.expected, "-");
+    setNodeText(liveNodes.window, "-");
+    setNodeText(liveNodes.countdown, "-");
+    setNodeText(liveNodes.trigger, "-");
+    setNodeText(liveNodes.nextTrigger, "Nenhum gatilho registrado.");
+    setNodeText(liveNodes.realized, "-");
+    setNodeText(liveNodes.pressureValue, "-");
+    setNodeText(liveNodes.confidence, "-");
+    setNodeText(liveNodes.action, "-");
+    if (liveNodes.triggerStage) {
+      liveNodes.triggerStage.className = "microtrades-live-pill is-neutral";
+      liveNodes.triggerStage.textContent = "Aguardando";
+    }
+    if (liveNodes.outcomePill) {
+      liveNodes.outcomePill.className = "microtrades-live-pill is-neutral";
+      liveNodes.outcomePill.textContent = "Monitorando";
+    }
+    if (liveNodes.pressureFill) {
+      liveNodes.pressureFill.className = "microtrades-pressure-fill is-neutral";
+      liveNodes.pressureFill.style.width = "0%";
+    }
+    if (liveNodes.pressureNeedle) {
+      liveNodes.pressureNeedle.style.left = "0%";
+    }
+  };
+
+  const pickFocusThesis = (payload) => {
+    const theses = Array.isArray(payload?.theses) ? payload.theses : [];
+    if (!theses.length) {
+      return null;
+    }
+    const critical = theses.find((item) => {
+      const status = String(item.monitor_status || "").toLowerCase();
+      return status === "stop_alert" || status === "target_hit";
+    });
+    if (critical) {
+      return critical;
+    }
+    const pinned = theses.find((item) => item.thesis_id === state.microtradesLiveFocusThesisId);
+    if (pinned) {
+      return pinned;
+    }
+    const monitorPriority = { monitoring: 1, target_hit: 2, stop_alert: 3 };
+    const executivePriority = {
+      invalidada: 4,
+      revisar_saida: 3,
+      atencao: 2,
+      mantida: 1,
+      encerrada: 0,
+    };
+    return [...theses].sort((a, b) => {
+      const monitorA = monitorPriority[String(a.monitor_status || "").toLowerCase()] || 0;
+      const monitorB = monitorPriority[String(b.monitor_status || "").toLowerCase()] || 0;
+      if (monitorB !== monitorA) {
+        return monitorB - monitorA;
+      }
+      const execA = executivePriority[String(a.executive_status || "").toLowerCase()] || 0;
+      const execB = executivePriority[String(b.executive_status || "").toLowerCase()] || 0;
+      if (execB !== execA) {
+        return execB - execA;
+      }
+      const confA = Number(a.confidence_now_pct ?? a.confidence_tese_pct ?? 0);
+      const confB = Number(b.confidence_now_pct ?? b.confidence_tese_pct ?? 0);
+      if (confB !== confA) {
+        return confB - confA;
+      }
+      return Number(b.expected_financial_pct || 0) - Number(a.expected_financial_pct || 0);
+    })[0];
+  };
+
+  const renderRealtimeLab = (payload, { persist = true } = {}) => {
+    if (persist) {
+      state.microtradesLivePayload = payload || null;
+    }
+    const activePayload = payload || state.microtradesLivePayload;
+    const thesis = pickFocusThesis(activePayload);
+    if (!activePayload || !thesis) {
+      setLiveNeutral("Sem tese ativa no monitor.");
+      return;
+    }
+    state.microtradesLiveFocusThesisId = thesis.thesis_id || null;
+    const intervalLabel = readIntervalValue();
+    const intervalMs = intervalToMs(intervalLabel);
+    const horizonBars = Number(activePayload?.horizon_bars || readHorizonBarsValue() || 8);
+    const startMs = Date.parse(String(thesis.thesis_raised_at || ""));
+    const durationMs = intervalMs * Math.max(1, Math.round(horizonBars));
+    const expectedEndMs = Number.isFinite(startMs) ? startMs + durationMs : Number.NaN;
+    const nowMs = Date.now();
+    const elapsedMs = Number.isFinite(startMs) ? nowMs - startMs : Number.NaN;
+    const remainingMs = Number.isFinite(expectedEndMs) ? expectedEndMs - nowMs : Number.NaN;
+
+    const progressPct = Number(thesis.progress_to_target_pct || 0);
+    const distanceToStopPct = Number(thesis.distance_to_stop_pct || 0);
+    const realizedPct = Number(thesis.unrealized_financial_pct || 0);
+    const confidenceNow = Number(thesis.confidence_now_pct ?? thesis.confidence_tese_pct ?? 0);
+
+    const progressNorm = clampValue(progressPct / 100, -0.5, 1.5);
+    const stopRiskNorm = clampValue((2.5 - distanceToStopPct) / 2.5, 0, 1.5);
+    const elapsedNorm =
+      Number.isFinite(elapsedMs) && durationMs > 0 ? clampValue(elapsedMs / durationMs, 0, 2) : 0;
+    const gainPressure = clampValue(
+      Math.max(progressNorm, 0) * 68 +
+        clampValue(confidenceNow / 100, 0, 1) * 20 +
+        clampValue(realizedPct / 4, 0, 1.5) * 12,
+      0,
+      100,
+    );
+    const lossPressure = clampValue(
+      stopRiskNorm * 70 + clampValue(-realizedPct / 4, 0, 1.5) * 20 + (confidenceNow < 55 ? 10 : 0),
+      0,
+      100,
+    );
+    const timeoutPressure = clampValue(
+      Math.max(elapsedNorm - 0.85, 0) * 220 + (progressPct < 35 ? 10 : 0),
+      0,
+      100,
+    );
+    const dominant = [
+      { outcome: "gain", value: gainPressure },
+      { outcome: "loss", value: lossPressure },
+      { outcome: "timeout", value: timeoutPressure },
+    ].sort((a, b) => b.value - a.value)[0];
+
+    const monitorStatus = String(thesis.monitor_status || "").toLowerCase();
+    let outcome = "monitoring";
+    if (monitorStatus === "target_hit") {
+      outcome = "gain";
+    } else if (monitorStatus === "stop_alert") {
+      outcome = "loss";
+    } else if (Number.isFinite(remainingMs) && remainingMs <= 0) {
+      outcome = "timeout";
+    } else if (dominant.value >= 48) {
+      outcome = dominant.outcome;
+    }
+
+    let triggerStage = "preparando";
+    if (monitorStatus === "target_hit" || monitorStatus === "stop_alert" || outcome === "timeout") {
+      triggerStage = "disparado";
+    } else if (dominant.value >= 58) {
+      triggerStage = "armado";
+    }
+
+    const actionLabel =
+      outcome === "gain"
+        ? "avaliar_realizacao_parcial_ou_total"
+        : outcome === "loss"
+          ? "encerrar_ou_reduzir_risco"
+          : outcome === "timeout"
+            ? "encerrar_por_inatividade_da_janela"
+            : String(thesis.executive_action || thesis.suggested_action || "manter_monitoramento");
+    const countdownLabel = Number.isFinite(remainingMs)
+      ? remainingMs >= 0
+        ? `faltam ${formatDuration(remainingMs)}`
+        : `tempo esgotado ha ${formatDuration(Math.abs(remainingMs))}`
+      : "-";
+    const windowLabel = `${Math.max(1, Math.round(horizonBars))} barras x ${intervalLabel} (~${formatDuration(durationMs)})`;
+    const instrumentLabel = String(thesis.instrument || "-").toUpperCase();
+    const directionLabel = String(thesis.direction || "-").toUpperCase();
+    const statusLabel = String(thesis.executive_status_label || thesis.monitor_status || "Monitorar");
+    const stageClass =
+      triggerStage === "disparado" ? outcomeClass(outcome) : triggerStage === "armado" ? "is-monitoring" : "is-neutral";
+    const outcomeClassName = outcomeClass(outcome);
+
+    setNodeText(liveNodes.thesisTitle, `${instrumentLabel} | ${directionLabel} | ${statusLabel}`);
+    setNodeText(liveNodes.expected, formatSignedMetricPercent(thesis.expected_financial_pct));
+    setNodeText(liveNodes.window, windowLabel);
+    setNodeText(liveNodes.countdown, countdownLabel);
+    setNodeText(liveNodes.trigger, `${stageLabel(triggerStage)} (${outcomeLabel(outcome)})`);
+    setNodeText(
+      liveNodes.nextTrigger,
+      String(thesis.next_trigger || thesis.revaluation_reason || "Aguardando novo gatilho de monitoramento."),
+    );
+    setNodeText(liveNodes.realized, formatSignedMetricPercent(realizedPct));
+    setNodeText(liveNodes.pressureValue, `${formatMetric(dominant.value)}/100 (${outcomeLabel(outcome)})`);
+    setNodeText(liveNodes.confidence, `${formatMetric(confidenceNow)}%`);
+    setNodeText(liveNodes.action, actionLabel);
+    if (liveNodes.triggerStage) {
+      liveNodes.triggerStage.className = `microtrades-live-pill ${stageClass}`;
+      liveNodes.triggerStage.textContent = stageLabel(triggerStage);
+    }
+    if (liveNodes.outcomePill) {
+      liveNodes.outcomePill.className = `microtrades-live-pill ${outcomeClassName}`;
+      liveNodes.outcomePill.textContent = outcomeLabel(outcome);
+    }
+    if (liveNodes.pressureFill) {
+      liveNodes.pressureFill.className = `microtrades-pressure-fill ${outcomeClassName}`;
+      liveNodes.pressureFill.style.width = `${clampValue(dominant.value, 0, 100)}%`;
+    }
+    if (liveNodes.pressureNeedle) {
+      liveNodes.pressureNeedle.style.left = `${clampValue(dominant.value, 0, 100)}%`;
+    }
+  };
+
+  setLiveNeutral("Sem tese ativa no monitor.");
+
   const renderMonitorTable = (payload) => {
     if (!monitorTable) {
+      renderRealtimeLab(payload);
       return;
     }
     const theses = Array.isArray(payload?.theses) ? payload.theses : [];
     if (theses.length === 0) {
       monitorTable.innerHTML = "<tr><td colspan='7'>Sem monitoramento carregado.</td></tr>";
+      renderRealtimeLab(payload);
       return;
     }
     monitorTable.innerHTML = theses
@@ -2918,6 +3329,7 @@ function bindMicrotradesHandlers() {
         `;
       })
       .join("");
+    renderRealtimeLab(payload);
   };
 
   const runBackfill = async (config, { updateOutput = true } = {}) => {
@@ -3233,9 +3645,62 @@ function bindMicrotradesHandlers() {
           `${formatNumber(backfill.processed_count || 0)} candles importados (${config.lookbackHours}h).`,
         );
       } catch (backfillError) {
+        const backfillMessage = errorMessageFrom(backfillError);
+        if (isDataGateBlockingError(backfillError)) {
+          pushStep(
+            "0/5 Gate de dados",
+            `${backfillMessage} Operacoes novas ficam pausadas neste ciclo.`,
+            "tone-warning",
+          );
+          let latestMonitor = null;
+          try {
+            latestMonitor = await runMonitorLatest({ updateOutput: false });
+            pushStep(
+              "Monitor existente",
+              summarizeTopTheses(latestMonitor) || "Ultimo monitor carregado para acompanhamento.",
+              "tone-warning",
+            );
+          } catch {
+            pushStep(
+              "Monitor existente",
+              "Sem monitor anterior disponivel para esta janela.",
+              "tone-warning",
+            );
+          }
+          const dataGateDecision = await publishDataGateDecision({
+            config,
+            errorMessage: backfillMessage,
+          });
+          if (dataGateDecision.status === "created") {
+            pushStep(
+              "Centro de decisoes",
+              `Modo conservador registrado (${dataGateDecision.decision_id || "sem id"}).`,
+              "tone-warning",
+            );
+          } else if (dataGateDecision.status === "cooldown") {
+            pushStep(
+              "Centro de decisoes",
+              "Modo conservador aplicado localmente. Publicacao em cooldown.",
+              "tone-warning",
+            );
+          }
+          setOutput("microtrades-output", {
+            etapa: "gate_dados_bloqueado",
+            decision: "sem_nova_operacao",
+            provider_name: "binance",
+            instruments: config.instruments,
+            interval: config.interval,
+            lookback_hours: config.lookbackHours,
+            error_message: backfillMessage,
+            latest_monitor_thesis_count: latestMonitor?.thesis_count || 0,
+            top_theses: latestMonitor ? summarizeTopTheses(latestMonitor) : "",
+          });
+          showToast("warning", "Microtrades em modo conservador: dados historicos insuficientes.");
+          return;
+        }
         pushStep(
           "0/5 Historico",
-          `Backfill automatico indisponivel agora (${errorMessageFrom(backfillError)}). Seguindo com base atual.`,
+          `Backfill automatico indisponivel agora (${backfillMessage}). Seguindo com base atual.`,
           "tone-warning",
         );
       }
@@ -3453,33 +3918,34 @@ function bindMicrotradesHandlers() {
     showToast("success", "Ordem paper registrada para microtrades.");
   });
 
-  const AUTO_INTERVAL_MS = 20 * 60 * 1000;
-  const AUTO_DEBOUNCE_MS = 1500;
-  const requestCycleSubmit = () => {
-    if (typeof workflowForm.requestSubmit === "function") {
-      workflowForm.requestSubmit();
-      return;
-    }
-    workflowForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-  };
-  const requestAutoCycle = (reason) => {
+  async function refreshLatestMonitorQuietly(reason) {
     if (state.microtradesCycleRunning || state.microtradesAutoRunInFlight) {
       return;
     }
-    const elapsed = Date.now() - Number(state.microtradesLastAutoRunAt || 0);
-    if (elapsed < AUTO_INTERVAL_MS) {
-      return;
-    }
     state.microtradesAutoRunInFlight = true;
-    setSingleStatus("Auto acompanhamento", `Executando ciclo automatico (${reason})...`, "tone-accent");
-    requestCycleSubmit();
-    window.setTimeout(() => {
+    try {
+      const latest = await runMonitorLatest({ updateOutput: false });
+      setSingleStatus(
+        "Monitor carregado",
+        `${formatNumber(latest.thesis_count || 0)} teses no ultimo monitor (${reason}).`,
+        "tone-accent",
+      );
+    } catch {
+      setSingleStatus(
+        "Monitor aguardando",
+        "Nenhum monitor recente encontrado. Rode o ciclo completo quando quiser atualizar.",
+        "tone-warning",
+      );
+      if (!state.microtradesLivePayload) {
+        setLiveNeutral("Nenhum monitor recente disponivel.");
+      }
+    } finally {
       state.microtradesAutoRunInFlight = false;
-    }, AUTO_DEBOUNCE_MS);
-  };
+    }
+  }
 
   window.addEventListener("microtrades:enter-view", () => {
-    requestAutoCycle("abertura da aba");
+    void refreshLatestMonitorQuietly("abertura da aba");
   });
 
   window.setInterval(() => {
@@ -3487,12 +3953,22 @@ function bindMicrotradesHandlers() {
     if (!panel || !panel.classList.contains("is-active")) {
       return;
     }
-    requestAutoCycle("acompanhamento continuo");
-  }, 60000);
+    void refreshLatestMonitorQuietly("acompanhamento continuo");
+  }, 15000);
+
+  window.setInterval(() => {
+    const panel = document.querySelector('[data-view="microtrades"]');
+    if (!panel || !panel.classList.contains("is-active")) {
+      return;
+    }
+    if (state.microtradesLivePayload) {
+      renderRealtimeLab(state.microtradesLivePayload, { persist: false });
+    }
+  }, 1000);
 
   const panel = document.querySelector('[data-view="microtrades"]');
   if (panel?.classList.contains("is-active")) {
-    requestAutoCycle("inicio");
+    void refreshLatestMonitorQuietly("inicio");
   }
 }
 
@@ -4234,6 +4710,7 @@ function bootstrap() {
   bindAuthHandlers();
   bindWizardHandlers();
   bindMarketHandlers();
+  bindThesisAiAnalysisHandler();
   bindOperationsHandlers();
   bindDashboardHandlers();
   bindBacktestHandlers();

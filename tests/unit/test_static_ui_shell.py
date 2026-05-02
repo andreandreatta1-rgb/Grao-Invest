@@ -32,6 +32,8 @@ def test_index_contains_phase_ui_shell_and_disclaimer() -> None:
     assert 'id="news-sync-form"' in html
     assert 'id="intraday-fetch-form"' in html
     assert 'id="refresh-feed-health"' in html
+    assert 'id="thesis-ai-analysis"' in html
+    assert "Analisar tese com IA" in html
     assert 'id="game-setup-form"' in html
     assert 'id="game-decision-form"' in html
     assert 'id="microtrades-workflow-form"' in html
@@ -43,6 +45,13 @@ def test_index_contains_phase_ui_shell_and_disclaimer() -> None:
     assert 'id="microtrades-monitor-latest"' in html
     assert 'id="microtrades-paper-order"' in html
     assert 'id="microtrades-monitor-table"' in html
+    assert 'id="microtrades-thesis-live-card"' in html
+    assert 'id="microtrades-result-live-card"' in html
+    assert 'id="microtrades-live-countdown"' in html
+    assert 'id="microtrades-live-pressure-fill"' in html
+    assert "Laboratorio realtime: tese ativa" in html
+    assert "Monitor realtime: resultado real" in html
+    assert 'name="instruments" value="BTCUSDT,ETHUSDT"' in html
     assert 'id="dashboard-coverage-table"' in html
     assert "<th scope=\"col\">Classe</th>" in html
     assert "KNRI11" in html
@@ -86,10 +95,25 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert '"/api/market/intraday/fetch-live"' in script
     assert '"/api/market/crypto/backfill"' in script
     assert '"/api/theses/case-study"' in script
+    assert '"/api/theses/ai-analysis"' in script
     assert '"/api/theses/current-monitor"' in script
     assert '"/api/theses/current-monitor/latest"' in script
     assert '"/api/assistant/decisions"' in script
     assert '"/api/assistant/decisions/seed-away-plan"' in script
+    assert "detail.user_message" in script
+    assert "function isDataGateBlockingError" in script
+    assert "gate_dados_bloqueado" in script
+    assert "Microtrades: gate de dados em modo conservador" in script
+    assert "function refreshLatestMonitorQuietly" in script
+    assert "function bindThesisAiAnalysisHandler()" in script
+    assert "const renderRealtimeLab =" in script
+    assert "const intervalToMs =" in script
+    assert "tempo esgotado ha" in script
+    assert 'renderRealtimeLab(state.microtradesLivePayload, { persist: false });' in script
+    assert "setLiveNeutral(" in script
+    assert "microtrades-live-pressure-fill" in script
+    assert 'requestAutoCycle("abertura da aba")' not in script
+    assert 'requestAutoCycle("acompanhamento continuo")' not in script
     assert "/api/paper/orders/from-signal/" in script
     assert "function bindDecisionHandlers()" in script
     assert "function loadDecisionInbox()" in script
@@ -105,3 +129,5 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert "function renderDataQualityGate(gate)" in script
     assert "function buildTimeSeries(" not in script
     assert "window.setInterval(refreshFeedStatus, 15000);" in script
+    assert "}, 15000);" in script
+    assert "}, 1000);" in script

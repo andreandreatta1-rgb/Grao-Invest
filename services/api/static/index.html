@@ -442,6 +442,7 @@
               <form id="signal-form" class="grid-form grid-inline">
                 <label>Ticker<input name="instrument" value="PETR4" /></label>
                 <button id="generate-signal" type="submit">Gerar sinal descritivo</button>
+                <button id="thesis-ai-analysis" type="button">Analisar tese com IA</button>
               </form>
               <div id="market-output" class="stack-list result-card" aria-live="polite"></div>
             </article>
@@ -677,7 +678,7 @@
               <h3>Cases reais: tese -> comprovacao -> monitoramento</h3>
               <form id="microtrades-workflow-form" class="grid-form grid-inline">
                 <label>Ativos cripto (1 a 5)
-                  <input name="instruments" value="BTCUSDT,ETHUSDT,SOLUSDT" />
+                  <input name="instruments" value="BTCUSDT,ETHUSDT" />
                 </label>
                 <label>Provider
                   <select name="provider_name">
@@ -698,10 +699,10 @@
                   </select>
                 </label>
                 <label>Lookback (horas)
-                  <input name="lookback_hours" value="168" />
+                  <input name="lookback_hours" value="72" />
                 </label>
                 <label>Max candles/ativo
-                  <input name="max_candles_per_instrument" value="1200" />
+                  <input name="max_candles_per_instrument" value="900" />
                 </label>
                 <label>Quantidade paper
                   <input name="quantity" value="1" />
@@ -727,6 +728,70 @@
                 </div>
               </div>
               <div id="microtrades-output" class="stack-list result-card" aria-live="polite"></div>
+              <div class="microtrades-live-grid">
+                <article id="microtrades-thesis-live-card" class="microtrades-live-card" aria-live="polite">
+                  <div class="microtrades-live-head">
+                    <h4>Laboratorio realtime: tese ativa</h4>
+                    <span id="microtrades-live-trigger-stage" class="microtrades-live-pill is-neutral">Aguardando</span>
+                  </div>
+                  <p id="microtrades-live-thesis-title" class="microtrades-live-title">Sem tese ativa no monitor.</p>
+                  <div class="microtrades-live-metrics">
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Resultado esperado</span>
+                      <strong id="microtrades-live-expected" class="mono">-</strong>
+                    </div>
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Janela prevista</span>
+                      <strong id="microtrades-live-window" class="mono">-</strong>
+                    </div>
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Contagem regressiva</span>
+                      <strong id="microtrades-live-countdown" class="mono">-</strong>
+                    </div>
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Gatilho da tese</span>
+                      <strong id="microtrades-live-trigger" class="mono">-</strong>
+                    </div>
+                  </div>
+                  <p id="microtrades-live-next-trigger" class="list-meta">Nenhum gatilho registrado.</p>
+                </article>
+
+                <article id="microtrades-result-live-card" class="microtrades-live-card" aria-live="polite">
+                  <div class="microtrades-live-head">
+                    <h4>Monitor realtime: resultado real</h4>
+                    <span id="microtrades-live-outcome-pill" class="microtrades-live-pill is-neutral">Monitorando</span>
+                  </div>
+                  <div class="microtrades-pressure-wrap">
+                    <div class="microtrades-pressure-track">
+                      <span id="microtrades-live-pressure-fill" class="microtrades-pressure-fill is-neutral"></span>
+                      <span id="microtrades-live-pressure-needle" class="microtrades-pressure-needle"></span>
+                    </div>
+                    <div class="microtrades-pressure-scale">
+                      <span>Baixa</span>
+                      <span>Media</span>
+                      <span>Alta</span>
+                    </div>
+                  </div>
+                  <div class="microtrades-live-metrics">
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Resultado real</span>
+                      <strong id="microtrades-live-realized" class="mono">-</strong>
+                    </div>
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Pressao gatilho</span>
+                      <strong id="microtrades-live-pressure-value" class="mono">-</strong>
+                    </div>
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Confianca atual</span>
+                      <strong id="microtrades-live-confidence" class="mono">-</strong>
+                    </div>
+                    <div class="microtrades-live-metric">
+                      <span class="microtrades-live-label">Acao sugerida</span>
+                      <strong id="microtrades-live-action" class="mono">-</strong>
+                    </div>
+                  </div>
+                </article>
+              </div>
 
               <table class="data-table" role="table" aria-label="Monitoramento de teses de microtrades">
                 <thead>
@@ -928,7 +993,7 @@
       Operações são simuladas. CVM Res. 19/2021.
     </footer>
 
-    <script src="/static/app.js?v=20260502micro"></script>
+    <script src="/static/app.js?v=20260502micro-live-lab"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
