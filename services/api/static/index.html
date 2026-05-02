@@ -623,6 +623,63 @@
             </p>
 
             <article class="subpanel">
+              <h3>Cases reais: tese -> comprovacao -> monitoramento</h3>
+              <form id="microtrades-workflow-form" class="grid-form grid-inline">
+                <label>Ativos cripto (1 a 5)
+                  <input name="instruments" value="BTCUSDT,ETHUSDT,SOLUSDT" />
+                </label>
+                <label>Provider
+                  <select name="provider_name">
+                    <option value="finnhub" selected>finnhub</option>
+                  </select>
+                </label>
+                <label>Horizon bars
+                  <input name="horizon_bars" value="8" />
+                </label>
+                <label>Quantidade paper
+                  <input name="quantity" value="1" />
+                </label>
+                <label>Signal ID para paper
+                  <input id="microtrades-signal-id" name="signal_id" value="" placeholder="Preenchido apos gerar tese" />
+                </label>
+                <button id="microtrades-run-cycle" type="submit">Rodar ciclo completo</button>
+              </form>
+
+              <div class="action-grid">
+                <button id="microtrades-fetch-live" type="button">1) Ingerir cotacao real</button>
+                <button id="microtrades-generate-signal" type="button">2) Gerar tese</button>
+                <button id="microtrades-case-study" type="button">3) Comprovar tese</button>
+                <button id="microtrades-monitor" type="button">4) Atualizar monitor</button>
+                <button id="microtrades-monitor-latest" type="button">5) Ler ultimo monitor</button>
+                <button id="microtrades-paper-order" type="button">Criar ordem paper do signal</button>
+              </div>
+
+              <div id="microtrades-status" class="stack-list" aria-live="polite">
+                <div class="list-row">
+                  <p class="list-meta">Configure os ativos e rode o ciclo para gerar casos reais com dados de mercado.</p>
+                </div>
+              </div>
+              <div id="microtrades-output" class="stack-list result-card" aria-live="polite"></div>
+
+              <table class="data-table" role="table" aria-label="Monitoramento de teses de microtrades">
+                <thead>
+                  <tr>
+                    <th scope="col">Ativo</th>
+                    <th scope="col">Direcao</th>
+                    <th scope="col">Confianca</th>
+                    <th scope="col">Esperado</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Alvo/Stop</th>
+                    <th scope="col">Raised at</th>
+                  </tr>
+                </thead>
+                <tbody id="microtrades-monitor-table">
+                  <tr><td colspan="7">Sem monitoramento carregado.</td></tr>
+                </tbody>
+              </table>
+            </article>
+
+            <article class="subpanel">
               <h3>Matriz de timeframes</h3>
               <table class="data-table" role="table" aria-label="Matriz de microtrades por timeframe">
                 <thead>

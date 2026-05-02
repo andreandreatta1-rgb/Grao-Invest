@@ -30,6 +30,15 @@ def test_index_contains_phase_ui_shell_and_disclaimer() -> None:
     assert 'id="refresh-feed-health"' in html
     assert 'id="game-setup-form"' in html
     assert 'id="game-decision-form"' in html
+    assert 'id="microtrades-workflow-form"' in html
+    assert 'id="microtrades-run-cycle"' in html
+    assert 'id="microtrades-fetch-live"' in html
+    assert 'id="microtrades-generate-signal"' in html
+    assert 'id="microtrades-case-study"' in html
+    assert 'id="microtrades-monitor"' in html
+    assert 'id="microtrades-monitor-latest"' in html
+    assert 'id="microtrades-paper-order"' in html
+    assert 'id="microtrades-monitor-table"' in html
     assert 'id="dashboard-coverage-table"' in html
     assert "<th scope=\"col\">Classe</th>" in html
     assert "KNRI11" in html
@@ -71,11 +80,16 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert '"/api/market/feed/health"' in script
     assert '"/api/data-quality/gate"' in script
     assert '"/api/market/intraday/fetch-live"' in script
+    assert '"/api/theses/case-study"' in script
+    assert '"/api/theses/current-monitor"' in script
+    assert '"/api/theses/current-monitor/latest"' in script
+    assert "/api/paper/orders/from-signal/" in script
     assert '"/api/theses/game-playbook"' in script
     assert '"/api/notifications/whatsapp"' in script
     assert '"/api/notifications/whatsapp/test"' in script
     assert "function loadWhatsAppSettings()" in script
     assert "function bindGameHandlers()" in script
+    assert "function bindMicrotradesHandlers()" in script
     assert "function renderCoverage(coverage)" in script
     assert "function assetClassLabel(value)" in script
     assert 'allowed_bdi_codes: ["02", "12", "14", "34"]' in script

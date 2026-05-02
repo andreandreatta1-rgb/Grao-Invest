@@ -2401,6 +2401,408 @@ async function loadActiveAlerts() {
   }
 }
 
+function bindMicrotradesHandlers() {
+  const workflowForm = byId("microtrades-workflow-form");
+  if (!workflowForm) {
+    return;
+  }
+
+  const signalInput = byId("microtrades-signal-id");
+  const monitorTable = byId("microtrades-monitor-table");
+  const statusNode = byId("microtrades-status");
+
+  const errorMessageFrom = (error) =>
+    error && typeof error.message === "string" ? error.message : "Erro inesperado.";
+
+  const renderStatus = (rows) => {
+    if (!statusNode) {
+      return;
+    }
+    if (!Array.isArray(rows) || rows.length === 0) {
+      statusNode.innerHTML = `
+        <div class="list-row">
+          <p class="list-meta">Configure os ativos e rode o ciclo para gerar casos reais.</p>
+        </div>
+      `;
+      return;
+    }
+    statusNode.innerHTML = rows
+      .map(
+        (row) => `
+          <div class="list-row">
+            <div class="list-main">
+              <p class="list-title">${escapeHtml(row.title || "Status")}</p>
+              <p class="list-meta ${escapeHtml(row.tone || "")}">${escapeHtml(row.meta || "-")}</p>
+            </div>
+          </div>
+        `,
+      )
+      .join("");
+  };
+
+  const setSingleStatus = (title, meta, tone = "") => {
+    renderStatus([{ title, meta, tone }]);
+  };
+
+  const parseInstruments = (rawValue) =>
+    Array.from(
+      new Set(
+        String(rawValue || "")
+          .split(",")
+          .map((item) => item.trim().toUpperCase())
+          .filter(Boolean),
+      ),
+    ).slice(0, 5);
+
+  const buildSymbolOverrides = (instruments) => {
+    const overrides = {};
+    instruments.forEach((instrument) => {
+      if (/(USDT|USDC|BUSD|FDUSD|BTC|ETH)$/.test(instrument) && !instrument.includes("-")) {
+        overrides[instrument] = `BINANCE:${instrument}`;
+      }
+    });
+    return Object.keys(overrides).length ? overrides : null;
+  };
+
+  const readConfig = () => {
+    const userId = getAuthUserId();
+    if (!userId) {
+      throw new Error("Sessao invalida. Faca login novamente.");
+    }
+    const form = new FormData(workflowForm);
+    const instruments = parseInstruments(form.get("instruments"));
+    if (instruments.length === 0) {
+      throw new Error("Informe ao menos um ativo (ex: BTCUSDT,ETHUSDT).");
+    }
+    const providerName = String(form.get("provider_name") || "finnhub").trim() || "finnhub";
+    const horizonBars = Number(form.get("horizon_bars") || 8);
+    if (!Number.isFinite(horizonBars) || horizonBars < 3 || horizonBars > 30) {
+      throw new Error("Horizon bars deve ficar entre 3 e 30.");
+    }
+    const quantity = Number(form.get("quantity") || 1);
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throw new Error("Quantidade paper invalida.");
+    }
+    const signalIdRaw = String(form.get("signal_id") || "").trim();
+    const parsedSignal = Number(signalIdRaw || state.signalId);
+    return {
+      userId,
+      providerName,
+      instruments,
+      horizonBars: Math.round(horizonBars),
+      quantity,
+      signalId: Number.isFinite(parsedSignal) && parsedSignal > 0 ? parsedSignal : null,
+      symbolOverrides: buildSymbolOverrides(instruments),
+    };
+  };
+
+  const syncMicrotradesSignalId = (signalId) => {
+    const parsed = Number(signalId);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return;
+    }
+    if (signalInput) {
+      signalInput.value = String(parsed);
+    }
+    syncSignalId(parsed);
+  };
+
+  const renderMonitorTable = (payload) => {
+    if (!monitorTable) {
+      return;
+    }
+    const theses = Array.isArray(payload?.theses) ? payload.theses : [];
+    if (theses.length === 0) {
+      monitorTable.innerHTML = "<tr><td colspan='7'>Sem monitoramento carregado.</td></tr>";
+      return;
+    }
+    monitorTable.innerHTML = theses
+      .map((thesis) => {
+        const instrument = String(thesis.instrument || "-");
+        const direction = String(thesis.direction || "-").toUpperCase();
+        const confidence = formatMetric(thesis.confidence_tese_pct);
+        const expected = formatSignedMetricPercent(thesis.expected_financial_pct);
+        const status = `${String(thesis.monitor_status || "-")} | ${String(thesis.suggested_action || "-")}`;
+        const targetStop = `${formatMetric(thesis.target_price)} / ${formatMetric(thesis.stop_price)}`;
+        return `
+          <tr>
+            <td class="mono">${escapeHtml(instrument)}</td>
+            <td>${escapeHtml(direction)}</td>
+            <td class="mono">${escapeHtml(confidence)}%</td>
+            <td class="mono">${escapeHtml(expected)}</td>
+            <td>${escapeHtml(status)}</td>
+            <td class="mono">${escapeHtml(targetStop)}</td>
+            <td class="mono">${escapeHtml(formatDate(thesis.thesis_raised_at))}</td>
+          </tr>
+        `;
+      })
+      .join("");
+  };
+
+  const runFetchLive = async (config, { updateOutput = true } = {}) => {
+    const payload = {
+      user_id: config.userId,
+      provider_name: config.providerName,
+      instruments: config.instruments,
+      auto_recompute_indicators: true,
+    };
+    if (config.symbolOverrides) {
+      payload.symbol_overrides = config.symbolOverrides;
+    }
+    const result = await apiRequest("POST", "/api/market/intraday/fetch-live", payload);
+    if (updateOutput) {
+      setOutput("microtrades-output", {
+        etapa: "ingestao_intraday",
+        provider_name: result.provider_name,
+        requested_instruments: result.requested_instruments,
+        processed_count: result.processed_count,
+        failed_count: result.failed_count,
+      });
+    }
+    return result;
+  };
+
+  const runGenerateSignal = async (config, { updateOutput = true } = {}) => {
+    const result = await apiRequest("POST", "/api/signals/generate", {
+      user_id: config.userId,
+      instrument: config.instruments[0],
+    });
+    syncMicrotradesSignalId(result.signal_id);
+    if (updateOutput) {
+      setOutput("microtrades-output", {
+        etapa: "geracao_tese",
+        signal_id: result.signal_id,
+        instrument: result.instrument,
+        signal_type: result.signal_type,
+        confidence: result.confidence,
+        expected_return_pct: result.expected_return_pct,
+      });
+    }
+    return result;
+  };
+
+  const runCaseStudy = async (config, { updateOutput = true } = {}) => {
+    const result = await apiRequest("POST", "/api/theses/case-study", {
+      user_id: config.userId,
+      instruments: config.instruments,
+      horizon_bars: config.horizonBars,
+    });
+    if (updateOutput) {
+      const thesis = result?.selected_case?.thesis || {};
+      const kpis = result?.selected_case?.kpis || {};
+      setOutput("microtrades-output", {
+        etapa: "comprovacao_tese",
+        thesis_id: thesis.thesis_id,
+        instrument: thesis.instrument,
+        direction: thesis.direction,
+        confidence_tese_pct: kpis.confidence_tese_pct ?? thesis.confidence_tese_pct,
+        expected_financial_pct: kpis.expected_financial_pct ?? thesis.expected_financial_pct,
+        realized_financial_pct:
+          kpis.realized_financial_pct ?? result?.selected_case?.outcome?.realized_financial_pct,
+      });
+    }
+    return result;
+  };
+
+  const runMonitor = async (config, { updateOutput = true } = {}) => {
+    const result = await apiRequest("POST", "/api/theses/current-monitor", {
+      user_id: config.userId,
+      instruments: config.instruments,
+      horizon_bars: config.horizonBars,
+      thesis_count: Math.min(8, Math.max(1, config.instruments.length * 2)),
+      recent_bars_window: 7,
+    });
+    renderMonitorTable(result);
+    if (updateOutput) {
+      setOutput("microtrades-output", {
+        etapa: "monitoramento_atual",
+        generated_at: result.generated_at,
+        thesis_count: result.thesis_count,
+        target_hits: result.summary?.target_hits,
+        stop_alerts: result.summary?.stop_alerts,
+        monitoring_count: result.summary?.monitoring_count,
+        avg_unrealized_financial_pct: result.summary?.avg_unrealized_financial_pct,
+      });
+    }
+    return result;
+  };
+
+  const runMonitorLatest = async ({ updateOutput = true } = {}) => {
+    const result = await apiRequest("GET", "/api/theses/current-monitor/latest");
+    renderMonitorTable(result);
+    if (updateOutput) {
+      setOutput("microtrades-output", {
+        etapa: "monitoramento_latest",
+        generated_at: result.generated_at,
+        thesis_count: result.thesis_count,
+        target_hits: result.summary?.target_hits,
+        stop_alerts: result.summary?.stop_alerts,
+        monitoring_count: result.summary?.monitoring_count,
+        avg_unrealized_financial_pct: result.summary?.avg_unrealized_financial_pct,
+      });
+    }
+    return result;
+  };
+
+  const runPaperOrder = async (config, { updateOutput = true } = {}) => {
+    const signalId = Number(config.signalId || state.signalId);
+    if (!Number.isFinite(signalId) || signalId <= 0) {
+      throw new Error("Informe um signal_id valido para gerar a ordem paper.");
+    }
+    const result = await apiRequest("POST", `/api/paper/orders/from-signal/${signalId}`, {
+      user_id: config.userId,
+      quantity: config.quantity,
+    });
+    if (updateOutput) {
+      setOutput("microtrades-output", {
+        etapa: "paper_order",
+        signal_id: signalId,
+        order_id: result.order_id,
+        instrument: result.instrument,
+        quantity: result.quantity,
+        execution_price: result.execution_price,
+        estimated_cost: result.estimated_cost,
+        risk_status: result.risk_status,
+      });
+    }
+    return result;
+  };
+
+  const bindAction = (buttonId, loadingText, handler) => {
+    const button = byId(buttonId);
+    if (!button) {
+      return;
+    }
+    button.addEventListener("click", async () => {
+      setButtonLoading(button, true, loadingText);
+      try {
+        await handler();
+      } catch (error) {
+        const message = errorMessageFrom(error);
+        setOutput("microtrades-output", { erro: message, detalhe: error?.data || null });
+        setSingleStatus("Falha", message, "tone-danger");
+        showToast("error", `Falha em microtrades: ${message}`);
+      } finally {
+        setButtonLoading(button, false);
+      }
+    });
+  };
+
+  workflowForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = byId("microtrades-run-cycle") || event.currentTarget.querySelector('button[type="submit"]');
+    const steps = [];
+    const pushStep = (title, meta, tone = "") => {
+      steps.push({ title, meta, tone });
+      renderStatus(steps);
+    };
+    setButtonLoading(button, true, "Executando ciclo...");
+    try {
+      const config = readConfig();
+      pushStep(
+        "Escopo",
+        `${config.instruments.join(", ")} | provider ${config.providerName}`,
+      );
+      const ingest = await runFetchLive(config, { updateOutput: false });
+      pushStep("1/4 Cotacao", `${formatNumber(ingest.processed_count || 0)} ativos processados.`);
+
+      const signal = await runGenerateSignal(config, { updateOutput: false });
+      pushStep(
+        "2/4 Tese",
+        `signal_id ${signal.signal_id || "-"} em ${signal.instrument || config.instruments[0]}.`,
+      );
+
+      const caseStudy = await runCaseStudy(config, { updateOutput: false });
+      const selectedThesisId = caseStudy?.selected_case?.thesis?.thesis_id || "-";
+      pushStep("3/4 Comprovacao", `Case selecionado: ${selectedThesisId}.`);
+
+      const monitor = await runMonitor(config, { updateOutput: false });
+      pushStep("4/4 Monitoramento", `${formatNumber(monitor.thesis_count || 0)} teses monitoradas.`);
+
+      setOutput("microtrades-output", {
+        etapa: "ciclo_completo",
+        provider_name: ingest.provider_name,
+        instruments: config.instruments,
+        processed_count: ingest.processed_count,
+        signal_id: signal.signal_id,
+        selected_thesis_id: selectedThesisId,
+        monitor_thesis_count: monitor.thesis_count,
+        monitor_target_hits: monitor.summary?.target_hits,
+        monitor_stop_alerts: monitor.summary?.stop_alerts,
+      });
+      showToast("success", "Ciclo de microtrades concluido com dados reais.");
+    } catch (error) {
+      const message = errorMessageFrom(error);
+      pushStep("Falha no ciclo", message, "tone-danger");
+      setOutput("microtrades-output", { erro: message, detalhe: error?.data || null });
+      showToast("error", `Falha no ciclo de microtrades: ${message}`);
+    } finally {
+      setButtonLoading(button, false);
+    }
+  });
+
+  bindAction("microtrades-fetch-live", "Ingerindo...", async () => {
+    const config = readConfig();
+    const result = await runFetchLive(config);
+    setSingleStatus(
+      "Cotacao carregada",
+      `${formatNumber(result.processed_count || 0)} ativos processados (${formatNumber(result.failed_count || 0)} falhas).`,
+    );
+    showToast("success", "Cotacao intraday atualizada para microtrades.");
+  });
+
+  bindAction("microtrades-generate-signal", "Gerando...", async () => {
+    const config = readConfig();
+    const result = await runGenerateSignal(config);
+    setSingleStatus(
+      "Tese gerada",
+      `Signal ${result.signal_id || "-"} para ${result.instrument || config.instruments[0]}.`,
+    );
+    showToast("success", "Tese de microtrade gerada.");
+  });
+
+  bindAction("microtrades-case-study", "Comprovando...", async () => {
+    const config = readConfig();
+    const result = await runCaseStudy(config);
+    const thesis = result?.selected_case?.thesis || {};
+    const kpis = result?.selected_case?.kpis || {};
+    setSingleStatus(
+      "Tese comprovada",
+      `${thesis.thesis_id || "-"} | conf ${formatMetric(kpis.confidence_tese_pct || thesis.confidence_tese_pct || 0)}%`,
+    );
+    showToast("success", "Comprovacao de tese concluida.");
+  });
+
+  bindAction("microtrades-monitor", "Monitorando...", async () => {
+    const config = readConfig();
+    const result = await runMonitor(config);
+    setSingleStatus(
+      "Monitor atualizado",
+      `${formatNumber(result.thesis_count || 0)} teses | target ${formatNumber(result.summary?.target_hits || 0)} | stop ${formatNumber(result.summary?.stop_alerts || 0)}`,
+    );
+    showToast("success", "Monitoramento atualizado.");
+  });
+
+  bindAction("microtrades-monitor-latest", "Carregando...", async () => {
+    const result = await runMonitorLatest();
+    setSingleStatus(
+      "Monitor latest",
+      `${formatNumber(result.thesis_count || 0)} teses carregadas de ${formatDate(result.generated_at)}.`,
+    );
+    showToast("success", "Monitor latest carregado.");
+  });
+
+  bindAction("microtrades-paper-order", "Criando ordem...", async () => {
+    const config = readConfig();
+    const result = await runPaperOrder(config);
+    setSingleStatus(
+      "Ordem paper criada",
+      `order_id ${result.order_id || "-"} | ${result.instrument || "-"} x ${formatNumber(result.quantity || config.quantity)}`,
+    );
+    showToast("success", "Ordem paper registrada para microtrades.");
+  });
+}
+
 function bindAlertsHandlers() {
   const whatsappForm = byId("whatsapp-settings-form");
   if (whatsappForm) {
@@ -3143,6 +3545,7 @@ function bootstrap() {
   bindBacktestHandlers();
   bindRiskHandlers();
   bindGameHandlers();
+  bindMicrotradesHandlers();
   bindAlertsHandlers();
 
   switchView("finvest");
