@@ -11,7 +11,7 @@ from app.services.crypto_history_provider import (
     fetch_historical_crypto_candles,
 )
 from app.services.intraday_provider import IntradayProviderError, fetch_intraday_quotes
-from app.services.market import ingest_tick, ingest_tick_live, recompute_indicators
+from app.services.market import ingest_tick, ingest_tick_live, recompute_indicators, resolve_active_provider
 from app.services.signals import generate_signal
 from app.services.suitability import save_suitability
 from app.services.thesis_case_study import run_thesis_case_study
@@ -261,27 +261,54 @@ def _run_backfill(
         max_candles_per_instrument=effective_max_candles,
     )
     provider_label = f"crypto-{config['history_provider_name'].lower()}-{config['interval']}"
-    processed_count = 0
+    active_provider = resolve_active_provider(db, provider_label.lower())
+    if active_provider is not None and active_provider.provider_name != provider_label.lower():
+        raise ValueError(
+            "Provedor inativo para ingestao no momento. Utilize o provedor ativo configurado."
+        )
+    source_payload_ids = [
+        str(candle["source_payload_id"])
+        for candle in candles
+        if candle.get("source_payload_id") is not None
+    ]
+    existing_payload_ids = set(
+        db.scalars(
+            select(MarketTick.source_payload_id).where(
+                MarketTick.provider == provider_label.lower(),
+                MarketTick.instrument.in_([item.upper() for item in config["instruments"]]),
+                MarketTick.source_payload_id.in_(source_payload_ids),
+            )
+        )
+    )
+    processed_count = len(candles)
     failed_count = 0
     ingested_instruments: set[str] = set()
+    ingest_time = isoformat(utc_now())
+    rows_to_insert: list[MarketTick] = []
     for candle in candles:
         try:
-            tick = ingest_tick(
-                db,
-                MarketTickIngestRequest(
-                    instrument=candle["instrument"],
-                    provider=provider_label,
-                    event_time=candle["event_time"],
-                    price=candle["price"],
-                    volume=candle["volume"],
-                    currency=candle["currency"],
-                    source_payload_id=candle["source_payload_id"],
-                ),
+            instrument = str(candle["instrument"]).upper()
+            source_payload_id = candle.get("source_payload_id")
+            ingested_instruments.add(instrument)
+            if source_payload_id is not None and str(source_payload_id) in existing_payload_ids:
+                continue
+            rows_to_insert.append(
+                MarketTick(
+                    instrument=instrument,
+                    provider=provider_label.lower(),
+                    event_time=isoformat(candle["event_time"]),
+                    ingest_time=ingest_time,
+                    price=float(candle["price"]),
+                    volume=int(candle["volume"]),
+                    currency=str(candle["currency"]),
+                    source_payload_id=str(source_payload_id) if source_payload_id is not None else None,
+                )
             )
-            processed_count += 1
-            ingested_instruments.add(tick.instrument)
-        except ValueError:
+        except (KeyError, TypeError, ValueError):
             failed_count += 1
+    if rows_to_insert:
+        db.add_all(rows_to_insert)
+        db.commit()
 
     indicators_recomputed: list[str] = []
     indicators_skipped: list[str] = []
