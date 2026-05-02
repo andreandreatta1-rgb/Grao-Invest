@@ -215,6 +215,10 @@
             <i data-lucide="activity"></i>
             <span class="menu-label">Microtrades</span>
           </button>
+          <button class="menu-item" data-view-button="decisoes" type="button">
+            <i data-lucide="message-square-more"></i>
+            <span class="menu-label">Decisões</span>
+          </button>
           <button class="menu-item" data-view-button="alertas" type="button">
             <i data-lucide="bell"></i>
             <span class="menu-label">Alertas</span>
@@ -461,6 +465,53 @@
                 <button type="submit">Simular ordem</button>
               </form>
               <div id="order-output" class="stack-list result-card" aria-live="polite"></div>
+            </article>
+          </section>
+
+          <section class="view-panel" data-view="decisoes">
+            <div class="panel-head panel-head-inline">
+              <div>
+                <h2>Centro de decisões</h2>
+                <p class="panel-note">
+                  Caixa rápida para você aprovar, pausar ou orientar próximos passos pelo celular.
+                </p>
+              </div>
+              <div class="action-grid">
+                <button id="decision-refresh" type="button">Atualizar decisões</button>
+                <button id="decision-seed-away-plan" type="button">Preparar plano 5h</button>
+              </div>
+            </div>
+
+            <article class="subpanel">
+              <h3>Resumo</h3>
+              <div id="decision-summary" class="kpi-grid kpi-grid-5" aria-live="polite"></div>
+            </article>
+
+            <article class="subpanel">
+              <h3>Decisões pendentes e respostas</h3>
+              <div id="decision-inbox" class="stack-list" aria-live="polite">
+                <div class="list-row">
+                  <p class="list-meta">Abra esta área no celular para responder quando houver decisão pendente.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="subpanel">
+              <h3>Como vamos usar</h3>
+              <div class="stack-list">
+                <div class="list-row">
+                  <strong>1. Eu crio uma decisão</strong>
+                  <p class="list-meta">Exemplo: continuar monitoramento intensivo, reduzir risco ou aguardar.</p>
+                </div>
+                <div class="list-row">
+                  <strong>2. Você responde pelo celular</strong>
+                  <p class="list-meta">A resposta fica registrada na API e eu consigo retomar daqui quando verificar.</p>
+                </div>
+                <div class="list-row">
+                  <strong>3. O próximo ciclo usa sua resposta</strong>
+                  <p class="list-meta">A decisão vira critério operacional para seguir, pausar ou mudar a estratégia.</p>
+                </div>
+              </div>
             </article>
           </section>
 

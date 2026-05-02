@@ -197,6 +197,24 @@ class PortfolioRebalanceRequest(BaseModel):
     plan_id: int | None = None
 
 
+class AssistantDecisionOptionRequest(BaseModel):
+    option_id: str = Field(min_length=1, max_length=12)
+    label: str = Field(min_length=2, max_length=160)
+
+
+class AssistantDecisionCreateRequest(BaseModel):
+    title: str = Field(min_length=4, max_length=160)
+    context: str = Field(default="", max_length=1000)
+    question: str = Field(min_length=4, max_length=400)
+    options: list[AssistantDecisionOptionRequest] = Field(min_length=1, max_length=5)
+    priority: str = Field(default="normal", pattern="^(low|normal|high)$")
+
+
+class AssistantDecisionAnswerRequest(BaseModel):
+    option_id: str | None = Field(default=None, min_length=1, max_length=12)
+    free_text: str | None = Field(default=None, max_length=1000)
+
+
 class DashboardResponse(BaseModel):
     user_id: int
     investor_profile: str | None

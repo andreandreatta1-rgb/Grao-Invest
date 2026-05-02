@@ -44,6 +44,8 @@ from app.models import (
 )
 from app.schemas import (
     AlertRuleRequest,
+    AssistantDecisionAnswerRequest,
+    AssistantDecisionCreateRequest,
     B3MarketSyncRangeRequest,
     B3MarketSyncRequest,
     B3MarketSyncUniverseRangeRequest,
@@ -77,6 +79,12 @@ from app.schemas import (
     ThesisSkillLearningRequest,
     WhatsAppNotificationSettingsRequest,
     WhatsAppNotificationTestRequest,
+)
+from app.services.assistant_decisions import (
+    answer_decision,
+    create_decision,
+    decision_inbox_payload,
+    seed_away_plan_decision,
 )
 from app.services.alerts import create_alert_rule
 from app.services.asset_classes import asset_class_label, classify_instrument
@@ -1429,6 +1437,61 @@ def report_summary(
     return build_user_report(db, user_id)
 
 
+def _assistant_decisions_path() -> Path:
+    return data_dir / "assistant_decisions.json"
+
+
+@app.get("/api/assistant/decisions")
+def assistant_decisions_list(
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    return decision_inbox_payload(store_path=_assistant_decisions_path(), user_id=user.id)
+
+
+@app.post("/api/assistant/decisions")
+def assistant_decisions_create(
+    payload: AssistantDecisionCreateRequest,
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    return create_decision(
+        store_path=_assistant_decisions_path(),
+        user_id=user.id,
+        title=payload.title,
+        context=payload.context,
+        question=payload.question,
+        options=[
+            {"option_id": option.option_id, "label": option.label}
+            for option in payload.options
+        ],
+        priority=payload.priority,
+    )
+
+
+@app.post("/api/assistant/decisions/seed-away-plan")
+def assistant_decisions_seed_away_plan(
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    return seed_away_plan_decision(store_path=_assistant_decisions_path(), user_id=user.id)
+
+
+@app.post("/api/assistant/decisions/{decision_id}/answer")
+def assistant_decisions_answer(
+    decision_id: str,
+    payload: AssistantDecisionAnswerRequest,
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    try:
+        return answer_decision(
+            store_path=_assistant_decisions_path(),
+            user_id=user.id,
+            decision_id=decision_id,
+            option_id=payload.option_id,
+            free_text=payload.free_text,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.get("/api/reports/executive")
 def report_executive() -> dict[str, object]:
     report_path = data_dir / "executive_report_latest.json"
@@ -1570,17 +1633,45 @@ def executive_page() -> HTMLResponse:
         summary = monitor_payload.get("summary", {})
         theses = monitor_payload.get("theses", [])
         if isinstance(summary, dict):
+            executive_counts = summary.get("executive_status_counts")
+            counts_dict = executive_counts if isinstance(executive_counts, dict) else {}
             monitor_summary_html = (
                 "<p style='margin:6px 0 0;color:#cbd5e1'>"
                 f"Hits de alvo: <strong>{safe_cell(summary.get('target_hits'))}</strong> | "
                 f"Alertas de stop: <strong>{safe_cell(summary.get('stop_alerts'))}</strong> | "
-                f"Retorno medio atual: <strong>{safe_cell(fmt_pct(summary.get('avg_unrealized_financial_pct')))}</strong>"
+                f"Retorno medio atual: <strong>{safe_cell(fmt_pct(summary.get('avg_unrealized_financial_pct')))}</strong> | "
+                f"Atencao/revisao: <strong>{safe_cell(summary.get('needs_attention_count'))}</strong>"
+                "</p>"
+                "<p style='margin:6px 0 0;color:#94a3b8'>"
+                f"Mantidas: {safe_cell(counts_dict.get('mantida', 0))} | "
+                f"Atencao: {safe_cell(counts_dict.get('atencao', 0))} | "
+                f"Revisar saida: {safe_cell(counts_dict.get('revisar_saida', 0))} | "
+                f"Invalidadas: {safe_cell(counts_dict.get('invalidada', 0))}"
                 "</p>"
             )
         if isinstance(theses, list):
             for item in theses[:8]:
                 if not isinstance(item, dict):
                     continue
+                revaluation = item.get("operation_revaluation")
+                revaluation_dict = revaluation if isinstance(revaluation, dict) else {}
+                status_label = (
+                    item.get("executive_status_label")
+                    or revaluation_dict.get("executive_status_label")
+                    or item.get("monitor_status")
+                )
+                action_label = (
+                    item.get("executive_action")
+                    or revaluation_dict.get("suggested_action")
+                    or item.get("suggested_action")
+                )
+                confidence_initial = item.get("confidence_tese_pct")
+                confidence_now = item.get("confidence_now_pct")
+                confidence_text = (
+                    f"{fmt_pct(confidence_initial)} -> {fmt_pct(confidence_now)}"
+                    if isinstance(confidence_now, (int, float))
+                    else fmt_pct(confidence_initial)
+                )
                 monitor_rows += (
                     "<tr>"
                     f"<td>{safe_cell(item.get('instrument'))}</td>"
@@ -1589,8 +1680,8 @@ def executive_page() -> HTMLResponse:
                     f"<td>{safe_cell(fmt_money(item.get('target_price')))}</td>"
                     f"<td>{safe_cell(fmt_money(item.get('stop_price')))}</td>"
                     f"<td>{safe_cell(fmt_money(item.get('latest_price')))}</td>"
-                    f"<td>{safe_cell(item.get('monitor_status'))}</td>"
-                    f"<td>{safe_cell(item.get('suggested_action'))}</td>"
+                    f"<td><strong>{safe_cell(status_label)}</strong><br>{safe_cell(confidence_text)}</td>"
+                    f"<td>{safe_cell(action_label)}<br><span style='color:#94a3b8'>{safe_cell(item.get('next_trigger'))}</span></td>"
                     "</tr>"
                 )
     if not monitor_rows:
@@ -1655,7 +1746,7 @@ def executive_page() -> HTMLResponse:
         "<div class='card'><h3 style='margin:0'>Monitor Diario de Teses Atuais</h3>"
         f"{monitor_summary_html}"
         "<table><thead><tr>"
-        "<th>Ativo</th><th>Origem da tese</th><th>Entrada</th><th>Alvo</th><th>Stop</th><th>Preco atual</th><th>Status</th><th>Acao sugerida</th>"
+        "<th>Ativo</th><th>Origem da tese</th><th>Entrada</th><th>Alvo</th><th>Stop</th><th>Preco atual</th><th>Status + confianca</th><th>Acao/gatilho</th>"
         "</tr></thead><tbody>"
         f"{monitor_rows}"
         "</tbody></table></div>"

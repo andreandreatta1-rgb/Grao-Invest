@@ -20,7 +20,11 @@ def test_index_contains_phase_ui_shell_and_disclaimer() -> None:
     assert 'data-view="risco"' in html
     assert 'data-view="game"' in html
     assert 'data-view="microtrades"' in html
+    assert 'data-view="decisoes"' in html
     assert 'data-view="alertas"' in html
+    assert 'id="decision-refresh"' in html
+    assert 'id="decision-seed-away-plan"' in html
+    assert 'id="decision-inbox"' in html
     assert 'id="whatsapp-settings-form"' in html
     assert 'id="whatsapp-test-btn"' in html
     assert 'id="whatsapp-deliveries-list"' in html
@@ -84,7 +88,11 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert '"/api/theses/case-study"' in script
     assert '"/api/theses/current-monitor"' in script
     assert '"/api/theses/current-monitor/latest"' in script
+    assert '"/api/assistant/decisions"' in script
+    assert '"/api/assistant/decisions/seed-away-plan"' in script
     assert "/api/paper/orders/from-signal/" in script
+    assert "function bindDecisionHandlers()" in script
+    assert "function loadDecisionInbox()" in script
     assert '"/api/theses/game-playbook"' in script
     assert '"/api/notifications/whatsapp"' in script
     assert '"/api/notifications/whatsapp/test"' in script
