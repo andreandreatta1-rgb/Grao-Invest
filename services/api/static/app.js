@@ -2785,8 +2785,39 @@ function bindMicrotradesHandlers() {
         );
       }
 
-      const ingest = await runFetchLive(config, { updateOutput: false });
-      pushStep("1/5 Cotacao", `${formatNumber(ingest.processed_count || 0)} ativos processados.`);
+      let ingest = {
+        provider_name: config.providerName,
+        processed_count: 0,
+        failed_count: 0,
+        skipped: false,
+      };
+      try {
+        const ingestResult = await runFetchLive(config, { updateOutput: false });
+        ingest = {
+          provider_name: ingestResult.provider_name,
+          processed_count: ingestResult.processed_count || 0,
+          failed_count: ingestResult.failed_count || 0,
+          skipped: false,
+        };
+        pushStep("1/5 Cotacao", `${formatNumber(ingest.processed_count)} ativos processados.`);
+      } catch (ingestError) {
+        const ingestMessage = errorMessageFrom(ingestError);
+        const canSkipLive = ingestMessage.includes("FINNHUB_API_TOKEN");
+        if (!canSkipLive) {
+          throw ingestError;
+        }
+        ingest = {
+          provider_name: config.providerName,
+          processed_count: 0,
+          failed_count: 0,
+          skipped: true,
+        };
+        pushStep(
+          "1/5 Cotacao",
+          "Token Finnhub ausente. Etapa live ignorada e fluxo segue com historico local.",
+          "tone-warning",
+        );
+      }
 
       const signal = await runGenerateSignal(config, { updateOutput: false });
       pushStep(
@@ -2810,6 +2841,7 @@ function bindMicrotradesHandlers() {
         backfill_processed_count: backfill?.processed_count || 0,
         backfill_failed_count: backfill?.failed_count || 0,
         processed_count: ingest.processed_count,
+        live_ingestion_skipped: ingest.skipped,
         signal_id: signal.signal_id,
         selected_thesis_id: selectedThesisId,
         monitor_thesis_count: monitor.thesis_count,
