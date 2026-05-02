@@ -8,7 +8,7 @@
     },
     {
       "path": "/api/cron/microtrades-autopilot",
-      "schedule": "*/30 * * * *"
+      "schedule": "30 11 * * *"
     }
   ],
   "rewrites": [
