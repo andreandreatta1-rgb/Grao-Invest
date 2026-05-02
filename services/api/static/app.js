@@ -2721,6 +2721,8 @@ function bindMicrotradesHandlers() {
   };
 
   const DECISION_COOLDOWN_MS = 45 * 60 * 1000;
+  const AUTO_CYCLE_COOLDOWN_MS = 5 * 60 * 1000;
+  const AUTO_MONITOR_STALE_MS = 12 * 60 * 1000;
   const maybePublishDecisionCard = async ({
     title,
     context,
@@ -3332,6 +3334,72 @@ function bindMicrotradesHandlers() {
     renderRealtimeLab(payload);
   };
 
+  const monitorAgeMs = (payload) => {
+    const generatedAtMs = Date.parse(String(payload?.generated_at || ""));
+    if (!Number.isFinite(generatedAtMs)) {
+      return Number.POSITIVE_INFINITY;
+    }
+    return Math.max(0, Date.now() - generatedAtMs);
+  };
+
+  const isMonitorPayloadStale = (payload) => {
+    if (!payload || typeof payload !== "object") {
+      return true;
+    }
+    const thesisCount = Number(payload.thesis_count || 0);
+    const theses = Array.isArray(payload.theses) ? payload.theses : [];
+    if (thesisCount <= 0 || theses.length === 0) {
+      return true;
+    }
+    return monitorAgeMs(payload) > AUTO_MONITOR_STALE_MS;
+  };
+
+  const buildAutopilotPayload = (config) => ({
+    user_id: config.userId,
+    instruments: config.instruments,
+    provider_name: config.providerName,
+    history_provider_name: "binance",
+    interval: config.interval,
+    lookback_hours: config.lookbackHours,
+    max_candles_per_instrument: config.maxCandles,
+    horizon_bars: config.horizonBars,
+    thesis_count: Math.min(8, Math.max(1, config.instruments.length * 2)),
+    recent_bars_window: 7,
+    auto_recompute_indicators: true,
+    publish_decisions: true,
+    decision_cooldown_minutes: 45,
+  });
+
+  const runMicrotradesAutopilotQuietly = async (reason) => {
+    const elapsed = Date.now() - Number(state.microtradesLastAutoRunAt || 0);
+    if (elapsed < AUTO_CYCLE_COOLDOWN_MS) {
+      return {
+        status: "cooldown",
+        cooldown_remaining_ms: AUTO_CYCLE_COOLDOWN_MS - elapsed,
+      };
+    }
+    const config = readConfig();
+    state.microtradesLastAutoRunAt = Date.now();
+    setSingleStatus(
+      "Buscando tese ativa",
+      `Sem monitor valido no laboratorio (${reason}). Disparando ciclo automatico agora.`,
+      "tone-warning",
+    );
+    const result = await apiRequest(
+      "POST",
+      "/api/microtrades/autopilot/run",
+      buildAutopilotPayload(config),
+      { timeoutMs: 90000 },
+    );
+    if (result?.signal?.signal_id) {
+      syncMicrotradesSignalId(result.signal.signal_id);
+    }
+    if (result?.monitor) {
+      renderMonitorTable(result.monitor);
+    }
+    return result;
+  };
+
   const runBackfill = async (config, { updateOutput = true } = {}) => {
     const payload = {
       user_id: config.userId,
@@ -3923,21 +3991,89 @@ function bindMicrotradesHandlers() {
       return;
     }
     state.microtradesAutoRunInFlight = true;
+    let latest = null;
     try {
-      const latest = await runMonitorLatest({ updateOutput: false });
+      try {
+        latest = await runMonitorLatest({ updateOutput: false });
+      } catch {
+        latest = null;
+      }
+
+      if (latest && !isMonitorPayloadStale(latest)) {
+        setSingleStatus(
+          "Monitor carregado",
+          `${formatNumber(latest.thesis_count || 0)} teses ativas no laboratorio (${reason}).`,
+          "tone-accent",
+        );
+        return;
+      }
+
+      const autoRun = await runMicrotradesAutopilotQuietly(reason);
+      if (autoRun?.status === "cooldown") {
+        const remaining = formatDuration(autoRun.cooldown_remaining_ms || 0);
+        if (latest) {
+          renderMonitorTable(latest);
+          setSingleStatus(
+            "Aguardando proximo ciclo",
+            `Mantendo o ultimo monitor visivel enquanto o autopilot respeita o cooldown (${remaining}).`,
+            "tone-warning",
+          );
+        } else {
+          setSingleStatus(
+            "Aguardando proximo ciclo",
+            `As sugestoes automaticas voltam a rodar em ${remaining}.`,
+            "tone-warning",
+          );
+          if (!state.microtradesLivePayload) {
+            setLiveNeutral("Preparando novo ciclo automatico de microtrades.");
+          }
+        }
+        return;
+      }
+
+      if (autoRun?.monitor) {
+        const monitor = autoRun.monitor;
+        const thesisCount = Number(monitor.thesis_count || 0);
+        const tone = autoRun.status === "failed" ? "tone-danger" : autoRun.status === "partial" ? "tone-warning" : "tone-accent";
+        const meta =
+          thesisCount > 0
+            ? `${formatNumber(thesisCount)} teses acompanhadas. ${summarizeTopTheses(monitor)}`
+            : "Ciclo automatico concluido sem tese elegivel agora. Vou continuar monitorando.";
+        setSingleStatus("Laboratorio realtime", meta, tone);
+        return;
+      }
+
+      try {
+        latest = await runMonitorLatest({ updateOutput: false });
+      } catch {
+        latest = null;
+      }
+
+      if (latest) {
+        setSingleStatus(
+          "Laboratorio realtime",
+          `${formatNumber(latest.thesis_count || 0)} teses recuperadas apos o ciclo automatico.`,
+          "tone-accent",
+        );
+        return;
+      }
+
       setSingleStatus(
-        "Monitor carregado",
-        `${formatNumber(latest.thesis_count || 0)} teses no ultimo monitor (${reason}).`,
-        "tone-accent",
-      );
-    } catch {
-      setSingleStatus(
-        "Monitor aguardando",
-        "Nenhum monitor recente encontrado. Rode o ciclo completo quando quiser atualizar.",
+        "Sugestoes aguardando",
+        "Nao consegui carregar um monitor agora. Vou tentar novamente automaticamente.",
         "tone-warning",
       );
       if (!state.microtradesLivePayload) {
-        setLiveNeutral("Nenhum monitor recente disponivel.");
+        setLiveNeutral("Preparando sugestoes automaticas de microtrades.");
+      }
+    } catch (error) {
+      setSingleStatus(
+        "Sugestoes aguardando",
+        `Falha temporaria no ciclo automatico: ${errorMessageFrom(error)}`,
+        "tone-danger",
+      );
+      if (!state.microtradesLivePayload && !latest) {
+        setLiveNeutral("Falha temporaria ao atualizar o laboratorio realtime.");
       }
     } finally {
       state.microtradesAutoRunInFlight = false;

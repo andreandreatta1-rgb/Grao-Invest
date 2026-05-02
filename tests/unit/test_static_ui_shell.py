@@ -98,6 +98,7 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert '"/api/theses/ai-analysis"' in script
     assert '"/api/theses/current-monitor"' in script
     assert '"/api/theses/current-monitor/latest"' in script
+    assert '"/api/microtrades/autopilot/run"' in script
     assert '"/api/assistant/decisions"' in script
     assert '"/api/assistant/decisions/seed-away-plan"' in script
     assert "detail.user_message" in script
@@ -105,6 +106,10 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert "gate_dados_bloqueado" in script
     assert "Microtrades: gate de dados em modo conservador" in script
     assert "function refreshLatestMonitorQuietly" in script
+    assert "const AUTO_CYCLE_COOLDOWN_MS = 5 * 60 * 1000;" in script
+    assert "const isMonitorPayloadStale = (payload) => {" in script
+    assert "const runMicrotradesAutopilotQuietly = async (reason) => {" in script
+    assert "Disparando ciclo automatico agora." in script
     assert "function bindThesisAiAnalysisHandler()" in script
     assert "const renderRealtimeLab =" in script
     assert "const intervalToMs =" in script
@@ -112,8 +117,7 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert 'renderRealtimeLab(state.microtradesLivePayload, { persist: false });' in script
     assert "setLiveNeutral(" in script
     assert "microtrades-live-pressure-fill" in script
-    assert 'requestAutoCycle("abertura da aba")' not in script
-    assert 'requestAutoCycle("acompanhamento continuo")' not in script
+    assert "Rode o ciclo completo quando quiser atualizar." not in script
     assert "/api/paper/orders/from-signal/" in script
     assert "function bindDecisionHandlers()" in script
     assert "function loadDecisionInbox()" in script
