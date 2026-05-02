@@ -1,0 +1,736 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grão Invest</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  </head>
+  <body>
+    <div id="auth-gate" class="auth-gate" style="display: none" role="dialog" aria-modal="true" aria-label="Autenticação">
+      <div class="auth-modal">
+        <div class="auth-logo">
+          <div class="brand-badge">AI</div>
+          <p class="auth-product-name">Grão Invest</p>
+          <p class="auth-product-sub">Plataforma de simulação B3</p>
+        </div>
+
+        <div class="auth-tabs" id="auth-tabs" role="tablist">
+          <button class="auth-tab is-active" data-auth-tab="login" role="tab" type="button">Entrar</button>
+          <button class="auth-tab" data-auth-tab="signup" role="tab" type="button">Criar conta</button>
+        </div>
+
+        <div class="auth-panel is-active" id="auth-panel-login">
+          <form id="login-form" class="auth-form" novalidate>
+            <div class="field-group">
+              <label for="login-email">E-mail</label>
+              <input id="login-email" name="email" type="email" placeholder="seu@email.com" autocomplete="email" required />
+            </div>
+            <div class="field-group">
+              <label for="login-password">Senha</label>
+              <div class="input-with-toggle">
+                <input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                  required
+                />
+                <button type="button" class="pw-toggle" data-toggle-password="login-password" aria-label="Mostrar senha">👁</button>
+              </div>
+            </div>
+            <a href="#" class="forgot-link" id="forgot-password-link">Esqueci minha senha</a>
+            <button type="submit" class="btn-primary btn-full" id="login-submit-btn">Entrar</button>
+          </form>
+        </div>
+
+        <div class="auth-panel" id="auth-panel-signup">
+          <form id="signup-form" class="auth-form" novalidate>
+            <div class="field-group">
+              <label for="signup-name">Nome completo</label>
+              <input id="signup-name" name="full_name" type="text" placeholder="Seu nome" autocomplete="name" required />
+            </div>
+            <div class="field-group">
+              <label for="signup-tenant">Empresa / Tenant</label>
+              <input id="signup-tenant" name="tenant_name" type="text" placeholder="Nome da empresa" required />
+            </div>
+            <div class="field-group">
+              <label for="signup-email">E-mail</label>
+              <input id="signup-email" name="email" type="email" placeholder="seu@email.com" autocomplete="email" required />
+            </div>
+            <div class="field-group">
+              <label for="signup-password">Senha</label>
+              <div class="input-with-toggle">
+                <input
+                  id="signup-password"
+                  name="password"
+                  type="password"
+                  placeholder="Mín. 12 caracteres"
+                  autocomplete="new-password"
+                  required
+                />
+                <button type="button" class="pw-toggle" data-toggle-password="signup-password" aria-label="Mostrar senha">👁</button>
+              </div>
+            </div>
+            <div class="field-group checkbox-row">
+              <input type="checkbox" id="accepted_terms" name="accepted_terms" required />
+              <label for="accepted_terms">
+                Li e aceito os <a href="#" class="auth-link">Termos de Uso</a> e a
+                <a href="#" class="auth-link">Política de Privacidade</a>
+              </label>
+            </div>
+            <div class="field-group checkbox-row">
+              <input type="checkbox" id="accepted_privacy" name="accepted_privacy" required />
+              <label for="accepted_privacy">Aceito o tratamento de dados conforme a LGPD</label>
+            </div>
+            <button type="submit" class="btn-primary btn-full" id="signup-submit-btn">Criar conta</button>
+          </form>
+        </div>
+
+        <div class="auth-panel" id="auth-panel-mfa" style="display: none">
+          <div class="mfa-header">
+            <p class="mfa-title">Verificação em dois fatores</p>
+            <p class="mfa-sub">Digite o código do seu app autenticador</p>
+          </div>
+          <form id="mfa-verify-form" class="auth-form" novalidate>
+            <div class="mfa-inputs" id="mfa-inputs"></div>
+            <button type="submit" class="btn-primary btn-full" id="mfa-submit-btn">Confirmar código</button>
+          </form>
+          <p class="mfa-resend"><a href="#" id="mfa-resend-link">Reenviar código</a></p>
+        </div>
+
+        <p class="auth-disclaimer">Conteúdo educacional. Simulação paper trading. CVM Res. 19/2021.</p>
+      </div>
+    </div>
+
+    <div id="onboarding-wizard" class="auth-gate" style="display: none" role="dialog" aria-modal="true" aria-label="Onboarding">
+      <div class="auth-modal">
+        <div class="wizard-steps" id="wizard-steps">
+          <span class="wizard-dot is-active"></span>
+          <span class="wizard-dot"></span>
+          <span class="wizard-dot"></span>
+        </div>
+
+        <div class="wizard-panel is-active" id="wizard-step-0">
+          <div class="wizard-icon">1</div>
+          <h2 class="wizard-title">Bem-vindo ao Grão Invest</h2>
+          <p class="wizard-body" id="wizard-welcome-msg">
+            Vamos configurar seu perfil de investidor para personalizar a experiência.
+          </p>
+          <div class="info-banner">
+            <strong>Importante:</strong> todas as operações são simuladas. Nenhum dinheiro real é movimentado.
+          </div>
+          <button type="button" class="btn-primary btn-full" id="wizard-next-0">Configurar meu perfil</button>
+        </div>
+
+        <div class="wizard-panel" id="wizard-step-1">
+          <div class="wizard-icon">2</div>
+          <h2 class="wizard-title">Perfil de investidor</h2>
+
+          <form id="suitability-form" class="auth-form" novalidate>
+            <div class="suitability-question">
+              <label class="suit-label">Horizonte de investimento</label>
+              <div class="suit-options" data-field="time_horizon">
+                <button type="button" class="suit-option" data-value="curto">Curto prazo &lt; 1 ano</button>
+                <button type="button" class="suit-option is-selected" data-value="medio">Médio 1-5 anos</button>
+                <button type="button" class="suit-option" data-value="longo">Longo &gt; 5 anos</button>
+              </div>
+            </div>
+
+            <div class="suitability-question">
+              <label class="suit-label">Tolerância a risco</label>
+              <div class="suit-options" data-field="risk_tolerance">
+                <button type="button" class="suit-option" data-value="baixa">Conservador</button>
+                <button type="button" class="suit-option is-selected" data-value="media">Moderado</button>
+                <button type="button" class="suit-option" data-value="alta">Arrojado</button>
+              </div>
+            </div>
+
+            <div class="suitability-question">
+              <label class="suit-label">Experiência em investimentos</label>
+              <div class="suit-options" data-field="investment_experience">
+                <button type="button" class="suit-option" data-value="iniciante">Iniciante</button>
+                <button type="button" class="suit-option is-selected" data-value="intermediaria">Intermediário</button>
+                <button type="button" class="suit-option" data-value="avancada">Avançado</button>
+              </div>
+            </div>
+
+            <div class="wizard-nav-row">
+              <button type="button" class="btn-ghost" id="wizard-back-1">Voltar</button>
+              <button type="submit" class="btn-primary" id="wizard-next-1">Salvar perfil</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="wizard-panel" id="wizard-step-2">
+          <div class="wizard-icon">3</div>
+          <h2 class="wizard-title">Tudo pronto</h2>
+          <div class="profile-summary" id="profile-summary"></div>
+          <p class="wizard-body">
+            Você pode atualizar o questionário completo de suitability a qualquer momento em Configurações.
+          </p>
+          <button type="button" class="btn-primary btn-full" id="wizard-finish">Entrar na plataforma</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-shell" id="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+        <div class="brand-block">
+          <div class="brand-badge">AI</div>
+          <div class="brand-copy">
+            <p class="brand-title">Grão Invest</p>
+            <p class="brand-subtitle">Fase 1 · Simulação</p>
+          </div>
+        </div>
+
+        <nav class="menu" aria-label="Módulos">
+          <button class="menu-item" data-view-button="dashboard" type="button">
+            <i data-lucide="layout-dashboard"></i>
+            <span class="menu-label">Dashboard</span>
+          </button>
+          <button class="menu-item" data-view-button="mercado" type="button">
+            <i data-lucide="trending-up"></i>
+            <span class="menu-label">Mercado</span>
+          </button>
+          <button class="menu-item" data-view-button="operacoes" type="button">
+            <i data-lucide="shopping-cart"></i>
+            <span class="menu-label">Operações</span>
+          </button>
+          <button class="menu-item" data-view-button="backtest" type="button">
+            <i data-lucide="flask-conical"></i>
+            <span class="menu-label">Backtest</span>
+          </button>
+          <button class="menu-item" data-view-button="risco" type="button">
+            <i data-lucide="shield"></i>
+            <span class="menu-label">Risco</span>
+          </button>
+          <button class="menu-item" data-view-button="game" type="button">
+            <i data-lucide="gamepad-2"></i>
+            <span class="menu-label">Game</span>
+          </button>
+          <button class="menu-item" data-view-button="alertas" type="button">
+            <i data-lucide="bell"></i>
+            <span class="menu-label">Alertas</span>
+          </button>
+          <button class="menu-item is-active" data-view-button="finvest" type="button">
+            <i data-lucide="radar"></i>
+            <span class="menu-label">Grão Invest</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button type="button" id="logout-btn" class="sidebar-action-btn" aria-label="Sair">
+            <i data-lucide="log-out"></i>
+            <span class="menu-label">Sair</span>
+          </button>
+          <button type="button" class="sidebar-action-btn" aria-label="Configurações">
+            <i data-lucide="settings"></i>
+            <span class="menu-label">Configurações</span>
+          </button>
+          <div class="user-chip" id="user-chip">
+            <div class="user-avatar" id="user-avatar-initial">U</div>
+            <div class="user-meta">
+              <p class="user-name" id="user-display-name">Usuário</p>
+              <p class="user-plan">Plano Pro</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="content-shell">
+        <header class="topbar">
+          <button id="sidebar-toggle" class="ghost-btn" type="button" aria-label="Abrir menu"><i data-lucide="menu"></i></button>
+          <div class="topbar-copy">
+            <p class="topbar-title" id="topbar-title">Dashboard</p>
+            <p class="topbar-subtitle" id="topbar-subtitle">Visão consolidada da simulação.</p>
+          </div>
+          <div class="topbar-status">
+            <div class="feed-pill feed-warning" id="feed-pill">
+              <span class="feed-dot"></span>
+              <span id="feed-pill-label">Feed sem telemetria</span>
+            </div>
+            <span class="mono clock" id="clock-value">--:--:--</span>
+          </div>
+        </header>
+
+        <main class="main-content">
+          <section class="view-panel" data-view="dashboard">
+            <div class="panel-head panel-head-inline">
+              <h2>Resumo de teses</h2>
+              <button id="dashboard-refresh" type="button">Atualizar dashboard</button>
+            </div>
+            <p class="panel-note">Visão executiva simples das teses: total testado, sucesso e rendimento.</p>
+
+            <article class="subpanel">
+              <h3>Resultado das teses (histórico total)</h3>
+              <div id="dashboard-history-metrics" class="kpi-grid kpi-grid-5" aria-live="polite"></div>
+              <div id="dashboard-history-evolution" class="stack-list"></div>
+            </article>
+
+            <div class="two-col-grid">
+              <article class="subpanel">
+                <h3>Exercício histórico</h3>
+                <div id="dashboard-historical-summary" class="stack-list"></div>
+              </article>
+              <article class="subpanel">
+                <h3>Exercício pós go-live</h3>
+                <div id="dashboard-current-summary" class="stack-list"></div>
+              </article>
+            </div>
+
+            <div class="two-col-grid">
+              <article class="subpanel">
+                <h3>Cobertura de mercado</h3>
+                <div id="dashboard-coverage-summary" class="stack-list"></div>
+                <table class="data-table" role="table" aria-label="Cobertura de mercado por ativo">
+                  <thead>
+                    <tr>
+                      <th scope="col">Ativo</th>
+                      <th scope="col">Classe</th>
+                      <th scope="col">Provider</th>
+                      <th scope="col">Preço</th>
+                      <th scope="col">Lag</th>
+                      <th scope="col">Último ingest</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-coverage-table"></tbody>
+                </table>
+              </article>
+              <article class="subpanel">
+                <h3>Data quality gate</h3>
+                <div id="dashboard-quality-summary" class="stack-list"></div>
+                <table class="data-table" role="table" aria-label="Checks de qualidade de dados">
+                  <thead>
+                    <tr>
+                      <th scope="col">Check</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Atual</th>
+                      <th scope="col">Meta</th>
+                      <th scope="col">Detalhe</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-quality-table"></tbody>
+                </table>
+              </article>
+            </div>
+
+            <article class="subpanel">
+              <h3>Teses históricas</h3>
+              <table class="data-table" role="table" aria-label="Teses historicas avaliadas">
+                <thead>
+                  <tr>
+                    <th scope="col">Tese Nº</th>
+                    <th scope="col">Ativo</th>
+                    <th scope="col">Motivo da tese</th>
+                    <th scope="col">Resultado esperado</th>
+                    <th scope="col">Operação (lado, prazo e motivo)</th>
+                    <th scope="col">Operação estruturada</th>
+                    <th scope="col">Entra em</th>
+                    <th scope="col">Sai se</th>
+                    <th scope="col">Desfecho</th>
+                    <th scope="col">Dias até resultado</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Resultado líquido</th>
+                    <th scope="col">Aprendizado e próxima ação</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-thesis-historical-operations"></tbody>
+              </table>
+            </article>
+
+            <article class="subpanel">
+              <h3>Teses pós go-live</h3>
+              <table class="data-table" role="table" aria-label="Teses pos go-live avaliadas">
+                <thead>
+                  <tr>
+                    <th scope="col">Tese Nº</th>
+                    <th scope="col">Ativo</th>
+                    <th scope="col">Motivo da tese</th>
+                    <th scope="col">Resultado esperado</th>
+                    <th scope="col">Operação (lado, prazo e motivo)</th>
+                    <th scope="col">Operação estruturada</th>
+                    <th scope="col">Entra em</th>
+                    <th scope="col">Sai se</th>
+                    <th scope="col">Desfecho</th>
+                    <th scope="col">Dias até resultado</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Resultado líquido</th>
+                    <th scope="col">Aprendizado e próxima ação</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-thesis-current-operations"></tbody>
+              </table>
+            </article>
+          </section>
+
+          <section class="view-panel" data-view="mercado">
+            <div class="panel-head">
+              <h2>Análise Multiativo</h2>
+            </div>
+
+            <div class="ticker-selector" id="ticker-selector" role="toolbar" aria-label="Selecionar ativo">
+              <button class="ticker-pill is-active" data-ticker="PETR4" type="button">PETR4</button>
+              <button class="ticker-pill" data-ticker="VALE3" type="button">VALE3</button>
+              <button class="ticker-pill" data-ticker="BOVA11" type="button">BOVA11</button>
+              <button class="ticker-pill" data-ticker="KNRI11" type="button">KNRI11</button>
+              <button class="ticker-pill" data-ticker="IVVB11" type="button">IVVB11</button>
+              <button class="ticker-pill" data-ticker="AAPL34" type="button">AAPL34</button>
+              <button class="ticker-pill" data-ticker="USD-BRL" type="button">USD-BRL</button>
+            </div>
+
+            <article class="subpanel">
+              <h3>Sincronização histórica B3 (real)</h3>
+              <form id="b3-universe-sync-form" class="grid-form grid-inline">
+                <label>Ano inicial<input name="start_year" value="2020" /></label>
+                <label>Ano final<input name="end_year" value="2026" /></label>
+                <label>Dias por ativo/ano<input name="max_days_per_instrument_per_year" value="250" /></label>
+                <label>Máx. ativos<input name="max_instruments" value="4000" /></label>
+                <button type="submit">Baixar histórico completo B3</button>
+              </form>
+            </article>
+
+            <article class="subpanel">
+              <h3>Sincronização de notícias reais por período</h3>
+              <form id="news-sync-form" class="grid-form grid-inline">
+                <label>Data inicial<input name="start_date" type="date" value="2024-01-01" /></label>
+                <label>Data final<input name="end_date" type="date" value="2026-04-21" /></label>
+                <label>Ativos<input name="instruments" value="PETR4,VALE3,KNRI11,BOVA11,AAPL34" /></label>
+                <label>Máx. notícias/ativo<input name="max_articles_per_instrument" value="80" /></label>
+                <button type="submit">Buscar notícias reais</button>
+              </form>
+            </article>
+
+            <article class="subpanel">
+              <h3>Ações operacionais</h3>
+              <div class="action-grid">
+                <button id="recompute-indicators" type="button">Recalcular indicadores PETR4</button>
+                <button id="recompute-batch" type="button">Recalcular batch multiativo</button>
+                <button id="refresh-feed-health" type="button">Atualizar saúde/cobertura feed</button>
+              </div>
+            </article>
+
+            <article class="subpanel">
+              <h3>Ingestão intraday live</h3>
+              <form id="intraday-fetch-form" class="grid-form grid-inline">
+                <label>Provider
+                  <select name="provider_name">
+                    <option value="finnhub" selected>finnhub (real-time)</option>
+                  </select>
+                </label>
+                <label>Ativos<input name="instruments" value="PETR4,VALE3,BOVA11,AAPL34" /></label>
+                <label class="checkbox-row">
+                  <input type="checkbox" name="auto_recompute_indicators" checked />
+                  Recalcular indicadores
+                </label>
+                <button type="submit">Buscar e ingerir cotação live</button>
+              </form>
+            </article>
+
+            <article class="subpanel">
+              <h3>Geração de sinal</h3>
+              <form id="signal-form" class="grid-form grid-inline">
+                <label>Ticker<input name="instrument" value="PETR4" /></label>
+                <button id="generate-signal" type="submit">Gerar sinal descritivo</button>
+              </form>
+              <div id="market-output" class="stack-list result-card" aria-live="polite"></div>
+            </article>
+          </section>
+
+          <section class="view-panel" data-view="operacoes">
+            <div class="panel-head">
+              <h2>Operações</h2>
+            </div>
+            <article class="subpanel">
+              <h3>Simular ordem a partir de sinal</h3>
+              <div class="order-side-selector" id="order-side-selector">
+                <button type="button" class="side-btn side-buy is-active" data-side="BUY">? COMPRA</button>
+                <button type="button" class="side-btn side-sell" data-side="SELL">? VENDA</button>
+              </div>
+              <form id="paper-order-form" class="grid-form grid-inline">
+                <input type="hidden" name="side" id="order-side-hidden" value="BUY" />
+                <input type="hidden" name="signal_id" id="paper-signal-id" value="" />
+                <label>Signal ID atual<input id="paper-signal-id-display" value="" placeholder="Gerar sinal em Mercado" readonly /></label>
+                <label>Quantidade<input name="quantity" value="10" /></label>
+                <button type="submit">Simular ordem</button>
+              </form>
+              <div id="order-output" class="stack-list result-card" aria-live="polite"></div>
+            </article>
+          </section>
+
+          <section class="view-panel" data-view="backtest">
+            <div class="panel-head">
+              <h2>Backtest</h2>
+            </div>
+            <article class="subpanel">
+              <h3>Rodar backtest point-in-time</h3>
+              <form id="backtest-form" class="grid-form grid-inline">
+                <label>Ticker<input name="instrument" value="PETR4" /></label>
+                <label>Quantidade<input name="quantity" value="10" /></label>
+                <button type="submit">Rodar backtest</button>
+              </form>
+              <div class="metrics-grid" id="backtest-metrics" aria-live="polite">
+                <p class="empty-hint">Execute o backtest para ver as métricas.</p>
+              </div>
+              <div id="backtest-output" class="stack-list result-card" aria-live="polite"></div>
+            </article>
+          </section>
+
+          <section class="view-panel" data-view="risco">
+            <div class="panel-head">
+              <h2>Controles de risco</h2>
+            </div>
+
+            <div class="two-col-grid">
+              <article class="subpanel">
+                <h3>Circuit breaker</h3>
+                <form id="circuit-breaker-form" class="grid-form grid-inline">
+                  <label>Ticker<input name="instrument" value="PETR4" /></label>
+                  <button type="submit">Consultar status</button>
+                </form>
+                <div id="circuit-breaker-result" class="stack-list"></div>
+              </article>
+
+              <article class="subpanel">
+                <h3>Kill-switch</h3>
+                <form id="kill-switch-form" class="grid-form">
+                  <div class="pill-selector" id="ks-scope-selector" role="group" aria-label="Escopo do kill-switch">
+                    <button type="button" class="pill-option is-active" data-value="user">Usuário</button>
+                    <button type="button" class="pill-option" data-value="global">Global</button>
+                    <button type="button" class="pill-option" data-value="instrument">Instrumento</button>
+                  </div>
+                  <input type="hidden" name="scope_type" id="ks-scope-hidden" value="user" />
+                  <input type="hidden" name="status" id="ks-status-hidden" value="active" />
+                  <label>Scope ID<input name="scope_id" placeholder="ID" /></label>
+                  <label>Motivo<input name="reason" value="Bloqueio manual para validação operacional" /></label>
+                  <div class="action-row-spaced">
+                    <button type="button" class="btn-ghost" id="ks-release-btn">Liberar (Released)</button>
+                    <button type="submit" class="btn-danger" id="ks-activate-btn">Ativar kill-switch</button>
+                  </div>
+                </form>
+                <div id="kill-switch-output" class="stack-list result-card" aria-live="polite"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="view-panel" data-view="game">
+            <div class="panel-head">
+              <h2>Game de Teses (5 rodadas)</h2>
+            </div>
+
+            <article class="subpanel">
+              <h3>Configurar jogador</h3>
+              <p class="list-meta">
+                Cada jogador inicia com R$ 100.000,00 para distribuir entre 5 teses.
+                Escolha seguir ou não cada tese e o percentual de alocação.
+              </p>
+              <form id="game-setup-form" class="grid-form grid-inline">
+                <label>Jogador<input name="player_name" placeholder="Nome do jogador" /></label>
+                <label>Capital inicial<input name="initial_capital" value="100000" /></label>
+                <label>Universo (opcional)<input name="instruments" value="PETR4,VALE3,KNRI11,BOVA11,AAPL34" /></label>
+                <button type="submit">Iniciar game (5 teses)</button>
+              </form>
+            </article>
+
+            <article class="subpanel">
+              <h3 id="game-progress-title">Aguardando início do game</h3>
+              <div id="game-kpi-cards" class="kpi-grid"></div>
+
+              <div id="game-thesis-card" class="stack-list">
+                <div class="list-row">
+                  <p class="list-meta">Inicie o game para carregar a tese 1 com contexto histórico e imagens do dia.</p>
+                </div>
+              </div>
+
+              <div id="game-context-images" class="game-images-grid"></div>
+
+              <table class="data-table" role="table" aria-label="Opções da tese">
+                <thead>
+                  <tr>
+                    <th scope="col">Opção</th>
+                    <th scope="col">Estratégia</th>
+                    <th scope="col">Esperado</th>
+                    <th scope="col">Realizado</th>
+                    <th scope="col">Risco</th>
+                  </tr>
+                </thead>
+                <tbody id="game-options-table"></tbody>
+              </table>
+
+              <form id="game-decision-form" class="grid-form grid-inline">
+                <div class="toggle-row">
+                  <span class="toggle-label">Seguir esta tese?</span>
+                  <div class="toggle-switch" id="game-follow-toggle" role="switch" aria-checked="true" tabindex="0">
+                    <span class="toggle-thumb"></span>
+                  </div>
+                  <input type="hidden" name="follow" id="game-follow-hidden" value="sim" />
+                </div>
+                <label>Opção
+                  <select name="option_id">
+                    <option value="A" selected>A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                  </select>
+                </label>
+                <div class="slider-row">
+                  <label for="allocation-slider">Alocação nesta tese</label>
+                  <div class="slider-with-value">
+                    <input type="range" id="allocation-slider" name="allocation_pct" min="0" max="100" step="1" value="15" />
+                    <span class="slider-value" id="allocation-display">15%</span>
+                  </div>
+                </div>
+                <button id="game-next-button" type="submit">Próxima tese</button>
+              </form>
+            </article>
+
+            <article class="subpanel">
+              <h3>Resumo final do jogador</h3>
+              <div id="game-result-summary" class="stack-list">
+                <div class="list-row">
+                  <p class="list-meta">Resultado final será exibido após a tese 5.</p>
+                </div>
+              </div>
+              <table class="data-table" role="table" aria-label="Resultado por tese">
+                <thead>
+                  <tr>
+                    <th scope="col">Tese</th>
+                    <th scope="col">Seguiu</th>
+                    <th scope="col">Opção</th>
+                    <th scope="col">Alocação</th>
+                    <th scope="col">Retorno real</th>
+                    <th scope="col">PnL</th>
+                    <th scope="col">Carteira após tese</th>
+                  </tr>
+                </thead>
+                <tbody id="game-result-steps"></tbody>
+              </table>
+              <div id="game-output" class="stack-list result-card" aria-live="polite"></div>
+            </article>
+          </section>
+
+          <section class="view-panel" data-view="alertas">
+            <div class="panel-head">
+              <h2>Alertas e relatórios</h2>
+            </div>
+            <article class="subpanel">
+              <h3>WhatsApp</h3>
+              <form id="whatsapp-settings-form" class="grid-form grid-inline">
+                <label>Telefone
+                  <input name="phone_number" id="whatsapp-phone-number" placeholder="+5511999999999" />
+                </label>
+                <label>Nome opcional
+                  <input name="display_name" id="whatsapp-display-name" placeholder="Seu nome" />
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" name="opt_in" id="whatsapp-opt-in" checked />
+                  Receber WhatsApp
+                </label>
+                <button type="submit">Salvar WhatsApp</button>
+              </form>
+
+              <div class="notification-grid" aria-label="Categorias WhatsApp">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-thesis-new" checked />
+                  Novas teses
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-thesis-update" checked />
+                  Evolução de tese
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-stock-alert" checked />
+                  Alertas de mercado
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-daily-digest" checked />
+                  Resumo diário
+                </label>
+              </div>
+
+              <form id="whatsapp-thresholds-form" class="grid-form grid-inline">
+                <label>Confiança tese %
+                  <input name="thesis_confidence_pct" id="wa-thesis-confidence" value="55" />
+                </label>
+                <label>Esperado tese %
+                  <input name="thesis_expected_pct" id="wa-thesis-expected" value="0" />
+                </label>
+                <label>Movimento ativo %
+                  <input name="stock_price_move_pct" id="wa-stock-move" value="3" />
+                </label>
+                <label>Magnitude notícia
+                  <input name="news_magnitude" id="wa-news-magnitude" value="0.75" />
+                </label>
+              </form>
+
+              <div class="action-row-spaced">
+                <button id="whatsapp-test-btn" type="button">Enviar teste</button>
+                <button id="whatsapp-refresh-btn" type="button" class="btn-ghost">Atualizar histórico</button>
+              </div>
+              <div id="whatsapp-status" class="stack-list" aria-live="polite"></div>
+              <div id="whatsapp-deliveries-list" class="stack-list" aria-live="polite" aria-label="Histórico WhatsApp">
+                <p class="empty-hint">Nenhuma entrega WhatsApp registrada.</p>
+              </div>
+            </article>
+            <article class="subpanel">
+              <h3>Regra de alerta</h3>
+              <form id="alert-rule-form" class="grid-form">
+                <div class="alert-type-grid" id="alert-type-grid" role="group" aria-label="Tipo de alerta">
+                  <button type="button" class="alert-type-btn is-active" data-value="signal_confidence">Confiança de sinal</button>
+                  <button type="button" class="alert-type-btn" data-value="anti_hype">Score anti-hype</button>
+                  <button type="button" class="alert-type-btn" data-value="circuit_breaker">Circuit breaker</button>
+                  <button type="button" class="alert-type-btn" data-value="news_magnitude">Magnitude de notícia</button>
+                </div>
+                <input type="hidden" name="rule_type" id="alert-rule-type-hidden" value="signal_confidence" />
+                <label>Ticker opcional<input name="instrument" value="PETR4" /></label>
+                <div class="slider-row">
+                  <label for="threshold-slider">Threshold</label>
+                  <div class="slider-with-value">
+                    <input type="range" id="threshold-slider" name="threshold_value" min="0" max="1" step="0.05" value="0.6" />
+                    <span class="slider-value" id="threshold-display">0,60</span>
+                  </div>
+                </div>
+                <button type="submit">Criar regra</button>
+              </form>
+              <div id="active-alerts-list" class="stack-list" aria-live="polite" aria-label="Alertas ativos">
+                <p class="empty-hint">Nenhuma regra de alerta configurada.</p>
+              </div>
+              <div class="action-row" style="margin-top: 8px">
+                <button id="load-report" type="button" class="btn-ghost btn-full">Carregar relatório consolidado</button>
+              </div>
+              <div id="alerts-output" class="stack-list result-card" aria-live="polite"></div>
+            </article>
+          </section>
+
+          <section class="view-panel is-active" data-view="finvest">
+            <div id="finvest-root" aria-label="Painel Grão Invest"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+
+    <footer class="global-disclaimer" role="contentinfo">
+      Conteúdo analítico e educacional. Não constitui recomendação de investimento.
+      Operações são simuladas. CVM Res. 19/2021.
+    </footer>
+
+    <script src="/static/app.js?v=20260501p"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
+    <script>
+      window.react = window.React;
+    </script>
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/lucide-react@0.468.0/dist/umd/lucide-react.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" data-presets="react" src="/static/finvest.jsx?v=20260502learning"></script>
+  </body>
+</html>
+
+
+
+

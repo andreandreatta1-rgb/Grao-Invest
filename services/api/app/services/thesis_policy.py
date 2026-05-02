@@ -7,6 +7,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal, TypedDict
 
+from app.services.thesis_postmortem import (
+    is_postmortem_signature_blocked,
+    load_postmortem_shadow_profile,
+    postmortem_shadow_penalty_points,
+)
+
 _OIL_SENSITIVE_INSTRUMENTS = {
     "PETR4",
     "PRIO3",
@@ -24,6 +30,7 @@ PolicyName = Literal[
     "anti_blindspot_v1",
     "anti_blindspot_v2_balanced",
     "anti_blindspot_v3_soft",
+    "postmortem_shadow_v1",
 ]
 
 
@@ -309,6 +316,34 @@ def _anti_blindspot_v3_soft_policy(thesis: Mapping[str, object]) -> tuple[bool, 
     return len(reasons) == 0, reasons
 
 
+def _postmortem_shadow_v1_policy(thesis: Mapping[str, object]) -> tuple[bool, list[str]]:
+    baseline_ok, baseline_reasons = _baseline_policy(thesis)
+    if not baseline_ok:
+        return False, baseline_reasons
+
+    reasons: list[str] = []
+    if _float_value(thesis, "support_rate_pct") < 25.0:
+        reasons.append("support_rate_critical_low")
+
+    profile = load_postmortem_shadow_profile()
+    if is_postmortem_signature_blocked(thesis, profile):
+        reasons.append("postmortem_blocked_signature")
+        return False, reasons
+
+    adjusted_confidence = _float_value(thesis, "confidence_tese_pct") - _soft_penalty_points(thesis)
+    postmortem_penalty, matched_conditions = postmortem_shadow_penalty_points(thesis, profile)
+    adjusted_confidence -= postmortem_penalty
+    if adjusted_confidence < 50.0:
+        reasons.extend(matched_conditions)
+        reasons.append("postmortem_adjusted_confidence_too_low")
+
+    deduped_reasons: list[str] = []
+    for reason in reasons:
+        if reason not in deduped_reasons:
+            deduped_reasons.append(reason)
+    return len(deduped_reasons) == 0, deduped_reasons
+
+
 def evaluate_policy(
     thesis: Mapping[str, object],
     policy_name: str,
@@ -321,6 +356,8 @@ def evaluate_policy(
         return _anti_blindspot_v2_balanced_policy(thesis)
     if policy_name == "anti_blindspot_v3_soft":
         return _anti_blindspot_v3_soft_policy(thesis)
+    if policy_name == "postmortem_shadow_v1":
+        return _postmortem_shadow_v1_policy(thesis)
     return _baseline_policy(thesis)
 
 

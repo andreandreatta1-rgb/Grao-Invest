@@ -1,0 +1,208 @@
+{
+  "pipeline": {
+    "scan_scope": {
+      "instruments": [
+        "WEGE3",
+        "BBDC4",
+        "ITUB4",
+        "RADL3"
+      ],
+      "horizon_bars": 8,
+      "total_ticks": 18172
+    },
+    "candidate_count": 16517,
+    "policy_candidate_count": 13305,
+    "validated_count": 13305,
+    "selected_thesis_id": "TH-WEGE3-bullish-3499",
+    "policy": {
+      "active_policy": "anti_blindspot_v3_soft",
+      "source": "state_file",
+      "input_count": 16517,
+      "selected_count": 13305,
+      "rejected_count": 3212,
+      "fallback_used": true,
+      "top_rejection_reasons": [
+        [
+          "support_rate_critical_low",
+          13305
+        ],
+        [
+          "confidence_below_baseline",
+          3212
+        ],
+        [
+          "adjusted_confidence_too_low",
+          1161
+        ]
+      ]
+    }
+  },
+  "selected_case": {
+    "thesis": {
+      "thesis_id": "TH-WEGE3-bullish-3499",
+      "instrument": "WEGE3",
+      "direction": "bullish",
+      "entry_index": 3892,
+      "entry_time": "2024-07-08T00:00:00+00:00",
+      "entry_price": 44.47,
+      "target_price": 47.5829,
+      "stop_price": 42.6023,
+      "target_move_pct": 7.0,
+      "horizon_bars": 8,
+      "confidence_tese_pct": 73.6673,
+      "success_probability_pct": 73.6673,
+      "expected_financial_pct": 4.0507,
+      "support_rate_pct": 24.503,
+      "technical_support_pct": 95.0,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 83.5,
+      "geo_oil_support_pct": 50.0,
+      "news_available": true,
+      "geo_oil_available": false,
+      "fundamental_available": false,
+      "fundamental_context": {
+        "available": false,
+        "support_pct": 50.0,
+        "rationale": [
+          "fundamentos_indisponiveis_neutro_50pct"
+        ],
+        "snapshot": null
+      },
+      "supporting_signals": [
+        "momento_bullish_8.81pct",
+        "volatilidade_1.98pct",
+        "suporte_historico_24.50pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_83.50pct",
+        "suporte_geo_oil_50.00pct",
+        "news_sentiment_positive_0.670_articles_1",
+        "geo_oil_nao_aplicavel_para_ativo",
+        "fundamentos_indisponiveis_neutro_50pct",
+        "skill_calibration_mult_1.0525",
+        "skill_calibration_bias_1.0938"
+      ]
+    },
+    "thesis_raised_at": "2024-07-08T00:00:00+00:00",
+    "suggested_entry_time": "2024-07-08T00:00:00+00:00",
+    "suggested_exit_time": "2024-07-18T00:00:00+00:00",
+    "structured_operation": {
+      "strategy_id": "BULL_CALL_SPREAD",
+      "strategy_name": "Bull Call Spread",
+      "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "breakeven_price": 45.63,
+      "legs": [
+        {
+          "side": "long",
+          "instrument": "WEGE3",
+          "option_type": "call",
+          "strike": 44.91,
+          "quantity": 1
+        },
+        {
+          "side": "short",
+          "instrument": "WEGE3",
+          "option_type": "call",
+          "strike": 47.14,
+          "quantity": 1
+        }
+      ]
+    },
+    "outcome": {
+      "exit_price": 47.4,
+      "exit_reason": "target_or_window_close",
+      "success": true,
+      "realized_financial_pct": 5.0827
+    },
+    "kpis": {
+      "confidence_tese_pct": 73.6673,
+      "expected_financial_pct": 4.0507,
+      "realized_financial_pct": 5.0827
+    },
+    "fundamental_context": {
+      "available": false,
+      "support_pct": 50.0,
+      "rationale": [
+        "fundamentos_indisponiveis_neutro_50pct"
+      ],
+      "snapshot": null
+    },
+    "effective_result_reason": "Resultado efetivo acima do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao.",
+    "monitoring_timeline": [
+      {
+        "event_time": "2024-07-08T00:00:00+00:00",
+        "event_type": "entry_snapshot",
+        "severity": "info",
+        "message": "Operacao estruturada iniciada em simulacao.",
+        "market_price": 44.47
+      },
+      {
+        "event_time": "2024-07-18T00:00:00+00:00",
+        "event_type": "exit_snapshot",
+        "severity": "info",
+        "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+        "market_price": 47.4
+      }
+    ]
+  },
+  "knowledge_skill": {
+    "skill_name": "SSE_WEGE3_bullish_BULL_CALL_SPREAD",
+    "thesis_signature": {
+      "instrument": "WEGE3",
+      "direction": "bullish",
+      "confidence_tese_pct": 73.6673,
+      "support_rate_pct": 24.503,
+      "horizon_bars": 8
+    },
+    "replication_playbook": [
+      "Detectar tese com varredura de momento e volatilidade no historico point-in-time.",
+      "Validar suporte da tese por taxa historica de acerto e estabilidade do sinal.",
+      "Selecionar estrutura SSE com risco definido e compatibilidade com suitability.",
+      "Monitorar eventos de stop/target/range-break ate o encerramento da janela.",
+      "Registrar KPIs de confianca, esperado e realizado para aprendizado continuo."
+    ],
+    "monitoring_triggers": [
+      "stop_risk_warning",
+      "target_watch",
+      "range_break_alert",
+      "exit_snapshot"
+    ],
+    "guardrails": [
+      "Somente simulacao paper trading.",
+      "Sem linguagem de recomendacao personalizada.",
+      "Adequar estrutura ao perfil de suitability do usuario."
+    ]
+  },
+  "postmortem": {
+    "generated_at": "2026-05-02T02:02:12+00:00",
+    "thesis_id": "TH-WEGE3-bullish-3499",
+    "instrument": "WEGE3",
+    "direction": "bullish",
+    "strategy_id": "BULL_CALL_SPREAD",
+    "policy_name": "anti_blindspot_v3_soft",
+    "signature": "WEGE3|bullish|support_lt35|confirm_partial|tech_ge90",
+    "success": true,
+    "confidence_tese_pct": 73.6673,
+    "expected_financial_pct": 4.0507,
+    "realized_financial_pct": 5.0827,
+    "expected_vs_real_gap_pct": -1.032,
+    "market_move_pct": 6.5887,
+    "structure_cushion_pct": 0.0,
+    "stop_risk_event_count": 0,
+    "high_risk_event_count": 0,
+    "early_invalidation": false,
+    "analysis_tags": [
+      "expected_overstretch_without_confirmation",
+      "low_support_rate_band"
+    ],
+    "learning_actions": [],
+    "shadow_profile_snapshot": {
+      "sample_size": 29,
+      "condition_rule_count": 9,
+      "blocked_signature_count": 1
+    }
+  },
+  "disclaimer": "Este conteudo tem finalidade exclusivamente educacional e analitica. Nao constitui recomendacao de investimento, consultoria, analise nem indicacao de compra ou venda. O investidor e responsavel por suas decisoes."
+}

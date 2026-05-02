@@ -1,0 +1,228 @@
+{
+  "pipeline": {
+    "scan_scope": {
+      "instruments": [
+        "B3SA3",
+        "JBSS3",
+        "WEGE3",
+        "VALE3",
+        "ABEV3"
+      ],
+      "horizon_bars": 8,
+      "total_ticks": 19475
+    },
+    "candidate_count": 17627,
+    "policy_candidate_count": 3923,
+    "validated_count": 3923,
+    "selected_thesis_id": "TH-JBSS3-bullish-3202",
+    "policy": {
+      "active_policy": "anti_blindspot_v3_soft",
+      "source": "state_file",
+      "input_count": 17627,
+      "selected_count": 3923,
+      "rejected_count": 13704,
+      "fallback_used": false,
+      "top_rejection_reasons": [
+        [
+          "support_rate_critical_low",
+          10484
+        ],
+        [
+          "confidence_below_baseline",
+          2986
+        ],
+        [
+          "adjusted_confidence_too_low",
+          1126
+        ]
+      ]
+    }
+  },
+  "selected_case": {
+    "thesis": {
+      "thesis_id": "TH-JBSS3-bullish-3202",
+      "instrument": "JBSS3",
+      "direction": "bullish",
+      "entry_index": 1236,
+      "entry_time": "2014-08-18T00:00:00+00:00",
+      "entry_price": 9.44,
+      "target_price": 10.1008,
+      "stop_price": 9.0435,
+      "target_move_pct": 7.0,
+      "horizon_bars": 8,
+      "confidence_tese_pct": 71.172,
+      "success_probability_pct": 71.172,
+      "expected_financial_pct": 3.7713,
+      "support_rate_pct": 29.3993,
+      "technical_support_pct": 95.0,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "news_available": false,
+      "geo_oil_available": false,
+      "fundamental_available": false,
+      "fundamental_context": {
+        "available": false,
+        "support_pct": 50.0,
+        "rationale": [
+          "fundamentos_indisponiveis_neutro_50pct"
+        ],
+        "snapshot": null
+      },
+      "supporting_signals": [
+        "momento_bullish_8.26pct",
+        "volatilidade_2.37pct",
+        "suporte_historico_29.40pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct",
+        "suporte_geo_oil_50.00pct",
+        "news_sentiment_indisponivel_neutro_50pct",
+        "geo_oil_nao_aplicavel_para_ativo",
+        "fundamentos_indisponiveis_neutro_50pct",
+        "skill_calibration_mult_1.0525",
+        "skill_calibration_bias_1.0938"
+      ]
+    },
+    "thesis_raised_at": "2014-08-18T00:00:00+00:00",
+    "suggested_entry_time": "2014-08-18T00:00:00+00:00",
+    "suggested_exit_time": "2014-08-28T00:00:00+00:00",
+    "structured_operation": {
+      "strategy_id": "BULL_CALL_SPREAD",
+      "strategy_name": "Bull Call Spread",
+      "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "breakeven_price": 9.69,
+      "legs": [
+        {
+          "side": "long",
+          "instrument": "JBSS3",
+          "option_type": "call",
+          "strike": 9.53,
+          "quantity": 1
+        },
+        {
+          "side": "short",
+          "instrument": "JBSS3",
+          "option_type": "call",
+          "strike": 10.01,
+          "quantity": 1
+        }
+      ]
+    },
+    "outcome": {
+      "exit_price": 10.46,
+      "exit_reason": "target_or_window_close",
+      "success": true,
+      "realized_financial_pct": 5.4
+    },
+    "kpis": {
+      "confidence_tese_pct": 71.172,
+      "expected_financial_pct": 3.7713,
+      "realized_financial_pct": 5.4
+    },
+    "fundamental_context": {
+      "available": false,
+      "support_pct": 50.0,
+      "rationale": [
+        "fundamentos_indisponiveis_neutro_50pct"
+      ],
+      "snapshot": null
+    },
+    "effective_result_reason": "Resultado efetivo acima do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao.",
+    "monitoring_timeline": [
+      {
+        "event_time": "2014-08-18T00:00:00+00:00",
+        "event_type": "entry_snapshot",
+        "severity": "info",
+        "message": "Operacao estruturada iniciada em simulacao.",
+        "market_price": 9.44
+      },
+      {
+        "event_time": "2014-08-27T00:00:00+00:00",
+        "event_type": "target_watch",
+        "severity": "info",
+        "message": "Preco atingiu a zona-alvo da tese durante monitoramento.",
+        "market_price": 10.35
+      },
+      {
+        "event_time": "2014-08-28T00:00:00+00:00",
+        "event_type": "target_watch",
+        "severity": "info",
+        "message": "Preco atingiu a zona-alvo da tese durante monitoramento.",
+        "market_price": 10.46
+      },
+      {
+        "event_time": "2014-08-28T00:00:00+00:00",
+        "event_type": "exit_snapshot",
+        "severity": "info",
+        "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+        "market_price": 10.46
+      }
+    ]
+  },
+  "knowledge_skill": {
+    "skill_name": "SSE_JBSS3_bullish_BULL_CALL_SPREAD",
+    "thesis_signature": {
+      "instrument": "JBSS3",
+      "direction": "bullish",
+      "confidence_tese_pct": 71.172,
+      "support_rate_pct": 29.3993,
+      "horizon_bars": 8
+    },
+    "replication_playbook": [
+      "Detectar tese com varredura de momento e volatilidade no historico point-in-time.",
+      "Validar suporte da tese por taxa historica de acerto e estabilidade do sinal.",
+      "Selecionar estrutura SSE com risco definido e compatibilidade com suitability.",
+      "Monitorar eventos de stop/target/range-break ate o encerramento da janela.",
+      "Registrar KPIs de confianca, esperado e realizado para aprendizado continuo."
+    ],
+    "monitoring_triggers": [
+      "stop_risk_warning",
+      "target_watch",
+      "range_break_alert",
+      "exit_snapshot"
+    ],
+    "guardrails": [
+      "Somente simulacao paper trading.",
+      "Sem linguagem de recomendacao personalizada.",
+      "Adequar estrutura ao perfil de suitability do usuario."
+    ]
+  },
+  "postmortem": {
+    "generated_at": "2026-05-02T07:42:30+00:00",
+    "thesis_id": "TH-JBSS3-bullish-3202",
+    "instrument": "JBSS3",
+    "direction": "bullish",
+    "strategy_id": "BULL_CALL_SPREAD",
+    "policy_name": "anti_blindspot_v3_soft",
+    "signature": "JBSS3|bullish|support_lt35|confirm_missing_both|tech_ge90",
+    "success": true,
+    "confidence_tese_pct": 71.172,
+    "expected_financial_pct": 3.7713,
+    "realized_financial_pct": 5.4,
+    "expected_vs_real_gap_pct": -1.6287,
+    "market_move_pct": 10.8051,
+    "structure_cushion_pct": 0.0,
+    "stop_risk_event_count": 0,
+    "high_risk_event_count": 0,
+    "early_invalidation": false,
+    "analysis_tags": [
+      "confidence_overweighted_by_technical",
+      "expected_overstretch_without_confirmation",
+      "low_support_rate_band",
+      "missing_confirmation_inputs"
+    ],
+    "learning_actions": [
+      "shadow_rule::confidence_overweighted_by_technical",
+      "shadow_rule::missing_confirmation_inputs"
+    ],
+    "shadow_profile_snapshot": {
+      "sample_size": 756,
+      "condition_rule_count": 9,
+      "blocked_signature_count": 4
+    }
+  },
+  "disclaimer": "Este conteudo tem finalidade exclusivamente educacional e analitica. Nao constitui recomendacao de investimento, consultoria, analise nem indicacao de compra ou venda. O investidor e responsavel por suas decisoes."
+}

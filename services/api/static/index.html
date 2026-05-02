@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Grão Invest</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260502execflow3" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   </head>
   <body>
@@ -211,6 +211,10 @@
             <i data-lucide="gamepad-2"></i>
             <span class="menu-label">Game</span>
           </button>
+          <button class="menu-item" data-view-button="microtrades" type="button">
+            <i data-lucide="activity"></i>
+            <span class="menu-label">Microtrades</span>
+          </button>
           <button class="menu-item" data-view-button="alertas" type="button">
             <i data-lucide="bell"></i>
             <span class="menu-label">Alertas</span>
@@ -281,13 +285,49 @@
               </article>
             </div>
 
+            <div class="two-col-grid">
+              <article class="subpanel">
+                <h3>Cobertura de mercado</h3>
+                <div id="dashboard-coverage-summary" class="stack-list"></div>
+                <table class="data-table" role="table" aria-label="Cobertura de mercado por ativo">
+                  <thead>
+                    <tr>
+                      <th scope="col">Ativo</th>
+                      <th scope="col">Classe</th>
+                      <th scope="col">Provider</th>
+                      <th scope="col">Preço</th>
+                      <th scope="col">Lag</th>
+                      <th scope="col">Último ingest</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-coverage-table"></tbody>
+                </table>
+              </article>
+              <article class="subpanel">
+                <h3>Data quality gate</h3>
+                <div id="dashboard-quality-summary" class="stack-list"></div>
+                <table class="data-table" role="table" aria-label="Checks de qualidade de dados">
+                  <thead>
+                    <tr>
+                      <th scope="col">Check</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Atual</th>
+                      <th scope="col">Meta</th>
+                      <th scope="col">Detalhe</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-quality-table"></tbody>
+                </table>
+              </article>
+            </div>
+
             <article class="subpanel">
               <h3>Teses históricas</h3>
               <table class="data-table" role="table" aria-label="Teses historicas avaliadas">
                 <thead>
                   <tr>
                     <th scope="col">Tese Nº</th>
-                    <th scope="col">Ação</th>
+                    <th scope="col">Ativo</th>
                     <th scope="col">Motivo da tese</th>
                     <th scope="col">Resultado esperado</th>
                     <th scope="col">Operação (lado, prazo e motivo)</th>
@@ -311,7 +351,7 @@
                 <thead>
                   <tr>
                     <th scope="col">Tese Nº</th>
-                    <th scope="col">Ação</th>
+                    <th scope="col">Ativo</th>
                     <th scope="col">Motivo da tese</th>
                     <th scope="col">Resultado esperado</th>
                     <th scope="col">Operação (lado, prazo e motivo)</th>
@@ -332,15 +372,17 @@
 
           <section class="view-panel" data-view="mercado">
             <div class="panel-head">
-              <h2>Análise de Ativo</h2>
+              <h2>Análise Multiativo</h2>
             </div>
 
             <div class="ticker-selector" id="ticker-selector" role="toolbar" aria-label="Selecionar ativo">
               <button class="ticker-pill is-active" data-ticker="PETR4" type="button">PETR4</button>
               <button class="ticker-pill" data-ticker="VALE3" type="button">VALE3</button>
-              <button class="ticker-pill" data-ticker="ITUB4" type="button">ITUB4</button>
-              <button class="ticker-pill" data-ticker="WEGE3" type="button">WEGE3</button>
               <button class="ticker-pill" data-ticker="BOVA11" type="button">BOVA11</button>
+              <button class="ticker-pill" data-ticker="KNRI11" type="button">KNRI11</button>
+              <button class="ticker-pill" data-ticker="IVVB11" type="button">IVVB11</button>
+              <button class="ticker-pill" data-ticker="AAPL34" type="button">AAPL34</button>
+              <button class="ticker-pill" data-ticker="USD-BRL" type="button">USD-BRL</button>
             </div>
 
             <article class="subpanel">
@@ -359,7 +401,7 @@
               <form id="news-sync-form" class="grid-form grid-inline">
                 <label>Data inicial<input name="start_date" type="date" value="2024-01-01" /></label>
                 <label>Data final<input name="end_date" type="date" value="2026-04-21" /></label>
-                <label>Ativos<input name="instruments" value="PETR4,VALE3,ITUB4,B3SA3,WEGE3" /></label>
+                <label>Ativos<input name="instruments" value="PETR4,VALE3,KNRI11,BOVA11,AAPL34" /></label>
                 <label>Máx. notícias/ativo<input name="max_articles_per_instrument" value="80" /></label>
                 <button type="submit">Buscar notícias reais</button>
               </form>
@@ -369,7 +411,7 @@
               <h3>Ações operacionais</h3>
               <div class="action-grid">
                 <button id="recompute-indicators" type="button">Recalcular indicadores PETR4</button>
-                <button id="recompute-batch" type="button">Recalcular batch PETR4/VALE3</button>
+                <button id="recompute-batch" type="button">Recalcular batch multiativo</button>
                 <button id="refresh-feed-health" type="button">Atualizar saúde/cobertura feed</button>
               </div>
             </article>
@@ -382,7 +424,7 @@
                     <option value="finnhub" selected>finnhub (real-time)</option>
                   </select>
                 </label>
-                <label>Ativos<input name="instruments" value="PETR4,VALE3" /></label>
+                <label>Ativos<input name="instruments" value="PETR4,VALE3,BOVA11,AAPL34" /></label>
                 <label class="checkbox-row">
                   <input type="checkbox" name="auto_recompute_indicators" checked />
                   Recalcular indicadores
@@ -491,7 +533,7 @@
               <form id="game-setup-form" class="grid-form grid-inline">
                 <label>Jogador<input name="player_name" placeholder="Nome do jogador" /></label>
                 <label>Capital inicial<input name="initial_capital" value="100000" /></label>
-                <label>Universo (opcional)<input name="instruments" value="PETR4,VALE3,ITUB4,B3SA3,WEGE3" /></label>
+                <label>Universo (opcional)<input name="instruments" value="PETR4,VALE3,KNRI11,BOVA11,AAPL34" /></label>
                 <button type="submit">Iniciar game (5 teses)</button>
               </form>
             </article>
@@ -572,10 +614,152 @@
             </article>
           </section>
 
+          <section class="view-panel" data-view="microtrades">
+            <div class="panel-head">
+              <h2>Microtrades (Beta)</h2>
+            </div>
+            <p class="panel-note">
+              Modulo experimental separado da carteira principal para validar operacoes curtas com disciplina de risco.
+            </p>
+
+            <article class="subpanel">
+              <h3>Matriz de timeframes</h3>
+              <table class="data-table" role="table" aria-label="Matriz de microtrades por timeframe">
+                <thead>
+                  <tr>
+                    <th scope="col">Timeframe</th>
+                    <th scope="col">Setup</th>
+                    <th scope="col">Entrada</th>
+                    <th scope="col">Saida</th>
+                    <th scope="col">KPI de validacao</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mono">1m</td>
+                    <td>Momentum burst</td>
+                    <td>Breakout + volume >= 2x media de 20 candles</td>
+                    <td>Stop -0.40% | alvo +0.60% | timeout 3 candles</td>
+                    <td>Win rate >= 52% e expectancy liquida positiva</td>
+                  </tr>
+                  <tr>
+                    <td class="mono">5m</td>
+                    <td>Pullback em tendencia</td>
+                    <td>Reteste de VWAP/EMA9 com confirmacao</td>
+                    <td>Stop -0.70% | alvo +1.20% | timeout 6 candles</td>
+                    <td>Profit factor > 1.25</td>
+                  </tr>
+                  <tr>
+                    <td class="mono">15m</td>
+                    <td>Range break</td>
+                    <td>Fechamento fora da faixa + segunda barra de continuacao</td>
+                    <td>Stop tecnico por faixa | alvo 1.8x risco</td>
+                    <td>Taxa de falso rompimento < 40%</td>
+                  </tr>
+                  <tr>
+                    <td class="mono">1h</td>
+                    <td>Continuacao de tendencia</td>
+                    <td>EMA20 > EMA50 + ADX em alta</td>
+                    <td>Stop por swing | alvo 2.0x risco</td>
+                    <td>Expectancy semanal positiva</td>
+                  </tr>
+                  <tr>
+                    <td class="mono">4h</td>
+                    <td>Swing curto em cripto lider</td>
+                    <td>Estrutura + fluxo de volume e OI</td>
+                    <td>Stop estrutural | alvo progressivo por volatilidade</td>
+                    <td>Retorno ajustado ao risco acima do benchmark</td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+
+            <div class="two-col-grid">
+              <article class="subpanel">
+                <h3>Scanner de oportunidades 24/7</h3>
+                <div class="stack-list">
+                  <div class="list-row"><p class="list-meta">- Filtrar ativos por liquidez minima e spread maximo.</p></div>
+                  <div class="list-row"><p class="list-meta">- Priorizar pares lideres e limitar altcoins de baixa negociacao.</p></div>
+                  <div class="list-row"><p class="list-meta">- Rankear aceleracao de preco em 5m, 15m e 1h com confirmacao de volume.</p></div>
+                  <div class="list-row"><p class="list-meta">- Eliminar ativos com slippage medio acima do limite alvo.</p></div>
+                </div>
+              </article>
+
+              <article class="subpanel">
+                <h3>Guardrails obrigatorios</h3>
+                <div class="stack-list">
+                  <div class="list-row"><p class="list-meta">- Limite de perda diaria com stop operacional automatico.</p></div>
+                  <div class="list-row"><p class="list-meta">- Risco fixo por trade (ex.: 0.5% a 1.0% do capital).</p></div>
+                  <div class="list-row"><p class="list-meta">- Stop-loss e take-profit obrigatorios em todas as ordens.</p></div>
+                  <div class="list-row"><p class="list-meta">- Paper trading antes de alocacao real.</p></div>
+                </div>
+              </article>
+            </div>
+          </section>
+
           <section class="view-panel" data-view="alertas">
             <div class="panel-head">
               <h2>Alertas e relatórios</h2>
             </div>
+            <article class="subpanel">
+              <h3>WhatsApp</h3>
+              <form id="whatsapp-settings-form" class="grid-form grid-inline">
+                <label>Telefone
+                  <input name="phone_number" id="whatsapp-phone-number" placeholder="+5511999999999" />
+                </label>
+                <label>Nome opcional
+                  <input name="display_name" id="whatsapp-display-name" placeholder="Seu nome" />
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" name="opt_in" id="whatsapp-opt-in" checked />
+                  Receber WhatsApp
+                </label>
+                <button type="submit">Salvar WhatsApp</button>
+              </form>
+
+              <div class="notification-grid" aria-label="Categorias WhatsApp">
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-thesis-new" checked />
+                  Novas teses
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-thesis-update" checked />
+                  Evolução de tese
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-stock-alert" checked />
+                  Alertas de mercado
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" id="wa-cat-daily-digest" checked />
+                  Resumo diário
+                </label>
+              </div>
+
+              <form id="whatsapp-thresholds-form" class="grid-form grid-inline">
+                <label>Confiança tese %
+                  <input name="thesis_confidence_pct" id="wa-thesis-confidence" value="55" />
+                </label>
+                <label>Esperado tese %
+                  <input name="thesis_expected_pct" id="wa-thesis-expected" value="0" />
+                </label>
+                <label>Movimento ativo %
+                  <input name="stock_price_move_pct" id="wa-stock-move" value="3" />
+                </label>
+                <label>Magnitude notícia
+                  <input name="news_magnitude" id="wa-news-magnitude" value="0.75" />
+                </label>
+              </form>
+
+              <div class="action-row-spaced">
+                <button id="whatsapp-test-btn" type="button">Enviar teste</button>
+                <button id="whatsapp-refresh-btn" type="button" class="btn-ghost">Atualizar histórico</button>
+              </div>
+              <div id="whatsapp-status" class="stack-list" aria-live="polite"></div>
+              <div id="whatsapp-deliveries-list" class="stack-list" aria-live="polite" aria-label="Histórico WhatsApp">
+                <p class="empty-hint">Nenhuma entrega WhatsApp registrada.</p>
+              </div>
+            </article>
             <article class="subpanel">
               <h3>Regra de alerta</h3>
               <form id="alert-rule-form" class="grid-form">
@@ -620,7 +804,7 @@
       Operações são simuladas. CVM Res. 19/2021.
     </footer>
 
-    <script src="/static/app.js?v=20260501o"></script>
+    <script src="/static/app.js?v=20260502micro"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
@@ -630,7 +814,29 @@
     </script>
     <script crossorigin src="https://cdn.jsdelivr.net/npm/lucide-react@0.468.0/dist/umd/lucide-react.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel" data-presets="react" src="/static/finvest.jsx?v=20260501f"></script>
+    <script type="text/babel" data-presets="react" src="/static/finvest.jsx?v=20260502execflow3"></script>
+    <script>
+      (() => {
+        const bootFinvestFallback = async (attempt = 0) => {
+        const root = document.getElementById("finvest-root");
+        if (!root || root.childElementCount) return;
+        if (!window.Babel || !window.React || !window.ReactDOM) {
+          if (attempt < 20) window.setTimeout(() => bootFinvestFallback(attempt + 1), 1000);
+          return;
+        }
+        try {
+          const response = await fetch("/static/finvest.jsx?v=20260502execflow3", { cache: "no-store" });
+          const source = await response.text();
+          const compiled = window.Babel.transform(source, { presets: ["react"] }).code;
+          (0, eval)(compiled);
+        } catch (error) {
+          console.error("Falha ao carregar painel executivo", error);
+          if (attempt < 20) window.setTimeout(() => bootFinvestFallback(attempt + 1), 1000);
+        }
+      };
+      window.setTimeout(() => bootFinvestFallback(), 1000);
+    })();
+    </script>
   </body>
 </html>
 

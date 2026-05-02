@@ -1,0 +1,277 @@
+{
+  "run_id": "case_study_window_20260501_2135_2h",
+  "status": "completed",
+  "generated_at_utc": "2026-05-02T02:34:29+00:00",
+  "window": {
+    "started_at_utc": "2026-05-02T00:34:27+00:00",
+    "started_at_local": "2026-05-01T21:34:27-03:00",
+    "planned_end_at_utc": "2026-05-02T02:34:27+00:00",
+    "planned_end_at_local": "2026-05-01T23:34:27-03:00",
+    "finished_at_utc": "2026-05-02T02:34:29+00:00",
+    "finished_at_local": "2026-05-01T23:34:29-03:00",
+    "planned_duration_minutes": 120.0,
+    "actual_duration_minutes": 120.04
+  },
+  "kpis": {
+    "total_iterations": 162,
+    "completed_case_studies": 162,
+    "failed_iterations": 0,
+    "engine_success_rate_pct": 100.0,
+    "thesis_success_rate_pct": 74.69,
+    "avg_confidence_tese_pct": 74.6174,
+    "avg_expected_financial_pct": 4.1571,
+    "avg_realized_financial_pct": 2.8808,
+    "expected_vs_real_gap_pct": -1.2763,
+    "avg_iteration_duration_seconds": 39.4801,
+    "avg_candidate_count": 20851.4383,
+    "avg_validated_count": 6092.1111,
+    "unique_theses": 140,
+    "unique_instruments": 10
+  },
+  "distribution": {
+    "top_instruments": [
+      [
+        "PETR4",
+        52
+      ],
+      [
+        "PRIO3",
+        38
+      ],
+      [
+        "HAPV3",
+        20
+      ],
+      [
+        "BPAC11",
+        18
+      ],
+      [
+        "SUZB3",
+        12
+      ]
+    ],
+    "top_strategies": [
+      [
+        "Bull Call Spread",
+        139
+      ],
+      [
+        "Bear Put Spread",
+        23
+      ]
+    ],
+    "policies_seen": [
+      [
+        "anti_blindspot_v3_soft",
+        162
+      ]
+    ]
+  },
+  "best_cases": [
+    {
+      "iteration": 6,
+      "instrument": "PRIO3",
+      "selected_thesis_id": "TH-PRIO3-bullish-11297",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2019-11-22T00:00:00+00:00",
+      "exit_time": "2019-12-04T00:00:00+00:00",
+      "confidence_tese_pct": 72.5161,
+      "expected_financial_pct": 3.9218,
+      "realized_financial_pct": 5.4,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_7.62pct",
+        "volatilidade_1.99pct",
+        "suporte_historico_35.78pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo acima do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao."
+    },
+    {
+      "iteration": 9,
+      "instrument": "PRIO3",
+      "selected_thesis_id": "TH-PRIO3-bullish-17973",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2019-11-22T00:00:00+00:00",
+      "exit_time": "2019-12-04T00:00:00+00:00",
+      "confidence_tese_pct": 72.5161,
+      "expected_financial_pct": 3.9218,
+      "realized_financial_pct": 5.4,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_7.62pct",
+        "volatilidade_1.99pct",
+        "suporte_historico_35.78pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo acima do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao."
+    },
+    {
+      "iteration": 10,
+      "instrument": "PRIO3",
+      "selected_thesis_id": "TH-PRIO3-bullish-3180",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2019-11-22T00:00:00+00:00",
+      "exit_time": "2019-12-04T00:00:00+00:00",
+      "confidence_tese_pct": 72.5161,
+      "expected_financial_pct": 3.9218,
+      "realized_financial_pct": 5.4,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_7.62pct",
+        "volatilidade_1.99pct",
+        "suporte_historico_35.78pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo acima do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao."
+    }
+  ],
+  "worst_cases": [
+    {
+      "iteration": 2,
+      "instrument": "BPAC11",
+      "selected_thesis_id": "TH-BPAC11-bullish-20822",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2019-09-30T00:00:00+00:00",
+      "exit_time": "2019-10-10T00:00:00+00:00",
+      "confidence_tese_pct": 71.3538,
+      "expected_financial_pct": 3.7916,
+      "realized_financial_pct": -2.2,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_7.53pct",
+        "volatilidade_2.14pct",
+        "suporte_historico_30.26pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Foram observados 6 eventos de risco alto no monitoramento, impactando o desempenho da estrutura."
+    },
+    {
+      "iteration": 5,
+      "instrument": "BPAC11",
+      "selected_thesis_id": "TH-BPAC11-bullish-20352",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2019-09-30T00:00:00+00:00",
+      "exit_time": "2019-10-10T00:00:00+00:00",
+      "confidence_tese_pct": 71.3538,
+      "expected_financial_pct": 3.7916,
+      "realized_financial_pct": -2.2,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_7.53pct",
+        "volatilidade_2.14pct",
+        "suporte_historico_30.26pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Foram observados 6 eventos de risco alto no monitoramento, impactando o desempenho da estrutura."
+    },
+    {
+      "iteration": 23,
+      "instrument": "BPAC11",
+      "selected_thesis_id": "TH-BPAC11-bullish-4791",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2019-09-30T00:00:00+00:00",
+      "exit_time": "2019-10-10T00:00:00+00:00",
+      "confidence_tese_pct": 71.3538,
+      "expected_financial_pct": 3.7916,
+      "realized_financial_pct": -2.2,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_7.53pct",
+        "volatilidade_2.14pct",
+        "suporte_historico_30.26pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Foram observados 6 eventos de risco alto no monitoramento, impactando o desempenho da estrutura."
+    }
+  ],
+  "latest_cases": [
+    {
+      "iteration": 160,
+      "instrument": "PRIO3",
+      "selected_thesis_id": "TH-PRIO3-bullish-21157",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "confidence_tese_pct": 72.5161,
+      "expected_financial_pct": 3.9218,
+      "realized_financial_pct": 5.4,
+      "success": true,
+      "supporting_signals": [
+        "momento_bullish_7.62pct",
+        "volatilidade_1.99pct",
+        "suporte_historico_35.78pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ]
+    },
+    {
+      "iteration": 161,
+      "instrument": "PRIO3",
+      "selected_thesis_id": "TH-PRIO3-bullish-23392",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "confidence_tese_pct": 72.5161,
+      "expected_financial_pct": 3.9218,
+      "realized_financial_pct": 5.4,
+      "success": true,
+      "supporting_signals": [
+        "momento_bullish_7.62pct",
+        "volatilidade_1.99pct",
+        "suporte_historico_35.78pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ]
+    },
+    {
+      "iteration": 162,
+      "instrument": "PRIO3",
+      "selected_thesis_id": "TH-PRIO3-bullish-11440",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "confidence_tese_pct": 72.5161,
+      "expected_financial_pct": 3.9218,
+      "realized_financial_pct": 5.4,
+      "success": true,
+      "supporting_signals": [
+        "momento_bullish_7.62pct",
+        "volatilidade_1.99pct",
+        "suporte_historico_35.78pct",
+        "suporte_tecnico_95.00pct",
+        "suporte_fundamental_50.00pct"
+      ]
+    }
+  ],
+  "failures": [],
+  "artifacts": {
+    "window_dir": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_20260501_2135_2h",
+    "history_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_20260501_2135_2h\\history.jsonl",
+    "status_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_20260501_2135_2h\\status.json",
+    "report_json_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_20260501_2135_2h\\report.json",
+    "report_md_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_20260501_2135_2h\\report.md"
+  }
+}

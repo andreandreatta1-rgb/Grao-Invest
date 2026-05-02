@@ -50,7 +50,11 @@ const viewMeta = {
   },
   game: {
     title: "Game",
-    subtitle: "Simulação interativa com 5 teses, contexto histórico e carteira virtual.",
+    subtitle: "Simulacao interativa com 5 teses, contexto historico e carteira virtual.",
+  },
+  microtrades: {
+    title: "Microtrades (Beta)",
+    subtitle: "Modulo experimental para operacoes curtas com controle de risco e validacao de edge.",
   },
   alertas: {
     title: "Alertas",
@@ -122,6 +126,24 @@ function formatDayShort(value) {
     return raw || "-";
   }
   return `${raw.slice(8, 10)}/${raw.slice(5, 7)}`;
+}
+
+function assetClassLabel(value) {
+  const labels = {
+    stock: "Ação BR",
+    fii: "FII",
+    etf: "ETF",
+    bdr: "BDR",
+    fx: "Câmbio",
+    cash: "Caixa",
+    unknown: "Outro",
+  };
+  return labels[String(value || "unknown").toLowerCase()] || labels.unknown;
+}
+
+function renderAssetClassBadge(value, label) {
+  const normalized = String(value || "unknown").toLowerCase();
+  return `<span class="asset-class-badge asset-class-${escapeHtml(normalized)}">${escapeHtml(label || assetClassLabel(normalized))}</span>`;
 }
 
 function formatDate(value) {
@@ -553,9 +575,14 @@ function renderCoverage(coverage) {
   if (!coverage || !Array.isArray(coverage.instruments)) {
     summaryNode.innerHTML =
       "<div class='list-row'><p class='list-meta'>Cobertura indisponível no momento.</p></div>";
-    tableBody.innerHTML = "<tr><td colspan='5'>Sem dados de cobertura.</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='6'>Sem dados de cobertura.</td></tr>";
     return;
   }
+  const classCounts = coverage.asset_class_counts || {};
+  const classSummary = Object.entries(classCounts)
+    .filter(([, count]) => Number(count || 0) > 0)
+    .map(([assetClass, count]) => `${assetClassLabel(assetClass)} ${formatNumber(count)}`)
+    .join(" | ");
 
   summaryNode.innerHTML = `
     <div class="list-row">
@@ -563,19 +590,19 @@ function renderCoverage(coverage) {
         <p class="list-title">Ativos cobertos</p>
         <p class="list-meta mono">${escapeHtml(formatNumber(coverage.total_instruments_covered || 0))}</p>
       </div>
-      <p class="list-meta">Gerado em ${escapeHtml(formatDate(coverage.generated_at))}</p>
+      <p class="list-meta">${escapeHtml(classSummary || "Classes ainda não classificadas")}</p>
     </div>
     <div class="list-row">
       <div class="list-main">
         <p class="list-title">Último evento de mercado</p>
         <p class="list-meta">${escapeHtml(formatDate(coverage.latest_market_event_time))}</p>
       </div>
-      <p class="list-meta">Último ingest ${escapeHtml(formatDate(coverage.latest_ingest_time))}</p>
+      <p class="list-meta">Gerado em ${escapeHtml(formatDate(coverage.generated_at))} | Último ingest ${escapeHtml(formatDate(coverage.latest_ingest_time))}</p>
     </div>
   `;
 
   if (coverage.instruments.length === 0) {
-    tableBody.innerHTML = "<tr><td colspan='5'>Sem ativos ingeridos.</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='6'>Sem ativos ingeridos.</td></tr>";
     return;
   }
   tableBody.innerHTML = coverage.instruments
@@ -583,6 +610,7 @@ function renderCoverage(coverage) {
       (row) => `
       <tr>
         <td>${escapeHtml(row.instrument)}</td>
+        <td>${renderAssetClassBadge(row.asset_class, row.asset_class_label)}</td>
         <td>${escapeHtml(row.provider)}</td>
         <td class="mono">${escapeHtml(formatMoney(row.last_price))}</td>
         <td class="mono">${escapeHtml(formatNumber(row.lag_seconds))}</td>
@@ -1690,6 +1718,10 @@ function bindTickerSelector() {
     if (breakerInstrument) {
       breakerInstrument.value = ticker;
     }
+    const recomputeButton = byId("recompute-indicators");
+    if (recomputeButton) {
+      recomputeButton.textContent = `Recalcular indicadores ${ticker}`;
+    }
   };
 
   pills.forEach((pill) => {
@@ -1721,7 +1753,7 @@ function bindMarketHandlers() {
           end_year: Number(form.end_year),
           max_days_per_instrument_per_year: Number(form.max_days_per_instrument_per_year),
           max_instruments: Number(form.max_instruments),
-          allowed_bdi_codes: ["02"],
+          allowed_bdi_codes: ["02", "12", "14", "34"],
           allowed_market_types: ["010"],
         };
         const result = await apiRequest("POST", "/api/market/external/b3/sync-universe-range", payload);
@@ -1867,7 +1899,7 @@ function bindMarketHandlers() {
           .map((item) => item.trim().toUpperCase())
           .filter(Boolean);
         if (instruments.length === 0) {
-          throw new Error("Informe ao menos um ticker no formato PETR4,VALE3.");
+          throw new Error("Informe ao menos um ativo no formato PETR4,KNRI11,BOVA11.");
         }
         const payload = {
           user_id: userId,
@@ -2236,6 +2268,126 @@ function renderActiveAlerts(events) {
     .join("");
 }
 
+function whatsappCategoriesFromForm() {
+  return {
+    thesis_new: Boolean(byId("wa-cat-thesis-new")?.checked),
+    thesis_update: Boolean(byId("wa-cat-thesis-update")?.checked),
+    stock_alert: Boolean(byId("wa-cat-stock-alert")?.checked),
+    daily_digest: Boolean(byId("wa-cat-daily-digest")?.checked),
+  };
+}
+
+function whatsappThresholdsFromForm() {
+  const valueFrom = (id, fallback) => {
+    const parsed = Number(byId(id)?.value || fallback);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+  return {
+    thesis_confidence_pct: valueFrom("wa-thesis-confidence", 55),
+    thesis_expected_pct: valueFrom("wa-thesis-expected", 0),
+    thesis_progress_delta_pct: 20,
+    stock_price_move_pct: valueFrom("wa-stock-move", 3),
+    news_magnitude: valueFrom("wa-news-magnitude", 0.75),
+    signal_confidence: 0.6,
+  };
+}
+
+function applyWhatsAppSettings(settings) {
+  if (!settings || typeof settings !== "object") {
+    return;
+  }
+  const categories = settings.categories || {};
+  const thresholds = settings.thresholds || {};
+  if (byId("whatsapp-phone-number")) {
+    byId("whatsapp-phone-number").value = settings.phone_number || "";
+  }
+  if (byId("whatsapp-display-name")) {
+    byId("whatsapp-display-name").value = settings.display_name || "";
+  }
+  if (byId("whatsapp-opt-in")) {
+    byId("whatsapp-opt-in").checked = Boolean(settings.opt_in);
+  }
+  const checkboxMap = {
+    "wa-cat-thesis-new": categories.thesis_new,
+    "wa-cat-thesis-update": categories.thesis_update,
+    "wa-cat-stock-alert": categories.stock_alert,
+    "wa-cat-daily-digest": categories.daily_digest,
+  };
+  Object.entries(checkboxMap).forEach(([id, value]) => {
+    if (byId(id)) {
+      byId(id).checked = value !== false;
+    }
+  });
+  const thresholdMap = {
+    "wa-thesis-confidence": thresholds.thesis_confidence_pct,
+    "wa-thesis-expected": thresholds.thesis_expected_pct,
+    "wa-stock-move": thresholds.stock_price_move_pct,
+    "wa-news-magnitude": thresholds.news_magnitude,
+  };
+  Object.entries(thresholdMap).forEach(([id, value]) => {
+    if (byId(id) && value !== undefined && value !== null) {
+      byId(id).value = String(value);
+    }
+  });
+  renderWhatsAppDeliveries(settings.recent_deliveries || []);
+  const statusNode = byId("whatsapp-status");
+  if (statusNode) {
+    const statusText = settings.paused
+      ? "Canal pausado por comando WhatsApp."
+      : settings.opt_in
+        ? "Canal WhatsApp ativo."
+        : "Canal WhatsApp sem opt-in.";
+    statusNode.innerHTML = `
+      <div class="list-row">
+        <p class="list-title">${escapeHtml(statusText)}</p>
+        <p class="list-meta">${escapeHtml(settings.phone_number || "Telefone nao configurado")}</p>
+      </div>
+    `;
+  }
+}
+
+function renderWhatsAppDeliveries(deliveries) {
+  const node = byId("whatsapp-deliveries-list");
+  if (!node) {
+    return;
+  }
+  if (!Array.isArray(deliveries) || deliveries.length === 0) {
+    node.innerHTML = "<p class='empty-hint'>Nenhuma entrega WhatsApp registrada.</p>";
+    return;
+  }
+  node.innerHTML = deliveries
+    .map(
+      (delivery) => `
+        <div class="list-row">
+          <div class="list-main">
+            <p class="list-title">${escapeHtml(delivery.title || delivery.category || "WhatsApp")}</p>
+            <p class="list-meta mono">${escapeHtml(delivery.status || "-")}</p>
+          </div>
+          <p class="list-meta">${escapeHtml(delivery.instrument || "geral")} | ${escapeHtml(delivery.asset_class_label || "")} | ${escapeHtml(formatDate(delivery.created_at))}</p>
+          ${
+            delivery.failure_reason
+              ? `<p class="list-meta tone-danger">${escapeHtml(delivery.failure_reason)}</p>`
+              : ""
+          }
+        </div>
+      `,
+    )
+    .join("");
+}
+
+async function loadWhatsAppSettings() {
+  const userId = getAuthUserId();
+  if (!userId) {
+    return;
+  }
+  try {
+    const settings = await apiRequest("GET", `/api/notifications/whatsapp?user_id=${userId}`);
+    applyWhatsAppSettings(settings);
+  } catch (error) {
+    renderWhatsAppDeliveries([]);
+  }
+}
+
 async function loadActiveAlerts() {
   const userId = getAuthUserId();
   if (!userId) {
@@ -2250,6 +2402,103 @@ async function loadActiveAlerts() {
 }
 
 function bindAlertsHandlers() {
+  const whatsappForm = byId("whatsapp-settings-form");
+  if (whatsappForm) {
+    whatsappForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = event.currentTarget.querySelector('button[type="submit"]');
+      setButtonLoading(button, true, "Salvando...");
+      try {
+        const userId = getAuthUserId();
+        if (!userId) {
+          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+        }
+        const form = Object.fromEntries(new FormData(event.currentTarget).entries());
+        const payload = {
+          user_id: userId,
+          phone_number: form.phone_number,
+          display_name: form.display_name || null,
+          opt_in: Boolean(byId("whatsapp-opt-in")?.checked),
+          categories: whatsappCategoriesFromForm(),
+          thresholds: whatsappThresholdsFromForm(),
+        };
+        const settings = await apiRequest("PUT", "/api/notifications/whatsapp", payload);
+        applyWhatsAppSettings(settings);
+        showToast("success", "WhatsApp salvo.");
+      } catch (error) {
+        setOutput("alerts-output", { erro: error.message, detalhe: error.data || null });
+        showToast("error", `Falha no WhatsApp: ${error.message}`);
+      } finally {
+        setButtonLoading(button, false);
+      }
+    });
+  }
+
+  const thresholdForm = byId("whatsapp-thresholds-form");
+  if (thresholdForm) {
+    thresholdForm.addEventListener("change", () => {
+      const phoneInput = byId("whatsapp-phone-number");
+      if (phoneInput?.value) {
+        whatsappForm?.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+      }
+    });
+  }
+
+  [
+    "wa-cat-thesis-new",
+    "wa-cat-thesis-update",
+    "wa-cat-stock-alert",
+    "wa-cat-daily-digest",
+    "whatsapp-opt-in",
+  ].forEach((id) => {
+    const node = byId(id);
+    if (node) {
+      node.addEventListener("change", () => {
+        const phoneInput = byId("whatsapp-phone-number");
+        if (phoneInput?.value) {
+          whatsappForm?.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+        }
+      });
+    }
+  });
+
+  const whatsappTestButton = byId("whatsapp-test-btn");
+  if (whatsappTestButton) {
+    whatsappTestButton.addEventListener("click", async () => {
+      setButtonLoading(whatsappTestButton, true, "Enviando...");
+      try {
+        const userId = getAuthUserId();
+        if (!userId) {
+          throw new Error("SessÃ£o invÃ¡lida. FaÃ§a login novamente.");
+        }
+        const result = await apiRequest("POST", "/api/notifications/whatsapp/test", {
+          user_id: userId,
+        });
+        setOutput("alerts-output", result);
+        await loadWhatsAppSettings();
+        showToast("success", "Teste WhatsApp processado.");
+      } catch (error) {
+        setOutput("alerts-output", { erro: error.message, detalhe: error.data || null });
+        await loadWhatsAppSettings();
+        showToast("error", `Falha no teste WhatsApp: ${error.message}`);
+      } finally {
+        setButtonLoading(whatsappTestButton, false);
+      }
+    });
+  }
+
+  const whatsappRefreshButton = byId("whatsapp-refresh-btn");
+  if (whatsappRefreshButton) {
+    whatsappRefreshButton.addEventListener("click", async () => {
+      setButtonLoading(whatsappRefreshButton, true, "Atualizando...");
+      try {
+        await loadWhatsAppSettings();
+      } finally {
+        setButtonLoading(whatsappRefreshButton, false);
+      }
+    });
+  }
+
   const alertTypeButtons = document.querySelectorAll("#alert-type-grid .alert-type-btn");
   const ruleTypeHidden = byId("alert-rule-type-hidden");
   alertTypeButtons.forEach((button) => {
@@ -2880,6 +3129,7 @@ function showAuthenticatedExperience() {
   startRealtimeStreams();
   void loadDashboard();
   void loadActiveAlerts();
+  void loadWhatsAppSettings();
   void refreshFeedStatus();
 }
 

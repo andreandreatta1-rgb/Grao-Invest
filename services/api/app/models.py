@@ -393,3 +393,41 @@ class AlertEvent(Base):
     instrument: Mapped[str | None] = mapped_column(String(32), nullable=True)
     payload: Mapped[str] = mapped_column(Text)
     created_at: Mapped[str] = mapped_column(String(40))
+
+
+class WhatsAppNotificationSetting(Base):
+    __tablename__ = "whatsapp_notification_settings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
+    phone_number: Mapped[str] = mapped_column(String(32), default="")
+    display_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    opt_in: Mapped[bool] = mapped_column(Boolean, default=False)
+    paused: Mapped[bool] = mapped_column(Boolean, default=False)
+    categories_json: Mapped[str] = mapped_column(Text, default="{}")
+    thresholds_json: Mapped[str] = mapped_column(Text, default="{}")
+    created_at: Mapped[str] = mapped_column(String(40))
+    updated_at: Mapped[str] = mapped_column(String(40))
+    last_test_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    last_command_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+
+class WhatsAppNotificationDelivery(Base):
+    __tablename__ = "whatsapp_notification_deliveries"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    channel: Mapped[str] = mapped_column(String(24), default="whatsapp", index=True)
+    category: Mapped[str] = mapped_column(String(32), index=True)
+    event_key: Mapped[str] = mapped_column(String(220), unique=True, index=True)
+    instrument: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
+    title: Mapped[str] = mapped_column(String(180))
+    message_body: Mapped[str] = mapped_column(Text)
+    template_name: Mapped[str] = mapped_column(String(120))
+    template_payload: Mapped[str] = mapped_column(Text, default="{}")
+    status: Mapped[str] = mapped_column(String(24), default="queued", index=True)
+    provider_message_id: Mapped[str | None] = mapped_column(String(160), nullable=True, index=True)
+    failure_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[str] = mapped_column(String(40), index=True)
+    sent_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    updated_at: Mapped[str] = mapped_column(String(40))

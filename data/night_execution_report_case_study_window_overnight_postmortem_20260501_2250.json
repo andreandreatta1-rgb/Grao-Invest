@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-05-02T10:45:14.631473+00:00",
+  "timezone": "America/Sao_Paulo",
+  "user_id": 1,
+  "run_id": "case_study_window_overnight_postmortem_20260501_2250",
+  "window": {
+    "started_at_utc": "2026-05-02T01:50:38+00:00",
+    "ended_at_utc": "2026-05-02T10:10:38+00:00",
+    "started_at_local": "2026-05-01T22:50:38-03:00",
+    "ended_at_local": "2026-05-02T07:10:38-03:00",
+    "duration_minutes": 500.0
+  },
+  "kpis": {
+    "iterations_total": 1055,
+    "iterations_logged": 1055,
+    "execution_success_count": 1055,
+    "execution_failure_count": 0,
+    "financial_positive_count": 821,
+    "financial_negative_count": 234,
+    "financial_unresolved_count": 0,
+    "financial_win_rate_pct": 77.82,
+    "avg_confidence_tese_pct": 74.6171,
+    "avg_expected_financial_pct": 4.1571,
+    "avg_realized_financial_pct": 3.0792,
+    "case_study_generated_count": 1161,
+    "postmortem_generated_count": 1056
+  },
+  "distribution": {
+    "top_instruments": [
+      [
+        "PETR4",
+        337
+      ],
+      [
+        "PRIO3",
+        206
+      ],
+      [
+        "HAPV3",
+        168
+      ],
+      [
+        "BPAC11",
+        102
+      ],
+      [
+        "SUZB3",
+        70
+      ],
+      [
+        "JBSS3",
+        65
+      ],
+      [
+        "RENT3",
+        36
+      ],
+      [
+        "GGBR4",
+        25
+      ],
+      [
+        "B3SA3",
+        20
+      ],
+      [
+        "RAIL3",
+        12
+      ]
+    ],
+    "top_strategies": [
+      [
+        "BULL_CALL_SPREAD",
+        866
+      ],
+      [
+        "BEAR_PUT_SPREAD",
+        189
+      ]
+    ]
+  },
+  "b3_daily_job_latest": {
+    "run_at": "2026-05-02T10:02:06+00:00",
+    "build_executed": true,
+    "load_executed": true,
+    "case_study_executed": true,
+    "inserted": 0,
+    "duplicates_ignored": 4336552,
+    "parse_errors": 66
+  },
+  "dashboard_seed_latest": {
+    "total_tested": 1386,
+    "success_count": 1102,
+    "success_rate_pct": 79.51,
+    "expectancy_net_pct": 3.0635,
+    "window_start": "2026-04-20",
+    "window_end": "2026-05-02"
+  }
+}

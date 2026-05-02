@@ -75,6 +75,8 @@ This repository is structured to help coding agents implement the product safely
 - `python scripts/run_b3_daily_job.py --user-id <id> --skip-build --skip-load --case-study-instruments PETR4,VALE3 --horizon-bars 8`
 - `python scripts/run_b3_daily_job.py --user-id <id> --full-universe` (tambem atualiza `data/dashboard_seed.json` para publicacao)
 - `python scripts/publish_dashboard_seed.py` (commit + push somente do seed para disparar deploy na Vercel)
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run_case_study_overnight_loop.ps1` (loop de madrugada focado em `thesis.case_study.generated`; default agressivo: 5s entre iteracoes e publish a cada 30 min)
+- `python scripts/evaluate_night_execution.py --user-id <id>` (gera avaliacao executiva da noite em JSON/MD/CSV para analise)
 
 ## Quick Test (Real Data, No Mock)
 1. Start app: `python -m uvicorn app.main:app --app-dir services/api --reload`

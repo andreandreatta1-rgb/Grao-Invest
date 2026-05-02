@@ -4,8 +4,10 @@ from datetime import UTC
 
 from app.models import IndicatorSnapshot, MarketProviderState, MarketTick
 from app.schemas import MarketProviderStatusRequest, MarketTickIngestRequest
+from app.services.asset_classes import asset_class_label, classify_instrument
 from app.services.audit import record_audit_event
 from app.services.indicators import ema, macd, momentum, rsi, sma, volatility
+from app.services.notifications import notify_market_price_move
 from app.services.point_in_time import ticks_as_of
 from app.services.utils import isoformat, to_json, utc_now
 from sqlalchemy import func, select
@@ -212,10 +214,13 @@ def recompute_indicators(db: Session, instrument: str) -> IndicatorSnapshot:
 
 
 def market_tick_to_contract(tick: MarketTick) -> dict[str, object]:
+    asset_class = classify_instrument(tick.instrument)
     return {
         "event_type": "market.tick.normalized.v1",
         "version": 1,
         "instrument": tick.instrument,
+        "asset_class": asset_class,
+        "asset_class_label": asset_class_label(asset_class),
         "provider": tick.provider,
         "event_time": tick.event_time,
         "ingest_time": tick.ingest_time,
@@ -290,6 +295,7 @@ def ingest_tick_live(
             "processing_lag_seconds": processing_lag_seconds,
         },
     )
+    notify_market_price_move(db, tick)
 
     return {
         "market_tick": market_tick_to_contract(tick),

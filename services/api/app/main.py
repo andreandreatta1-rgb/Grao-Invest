@@ -14,12 +14,12 @@ from fastapi import (
     Header,
     HTTPException,
     Query,
+    Request,
     WebSocket,
     WebSocketDisconnect,
     status,
 )
-from fastapi.responses import FileResponse
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import and_, desc, or_, select
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -74,8 +74,11 @@ from app.schemas import (
     ThesisGamePlaybookRequest,
     ThesisGameSimulationRequest,
     ThesisSkillLearningRequest,
+    WhatsAppNotificationSettingsRequest,
+    WhatsAppNotificationTestRequest,
 )
 from app.services.alerts import create_alert_rule
+from app.services.asset_classes import asset_class_label, classify_instrument
 from app.services.auth import (
     authenticate_user,
     create_user,
@@ -119,6 +122,14 @@ from app.services.news import (
     source_credibility_history_as_of,
 )
 from app.services.news_external import sync_external_news_period
+from app.services.notifications import (
+    get_whatsapp_settings_payload,
+    process_whatsapp_webhook_payload,
+    send_daily_digest_for_all,
+    send_test_whatsapp_notification,
+    upsert_whatsapp_settings,
+    verify_webhook_signature,
+)
 from app.services.paper_trading import create_paper_order
 from app.services.point_in_time import (
     latest_fundamentals_as_of,
@@ -138,6 +149,10 @@ from app.services.risk import evaluate_circuit_breaker, set_kill_switch
 from app.services.signals import generate_signal
 from app.services.suitability import save_suitability
 from app.services.thesis_case_study import CaseStudyPayload, run_thesis_case_study
+from app.services.thesis_current_monitor import (
+    CurrentThesisMonitorPayload,
+    run_current_thesis_monitor,
+)
 from app.services.thesis_gamification import (
     GameSimulationPayload,
     OptionId,
@@ -147,10 +162,6 @@ from app.services.thesis_gamification import (
     run_thesis_game_simulation,
 )
 from app.services.thesis_learning import ThesisLearningPayload, run_thesis_skill_learning_cycle
-from app.services.thesis_current_monitor import (
-    CurrentThesisMonitorPayload,
-    run_current_thesis_monitor,
-)
 from app.services.utils import (
     DISCLAIMER,
     access_token_ttl_seconds,
@@ -299,6 +310,7 @@ def signal_to_payload(signal: Signal) -> dict[str, object]:
         "signal_id": signal.id,
         "user_id": signal.user_id,
         "instrument": signal.instrument,
+        **asset_class_payload(signal.instrument),
         "reference_time": signal.reference_time,
         "availability_time": signal.availability_time,
         "signal_type": signal.signal_type,
@@ -309,6 +321,14 @@ def signal_to_payload(signal: Signal) -> dict[str, object]:
         "expires_at": signal.expires_at,
         "expiry_reason": signal.expiry_reason,
         "xai_payload": signal.xai_payload,
+    }
+
+
+def asset_class_payload(instrument: str) -> dict[str, str]:
+    asset_class = classify_instrument(instrument)
+    return {
+        "asset_class": asset_class,
+        "asset_class_label": asset_class_label(asset_class),
     }
 
 
@@ -992,6 +1012,104 @@ def alert_events(
     ]
 
 
+@app.get("/api/notifications/whatsapp")
+def whatsapp_notification_settings(
+    user_id: int = Query(..., ge=1),
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    assert_user_scope(user_id, user)
+    return get_whatsapp_settings_payload(db, user_id=user_id)
+
+
+@app.put("/api/notifications/whatsapp")
+def whatsapp_notification_settings_update(
+    payload: WhatsAppNotificationSettingsRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    assert_user_scope(payload.user_id, user)
+    try:
+        upsert_whatsapp_settings(
+            db,
+            user_id=payload.user_id,
+            phone_number=payload.phone_number,
+            display_name=payload.display_name,
+            opt_in=payload.opt_in,
+            categories=payload.categories.model_dump(),
+            thresholds=payload.thresholds.model_dump(),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return get_whatsapp_settings_payload(db, user_id=payload.user_id)
+
+
+@app.post("/api/notifications/whatsapp/test")
+def whatsapp_notification_test(
+    payload: WhatsAppNotificationTestRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    assert_user_scope(payload.user_id, user)
+    delivery = send_test_whatsapp_notification(db, user_id=payload.user_id)
+    return {
+        "delivery_id": delivery.id,
+        "category": delivery.category,
+        "status": delivery.status,
+        "failure_reason": delivery.failure_reason,
+        "provider_message_id": delivery.provider_message_id,
+        "created_at": delivery.created_at,
+        "sent_at": delivery.sent_at,
+    }
+
+
+@app.get("/api/webhooks/whatsapp", response_class=PlainTextResponse)
+def whatsapp_webhook_verify(
+    hub_mode: str = Query(default="", alias="hub.mode"),
+    hub_verify_token: str = Query(default="", alias="hub.verify_token"),
+    hub_challenge: str = Query(default="", alias="hub.challenge"),
+) -> str:
+    expected = os.getenv("WHATSAPP_VERIFY_TOKEN", "").strip()
+    if hub_mode != "subscribe" or not expected or hub_verify_token != expected:
+        raise HTTPException(status_code=403, detail="Webhook WhatsApp nao autorizado.")
+    return hub_challenge
+
+
+@app.post("/api/webhooks/whatsapp")
+async def whatsapp_webhook_receive(
+    request: Request,
+    x_hub_signature_256: Annotated[
+        str | None,
+        Header(alias="X-Hub-Signature-256"),
+    ] = None,
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    raw_body = await request.body()
+    if not verify_webhook_signature(raw_body, x_hub_signature_256):
+        raise HTTPException(status_code=403, detail="Assinatura WhatsApp invalida.")
+    try:
+        payload = cast(dict[str, object], json.loads(raw_body.decode("utf-8") or "{}"))
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail="Payload WhatsApp invalido.") from exc
+    return process_whatsapp_webhook_payload(db, payload)
+
+
+def _assert_cron_authorized(authorization: str | None) -> None:
+    cron_secret = os.getenv("CRON_SECRET", "").strip()
+    if not cron_secret or authorization != f"Bearer {cron_secret}":
+        raise HTTPException(status_code=401, detail="Cron nao autorizado.")
+
+
+@app.get("/api/cron/whatsapp-digest")
+@app.post("/api/cron/whatsapp-digest")
+def whatsapp_digest_cron(
+    authorization: Annotated[str | None, Header(alias="Authorization")] = None,
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    _assert_cron_authorized(authorization)
+    return send_daily_digest_for_all(db)
+
+
 @app.get("/api/audit/events")
 def audit_events(
     event_type: str | None = Query(default=None),
@@ -1254,6 +1372,7 @@ def executive_page() -> HTMLResponse:
     report = cast(dict[str, object], json.loads(report_path.read_text(encoding="utf-8")))
     kpis = cast(dict[str, object], report.get("kpis", {}))
     evolution = cast(dict[str, object], report.get("evolution", {}))
+    learning_evolution = cast(dict[str, object], report.get("learning_evolution", {}))
     examples = report.get("examples", [])
 
     monitor_payload: dict[str, object] | None = None
@@ -1304,6 +1423,41 @@ def executive_page() -> HTMLResponse:
             )
     if not examples_rows:
         examples_rows = "<tr><td colspan='8'>Sem exemplos no reporte.</td></tr>"
+
+    learning_cases_html = ""
+    learning_cases = learning_evolution.get("cases", [])
+    if isinstance(learning_cases, list):
+        for item in learning_cases[:3]:
+            if not isinstance(item, dict):
+                continue
+            tone = "#86efac" if item.get("success") is True else "#fca5a5"
+            learning_cases_html += (
+                "<div class='learning-card'>"
+                "<div style='display:flex;justify-content:space-between;gap:12px;align-items:flex-start'>"
+                f"<strong>{safe_cell(item.get('label'))}</strong>"
+                f"<span style='color:{tone};font-weight:700'>{safe_cell(fmt_pct(item.get('realized_financial_pct')))}</span>"
+                "</div>"
+                f"<p><strong>{safe_cell(item.get('instrument'))}</strong> | "
+                f"{safe_cell(item.get('strategy'))} | confianca "
+                f"{safe_cell(fmt_pct(item.get('confidence_pct')))}</p>"
+                f"<p>{safe_cell(item.get('narrative'))}</p>"
+                "<p>"
+                f"Entrada {safe_cell(item.get('entry_date'))} @ {safe_cell(fmt_money(item.get('entry_price')))} | "
+                f"alvo {safe_cell(fmt_money(item.get('target_price')))} | "
+                f"stop {safe_cell(fmt_money(item.get('stop_price')))}"
+                "</p>"
+                "<p>"
+                f"Saida {safe_cell(item.get('exit_date'))} @ {safe_cell(fmt_money(item.get('exit_price')))} | "
+                f"esperado {safe_cell(fmt_pct(item.get('expected_financial_pct')))}"
+                "</p>"
+                f"<p><strong>Por que entrou:</strong> {safe_cell(item.get('why_entered'))}</p>"
+                f"<p><strong>Aprendizado:</strong> {safe_cell(item.get('learning'))}</p>"
+                "</div>"
+            )
+    if not learning_cases_html:
+        learning_cases_html = (
+            "<div class='learning-card'><p>Sem sequencia de aprendizado consolidada ainda.</p></div>"
+        )
 
     monitor_rows = ""
     monitor_summary_html = "<p style='color:#94a3b8;margin:6px 0 0'>Sem monitor diario gerado.</p>"
@@ -1358,6 +1512,9 @@ def executive_page() -> HTMLResponse:
         ".chips{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}"
         ".chip{background:#111827;border:1px solid #1f2937;border-radius:8px;padding:10px 12px;min-width:200px}"
         ".card{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:14px;margin-top:14px}"
+        ".learning-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}"
+        ".learning-card{background:#0f172a;border:1px solid #243044;border-radius:8px;padding:12px}"
+        ".learning-card p{color:#cbd5e1;font-size:13px;line-height:1.42;margin:8px 0 0}"
         "table{width:100%;border-collapse:collapse;margin-top:10px}"
         "th,td{border:1px solid #1f2937;padding:8px 10px;text-align:left;font-size:13px;vertical-align:top}"
         "th{background:#0f172a;color:#cbd5e1}"
@@ -1377,6 +1534,12 @@ def executive_page() -> HTMLResponse:
         f"<div class='chip'><div>Esperado vs Real</div><strong>{safe_cell(fmt_pct(kpis.get('avg_expected_financial_pct')))} / {safe_cell(fmt_pct(kpis.get('avg_realized_financial_pct')))}</strong></div>"
         f"<div class='chip'><div>Ultimo dia</div><strong>{safe_cell(fmt_pct(last_day.get('success_rate_pct')))}</strong></div>"
         f"<div class='chip'><div>Ultimos 7 dias</div><strong>{safe_cell(fmt_pct(last_7_days.get('success_rate_pct')))}</strong></div>"
+        "</div>"
+        "<div class='card'><h3 style='margin:0'>Evolucao do Aprendizado</h3>"
+        f"<p style='color:#cbd5e1;margin:8px 0 0'>{safe_cell(learning_evolution.get('headline'))}</p>"
+        f"<p style='color:#94a3b8;margin:6px 0 0'>{safe_cell(learning_evolution.get('context'))}</p>"
+        f"<div class='learning-grid'>{learning_cases_html}</div>"
+        f"<p style='color:#93c5fd;margin:12px 0 0'><strong>Conclusao:</strong> {safe_cell(learning_evolution.get('conclusion'))}</p>"
         "</div>"
         "<div class='card'><h3 style='margin:0'>Exemplos de Teses Avaliadas</h3>"
         "<table><thead><tr>"
@@ -1718,6 +1881,7 @@ def dashboard_summary(
             {
                 "run_id": run.id,
                 "instrument": run.instrument,
+                **asset_class_payload(run.instrument),
                 "trade_count": run.trade_count,
                 "win_rate": run.win_rate,
                 "total_return_pct": run.total_return_pct,
@@ -1753,6 +1917,7 @@ def dashboard_summary(
 
     now = datetime.now(UTC)
     coverage_rows: list[dict[str, object]] = []
+    coverage_asset_class_counts: dict[str, int] = {}
     latest_market_event_time: str | None = None
     latest_ingest_time: str | None = None
     for instrument in dashboard_scope[:20]:
@@ -1772,9 +1937,15 @@ def dashboard_summary(
             latest_market_event_time = latest_tick.event_time
         if latest_ingest_time is None or latest_tick.ingest_time > latest_ingest_time:
             latest_ingest_time = latest_tick.ingest_time
+        asset_class = classify_instrument(latest_tick.instrument)
+        coverage_asset_class_counts[asset_class] = (
+            coverage_asset_class_counts.get(asset_class, 0) + 1
+        )
         coverage_rows.append(
             {
                 "instrument": latest_tick.instrument,
+                "asset_class": asset_class,
+                "asset_class_label": asset_class_label(asset_class),
                 "provider": latest_tick.provider,
                 "last_price": float(latest_tick.price),
                 "last_event_time": latest_tick.event_time,
@@ -1788,6 +1959,7 @@ def dashboard_summary(
         "total_instruments_covered": len(coverage_rows),
         "latest_market_event_time": latest_market_event_time,
         "latest_ingest_time": latest_ingest_time,
+        "asset_class_counts": coverage_asset_class_counts,
         "instruments": coverage_rows,
     }
 
@@ -3438,6 +3610,7 @@ def dashboard_summary(
         open_positions=[
             {
                 "instrument": position.instrument,
+                **asset_class_payload(position.instrument),
                 "quantity": position.quantity,
                 "average_price": position.average_price,
                 "updated_at": position.updated_at,
@@ -3448,6 +3621,7 @@ def dashboard_summary(
             {
                 "signal_id": signal.id,
                 "instrument": signal.instrument,
+                **asset_class_payload(signal.instrument),
                 "signal_type": signal.signal_type,
                 "confidence": signal.confidence,
                 "rationale": signal.rationale,
@@ -3458,6 +3632,7 @@ def dashboard_summary(
             {
                 "order_id": order.id,
                 "instrument": order.instrument,
+                **asset_class_payload(order.instrument),
                 "quantity": order.quantity,
                 "execution_price": order.execution_price,
                 "estimated_cost": order.estimated_cost,
@@ -3490,6 +3665,7 @@ def dashboard_summary(
             {
                 "headline": article.headline,
                 "instrument": article.instrument,
+                **asset_class_payload(article.instrument),
                 "anti_hype_score": article.anti_hype_score,
                 "source_name": article.source_name,
             }
@@ -3528,7 +3704,7 @@ def dashboard_summary(
             "total_events": len(alert_events_data),
             "by_type": alert_events_by_type,
         },
-        market_coverage=cast(dict[str, object], coverage),
+        market_coverage=coverage,
         data_quality_gate=cast(dict[str, object], data_quality_gate_payload),
         phase_kickoff_date=phase_kickoff_date,
         historical_analysis_summary=historical_analysis_summary,

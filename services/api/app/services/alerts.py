@@ -12,6 +12,7 @@ from app.models import (
     Signal,
 )
 from app.services.audit import record_audit_event
+from app.services.notifications import notify_alert_events
 from app.services.utils import isoformat, to_json, utc_now
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
@@ -130,6 +131,7 @@ def maybe_emit_signal_alerts(db: Session, signal: Signal) -> list[AlertEvent]:
             )
     if events:
         db.commit()
+        notify_alert_events(db, events)
     return events
 
 
@@ -157,6 +159,7 @@ def maybe_emit_circuit_breaker_alert(db: Session, state: CircuitBreakerState) ->
         )
     if events:
         db.commit()
+        notify_alert_events(db, events)
     return events
 
 
@@ -203,6 +206,7 @@ def maybe_emit_news_alerts(
         )
     if events:
         db.commit()
+        notify_alert_events(db, events)
     return events
 
 
@@ -262,4 +266,5 @@ def maybe_emit_backtest_alerts(
             )
     if events:
         db.commit()
+        notify_alert_events(db, events)
     return events

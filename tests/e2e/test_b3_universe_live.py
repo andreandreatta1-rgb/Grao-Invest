@@ -182,6 +182,80 @@ def test_b3_sync_universe_range_discovers_equities(client, monkeypatch) -> None:
     assert len(payload["yearly_breakdown"]) == 2
 
 
+def test_b3_sync_universe_range_defaults_to_multiasset(client, monkeypatch) -> None:
+    from app.services import b3_external
+
+    user_id = _signup_and_authenticate(client, "multiasset-range@example.com")
+    zip_2025 = _build_cotahist_zip(
+        [
+            "00COTAHIST.2025BOVESPA 20251230".ljust(245),
+            _build_cotahist_line(
+                date_yyyymmdd="20250120",
+                ticker="PETR4",
+                close_price=37.1,
+                quantity=150000,
+                bdi_code="02",
+            ),
+            _build_cotahist_line(
+                date_yyyymmdd="20250120",
+                ticker="KNRI11",
+                close_price=154.2,
+                quantity=8000,
+                bdi_code="12",
+            ),
+            _build_cotahist_line(
+                date_yyyymmdd="20250120",
+                ticker="BOVA11",
+                close_price=128.4,
+                quantity=30000,
+                bdi_code="14",
+            ),
+            _build_cotahist_line(
+                date_yyyymmdd="20250120",
+                ticker="AAPL34",
+                close_price=46.3,
+                quantity=12000,
+                bdi_code="34",
+            ),
+            "99COTAHIST.2025BOVESPA 20251230".ljust(245),
+        ],
+        year=2025,
+    )
+
+    def fake_download(year: int, timeout_seconds: int = 90) -> bytes:
+        assert year == 2025
+        return zip_2025
+
+    monkeypatch.setattr(b3_external, "download_cotahist_zip", fake_download)
+
+    response = client.post(
+        "/api/market/external/b3/sync-universe-range",
+        json={
+            "user_id": user_id,
+            "start_year": 2025,
+            "end_year": 2025,
+            "max_days_per_instrument_per_year": 10,
+            "max_instruments": 20,
+        },
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert sorted(payload["portfolio"]) == ["AAPL34", "BOVA11", "KNRI11", "PETR4"]
+    assert payload["filters"]["allowed_bdi_codes"] == ["02", "12", "14", "34"]
+
+    coverage_response = client.get("/api/market/universe/coverage")
+    assert coverage_response.status_code == 200
+    coverage = coverage_response.json()
+    assert coverage["asset_class_counts"] == {"bdr": 1, "etf": 1, "fii": 1, "stock": 1}
+    rows_by_instrument = {
+        row["instrument"]: row["asset_class"]
+        for row in coverage["instruments"]
+    }
+    assert rows_by_instrument["KNRI11"] == "fii"
+    assert rows_by_instrument["BOVA11"] == "etf"
+    assert rows_by_instrument["AAPL34"] == "bdr"
+
+
 def test_market_tick_ingest_live_updates_algorithm_state(client) -> None:
     base_time = datetime(2026, 4, 20, 12, 0, tzinfo=UTC)
     first_response = None
@@ -213,4 +287,5 @@ def test_market_tick_ingest_live_updates_algorithm_state(client) -> None:
     assert final_response["algorithm_update"]["indicator_updated"] is True
     assert final_response["algorithm_update"]["learning_status"] == "updated"
     assert final_response["algorithm_update"]["tick_count"] >= 26
+    assert final_response["market_tick"]["asset_class"] == "stock"
     assert final_response["algorithm_update"]["indicator_snapshot"]["instrument"] == "PETR4"

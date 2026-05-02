@@ -5,6 +5,7 @@ from typing import TypedDict
 
 from app.models import MarketTick, SuitabilityProfile
 from app.services.audit import record_audit_event
+from app.services.notifications import notify_current_thesis_monitor
 from app.services.thesis_case_study import (
     ThesisSummary,
     _available_instruments,
@@ -264,6 +265,7 @@ def run_current_thesis_monitor(
         "theses": cards,
         "disclaimer": DISCLAIMER,
     }
+    notify_current_thesis_monitor(db, payload)
     record_audit_event(
         db,
         "thesis.current_monitor.generated",
@@ -277,4 +279,3 @@ def run_current_thesis_monitor(
         user_id,
     )
     return payload
-

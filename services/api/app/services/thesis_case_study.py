@@ -17,6 +17,7 @@ from app.services.audit import record_audit_event
 from app.services.news import aggregate_sentiment_as_of
 from app.services.point_in_time import latest_fundamentals_as_of
 from app.services.thesis_policy import apply_active_policy
+from app.services.thesis_postmortem import CaseStudyPostmortem, persist_case_study_postmortem
 from app.services.utils import DISCLAIMER
 from sqlalchemy import and_, desc, or_, select
 from sqlalchemy.orm import Session
@@ -161,6 +162,7 @@ class CaseStudyPayload(TypedDict):
     pipeline: dict[str, object]
     selected_case: dict[str, object]
     knowledge_skill: KnowledgeSkill
+    postmortem: CaseStudyPostmortem
     disclaimer: str
 
 
@@ -1112,6 +1114,28 @@ def run_thesis_case_study(
             "monitoring_timeline": monitoring,
         },
         "knowledge_skill": knowledge_skill,
+        "postmortem": {
+            "generated_at": "",
+            "thesis_id": "",
+            "instrument": "",
+            "direction": "",
+            "strategy_id": "",
+            "policy_name": "",
+            "signature": "",
+            "success": False,
+            "confidence_tese_pct": 0.0,
+            "expected_financial_pct": 0.0,
+            "realized_financial_pct": 0.0,
+            "expected_vs_real_gap_pct": 0.0,
+            "market_move_pct": 0.0,
+            "structure_cushion_pct": 0.0,
+            "stop_risk_event_count": 0,
+            "high_risk_event_count": 0,
+            "early_invalidation": False,
+            "analysis_tags": [],
+            "learning_actions": [],
+            "shadow_profile_snapshot": {},
+        },
         "disclaimer": DISCLAIMER,
     }
     record_audit_event(
@@ -1125,6 +1149,20 @@ def run_thesis_case_study(
             "confidence_tese_pct": selected["confidence_tese_pct"],
             "expected_financial_pct": selected["expected_financial_pct"],
             "realized_financial_pct": realized_financial_pct,
+        },
+        user_id,
+    )
+    postmortem = persist_case_study_postmortem(payload)
+    payload["postmortem"] = postmortem
+    record_audit_event(
+        db,
+        "thesis.postmortem.generated",
+        {
+            "user_id": user_id,
+            "thesis_id": postmortem["thesis_id"],
+            "signature": postmortem["signature"],
+            "analysis_tags": postmortem["analysis_tags"],
+            "learning_actions": postmortem["learning_actions"],
         },
         user_id,
     )

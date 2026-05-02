@@ -12,6 +12,11 @@ from app.models import (
     PortfolioPosition,
     RebalancePlan,
 )
+from app.services.asset_classes import (
+    asset_class_label,
+    classify_instrument,
+    is_portfolio_asset_class,
+)
 from app.services.news import SentimentAggregate, aggregate_sentiment_as_of
 from app.services.point_in_time import latest_fundamentals_as_of, latest_indicator_as_of
 from app.services.utils import anti_recommendation_text, assert_compliant_copy, isoformat, utc_now
@@ -29,6 +34,8 @@ _MIN_CASH_WEIGHT = 0.05
 
 class InstrumentScore(TypedDict):
     instrument: str
+    asset_class: str
+    asset_class_label: str
     latest_price: float
     avg_notional: float
     coverage: float
@@ -43,6 +50,8 @@ class InstrumentScore(TypedDict):
 
 class AllocationAssetPayload(TypedDict):
     ticker: str
+    asset_class: str
+    asset_class_label: str
     weight_pct: float
     value_brl: float
     shares_approx: int
@@ -208,6 +217,9 @@ def _candidate_universe(
 
 
 def _score_instrument(db: Session, instrument: str) -> InstrumentScore | None:
+    asset_class = classify_instrument(instrument)
+    if not is_portfolio_asset_class(asset_class):
+        return None
     ticks = _recent_ticks(db, instrument)
     if not ticks:
         return None
@@ -237,6 +249,8 @@ def _score_instrument(db: Session, instrument: str) -> InstrumentScore | None:
     )
     return {
         "instrument": instrument,
+        "asset_class": asset_class,
+        "asset_class_label": asset_class_label(asset_class),
         "latest_price": latest_price,
         "avg_notional": round(avg_notional, 4),
         "coverage": round(coverage, 4),
@@ -321,24 +335,38 @@ def _plan_payload_from_row(db: Session, row: AllocationPlan) -> AllocationPlanPa
     )
     assets: list[AllocationAssetPayload]
     if assets_rows:
-        assets = [
-            {
-                "ticker": asset.instrument,
-                "weight_pct": round(asset.weight_pct, 4),
-                "value_brl": round(asset.value_brl, 2),
-                "shares_approx": int(asset.shares_approx),
-                "entry_price_target": round(asset.entry_price_target, 4),
-                "stop_loss": round(asset.stop_loss, 4),
-                "thesis_id": asset.thesis_id,
-                "score_composite": round(asset.score_composite, 4),
-            }
-            for asset in assets_rows
-        ]
+        assets = []
+        for asset in assets_rows:
+            row_asset_class = classify_instrument(asset.instrument)
+            assets.append(
+                {
+                    "ticker": asset.instrument,
+                    "asset_class": row_asset_class,
+                    "asset_class_label": asset_class_label(row_asset_class),
+                    "weight_pct": round(asset.weight_pct, 4),
+                    "value_brl": round(asset.value_brl, 2),
+                    "shares_approx": int(asset.shares_approx),
+                    "entry_price_target": round(asset.entry_price_target, 4),
+                    "stop_loss": round(asset.stop_loss, 4),
+                    "thesis_id": asset.thesis_id,
+                    "score_composite": round(asset.score_composite, 4),
+                }
+            )
     else:
         raw_assets = json.loads(row.assets_json)
         assets = [
             {
                 "ticker": str(item.get("ticker", "")),
+                "asset_class": str(
+                    item.get("asset_class")
+                    or classify_instrument(str(item.get("ticker", "")))
+                ),
+                "asset_class_label": str(
+                    item.get("asset_class_label")
+                    or asset_class_label(
+                        classify_instrument(str(item.get("ticker", "")))
+                    )
+                ),
                 "weight_pct": float(item.get("weight_pct", 0.0)),
                 "value_brl": float(item.get("value_brl", 0.0)),
                 "shares_approx": int(item.get("shares_approx", 0)),
@@ -411,6 +439,7 @@ def allocate_portfolio(
     assets_payload: list[AllocationAssetPayload] = []
     for item in selected:
         ticker = item["instrument"]
+        item_asset_class = item["asset_class"]
         weight = weights[ticker]
         value_brl = capital_brl * weight
         entry_price = item["latest_price"]
@@ -418,6 +447,8 @@ def allocate_portfolio(
         assets_payload.append(
             {
                 "ticker": ticker,
+                "asset_class": item_asset_class,
+                "asset_class_label": asset_class_label(item_asset_class),
                 "weight_pct": round(weight * 100, 4),
                 "value_brl": round(value_brl, 2),
                 "shares_approx": shares,
@@ -432,6 +463,8 @@ def allocate_portfolio(
         assets_payload.append(
             {
                 "ticker": "CASH-BRL",
+                "asset_class": "cash",
+                "asset_class_label": asset_class_label("cash"),
                 "weight_pct": round(cash_weight * 100, 4),
                 "value_brl": round(capital_brl * cash_weight, 2),
                 "shares_approx": 1,
@@ -442,10 +475,11 @@ def allocate_portfolio(
             }
         )
 
+    selected_classes = sorted({item["asset_class_label"] for item in selected})
     rationale = (
-        f"Plano autonomo com {len(selected)} ativos elegiveis, cobrindo liquidez e "
-        f"pontuacao multifator. Sharpe esperado {expected_sharpe:.2f}, retorno anual "
-        "estimado "
+        f"Plano autonomo multiativo com {len(selected)} ativos elegiveis "
+        f"({', '.join(selected_classes)}), cobrindo liquidez e pontuacao multifator. "
+        f"Sharpe esperado {expected_sharpe:.2f}, retorno anual estimado "
         f"{weighted_return * 100:.2f}% e drawdown estimado "
         f"{max_drawdown_estimate * 100:.2f}%."
     )

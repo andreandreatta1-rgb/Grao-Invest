@@ -1,0 +1,30 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "images/icon-128.png",
+         "32": "images/icon-32.png",
+         "48": "images/icon-48.png",
+         "64": "images/icon-64.png",
+         "96": "images/icon-96.png"
+      }
+   },
+   "background": {
+      "service_worker": "background.js",
+      "type": "module"
+   },
+   "description": "Oracle Site Blocker browser extension restricts access to certain websites in accordance with Oracle Policy.",
+   "host_permissions": [ "*://chatgpt.com/*" ],
+   "icons": {
+      "128": "images/icon-128.png",
+      "32": "images/icon-32.png",
+      "48": "images/icon-48.png",
+      "64": "images/icon-64.png",
+      "96": "images/icon-96.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq8B4BSoOtjcXVng71obYbhh6FyyUUnHzQHe1pFpOrZFivsmqx7DJXCvXbGmhr9W2EHLyPT8MJMZNAIGjAeCYUrHoQFtG+Z1B5ORR6pBuA42WqDvYgwL/7bSv1wZ5og53TlhMFBW5LJkG+BGbI1+3Eh4gJ5xx72QhIQmMIuCkfLHBS/OA8LTk9wJ8/qJ8lZE4W+o6GFVq6eZQgTTs5GBnD03Xl1vswVgf7K0PpT/F1LpJ4LsN5quNoP25l6uput/0DeEpT5r/0mXo1Z94LW/wIzHjJnznPtLW8xf+7GcIke1O7IDQXWhOZgoODAKYlKnyO/Umb5SSWQ9aIgwDtZCpEQIDAQAB",
+   "manifest_version": 3,
+   "name": "Oracle Site Blocker",
+   "permissions": [ "declarativeNetRequest", "declarativeNetRequestWithHostAccess" ],
+   "update_url": "https://axtnawwevgw5.objectstorage.us-phoenix-1.oci.customer-oci.com/p/JZ5ZW3mAmccEU1Ih2stwkGZXcrr00Gl2RFKDvzT5SRn7n7R0blunHpaHXR_fNMm6/n/axtnawwevgw5/b/oracle-site-blocker/o/chrome/update.xml",
+   "version": "1.0.2"
+}

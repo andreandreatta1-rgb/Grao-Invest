@@ -1,0 +1,193 @@
+{
+  "run_id": "case_study_window_smoke",
+  "status": "completed",
+  "generated_at_utc": "2026-05-02T00:34:03+00:00",
+  "window": {
+    "started_at_utc": "2026-05-02T00:32:45+00:00",
+    "started_at_local": "2026-05-01T21:32:45-03:00",
+    "planned_end_at_utc": "2026-05-02T00:33:57+00:00",
+    "planned_end_at_local": "2026-05-01T21:33:57-03:00",
+    "finished_at_utc": "2026-05-02T00:34:03+00:00",
+    "finished_at_local": "2026-05-01T21:34:03-03:00",
+    "planned_duration_minutes": 1.2,
+    "actual_duration_minutes": 1.3
+  },
+  "kpis": {
+    "total_iterations": 2,
+    "completed_case_studies": 2,
+    "failed_iterations": 0,
+    "engine_success_rate_pct": 100.0,
+    "thesis_success_rate_pct": 100.0,
+    "avg_confidence_tese_pct": 80.5787,
+    "avg_expected_financial_pct": 4.8248,
+    "avg_realized_financial_pct": 3.1405,
+    "expected_vs_real_gap_pct": -1.6843,
+    "avg_iteration_duration_seconds": 38.454,
+    "avg_candidate_count": 24583.5,
+    "avg_validated_count": 10716.5,
+    "unique_theses": 2,
+    "unique_instruments": 1
+  },
+  "distribution": {
+    "top_instruments": [
+      [
+        "PETR4",
+        2
+      ]
+    ],
+    "top_strategies": [
+      [
+        "Bull Call Spread",
+        2
+      ]
+    ],
+    "policies_seen": [
+      [
+        "anti_blindspot_v3_soft",
+        2
+      ]
+    ]
+  },
+  "best_cases": [
+    {
+      "iteration": 1,
+      "instrument": "PETR4",
+      "selected_thesis_id": "TH-PETR4-bullish-17446",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2024-04-19T00:00:00+00:00",
+      "exit_time": "2024-05-02T00:00:00+00:00",
+      "confidence_tese_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "realized_financial_pct": 3.1405,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_6.38pct",
+        "volatilidade_1.63pct",
+        "suporte_historico_25.99pct",
+        "suporte_tecnico_94.37pct",
+        "suporte_fundamental_95.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao."
+    },
+    {
+      "iteration": 2,
+      "instrument": "PETR4",
+      "selected_thesis_id": "TH-PETR4-bullish-3514",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2024-04-19T00:00:00+00:00",
+      "exit_time": "2024-05-02T00:00:00+00:00",
+      "confidence_tese_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "realized_financial_pct": 3.1405,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_6.38pct",
+        "volatilidade_1.63pct",
+        "suporte_historico_25.99pct",
+        "suporte_tecnico_94.37pct",
+        "suporte_fundamental_95.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao."
+    }
+  ],
+  "worst_cases": [
+    {
+      "iteration": 1,
+      "instrument": "PETR4",
+      "selected_thesis_id": "TH-PETR4-bullish-17446",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2024-04-19T00:00:00+00:00",
+      "exit_time": "2024-05-02T00:00:00+00:00",
+      "confidence_tese_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "realized_financial_pct": 3.1405,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_6.38pct",
+        "volatilidade_1.63pct",
+        "suporte_historico_25.99pct",
+        "suporte_tecnico_94.37pct",
+        "suporte_fundamental_95.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao."
+    },
+    {
+      "iteration": 2,
+      "instrument": "PETR4",
+      "selected_thesis_id": "TH-PETR4-bullish-3514",
+      "direction": "bullish",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "entry_time": "2024-04-19T00:00:00+00:00",
+      "exit_time": "2024-05-02T00:00:00+00:00",
+      "confidence_tese_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "realized_financial_pct": 3.1405,
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "supporting_signals": [
+        "momento_bullish_6.38pct",
+        "volatilidade_1.63pct",
+        "suporte_historico_25.99pct",
+        "suporte_tecnico_94.37pct",
+        "suporte_fundamental_95.00pct"
+      ],
+      "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao."
+    }
+  ],
+  "latest_cases": [
+    {
+      "iteration": 1,
+      "instrument": "PETR4",
+      "selected_thesis_id": "TH-PETR4-bullish-17446",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "confidence_tese_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "realized_financial_pct": 3.1405,
+      "success": true,
+      "supporting_signals": [
+        "momento_bullish_6.38pct",
+        "volatilidade_1.63pct",
+        "suporte_historico_25.99pct",
+        "suporte_tecnico_94.37pct",
+        "suporte_fundamental_95.00pct"
+      ]
+    },
+    {
+      "iteration": 2,
+      "instrument": "PETR4",
+      "selected_thesis_id": "TH-PETR4-bullish-3514",
+      "strategy_name": "Bull Call Spread",
+      "policy_name": "anti_blindspot_v3_soft",
+      "confidence_tese_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "realized_financial_pct": 3.1405,
+      "success": true,
+      "supporting_signals": [
+        "momento_bullish_6.38pct",
+        "volatilidade_1.63pct",
+        "suporte_historico_25.99pct",
+        "suporte_tecnico_94.37pct",
+        "suporte_fundamental_95.00pct"
+      ]
+    }
+  ],
+  "failures": [],
+  "artifacts": {
+    "window_dir": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_smoke",
+    "history_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_smoke\\history.jsonl",
+    "status_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_smoke\\status.json",
+    "report_json_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_smoke\\report.json",
+    "report_md_file": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\data\\case_study_windows\\case_study_window_smoke\\report.md"
+  }
+}

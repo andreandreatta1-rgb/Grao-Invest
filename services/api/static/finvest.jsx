@@ -67,6 +67,35 @@ const formatMoneyLabel = (value) => {
   return n.toFixed(2).replace(".", ",");
 };
 
+const formatCurrencyLabel = (value) => {
+  const n = toNumber(value, NaN);
+  if (!Number.isFinite(n)) return "-";
+  return `R$ ${n.toFixed(2).replace(".", ",")}`;
+};
+
+const formatDateLabel = (value) => {
+  const raw = String(value || "");
+  if (raw.length < 10) return "-";
+  return `${raw.slice(8, 10)}/${raw.slice(5, 7)}/${raw.slice(0, 4)}`;
+};
+
+const compactText = (text, max = 150) => {
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  if (!clean) return "-";
+  return clean.length > max ? `${clean.slice(0, max - 3)}...` : clean;
+};
+
+function useCompactLayout() {
+  const [compact, setCompact] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 760 : false));
+  useEffect(() => {
+    const onResize = () => setCompact(window.innerWidth < 760);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return compact;
+}
+
 const isOpenStatus = (status) => {
   const normalized = String(status || "").toLowerCase();
   return normalized.includes("aberta") || normalized.includes("aberto") || normalized.includes("monitor");
@@ -96,8 +125,8 @@ const inferMelhoriasAplicadas = (row) => {
   if (outcome.includes("stop") || learning.includes("stop")) tags.push("stop_antecipado");
   if (reason.includes("faixa") || learning.includes("faixa")) tags.push("range_break_rapido");
   if (reason.includes("volume") || learning.includes("volume")) tags.push("confirmacao_volume");
-  if (learning.includes("protecao curta") || learning.includes("proteção curta")) tags.push("protecao_curta");
-  if (learning.includes("tempo maximo") || learning.includes("tempo máximo")) tags.push("tempo_maximo");
+  if (learning.includes("protecao curta") || learning.includes("prote\u00e7\u00e3o curta")) tags.push("protecao_curta");
+  if (learning.includes("tempo maximo") || learning.includes("tempo m\u00e1ximo")) tags.push("tempo_maximo");
   if (learning.includes("alvo")) tags.push("calibragem_alvo");
   return [...new Set(tags)];
 };
@@ -255,25 +284,504 @@ function ThesisCard({ thesis }) {
 
       {/* Levels */}
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <span style={{ color: C.muted, fontSize: 10 }}>Saída</span>
-        <span style={{ color: C.green, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>▲ R$ {thesis.saiGanho}</span>
+        <span style={{ color: C.muted, fontSize: 10 }}>Saida</span>
+        <span style={{ color: C.green, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>^ R$ {thesis.saiGanho}</span>
         <div style={{ width: 1, height: 12, background: C.border }} />
-        <span style={{ color: C.coral, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>▼ R$ {thesis.saiStop}</span>
+        <span style={{ color: C.coral, fontSize: 11, fontFamily: mono, fontWeight: 600 }}>v R$ {thesis.saiStop}</span>
         {thesis.inicio && <span style={{ color: C.muted, fontSize: 10, marginLeft: "auto" }}>go-live {thesis.inicio}</span>}
       </div>
     </div>
   );
 }
 
+function ExecutiveMethodStrip({ executiveData, resumoKpis, compact }) {
+  const last7 = executiveData?.evolution?.last_7_days || {};
+  const lastDay = executiveData?.evolution?.last_day || {};
+  const kpis = executiveData?.kpis || {};
+  const last7Count = toNumber(last7.sample_count, 0);
+  const lastDayCount = toNumber(lastDay.sample_count, 0);
+  const cards = [
+    {
+      step: "01",
+      label: "Objetivo",
+      value: "Aprender antes de alocar",
+      sub: executiveData?.objective || "Descobrir teses, testar operacoes e melhorar as proximas decisoes.",
+      tone: C.sky,
+    },
+    {
+      step: "02",
+      label: "Como fazemos",
+      value: "Mercado + fundamento + contexto",
+      sub: "Leitura tecnica, suporte historico, dados fundamentais e noticias viram uma tese testavel.",
+      tone: C.gold,
+    },
+    {
+      step: "03",
+      label: "Ultimos 7 dias",
+      value: last7Count ? `${last7Count} exercicios` : `${resumoKpis.totalTested} avaliadas`,
+      sub: last7Count
+        ? `${toNumber(last7.success_rate_pct, 0).toFixed(1).replace(".", ",")}% sucesso e ${toNumber(last7.discovery_rate_pct, 0).toFixed(1).replace(".", ",")}% descoberta.`
+        : `${resumoKpis.successRatePct.toFixed(1).replace(".", ",")}% sucesso acumulado.`,
+      tone: C.teal,
+    },
+    {
+      step: "04",
+      label: "Ciclo atual",
+      value: toNumber(kpis.total_iterations, 0) ? `${toNumber(kpis.total_iterations, 0)} iteracoes` : "Pos-morte ativo",
+      sub: lastDayCount
+        ? `Ultimo dia: ${lastDayCount} casos, ${toNumber(lastDay.success_rate_pct, 0).toFixed(1).replace(".", ",")}% sucesso.`
+        : "Sem nova amostra fechada no ultimo dia; aprendizado segue em shadow antes de virar regra ativa.",
+      tone: C.purple,
+    },
+  ];
+
+  return (
+    <section style={{
+      display: "grid",
+      gridTemplateColumns: compact ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))",
+      gap: 12,
+    }}>
+      {cards.map((card) => (
+        <div key={card.step} style={{
+          background: `linear-gradient(145deg, ${C.card}, #090f1c)`,
+          border: `1px solid ${C.border}`,
+          borderRadius: 14,
+          padding: "14px 15px",
+          minHeight: 122,
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            position: "absolute",
+            right: 12,
+            top: 8,
+            color: card.tone + "28",
+            fontSize: 36,
+            fontWeight: 900,
+            fontFamily: mono,
+            lineHeight: 1,
+          }}>{card.step}</div>
+          <div style={{ color: card.tone, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 800 }}>
+            {card.label}
+          </div>
+          <div style={{ color: C.text, fontSize: 16, fontWeight: 850, lineHeight: 1.2, marginTop: 9, maxWidth: 250 }}>
+            {card.value}
+          </div>
+          <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.35, marginTop: 8, maxWidth: 300 }}>
+            {card.sub}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function LearningJourney({ evolution, compact }) {
+  const cases = Array.isArray(evolution?.cases) ? evolution.cases.slice(0, 3) : [];
+  const fallbackCases = [
+    {
+      label: "Tese A",
+      instrument: "BPAC11",
+      strategy: "Operacao de alta",
+      entry_date: "2019-09-30",
+      entry_price: 58.55,
+      target_price: 62.65,
+      stop_price: 56.09,
+      exit_date: "2019-10-10",
+      exit_price: 53.70,
+      realized_financial_pct: -2.2,
+      expected_financial_pct: 3.79,
+      why_entered: "Sinal tecnico parecia forte, mas havia pouco suporte historico e confirmacoes externas fracas.",
+      narrative: "Tecnico forte elevou a confianca, mas faltou confirmacao.",
+      learning: "Reduzir confianca quando o tecnico vier sozinho.",
+      success: false,
+    },
+    {
+      label: "Tese B",
+      instrument: "PETR4",
+      strategy: "Operacao de alta",
+      entry_date: "2024-04-19",
+      entry_price: 40.53,
+      target_price: 43.37,
+      stop_price: 38.83,
+      exit_date: "2024-05-02",
+      exit_price: 42.18,
+      realized_financial_pct: 3.14,
+      expected_financial_pct: 4.82,
+      why_entered: "Sinal tecnico veio acompanhado de fundamentos e noticias favoraveis.",
+      narrative: "Tecnico veio com fundamento e noticias.",
+      learning: "Manter a tese, mas recalibrar alvo agressivo.",
+      success: true,
+    },
+    {
+      label: "Proxima regra",
+      instrument: "Shadow",
+      strategy: "Regra candidata",
+      realized_financial_pct: null,
+      expected_financial_pct: null,
+      why_entered: "O aprendizado vira criterio a ser testado antes de mudar a politica ativa.",
+      narrative: "O aprendizado entra como regra candidata.",
+      learning: "Testar em shadow antes de promover a politica.",
+      success: null,
+    },
+  ];
+  const visibleCases = cases.length ? cases : fallbackCases;
+
+  return (
+    <section style={{
+      background: `linear-gradient(135deg, ${C.card}, #0a1422 58%, #081a20)`,
+      border: `1px solid ${C.border}`,
+      borderRadius: 16,
+      padding: 18,
+      boxShadow: "0 18px 46px rgba(0,0,0,0.22)",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 18, alignItems: "flex-start", marginBottom: 16 }}>
+        <div>
+          <div style={{ color: C.text, fontSize: 16, fontWeight: 800 }}>Evolucao do aprendizado</div>
+          <div style={{ color: C.muted, fontSize: 12, marginTop: 4, maxWidth: 760 }}>
+            {evolution?.headline || "Cada operacao vira diagnostico, regra candidata e novo criterio de decisao."}
+          </div>
+        </div>
+        <Badge label="pos-morte na pratica" type="info" />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "repeat(auto-fit, minmax(290px, 1fr))", alignItems: "stretch", gap: 12 }}>
+        {visibleCases.map((item, index) => {
+          const result = Number(item.realized_financial_pct);
+          const hasResult = Number.isFinite(result);
+          const tone = item.success === false ? C.coral : item.success === true ? C.teal : C.sky;
+          const title = String(item.label || `Etapa ${index + 1}`);
+          const instrument = String(item.instrument || "-");
+          const expected = Number(item.expected_financial_pct);
+          const statusLabel = item.success === false ? "ajustar regra" : item.success === true ? "manter criterio" : "validar em shadow";
+          const detailRows = [
+            { label: "Entrou", value: `${formatDateLabel(item.entry_date)} | ${formatCurrencyLabel(item.entry_price)}` },
+            { label: "Alvo", value: formatCurrencyLabel(item.target_price) },
+            { label: "Protecao", value: formatCurrencyLabel(item.stop_price) },
+            { label: "Saiu", value: `${formatDateLabel(item.exit_date)} | ${formatCurrencyLabel(item.exit_price)}` },
+          ].filter((row) => row.value && row.value !== "-" && row.value !== "- | -");
+          return (
+            <div key={`${instrument}-${index}`} style={{
+              minHeight: 268,
+              background: C.panel,
+              border: `1px solid ${tone}55`,
+              borderTop: `3px solid ${tone}`,
+              borderRadius: 13,
+              padding: "14px 14px 13px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              <div style={{
+                position: "absolute",
+                right: 14,
+                top: 12,
+                color: tone + "18",
+                fontSize: 46,
+                fontWeight: 900,
+                fontFamily: mono,
+                lineHeight: 1,
+              }}>{index + 1}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center", position: "relative" }}>
+                <div style={{ color: C.muted, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", maxWidth: 230 }}>{title}</div>
+                <Badge label={instrument} type={item.success === false ? "danger" : item.success === true ? "success" : "info"} />
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, position: "relative" }}>
+                <div style={{ color: tone, fontSize: 29, fontWeight: 850, fontFamily: mono }}>
+                  {hasResult ? formatPctLabel(result) : "regra"}
+                </div>
+                {Number.isFinite(expected) && (
+                  <div style={{ color: C.muted, fontSize: 11 }}>esperado {formatPctLabel(expected)}</div>
+                )}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+                <div style={{ color: C.sky, fontSize: 11, lineHeight: 1.3 }}>{item.strategy || "Operacao simulada"}</div>
+                <Badge label={statusLabel} type={item.success === false ? "warning" : item.success === true ? "success" : "info"} />
+              </div>
+              {detailRows.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7 }}>
+                  {detailRows.map((row) => (
+                    <div key={row.label} style={{ background: "#070d18", border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 8px" }}>
+                      <div style={{ color: C.muted, fontSize: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>{row.label}</div>
+                      <div style={{ color: C.text, fontSize: 11, marginTop: 3, fontFamily: mono }}>{row.value}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{ background: "rgba(59, 158, 255, 0.06)", border: `1px solid ${C.sky}25`, borderRadius: 9, padding: "9px 10px" }}>
+                <div style={{ color: C.sky, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Por que entrou</div>
+                <div style={{ color: C.text, fontSize: 11, lineHeight: 1.35 }}>{compactText(item.why_entered || item.narrative, 142)}</div>
+              </div>
+              <div style={{
+                marginTop: "auto",
+                background: "#070d18",
+                border: `1px solid ${C.border}`,
+                borderRadius: 9,
+                padding: "9px 10px",
+              }}>
+                <div style={{ color: C.gold, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>O que mudou</div>
+                <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.35 }}>{compactText(item.learning, 150)}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: 14, color: C.sky, fontSize: 12, lineHeight: 1.45 }}>
+        <strong>Conclusao:</strong> {evolution?.conclusion || "O tecnico continua relevante, mas precisa de confirmacao para sustentar confianca alta."}
+      </div>
+    </section>
+  );
+}
+
+function LearningEvidencePanel({ prova, compact }) {
+  const evidenceCards = [
+    {
+      label: "Padroes detectados",
+      value: String(prova.comSintomaDetectado),
+      sub: `${prova.comSintomaConfirmado} confirmados`,
+      tone: C.sky,
+    },
+    {
+      label: "Diagnostico",
+      value: `${prova.acertoDiagnosticoPct}%`,
+      sub: "acerto dos sinais",
+      tone: prova.semaforoDiagnostico.color,
+    },
+    {
+      label: "Ajustes em uso",
+      value: `${prova.adocaoRemedioPct}%`,
+      sub: `${prova.posComRemedio}/${prova.totalPosGoLive} teses pos go-live`,
+      tone: prova.semaforoAdocao.color,
+    },
+    {
+      label: "Efeito observado",
+      value: prova.deltaMediaPos === null ? "em formacao" : `${prova.deltaMediaPos >= 0 ? "+" : ""}${prova.deltaMediaPos.toFixed(2)}pp`,
+      sub: prova.deltaMediaPos === null ? prova.semaforoEfeito.observacao : `pos ${fmt(prova.mediaPos)} vs hist ${fmt(prova.mediaHistorica)}`,
+      tone: prova.semaforoEfeito.color,
+    },
+  ];
+
+  return (
+    <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+        <div>
+          <div style={{ color: C.text, fontSize: 15, fontWeight: 800 }}>Prova objetiva do aprendizado</div>
+          <div style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>Erro identificado, ajuste aplicado e efeito observado.</div>
+        </div>
+        <Badge label="evidencia" type="info" />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
+        {evidenceCards.map((item) => (
+          <div key={item.label} style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 13px" }}>
+            <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>{item.label}</div>
+            <div style={{ color: item.tone, fontSize: 22, fontWeight: 800, fontFamily: mono, marginTop: 8 }}>{item.value}</div>
+            <div style={{ color: C.muted, fontSize: 11, marginTop: 5 }}>{item.sub}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 10, marginTop: 12 }}>
+        {prova.licoes.slice(0, 3).map((item) => (
+          <div key={item.chave} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 12, background: "#090f1c" }}>
+            <div style={{ color: C.coral, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Erro</div>
+            <div style={{ color: C.text, fontSize: 12, marginTop: 5 }}>{item.dor}</div>
+            <div style={{ height: 1, background: C.border, margin: "10px 0" }} />
+            <div style={{ color: C.teal, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Mudanca</div>
+            <div style={{ color: C.muted, fontSize: 12, marginTop: 5 }}>{item.remedio}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function OpenOperationsBoard({ rows, compact }) {
+  const grouped = Object.values(rows.reduce((acc, thesis) => {
+    const key = thesis.ativo;
+    if (!acc[key]) {
+      acc[key] = {
+        ativo: thesis.ativo,
+        direcao: thesis.direcao,
+        count: 0,
+        warnings: 0,
+        expectedTotal: 0,
+        momentumTotal: 0,
+        latest: thesis,
+        ids: [],
+      };
+    }
+    acc[key].count += 1;
+    acc[key].expectedTotal += toNumber(thesis.expected, 0);
+    acc[key].momentumTotal += toNumber(thesis.momentum, 0);
+    acc[key].warnings += String(thesis.desfecho || "").toLowerCase().includes("stop") ? 1 : 0;
+    acc[key].ids.push(thesis.id);
+    if (toNumber(thesis.id, 0) > toNumber(acc[key].latest.id, 0)) acc[key].latest = thesis;
+    return acc;
+  }, {})).sort((a, b) => b.warnings - a.warnings || b.count - a.count);
+
+  return (
+    <section>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div>
+          <div style={{ color: C.text, fontSize: 15, fontWeight: 800 }}>Teses abertas em monitoramento</div>
+          <div style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>Consolidado por ativo para reduzir repeticao e destacar risco.</div>
+        </div>
+        <Badge label={`${teseCountLabel(rows.length)} abertas`} type="open" />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "repeat(auto-fit, minmax(270px, 1fr))", gap: 14 }}>
+        {grouped.map((group) => {
+          const avgExpected = group.expectedTotal / Math.max(group.count, 1);
+          const avgMomentum = group.momentumTotal / Math.max(group.count, 1);
+          const warning = group.warnings > 0;
+          const statusType = warning ? "warning" : "open";
+          const tone = warning ? C.amber : C.teal;
+          return (
+            <div key={group.ativo} style={{
+              background: C.card,
+              border: `1px solid ${warning ? C.amber + "66" : C.border}`,
+              borderLeft: `4px solid ${tone}`,
+              borderRadius: 13,
+              padding: 15,
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ color: C.text, fontSize: 18, fontWeight: 800 }}>{group.ativo}</span>
+                    <Badge label={`${group.count}x`} type="info" />
+                  </div>
+                  <div style={{ color: C.muted, fontSize: 11, marginTop: 4 }}>Ids #{group.ids.slice(0, 4).join(", #")}</div>
+                </div>
+                <Badge label={warning ? "atenÃ§Ã£o" : "em monitoramento"} type={statusType} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <div style={{ background: C.panel, borderRadius: 9, padding: "9px 10px" }}>
+                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Esperado medio</div>
+                  <div style={{ color: avgExpected >= 0 ? C.teal : C.coral, fontSize: 16, fontWeight: 800, fontFamily: mono, marginTop: 5 }}>{formatPctLabel(avgExpected)}</div>
+                </div>
+                <div style={{ background: C.panel, borderRadius: 9, padding: "9px 10px" }}>
+                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Momento medio</div>
+                  <div style={{ color: avgMomentum >= 0 ? C.teal : C.coral, fontSize: 16, fontWeight: 800, fontFamily: mono, marginTop: 5 }}>{formatPctLabel(avgMomentum)}</div>
+                </div>
+              </div>
+              <div style={{ background: "#080e1a", border: `1px solid ${C.border}`, borderRadius: 9, padding: "9px 10px" }}>
+                <div style={{ color: C.muted, fontSize: 10, marginBottom: 5 }}>Ultima estrutura</div>
+                <div style={{ color: C.sky, fontSize: 12, lineHeight: 1.35 }}>{group.latest.estrutura}</div>
+              </div>
+              <div style={{ display: "flex", gap: 10, color: C.muted, fontSize: 11, marginTop: "auto" }}>
+                <span>Entrada R$ {group.latest.entrada}</span>
+                <span style={{ color: C.green }}>Alvo R$ {group.latest.saiGanho}</span>
+                <span style={{ color: C.coral }}>Stop R$ {group.latest.saiStop}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function CompletedOperationsPreview({ rows, examples, compact }) {
+  const visibleExamples = Array.isArray(examples) && examples.length ? examples.slice(0, 4) : [];
+  const visibleRows = rows.slice(-4).reverse();
+  if (visibleExamples.length) {
+    return (
+      <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div>
+            <div style={{ color: C.text, fontSize: 15, fontWeight: 800 }}>Operacoes avaliadas</div>
+            <div style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>Exemplos fechados com entrada, saida, resultado e aprendizado pratico.</div>
+          </div>
+          <Badge label={`${teseCountLabel(visibleExamples.length)} exemplos`} type="closed" />
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "repeat(auto-fit, minmax(245px, 1fr))", gap: 10 }}>
+          {visibleExamples.map((row, index) => {
+            const result = toNumber(row.realized_financial_pct, 0);
+            const expected = toNumber(row.expected_financial_pct, 0);
+            const resultColor = result >= 0 ? C.teal : C.coral;
+            return (
+              <div key={`${row.instrument}-${row.thesis_id || index}`} style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
+                  <div>
+                    <div style={{ color: C.text, fontSize: 16, fontWeight: 850 }}>{row.instrument || "-"}</div>
+                    <div style={{ color: C.sky, fontSize: 11, marginTop: 3 }}>{row.strategy || "Operacao simulada"}</div>
+                  </div>
+                  <div style={{ color: resultColor, fontSize: 17, fontWeight: 850, fontFamily: mono }}>{formatPctLabel(result)}</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7 }}>
+                  {[
+                    { label: "Entrada", value: `${formatDateLabel(row.entry_date)} | ${formatCurrencyLabel(row.entry_price)}` },
+                    { label: "Alvo", value: formatCurrencyLabel(row.target_price) },
+                    { label: "Trava alta", value: formatCurrencyLabel(row.high_guard) },
+                    { label: "Trava baixa", value: formatCurrencyLabel(row.low_guard) },
+                    { label: "Saida", value: `${formatDateLabel(row.exit_date)} | ${formatCurrencyLabel(row.exit_price)}` },
+                  ].map((item) => (
+                    <div key={item.label} style={{ background: "#070d18", border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 8px" }}>
+                      <div style={{ color: C.muted, fontSize: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>{item.label}</div>
+                      <div style={{ color: C.text, fontSize: 10, marginTop: 3, fontFamily: mono }}>{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
+                  <div style={{ color: C.gold, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Por que entrou</div>
+                  <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.35, marginTop: 5 }}>{compactText(row.reason, 112)}</div>
+                </div>
+                <div style={{ color: C.muted, fontSize: 10, lineHeight: 1.35, marginTop: "auto" }}>
+                  Esperado {formatPctLabel(expected)} | realizado {formatPctLabel(result)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div>
+          <div style={{ color: C.text, fontSize: 15, fontWeight: 800 }}>Operacoes realizadas</div>
+          <div style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>Resumo curto das teses ja fechadas e do aprendizado gerado.</div>
+        </div>
+        <Badge label={`${teseCountLabel(rows.length)} encerradas`} type="closed" />
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+        {visibleRows.map((row) => {
+          const resultColor = row.resultado >= 0 ? C.teal : C.coral;
+          return (
+            <div key={`${row.id}-${row.ativo}`} style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+                <div style={{ color: C.text, fontSize: 14, fontWeight: 800 }}>{row.ativo}</div>
+                <div style={{ color: resultColor, fontSize: 15, fontWeight: 800, fontFamily: mono }}>{formatPctLabel(row.resultado)}</div>
+              </div>
+              <div style={{ color: C.muted, fontSize: 11, marginTop: 7 }}>{row.estrutura}</div>
+              <div style={{ height: 1, background: C.border, margin: "10px 0" }} />
+              <div style={{ color: C.gold, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Aprendizado</div>
+              <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.35, marginTop: 5 }}>
+                {row.aprendizado.length > 118 ? `${row.aprendizado.slice(0, 118)}...` : row.aprendizado}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function Sidebar({ active, setActive }) {
   const items = [
-    { id: "dashboard", label: "Dashboard", icon: "◉" },
-    { id: "mercado",   label: "Mercado",   icon: "〜" },
-    { id: "operacoes", label: "Operações",  icon: "⇄" },
-    { id: "backtest",  label: "Backtest",   icon: "↺" },
-    { id: "risco",     label: "Risco",      icon: "◬" },
-    { id: "game",      label: "Game",       icon: "◈" },
-    { id: "alertas",   label: "Alertas",    icon: "◎" },
+    { id: "dashboard", label: "Dashboard", icon: "â—‰" },
+    { id: "mercado",   label: "Mercado",   icon: "ã€œ" },
+    { id: "operacoes", label: "OperaÃ§Ãµes",  icon: "â‡„" },
+    { id: "backtest",  label: "Backtest",   icon: "â†º" },
+    { id: "risco",     label: "Risco",      icon: "â—¬" },
+    { id: "game",      label: "Game",       icon: "â—ˆ" },
+    { id: "alertas",   label: "Alertas",    icon: "â—Ž" },
   ];
 
   return (
@@ -293,13 +801,13 @@ function Sidebar({ active, setActive }) {
             fontSize: 14, fontWeight: 700, color: C.gold, fontFamily: mono,
           }}>G</div>
           <div>
-            <div style={{ color: C.text, fontSize: 14, fontWeight: 700, letterSpacing: "0.04em" }}>GRÃO</div>
+            <div style={{ color: C.text, fontSize: 14, fontWeight: 700, letterSpacing: "0.04em" }}>GRÃƒO</div>
             <div style={{ color: C.muted, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" }}>Invest</div>
           </div>
         </div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.amber + "18", border: `1px solid ${C.amber}40`, borderRadius: 6, padding: "3px 8px" }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.amber, display: "inline-block" }} />
-          <span style={{ color: C.amber, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>FASE 1 · SIMULAÇÃO</span>
+          <span style={{ color: C.amber, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em" }}>FASE 1 Â· SIMULAÃ‡ÃƒO</span>
         </div>
       </div>
 
@@ -331,7 +839,7 @@ function Sidebar({ active, setActive }) {
           <div style={{ width: 30, height: 30, background: C.sky + "30", border: `1px solid ${C.sky}44`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: C.sky }}>AI</div>
           <div>
             <div style={{ color: C.text, fontSize: 12, fontWeight: 500 }}>Convidado</div>
-            <div style={{ color: C.muted, fontSize: 10 }}>Configurações</div>
+            <div style={{ color: C.muted, fontSize: 10 }}>ConfiguraÃ§Ãµes</div>
           </div>
         </div>
       </div>
@@ -356,7 +864,7 @@ function TabelaExercicio({ titulo, periodo, teses, esperado, alcancado, aprovada
         {[
           { label: "Teses", value: teses, color: C.text },
           { label: "Esperado", value: `${esperado}%`, color: C.sky },
-          { label: "Alcançado", value: `${alcancado}%`, color: parseFloat(alcancado) >= 0 ? C.teal : C.coral },
+          { label: "AlcanÃ§ado", value: `${alcancado}%`, color: parseFloat(alcancado) >= 0 ? C.teal : C.coral },
           { label: "Gap", value: `${gap > 0 ? "+" : ""}${gap}pp`, color: gapColor },
         ].map((s) => (
           <div key={s.label} style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
@@ -465,24 +973,24 @@ function TabelaTeses({ rows, titulo }) {
   );
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const tesisAbertas = [
   {
-    id: 162, ativo: "MGLU3", direcao: "Alta", entrada: "9,25",
-    expected: 3.01, momentum: 0.83, estrutura: "Bull Call Spread · ganho 5,40% · perda 2,20%",
+    id: 162, ativo: "KNRI11", direcao: "Alta", entrada: "154,25",
+    expected: 3.01, momentum: 0.83, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
     saiGanho: "9,90", saiStop: "8,86", status: "Aberta", desfecho: "Em monitoramento",
     inicio: "14/04",
   },
   {
-    id: 161, ativo: "MGLU3", direcao: "Alta", entrada: "9,39",
-    expected: 2.76, momentum: -0.36, estrutura: "Bull Call Spread · ganho 5,40% · perda 2,20%",
+    id: 161, ativo: "AAPL34", direcao: "Alta", entrada: "46,39",
+    expected: 2.76, momentum: -0.36, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
     saiGanho: "9,99", saiStop: "9,03", status: "Aberta", desfecho: "Em monitoramento",
     inicio: "15/04",
   },
   {
     id: 160, ativo: "PETR4", direcao: "Neutro", entrada: "41,03",
-    expected: 0.82, momentum: -3.88, estrutura: "Iron Condor · ganho 2,40% · perda 3,80%",
+    expected: 0.82, momentum: -3.88, estrutura: "Iron Condor Â· ganho 2,40% Â· perda 3,80%",
     saiGanho: "41,03", saiStop: "40,41", status: "Aberta", desfecho: "Alerta de stop",
     inicio: "21/04",
   },
@@ -530,7 +1038,7 @@ const tesesPosGoLive = [
   },
   {
     id: 161,
-    ativo: "MGLU3",
+    ativo: "AAPL34",
     direcao: "Alta",
     esperado: "+2,76%",
     estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
@@ -548,7 +1056,7 @@ const tesesPosGoLive = [
   },
   {
     id: 162,
-    ativo: "MGLU3",
+    ativo: "KNRI11",
     direcao: "Alta",
     esperado: "+3,01%",
     estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
@@ -566,9 +1074,10 @@ const tesesPosGoLive = [
   },
 ];
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function GraoDashboard() {
+  const isCompact = useCompactLayout();
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -579,6 +1088,7 @@ function GraoDashboard() {
   }, []);
 
   const [apiData, setApiData] = useState(null);
+  const [executiveData, setExecutiveData] = useState(null);
   const [apiError, setApiError] = useState("");
   const [lastSync, setLastSync] = useState("");
 
@@ -594,8 +1104,21 @@ function GraoDashboard() {
           throw new Error(`HTTP ${response.status}`);
         }
         const payload = await response.json();
+        let executivePayload = null;
+        try {
+          const executiveResponse = await fetch("/api/reports/executive", {
+            method: "GET",
+            headers: { Accept: "application/json" },
+          });
+          if (executiveResponse.ok) {
+            executivePayload = await executiveResponse.json();
+          }
+        } catch (_) {
+          executivePayload = null;
+        }
         if (!canceled) {
           setApiData(payload);
+          setExecutiveData(executivePayload);
           setApiError("");
           setLastSync(new Date().toISOString());
         }
@@ -692,6 +1215,8 @@ function GraoDashboard() {
   const tesesPosGoLiveViewAll = runtime?.current?.length ? runtime.current : tesesPosGoLive;
   const tesesPosGoLiveViewOpen = runtime?.currentOpen?.length ? runtime.currentOpen : tesesPosGoLive;
   const tesisAbertasView = runtime?.cards?.length ? runtime.cards : tesisAbertas;
+  const tesesHistoricasDrilldown = tesesHistoricasView.slice(-12).reverse();
+  const tesesPosGoLiveDrilldown = tesesPosGoLiveViewOpen.slice(0, 12);
   const resumoKpis = runtime?.summary || {
     totalTested: 162,
     successCount: 152,
@@ -707,6 +1232,7 @@ function GraoDashboard() {
     windowStart: "2026-04-20",
     windowEnd: "2026-05-01",
   };
+  const learningEvolution = executiveData?.learning_evolution || null;
 
   const provaAprendizado = useMemo(() => {
     const mapaLicoes = {
@@ -832,142 +1358,73 @@ function GraoDashboard() {
       display: "flex", background: C.bg, minHeight: 640,
       fontFamily: "Sora, system-ui, sans-serif", color: C.text,
       borderRadius: 18, overflow: "hidden", border: `1px solid ${C.border}`,
+      width: "100%", maxWidth: "100%", minWidth: 0,
     }}>
       {/* Main */}
-      <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column", minWidth: 0 }}>
         {/* Topbar interna removida: usamos a topbar do shell principal */}
 
         {/* Content */}
-        <div style={{ padding: "24px 28px 40px", display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ padding: isCompact ? "14px 12px 34px" : "24px 28px 40px", display: "flex", flexDirection: "column", gap: isCompact ? 18 : 24, minWidth: 0 }}>
 
-          {/* Section title */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>Resumo de teses</div>
-              <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>
-                {`Periodo: ${resumoKpis.windowStart} -> ${resumoKpis.windowEnd} | historico total`}
-              </div>
-              {apiError && <div style={{ color: C.coral, fontSize: 11, marginTop: 4 }}>{`Atualizacao em contingencia: ${apiError}`}</div>}
-              {!apiError && lastSync && <div style={{ color: C.muted, fontSize: 10, marginTop: 4 }}>{`Atualizado em: ${lastSync.slice(0, 19).replace("T", " ")}`}</div>}
-            </div>
-            <Badge label={`${teseCountLabel(resumoKpis.totalTested)} testadas`} type="info" />
-          </div>
-
-          {/* KPI grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
-            <KPICard label="Teses testadas" value={String(resumoKpis.totalTested)} sub={`${resumoKpis.windowStart} -> ${resumoKpis.windowEnd}`} accent={C.sky} icon="◉" />
-            <KPICard label="Expectancia liquida" value={formatPctLabel(resumoKpis.expectancyNetPct)} sub="Media por tese resolvida" valueColor={C.teal} accent={C.teal} icon="◌" />
-            <KPICard label="Taxa de sucesso" value={`${resumoKpis.successRatePct.toFixed(2).replace(".", ",")}%`} sub={`${resumoKpis.successCount} de ${resumoKpis.totalTested} teses`} valueColor={C.green} accent={C.green} icon="✓" />
-            <KPICard
-              label="Alvo / Stop / Tempo"
-              value={<span style={{ fontSize: 15, letterSpacing: 0 }}>
-                <span style={{ color: C.teal }}>{`${resumoKpis.targetRatePct.toFixed(2).replace(".", ",")}%`}</span>
-                <span style={{ color: C.dim }}> / </span>
-                <span style={{ color: C.coral }}>{`${resumoKpis.stopRatePct.toFixed(2).replace(".", ",")}%`}</span>
-                <span style={{ color: C.dim }}> / </span>
-                <span style={{ color: C.gold }}>{`${resumoKpis.timeExitRatePct.toFixed(2).replace(".", ",")}%`}</span>
-              </span>}
-              sub={`Em monitoramento: ${resumoKpis.openRatePct.toFixed(2).replace(".", ",")}% (${resumoKpis.openCount})`}
-              accent={C.gold}
-              icon="◬"
-            />
-            <KPICard
-              label="Tempo medio"
-              value={resumoKpis.resolutionSampleCount > 0 ? `${Math.round(resumoKpis.avgResolutionDays)} dias` : "-"}
-              sub={`Amostra: ${resumoKpis.resolutionSampleCount} ${resumoKpis.resolutionSampleCount === 1 ? "tese" : "teses"}`}
-              valueColor={C.amber}
-              accent={C.amber}
-              icon="◷"
-            />
-          </div>
-
-          {/* Active theses */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Operacoes ativas das teses</div>
-              <Badge label={`${teseCountLabel(tesisAbertasView.length)} abertas`} type="open" />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-              {tesisAbertasView.map((t) => <ThesisCard key={t.id} thesis={t} />)}
-            </div>
-          </div>
-          {/* Prova de aprendizado */}
-          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isCompact ? "1fr" : "repeat(auto-fit, minmax(360px, 1fr))",
+            gap: 18,
+            alignItems: "stretch",
+            minWidth: 0,
+          }}>
+            <div style={{
+              background: `linear-gradient(140deg, #111827, #0b1725 62%, #061c1f)`,
+              border: `1px solid ${C.border}`,
+              borderRadius: 18,
+              padding: 22,
+              minHeight: 190,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              minWidth: 0,
+            }}>
               <div>
-                <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Prova de aprendizado</div>
-                <div style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>Dor, sintoma e remedio com status executivo de evolucao.</div>
+                <div style={{ color: C.muted, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 10 }}>
+                  Reporte executivo
+                </div>
+                <div style={{ color: C.text, fontSize: 28, fontWeight: 850, lineHeight: 1.08, maxWidth: 760 }}>
+                  Dos exercicios para aprendizado operacional.
+                </div>
+                <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.45, marginTop: 12, maxWidth: 760 }}>
+                  Exploramos movimentos diarios da bolsa, combinamos sinais tecnicos, fundamentos e contexto externo; cada tese vira operacao simulada, pos-morte e ajuste para a proxima decisao.
+                </div>
+                {apiError && <div style={{ color: C.coral, fontSize: 11, marginTop: 10 }}>{`Atualizacao em contingencia: ${apiError}`}</div>}
+                {!apiError && lastSync && <div style={{ color: C.muted, fontSize: 10, marginTop: 10 }}>{`Atualizado em: ${lastSync.slice(0, 19).replace("T", " ")}`}</div>}
               </div>
-              <Badge label="Evidencia objetiva" type="info" />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
-              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Adocao de remedio</div>
-                  <Badge label={provaAprendizado.semaforoAdocao.label} type={provaAprendizado.semaforoAdocao.type} />
-                </div>
-                <div style={{ color: provaAprendizado.semaforoAdocao.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{provaAprendizado.adocaoRemedioPct}%</div>
-                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>
-                  {teseCountLabel(provaAprendizado.posComRemedio)} com remedio em {teseCountLabel(provaAprendizado.totalPosGoLive)}
-                </div>
-              </div>
-              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Acerto de diagnostico</div>
-                  <Badge label={provaAprendizado.semaforoDiagnostico.label} type={provaAprendizado.semaforoDiagnostico.type} />
-                </div>
-                <div style={{ color: provaAprendizado.semaforoDiagnostico.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>{provaAprendizado.acertoDiagnosticoPct}%</div>
-                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>
-                  {provaAprendizado.comSintomaConfirmado} confirmados de {provaAprendizado.comSintomaDetectado} sinais
-                </div>
-              </div>
-              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Efeito pos go-live</div>
-                  <Badge label={provaAprendizado.semaforoEfeito.label} type={provaAprendizado.semaforoEfeito.type} />
-                </div>
-                <div style={{ color: provaAprendizado.semaforoEfeito.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>
-                  {provaAprendizado.deltaMediaPos === null ? "Em formacao" : `${provaAprendizado.deltaMediaPos >= 0 ? "+" : ""}${provaAprendizado.deltaMediaPos.toFixed(2)}pp`}
-                </div>
-                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>
-                  {provaAprendizado.deltaMediaPos === null
-                    ? provaAprendizado.semaforoEfeito.observacao
-                    : `Pos ${fmt(provaAprendizado.mediaPos)} vs hist ${fmt(provaAprendizado.mediaHistorica)}`}
-                </div>
-              </div>
-              <div style={{ background: C.panel, borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                  <div style={{ color: C.muted, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}>Maturidade da amostra</div>
-                  <Badge label={provaAprendizado.semaforoMaturidade.label} type={provaAprendizado.semaforoMaturidade.type} />
-                </div>
-                <div style={{ color: provaAprendizado.semaforoMaturidade.color, fontSize: 20, fontWeight: 700, fontFamily: mono }}>
-                  {teseCountLabel(provaAprendizado.posFechadas)}
-                </div>
-                <div style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>Teses fechadas apos o kickoff (27/04/2026)</div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
+                <Badge label={`${teseCountLabel(resumoKpis.totalTested)} avaliadas`} type="info" />
+                <Badge label={`${resumoKpis.successRatePct.toFixed(1).replace(".", ",")}% sucesso`} type="success" />
+                <Badge label={`${teseCountLabel(tesisAbertasView.length)} abertas`} type="open" />
               </div>
             </div>
-            <div style={{ background: C.panel, borderRadius: 10, border: `1px solid ${C.border}`, overflow: "hidden" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1.2fr 1.1fr 120px", gap: 0, borderBottom: `1px solid ${C.border}` }}>
-                {["Dor", "Sintoma precoce", "Remedio aplicado", "Aplicada em"].map((h) => (
-                  <div key={h} style={{ padding: "10px 12px", color: C.muted, fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</div>
-                ))}
-              </div>
-              {provaAprendizado.licoes.map((item) => (
-                <div key={item.chave} style={{ display: "grid", gridTemplateColumns: "1.1fr 1.2fr 1.1fr 120px", borderBottom: `1px solid ${C.border}` }}>
-                  <div style={{ padding: "10px 12px", color: C.text, fontSize: 12 }}>{item.dor}</div>
-                  <div style={{ padding: "10px 12px", color: C.muted, fontSize: 12 }}>{item.sintoma}</div>
-                  <div style={{ padding: "10px 12px", color: C.teal, fontSize: 12 }}>{item.remedio}</div>
-                  <div style={{ padding: "10px 12px", color: C.gold, fontSize: 12, fontFamily: mono }}>{teseCountLabel(item.qtd)}</div>
-                </div>
-              ))}
+            <div style={{ display: "grid", gridTemplateColumns: isCompact ? "1fr" : "1fr 1fr", gap: 12, minWidth: 0 }}>
+              <KPICard label="Resultado medio" value={formatPctLabel(resumoKpis.expectancyNetPct)} sub="Media por tese resolvida" valueColor={C.teal} accent={C.teal} />
+              <KPICard label="Taxa de sucesso" value={`${resumoKpis.successRatePct.toFixed(2).replace(".", ",")}%`} sub={`${resumoKpis.successCount} de ${resumoKpis.totalTested}`} valueColor={C.green} accent={C.green} />
+              <KPICard label="Stops" value={`${resumoKpis.stopRatePct.toFixed(2).replace(".", ",")}%`} sub="Casos que viraram aprendizado" valueColor={C.coral} accent={C.coral} />
+              <KPICard label="Abertas" value={String(tesisAbertasView.length)} sub="Em monitoramento hoje" valueColor={C.amber} accent={C.amber} />
             </div>
           </div>
 
-          {/* Teses históricas table */}
-          <TabelaTeses titulo="Teses historicas (encerradas)" rows={tesesHistoricasView} />
+          <ExecutiveMethodStrip executiveData={executiveData} resumoKpis={resumoKpis} compact={isCompact} />
 
-          {/* Teses pós go-live table */}
-          <TabelaTeses titulo="Teses pos go-live (em aberto)" rows={tesesPosGoLiveViewOpen} />
+          <LearningJourney evolution={learningEvolution} compact={isCompact} />
+
+          <OpenOperationsBoard rows={tesisAbertasView} compact={isCompact} />
+
+          <LearningEvidencePanel prova={provaAprendizado} compact={isCompact} />
+
+          <CompletedOperationsPreview rows={tesesHistoricasView} examples={executiveData?.examples || []} compact={isCompact} />
+          {/* Drilldown executivo limitado para manter a pagina leve. */}
+          <TabelaTeses titulo="Detalhamento recente: teses encerradas" rows={tesesHistoricasDrilldown} />
+
+          <TabelaTeses titulo="Detalhamento recente: teses abertas" rows={tesesPosGoLiveDrilldown} />
 
         </div>
       </div>

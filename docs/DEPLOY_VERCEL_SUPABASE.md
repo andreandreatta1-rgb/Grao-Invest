@@ -25,6 +25,26 @@ FINNHUB_API_TOKEN=...
 BRAPI_TOKEN=...
 ```
 
+## WhatsApp Cloud API
+
+Para ativar notificacoes WhatsApp, configure tambem:
+
+```text
+WHATSAPP_ACCESS_TOKEN=...
+WHATSAPP_PHONE_NUMBER_ID=...
+WHATSAPP_VERIFY_TOKEN=...
+WHATSAPP_APP_SECRET=...
+CRON_SECRET=...
+WHATSAPP_TEMPLATE_THESIS_NEW=grao_thesis_new
+WHATSAPP_TEMPLATE_THESIS_UPDATE=grao_thesis_update
+WHATSAPP_TEMPLATE_STOCK_ALERT=grao_stock_alert
+WHATSAPP_TEMPLATE_DAILY_DIGEST=grao_daily_digest
+```
+
+O webhook publico deve apontar para `/api/webhooks/whatsapp`.
+O resumo diario roda via Vercel Cron em `/api/cron/whatsapp-digest`, protegido por
+`CRON_SECRET`, com agenda padrao `0 21 * * *` (18:00 America/Sao_Paulo).
+
 ## Como publicar
 
 1. Conecte o repositorio `Grao-Invest` na Vercel.

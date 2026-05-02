@@ -1,0 +1,265 @@
+{
+  "pipeline": {
+    "scan_scope": {
+      "instruments": [
+        "PETR4",
+        "LREN3",
+        "VBBR3",
+        "BPAC11",
+        "BBDC4",
+        "RAIL3"
+      ],
+      "horizon_bars": 8,
+      "total_ticks": 20854
+    },
+    "candidate_count": 18946,
+    "policy_candidate_count": 5558,
+    "validated_count": 5558,
+    "selected_thesis_id": "TH-PETR4-bullish-3514",
+    "policy": {
+      "active_policy": "anti_blindspot_v3_soft",
+      "source": "state_file",
+      "input_count": 18946,
+      "selected_count": 5558,
+      "rejected_count": 13388,
+      "fallback_used": false,
+      "top_rejection_reasons": [
+        [
+          "support_rate_critical_low",
+          8899
+        ],
+        [
+          "confidence_below_baseline",
+          3124
+        ],
+        [
+          "adjusted_confidence_too_low",
+          2551
+        ]
+      ]
+    }
+  },
+  "selected_case": {
+    "thesis": {
+      "thesis_id": "TH-PETR4-bullish-3514",
+      "instrument": "PETR4",
+      "direction": "bullish",
+      "entry_index": 3840,
+      "entry_time": "2024-04-19T00:00:00+00:00",
+      "entry_price": 40.53,
+      "target_price": 43.3671,
+      "stop_price": 38.8277,
+      "target_move_pct": 7.0,
+      "horizon_bars": 8,
+      "confidence_tese_pct": 80.5787,
+      "success_probability_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "support_rate_pct": 25.9942,
+      "technical_support_pct": 94.37,
+      "fundamental_support_pct": 95.0,
+      "news_support_pct": 77.08,
+      "geo_oil_support_pct": 50.0,
+      "news_available": true,
+      "geo_oil_available": false,
+      "fundamental_available": true,
+      "fundamental_context": {
+        "available": true,
+        "support_pct": 95.0,
+        "rationale": [
+          "valuation_pe_baixo",
+          "valuation_pb_controlado",
+          "valuation_ev_ebitda_controlado",
+          "rentabilidade_roe_forte",
+          "margem_liquida_saudavel",
+          "crescimento_receita_consistente",
+          "dividend_yield_suporte",
+          "payout_equilibrado",
+          "fundamental_alinhamento_bullish_95.0pct",
+          "fundamental_version_sim-seed-2023q4-v1"
+        ],
+        "snapshot": {
+          "source_name": "SIMULATION-SEED",
+          "source_type": "simulation",
+          "reference_time": "2023-12-31T00:00:00+00:00",
+          "availability_time": "2024-03-01T00:00:00+00:00",
+          "version_tag": "sim-seed-2023q4-v1",
+          "pe_ratio": 7.8,
+          "pb_ratio": 1.3,
+          "ev_ebitda": 4.8,
+          "dividend_yield": 12.0,
+          "roe": 23.0,
+          "net_margin": 17.0,
+          "revenue_growth": 8.0,
+          "payout_ratio": 55.0
+        }
+      },
+      "supporting_signals": [
+        "momento_bullish_6.38pct",
+        "volatilidade_1.63pct",
+        "suporte_historico_25.99pct",
+        "suporte_tecnico_94.37pct",
+        "suporte_fundamental_95.00pct",
+        "suporte_news_77.08pct",
+        "suporte_geo_oil_50.00pct",
+        "news_sentiment_positive_0.542_articles_3",
+        "geo_oil_sem_evento_relevante_no_recorte",
+        "valuation_pe_baixo",
+        "valuation_pb_controlado",
+        "valuation_ev_ebitda_controlado",
+        "rentabilidade_roe_forte",
+        "margem_liquida_saudavel",
+        "crescimento_receita_consistente",
+        "dividend_yield_suporte",
+        "payout_equilibrado",
+        "fundamental_alinhamento_bullish_95.0pct",
+        "fundamental_version_sim-seed-2023q4-v1",
+        "skill_calibration_mult_1.0525",
+        "skill_calibration_bias_1.0938"
+      ]
+    },
+    "thesis_raised_at": "2024-04-19T00:00:00+00:00",
+    "suggested_entry_time": "2024-04-19T00:00:00+00:00",
+    "suggested_exit_time": "2024-05-02T00:00:00+00:00",
+    "structured_operation": {
+      "strategy_id": "BULL_CALL_SPREAD",
+      "strategy_name": "Bull Call Spread",
+      "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+      "max_gain_pct": 5.4,
+      "max_loss_pct": 2.2,
+      "breakeven_price": 41.58,
+      "legs": [
+        {
+          "side": "long",
+          "instrument": "PETR4",
+          "option_type": "call",
+          "strike": 40.94,
+          "quantity": 1
+        },
+        {
+          "side": "short",
+          "instrument": "PETR4",
+          "option_type": "call",
+          "strike": 42.96,
+          "quantity": 1
+        }
+      ]
+    },
+    "outcome": {
+      "exit_price": 42.18,
+      "exit_reason": "target_or_window_close",
+      "success": true,
+      "realized_financial_pct": 3.1405
+    },
+    "kpis": {
+      "confidence_tese_pct": 80.5787,
+      "expected_financial_pct": 4.8248,
+      "realized_financial_pct": 3.1405
+    },
+    "fundamental_context": {
+      "available": true,
+      "support_pct": 95.0,
+      "rationale": [
+        "valuation_pe_baixo",
+        "valuation_pb_controlado",
+        "valuation_ev_ebitda_controlado",
+        "rentabilidade_roe_forte",
+        "margem_liquida_saudavel",
+        "crescimento_receita_consistente",
+        "dividend_yield_suporte",
+        "payout_equilibrado",
+        "fundamental_alinhamento_bullish_95.0pct",
+        "fundamental_version_sim-seed-2023q4-v1"
+      ],
+      "snapshot": {
+        "source_name": "SIMULATION-SEED",
+        "source_type": "simulation",
+        "reference_time": "2023-12-31T00:00:00+00:00",
+        "availability_time": "2024-03-01T00:00:00+00:00",
+        "version_tag": "sim-seed-2023q4-v1",
+        "pe_ratio": 7.8,
+        "pb_ratio": 1.3,
+        "ev_ebitda": 4.8,
+        "dividend_yield": 12.0,
+        "roe": 23.0,
+        "net_margin": 17.0,
+        "revenue_growth": 8.0,
+        "payout_ratio": 55.0
+      }
+    },
+    "effective_result_reason": "Resultado efetivo abaixo do esperado para a tese no horizonte analisado. Nao houve eventos relevantes de risco no monitoramento da operacao.",
+    "monitoring_timeline": [
+      {
+        "event_time": "2024-04-19T00:00:00+00:00",
+        "event_type": "entry_snapshot",
+        "severity": "info",
+        "message": "Operacao estruturada iniciada em simulacao.",
+        "market_price": 40.53
+      },
+      {
+        "event_time": "2024-05-02T00:00:00+00:00",
+        "event_type": "exit_snapshot",
+        "severity": "info",
+        "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+        "market_price": 42.18
+      }
+    ]
+  },
+  "knowledge_skill": {
+    "skill_name": "SSE_PETR4_bullish_BULL_CALL_SPREAD",
+    "thesis_signature": {
+      "instrument": "PETR4",
+      "direction": "bullish",
+      "confidence_tese_pct": 80.5787,
+      "support_rate_pct": 25.9942,
+      "horizon_bars": 8
+    },
+    "replication_playbook": [
+      "Detectar tese com varredura de momento e volatilidade no historico point-in-time.",
+      "Validar suporte da tese por taxa historica de acerto e estabilidade do sinal.",
+      "Selecionar estrutura SSE com risco definido e compatibilidade com suitability.",
+      "Monitorar eventos de stop/target/range-break ate o encerramento da janela.",
+      "Registrar KPIs de confianca, esperado e realizado para aprendizado continuo."
+    ],
+    "monitoring_triggers": [
+      "stop_risk_warning",
+      "target_watch",
+      "range_break_alert",
+      "exit_snapshot"
+    ],
+    "guardrails": [
+      "Somente simulacao paper trading.",
+      "Sem linguagem de recomendacao personalizada.",
+      "Adequar estrutura ao perfil de suitability do usuario."
+    ]
+  },
+  "postmortem": {
+    "generated_at": "2026-05-02T03:49:36+00:00",
+    "thesis_id": "TH-PETR4-bullish-3514",
+    "instrument": "PETR4",
+    "direction": "bullish",
+    "strategy_id": "BULL_CALL_SPREAD",
+    "policy_name": "anti_blindspot_v3_soft",
+    "signature": "PETR4|bullish|support_lt35|confirm_present|tech_ge90",
+    "success": true,
+    "confidence_tese_pct": 80.5787,
+    "expected_financial_pct": 4.8248,
+    "realized_financial_pct": 3.1405,
+    "expected_vs_real_gap_pct": 1.6843,
+    "market_move_pct": 4.0711,
+    "structure_cushion_pct": 0.0,
+    "stop_risk_event_count": 0,
+    "high_risk_event_count": 0,
+    "early_invalidation": false,
+    "analysis_tags": [
+      "expected_overstretch_without_confirmation",
+      "low_support_rate_band"
+    ],
+    "learning_actions": [],
+    "shadow_profile_snapshot": {
+      "sample_size": 256,
+      "condition_rule_count": 9,
+      "blocked_signature_count": 4
+    }
+  },
+  "disclaimer": "Este conteudo tem finalidade exclusivamente educacional e analitica. Nao constitui recomendacao de investimento, consultoria, analise nem indicacao de compra ou venda. O investidor e responsavel por suas decisoes."
+}

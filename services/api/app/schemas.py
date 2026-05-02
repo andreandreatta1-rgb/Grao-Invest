@@ -4,6 +4,8 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
+from app.services.asset_classes import DEFAULT_MULTI_ASSET_UNIVERSE
+
 
 class SignupRequest(BaseModel):
     tenant_name: str = Field(min_length=2, max_length=200)
@@ -149,11 +151,44 @@ class AlertRuleRequest(BaseModel):
     threshold_value: float | None = None
 
 
+class WhatsAppNotificationCategories(BaseModel):
+    thesis_new: bool = True
+    thesis_update: bool = True
+    stock_alert: bool = True
+    daily_digest: bool = True
+
+
+class WhatsAppNotificationThresholds(BaseModel):
+    thesis_confidence_pct: float = Field(default=55.0, ge=0, le=100)
+    thesis_expected_pct: float = Field(default=0.0, ge=-100, le=100)
+    thesis_progress_delta_pct: float = Field(default=20.0, ge=1, le=150)
+    stock_price_move_pct: float = Field(default=3.0, ge=0.1, le=100)
+    news_magnitude: float = Field(default=0.75, ge=0, le=1)
+    signal_confidence: float = Field(default=0.6, ge=0, le=1)
+
+
+class WhatsAppNotificationSettingsRequest(BaseModel):
+    user_id: int
+    phone_number: str = Field(min_length=10, max_length=24, pattern=r"^\+?[0-9 ()-]{10,24}$")
+    display_name: str | None = Field(default=None, max_length=120)
+    opt_in: bool = True
+    categories: WhatsAppNotificationCategories = Field(
+        default_factory=WhatsAppNotificationCategories
+    )
+    thresholds: WhatsAppNotificationThresholds = Field(
+        default_factory=WhatsAppNotificationThresholds
+    )
+
+
+class WhatsAppNotificationTestRequest(BaseModel):
+    user_id: int
+
+
 class PortfolioAllocateRequest(BaseModel):
     user_id: int | None = None
     capital_brl: float = Field(ge=1000, le=10000000)
     risk_profile: str = Field(pattern="^(conservador|moderado|arrojado)$")
-    universe: str = Field(default="ibov", pattern="^(ibov|smll|custom)$")
+    universe: str = Field(default="multiasset", pattern="^(ibov|smll|multiasset|custom)$")
     custom_instruments: list[str] | None = Field(default=None, min_length=1, max_length=120)
 
 
@@ -255,28 +290,7 @@ class B3MarketSyncRequest(BaseModel):
     user_id: int
     year: int = Field(default=2025, ge=2000, le=2100)
     instruments: list[str] = Field(
-        default_factory=lambda: [
-            "PETR4",
-            "VALE3",
-            "ITUB4",
-            "BBDC4",
-            "BBAS3",
-            "ABEV3",
-            "WEGE3",
-            "B3SA3",
-            "RENT3",
-            "SUZB3",
-            "JBSS3",
-            "PRIO3",
-            "RADL3",
-            "GGBR4",
-            "VBBR3",
-            "LREN3",
-            "HAPV3",
-            "BPAC11",
-            "RAIL3",
-            "CMIG4",
-        ],
+        default_factory=lambda: [*DEFAULT_MULTI_ASSET_UNIVERSE, "BPAC11", "BBAS3"],
         min_length=1,
         max_length=40,
     )
@@ -288,28 +302,7 @@ class B3MarketSyncRangeRequest(BaseModel):
     start_year: int = Field(default=2023, ge=2000, le=2100)
     end_year: int = Field(default=2025, ge=2000, le=2100)
     instruments: list[str] = Field(
-        default_factory=lambda: [
-            "PETR4",
-            "VALE3",
-            "ITUB4",
-            "BBDC4",
-            "BBAS3",
-            "ABEV3",
-            "WEGE3",
-            "B3SA3",
-            "RENT3",
-            "SUZB3",
-            "JBSS3",
-            "PRIO3",
-            "RADL3",
-            "GGBR4",
-            "VBBR3",
-            "LREN3",
-            "HAPV3",
-            "BPAC11",
-            "RAIL3",
-            "CMIG4",
-        ],
+        default_factory=lambda: [*DEFAULT_MULTI_ASSET_UNIVERSE, "BPAC11", "BBAS3"],
         min_length=1,
         max_length=40,
     )
@@ -323,7 +316,7 @@ class B3MarketSyncUniverseRangeRequest(BaseModel):
     max_days_per_instrument_per_year: int = Field(default=250, ge=1, le=1000)
     max_instruments: int | None = Field(default=1500, ge=1, le=4000)
     allowed_bdi_codes: list[str] = Field(
-        default_factory=lambda: ["02"],
+        default_factory=lambda: ["02", "12", "14", "34"],
         min_length=1,
         max_length=10,
     )

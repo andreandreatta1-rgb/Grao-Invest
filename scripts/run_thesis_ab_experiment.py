@@ -17,6 +17,7 @@ from app.services.thesis_case_study import (
     _raw_candidates_from_ticks,
     _ticks_for_instrument,
 )
+from app.services.thesis_policy import evaluate_policy
 
 _OIL_SENSITIVE_INSTRUMENTS = {
     "PETR4",
@@ -323,6 +324,7 @@ def main() -> None:
         "anti_blindspot_v1": _anti_blindspot_v1_policy,
         "anti_blindspot_v2_balanced": _anti_blindspot_v2_balanced_policy,
         "anti_blindspot_v3_soft": _anti_blindspot_v3_soft_policy,
+        "postmortem_shadow_v1": lambda item: evaluate_policy(item, "postmortem_shadow_v1"),
     }
 
     baseline_selected = [item for item in evaluated if _baseline_policy(item)]

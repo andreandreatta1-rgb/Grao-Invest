@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from typing import TypedDict
 
 from app.models import MarketProviderState, MarketTick
+from app.services.asset_classes import asset_class_label, classify_instrument
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -25,6 +26,8 @@ class ProviderFeedHealth(TypedDict):
 
 class UniverseCoverageRow(TypedDict):
     instrument: str
+    asset_class: str
+    asset_class_label: str
     provider: str
     last_price: float
     last_event_time: str
@@ -37,6 +40,7 @@ class UniverseCoverageSnapshot(TypedDict):
     total_instruments_covered: int
     latest_market_event_time: str | None
     latest_ingest_time: str | None
+    asset_class_counts: dict[str, int]
     instruments: list[UniverseCoverageRow]
 
 
@@ -218,10 +222,13 @@ def universe_coverage_snapshot(
 
     now = datetime.now(UTC)
     rows: list[UniverseCoverageRow] = []
+    asset_class_counts: dict[str, int] = {}
     latest_market_event_time: str | None = None
     latest_ingest_time: str | None = None
     for tick in latest_ticks:
         instrument = str(tick[0])
+        asset_class = classify_instrument(instrument)
+        asset_class_counts[asset_class] = asset_class_counts.get(asset_class, 0) + 1
         provider = str(tick[1])
         price = float(tick[2])
         event_time = str(tick[3])
@@ -235,6 +242,8 @@ def universe_coverage_snapshot(
         rows.append(
             {
                 "instrument": instrument,
+                "asset_class": asset_class,
+                "asset_class_label": asset_class_label(asset_class),
                 "provider": provider,
                 "last_price": price,
                 "last_event_time": event_time,
@@ -248,5 +257,6 @@ def universe_coverage_snapshot(
         "total_instruments_covered": total_instruments_covered,
         "latest_market_event_time": latest_market_event_time,
         "latest_ingest_time": latest_ingest_time,
+        "asset_class_counts": asset_class_counts,
         "instruments": rows,
     }

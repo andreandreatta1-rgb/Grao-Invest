@@ -19,7 +19,11 @@ def test_index_contains_phase_ui_shell_and_disclaimer() -> None:
     assert 'data-view="backtest"' in html
     assert 'data-view="risco"' in html
     assert 'data-view="game"' in html
+    assert 'data-view="microtrades"' in html
     assert 'data-view="alertas"' in html
+    assert 'id="whatsapp-settings-form"' in html
+    assert 'id="whatsapp-test-btn"' in html
+    assert 'id="whatsapp-deliveries-list"' in html
     assert 'id="b3-universe-sync-form"' in html
     assert 'id="news-sync-form"' in html
     assert 'id="intraday-fetch-form"' in html
@@ -27,6 +31,12 @@ def test_index_contains_phase_ui_shell_and_disclaimer() -> None:
     assert 'id="game-setup-form"' in html
     assert 'id="game-decision-form"' in html
     assert 'id="dashboard-coverage-table"' in html
+    assert "<th scope=\"col\">Classe</th>" in html
+    assert "KNRI11" in html
+    assert "AAPL34" in html
+    assert "USD-BRL" in html
+    assert "Alertas de mercado" in html
+    assert "Movimento ativo %" in html
     assert 'id="dashboard-quality-summary"' in html
     assert 'id="dashboard-quality-table"' in html
     assert 'id="logout-btn"' in html
@@ -62,8 +72,13 @@ def test_app_script_has_navigation_and_feed_status_logic() -> None:
     assert '"/api/data-quality/gate"' in script
     assert '"/api/market/intraday/fetch-live"' in script
     assert '"/api/theses/game-playbook"' in script
+    assert '"/api/notifications/whatsapp"' in script
+    assert '"/api/notifications/whatsapp/test"' in script
+    assert "function loadWhatsAppSettings()" in script
     assert "function bindGameHandlers()" in script
     assert "function renderCoverage(coverage)" in script
+    assert "function assetClassLabel(value)" in script
+    assert 'allowed_bdi_codes: ["02", "12", "14", "34"]' in script
     assert "function renderDataQualityGate(gate)" in script
     assert "function buildTimeSeries(" not in script
     assert "window.setInterval(refreshFeedStatus, 15000);" in script

@@ -11,6 +11,7 @@ from typing import NotRequired, TypedDict, cast
 from urllib.request import Request, urlopen
 
 from app.models import MarketTick
+from app.services.asset_classes import DEFAULT_MULTI_ASSET_UNIVERSE
 from app.services.audit import record_audit_event
 from app.services.utils import isoformat, utc_now
 from sqlalchemy import select
@@ -20,29 +21,12 @@ EXPECTED_COTAHIST_LINE_LENGTH = 245
 B3_PROVIDER_NAME = "b3-cotahist"
 MAX_VALIDATION_PORTFOLIO_SIZE = 40
 MAX_UNIVERSE_INSTRUMENTS = 4000
-DEFAULT_ALLOWED_BDI_CODES = {"02"}
+DEFAULT_ALLOWED_BDI_CODES = {"02", "12", "14", "34"}
 DEFAULT_ALLOWED_MARKET_TYPES = {"010"}
 DEFAULT_SMALL_PORTFOLIO = [
-    "PETR4",
-    "VALE3",
-    "ITUB4",
-    "BBDC4",
-    "BBAS3",
-    "ABEV3",
-    "WEGE3",
-    "B3SA3",
-    "RENT3",
-    "SUZB3",
-    "JBSS3",
-    "PRIO3",
-    "RADL3",
-    "GGBR4",
-    "VBBR3",
-    "LREN3",
-    "HAPV3",
+    *DEFAULT_MULTI_ASSET_UNIVERSE,
     "BPAC11",
-    "RAIL3",
-    "CMIG4",
+    "BBAS3",
 ]
 
 

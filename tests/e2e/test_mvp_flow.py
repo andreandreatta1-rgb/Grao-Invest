@@ -1348,6 +1348,10 @@ def test_thesis_case_study_generates_kpis_and_structured_operation(client) -> No
     payload = case_response.json()
     assert payload["pipeline"]["candidate_count"] >= 1
     assert payload["pipeline"]["selected_thesis_id"].startswith("TH-")
+    assert "postmortem" in payload
+    assert "analysis_tags" in payload["postmortem"]
+    assert "signature" in payload["postmortem"]
+    assert isinstance(payload["postmortem"]["analysis_tags"], list)
     thesis = payload["selected_case"]["thesis"]
     assert thesis["confidence_tese_pct"] >= 0
     assert thesis["success_probability_pct"] <= 100
