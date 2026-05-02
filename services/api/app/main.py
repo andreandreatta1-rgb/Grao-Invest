@@ -1437,24 +1437,22 @@ def report_summary(
     return build_user_report(db, user_id)
 
 
-def _assistant_decisions_path() -> Path:
-    return data_dir / "assistant_decisions.json"
-
-
 @app.get("/api/assistant/decisions")
 def assistant_decisions_list(
     user: User = Depends(current_user),
+    db: Session = Depends(get_db),
 ) -> dict[str, object]:
-    return decision_inbox_payload(store_path=_assistant_decisions_path(), user_id=user.id)
+    return decision_inbox_payload(db=db, user_id=user.id)
 
 
 @app.post("/api/assistant/decisions")
 def assistant_decisions_create(
     payload: AssistantDecisionCreateRequest,
     user: User = Depends(current_user),
+    db: Session = Depends(get_db),
 ) -> dict[str, object]:
     return create_decision(
-        store_path=_assistant_decisions_path(),
+        db=db,
         user_id=user.id,
         title=payload.title,
         context=payload.context,
@@ -1470,8 +1468,9 @@ def assistant_decisions_create(
 @app.post("/api/assistant/decisions/seed-away-plan")
 def assistant_decisions_seed_away_plan(
     user: User = Depends(current_user),
+    db: Session = Depends(get_db),
 ) -> dict[str, object]:
-    return seed_away_plan_decision(store_path=_assistant_decisions_path(), user_id=user.id)
+    return seed_away_plan_decision(db=db, user_id=user.id)
 
 
 @app.post("/api/assistant/decisions/{decision_id}/answer")
@@ -1479,10 +1478,11 @@ def assistant_decisions_answer(
     decision_id: str,
     payload: AssistantDecisionAnswerRequest,
     user: User = Depends(current_user),
+    db: Session = Depends(get_db),
 ) -> dict[str, object]:
     try:
         return answer_decision(
-            store_path=_assistant_decisions_path(),
+            db=db,
             user_id=user.id,
             decision_id=decision_id,
             option_id=payload.option_id,

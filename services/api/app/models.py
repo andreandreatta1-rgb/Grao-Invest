@@ -240,6 +240,23 @@ class RiskDecision(Base):
     projected_exposure: Mapped[float] = mapped_column(Float, default=0.0)
 
 
+class AssistantDecision(Base):
+    __tablename__ = "assistant_decisions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    decision_id: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String(160))
+    context: Mapped[str] = mapped_column(Text, default="")
+    question: Mapped[str] = mapped_column(Text)
+    options_json: Mapped[str] = mapped_column(Text, default="[]")
+    priority: Mapped[str] = mapped_column(String(16), default="normal", index=True)
+    status: Mapped[str] = mapped_column(String(16), default="pending", index=True)
+    answer_json: Mapped[str] = mapped_column(Text, default="{}")
+    created_at: Mapped[str] = mapped_column(String(40), index=True)
+    updated_at: Mapped[str] = mapped_column(String(40), index=True)
+
+
 class KillSwitchState(Base):
     __tablename__ = "kill_switch_states"
 

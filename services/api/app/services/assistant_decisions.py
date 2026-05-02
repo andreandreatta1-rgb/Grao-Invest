@@ -3,9 +3,11 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Literal, TypedDict
 
+from app.models import AssistantDecision as AssistantDecisionRecord
+from sqlalchemy import desc, select
+from sqlalchemy.orm import Session
 
 DecisionStatus = Literal["pending", "answered", "dismissed"]
 DecisionPriority = Literal["low", "normal", "high"]
@@ -23,7 +25,7 @@ class DecisionAnswer(TypedDict, total=False):
     answered_at: str
 
 
-class AssistantDecision(TypedDict, total=False):
+class AssistantDecisionPayload(TypedDict, total=False):
     decision_id: str
     user_id: int
     title: str
@@ -41,38 +43,37 @@ def _utc_now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
-def _read_store(store_path: Path) -> list[AssistantDecision]:
-    if not store_path.exists():
+def _read_json_object(raw_value: str | None) -> dict[str, object]:
+    if not raw_value:
+        return {}
+    try:
+        payload = json.loads(raw_value)
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    return payload
+
+
+def _read_options(raw_value: str | None) -> list[DecisionOption]:
+    if not raw_value:
         return []
     try:
-        payload = json.loads(store_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        payload = json.loads(raw_value)
+    except json.JSONDecodeError:
         return []
     if not isinstance(payload, list):
         return []
-    decisions: list[AssistantDecision] = []
+    options: list[DecisionOption] = []
     for item in payload:
         if not isinstance(item, dict):
             continue
-        decision_id = item.get("decision_id")
-        user_id = item.get("user_id")
-        title = item.get("title")
-        question = item.get("question")
-        if not isinstance(decision_id, str):
+        option_id = item.get("option_id")
+        label = item.get("label")
+        if not isinstance(option_id, str) or not isinstance(label, str):
             continue
-        if not isinstance(user_id, int):
-            continue
-        if not isinstance(title, str):
-            continue
-        if not isinstance(question, str):
-            continue
-        decisions.append(item)  # type: ignore[arg-type]
-    return decisions
-
-
-def _write_store(store_path: Path, decisions: list[AssistantDecision]) -> None:
-    store_path.parent.mkdir(parents=True, exist_ok=True)
-    store_path.write_text(json.dumps(decisions, ensure_ascii=True, indent=2), encoding="utf-8")
+        options.append({"option_id": option_id, "label": label})
+    return options
 
 
 def _normalize_options(options: list[dict[str, object]]) -> list[DecisionOption]:
@@ -88,50 +89,84 @@ def _normalize_options(options: list[dict[str, object]]) -> list[DecisionOption]
     return normalized[:5]
 
 
+def _priority(value: str) -> DecisionPriority:
+    if value in {"low", "normal", "high"}:
+        return value  # type: ignore[return-value]
+    return "normal"
+
+
+def _status(value: str) -> DecisionStatus:
+    if value in {"pending", "answered", "dismissed"}:
+        return value  # type: ignore[return-value]
+    return "pending"
+
+
+def _decision_to_payload(record: AssistantDecisionRecord) -> AssistantDecisionPayload:
+    payload: AssistantDecisionPayload = {
+        "decision_id": record.decision_id,
+        "user_id": record.user_id,
+        "title": record.title,
+        "context": record.context,
+        "question": record.question,
+        "options": _read_options(record.options_json),
+        "priority": _priority(record.priority),
+        "status": _status(record.status),
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+    }
+    answer = _read_json_object(record.answer_json)
+    if answer:
+        payload["answer"] = {
+            key: str(value)
+            for key, value in answer.items()
+            if key in {"option_id", "option_label", "free_text", "answered_at"}
+        }
+    return payload
+
+
 def create_decision(
     *,
-    store_path: Path,
+    db: Session,
     user_id: int,
     title: str,
     context: str,
     question: str,
     options: list[dict[str, object]],
     priority: str = "normal",
-) -> AssistantDecision:
+) -> AssistantDecisionPayload:
     now = _utc_now_iso()
-    clean_priority: DecisionPriority = "normal"
-    if priority in {"low", "normal", "high"}:
-        clean_priority = priority  # type: ignore[assignment]
-    decision: AssistantDecision = {
-        "decision_id": f"DEC-{uuid.uuid4().hex[:10].upper()}",
-        "user_id": user_id,
-        "title": title.strip()[:160],
-        "context": context.strip()[:1000],
-        "question": question.strip()[:400],
-        "options": _normalize_options(options),
-        "priority": clean_priority,
-        "status": "pending",
-        "created_at": now,
-        "updated_at": now,
-    }
-    decisions = _read_store(store_path)
-    decisions.insert(0, decision)
-    _write_store(store_path, decisions)
-    return decision
+    normalized_options = _normalize_options(options)
+    record = AssistantDecisionRecord(
+        decision_id=f"DEC-{uuid.uuid4().hex[:10].upper()}",
+        user_id=user_id,
+        title=title.strip()[:160],
+        context=context.strip()[:1000],
+        question=question.strip()[:400],
+        options_json=json.dumps(normalized_options, ensure_ascii=True),
+        priority=_priority(priority),
+        status="pending",
+        answer_json="{}",
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    return _decision_to_payload(record)
 
 
-def decision_inbox_payload(*, store_path: Path, user_id: int) -> dict[str, object]:
-    decisions = [
-        item
-        for item in _read_store(store_path)
-        if item.get("user_id") == user_id
-    ]
-    pending_count = sum(1 for item in decisions if item.get("status") == "pending")
-    answered_count = sum(1 for item in decisions if item.get("status") == "answered")
+def decision_inbox_payload(*, db: Session, user_id: int) -> dict[str, object]:
+    decisions = list(
+        db.scalars(
+            select(AssistantDecisionRecord)
+            .where(AssistantDecisionRecord.user_id == user_id)
+            .order_by(desc(AssistantDecisionRecord.id))
+        )
+    )
+    pending_count = sum(1 for item in decisions if item.status == "pending")
+    answered_count = sum(1 for item in decisions if item.status == "answered")
     high_priority_count = sum(
-        1
-        for item in decisions
-        if item.get("status") == "pending" and item.get("priority") == "high"
+        1 for item in decisions if item.status == "pending" and item.priority == "high"
     )
     return {
         "generated_at": _utc_now_iso(),
@@ -142,68 +177,73 @@ def decision_inbox_payload(*, store_path: Path, user_id: int) -> dict[str, objec
             "answered_count": answered_count,
             "high_priority_count": high_priority_count,
         },
-        "decisions": decisions[:50],
+        "decisions": [_decision_to_payload(item) for item in decisions[:50]],
     }
 
 
 def answer_decision(
     *,
-    store_path: Path,
+    db: Session,
     user_id: int,
     decision_id: str,
     option_id: str | None = None,
     free_text: str | None = None,
-) -> AssistantDecision:
-    decisions = _read_store(store_path)
+) -> AssistantDecisionPayload:
     clean_option_id = str(option_id or "").strip().upper()
     clean_free_text = str(free_text or "").strip()
     if not clean_option_id and not clean_free_text:
         raise ValueError("Informe uma opcao ou um texto livre para responder.")
 
-    for index, item in enumerate(decisions):
-        if item.get("decision_id") != decision_id:
-            continue
-        if item.get("user_id") != user_id:
-            raise ValueError("Decisao nao pertence ao usuario autenticado.")
-        options = item.get("options") or []
-        option_label = ""
-        if clean_option_id:
-            for option in options:
-                if option.get("option_id") == clean_option_id:
-                    option_label = str(option.get("label") or "")
-                    break
-            if not option_label:
-                raise ValueError("Opcao de decisao invalida.")
-        now = _utc_now_iso()
-        answer: DecisionAnswer = {"answered_at": now}
-        if clean_option_id:
-            answer["option_id"] = clean_option_id
-            answer["option_label"] = option_label
-        if clean_free_text:
-            answer["free_text"] = clean_free_text[:1000]
-        updated: AssistantDecision = {
-            **item,
-            "status": "answered",
-            "answer": answer,
-            "updated_at": now,
-        }
-        decisions[index] = updated
-        _write_store(store_path, decisions)
-        return updated
-    raise ValueError("Decisao nao encontrada.")
+    record = db.scalar(
+        select(AssistantDecisionRecord)
+        .where(AssistantDecisionRecord.decision_id == decision_id)
+        .limit(1)
+    )
+    if record is None:
+        raise ValueError("Decisao nao encontrada.")
+    if record.user_id != user_id:
+        raise ValueError("Decisao nao pertence ao usuario autenticado.")
+
+    options = _read_options(record.options_json)
+    option_label = ""
+    if clean_option_id:
+        for option in options:
+            if option.get("option_id") == clean_option_id:
+                option_label = str(option.get("label") or "")
+                break
+        if not option_label:
+            raise ValueError("Opcao de decisao invalida.")
+
+    now = _utc_now_iso()
+    answer: DecisionAnswer = {"answered_at": now}
+    if clean_option_id:
+        answer["option_id"] = clean_option_id
+        answer["option_label"] = option_label
+    if clean_free_text:
+        answer["free_text"] = clean_free_text[:1000]
+    record.status = "answered"
+    record.answer_json = json.dumps(answer, ensure_ascii=True)
+    record.updated_at = now
+    db.commit()
+    db.refresh(record)
+    return _decision_to_payload(record)
 
 
-def seed_away_plan_decision(*, store_path: Path, user_id: int) -> AssistantDecision:
-    decisions = _read_store(store_path)
-    for item in decisions:
-        if (
-            item.get("user_id") == user_id
-            and item.get("status") == "pending"
-            and item.get("title") == "Plano para as proximas 5 horas"
-        ):
-            return item
+def seed_away_plan_decision(*, db: Session, user_id: int) -> AssistantDecisionPayload:
+    existing = db.scalar(
+        select(AssistantDecisionRecord)
+        .where(
+            AssistantDecisionRecord.user_id == user_id,
+            AssistantDecisionRecord.status == "pending",
+            AssistantDecisionRecord.title == "Plano para as proximas 5 horas",
+        )
+        .order_by(desc(AssistantDecisionRecord.id))
+        .limit(1)
+    )
+    if existing is not None:
+        return _decision_to_payload(existing)
     return create_decision(
-        store_path=store_path,
+        db=db,
         user_id=user_id,
         title="Plano para as proximas 5 horas",
         context=(
