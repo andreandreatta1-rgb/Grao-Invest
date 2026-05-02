@@ -20,6 +20,7 @@ const state = {
   microtradesCycleRunning: false,
   microtradesAutoRunInFlight: false,
   microtradesLastAutoRunAt: 0,
+  microtradesLastDecisionAt: 0,
 };
 
 const realtime = {
@@ -2648,6 +2649,131 @@ function bindMicrotradesHandlers() {
       .join(" | ");
   };
 
+  const DECISION_COOLDOWN_MS = 45 * 60 * 1000;
+  const maybePublishDecisionCard = async ({
+    title,
+    context,
+    question,
+    options,
+    priority = "normal",
+    force = false,
+  }) => {
+    const normalizedPriority = ["low", "normal", "high"].includes(String(priority))
+      ? String(priority)
+      : "normal";
+    const elapsed = Date.now() - Number(state.microtradesLastDecisionAt || 0);
+    if (!force && normalizedPriority !== "high" && elapsed < DECISION_COOLDOWN_MS) {
+      return {
+        status: "cooldown",
+        cooldown_remaining_ms: DECISION_COOLDOWN_MS - elapsed,
+      };
+    }
+    try {
+      const payload = await apiRequest(
+        "POST",
+        "/api/assistant/decisions",
+        {
+          title: String(title || "").trim().slice(0, 160),
+          context: String(context || "").trim().slice(0, 1000),
+          question: String(question || "").trim().slice(0, 400),
+          options: Array.isArray(options)
+            ? options.slice(0, 5).map((item) => ({
+                option_id: String(item.option_id || "").trim().slice(0, 12),
+                label: String(item.label || "").trim().slice(0, 160),
+              }))
+            : [],
+          priority: normalizedPriority,
+        },
+        { timeoutMs: 15000 },
+      );
+      state.microtradesLastDecisionAt = Date.now();
+      const decisionPanel = document.querySelector('[data-view="decisoes"]');
+      if (decisionPanel?.classList.contains("is-active")) {
+        void loadDecisionInbox();
+      }
+      return {
+        status: "created",
+        decision_id: payload?.decision_id || null,
+      };
+    } catch (error) {
+      return {
+        status: "error",
+        error_message: errorMessageFrom(error),
+      };
+    }
+  };
+
+  const publishCycleDecision = async ({
+    config,
+    monitor,
+    signal,
+    selectedThesisId,
+    signalSkippedReason,
+  }) => {
+    const summary = monitor?.summary || {};
+    const stopAlerts = Number(summary.stop_alerts || 0);
+    const targetHits = Number(summary.target_hits || 0);
+    const monitoringCount = Number(summary.monitoring_count || 0);
+    const signalText = signal?.signal_id
+      ? `signal ${signal.signal_id}`
+      : "sinal indisponivel no ciclo";
+    const topTheses = summarizeTopTheses(monitor);
+    const highPriority = stopAlerts > 0 || Boolean(signalSkippedReason);
+    const title = highPriority
+      ? "Microtrades: atencao no ciclo automatico"
+      : "Microtrades: resumo do ciclo automatico";
+    const context = [
+      `Escopo: ${config.instruments.join(", ")} | ${config.interval} | lookback ${config.lookbackHours}h.`,
+      `Monitor: ${formatNumber(monitor?.thesis_count || 0)} teses | target ${formatNumber(targetHits)} | stop ${formatNumber(stopAlerts)} | monitorando ${formatNumber(monitoringCount)}.`,
+      `Case selecionado: ${selectedThesisId || "-"} | ${signalText}.`,
+      `Top teses: ${topTheses}.`,
+      signalSkippedReason ? `Observacao: ${signalSkippedReason}.` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    const question = highPriority
+      ? "Qual postura devo seguir ate voce voltar?"
+      : "Qual ajuste voce prefere para o proximo ciclo?";
+    const options = highPriority
+      ? [
+          { option_id: "A", label: "Reduzir risco para BTCUSDT e ETHUSDT apenas" },
+          { option_id: "B", label: "Manter monitoramento sem novas ordens paper" },
+          { option_id: "C", label: "Seguir estrategia atual por enquanto" },
+        ]
+      : [
+          { option_id: "A", label: "Continuar ciclo automatico no escopo atual" },
+          { option_id: "B", label: "Focar nas duas criptos com maior confianca" },
+          { option_id: "C", label: "Pausar ate nova validacao manual" },
+        ];
+    return maybePublishDecisionCard({
+      title,
+      context,
+      question,
+      options,
+      priority: highPriority ? "high" : targetHits > 0 ? "normal" : "low",
+      force: highPriority,
+    });
+  };
+
+  const publishCycleFailureDecision = async ({ config, errorMessage }) => {
+    const scope =
+      config && Array.isArray(config.instruments)
+        ? `${config.instruments.join(", ")} | ${config.interval} | ${config.lookbackHours}h`
+        : "escopo nao disponivel";
+    return maybePublishDecisionCard({
+      title: "Microtrades: falha no ciclo automatico",
+      context: `Falha capturada: ${errorMessage}. Escopo da tentativa: ${scope}.`,
+      question: "Como devo agir ate voce acessar novamente?",
+      options: [
+        { option_id: "A", label: "Retentar com mais historico antes do proximo ciclo" },
+        { option_id: "B", label: "Reduzir para BTCUSDT e ETHUSDT e seguir" },
+        { option_id: "C", label: "Pausar microtrades ate novo comando" },
+      ],
+      priority: "high",
+      force: true,
+    });
+  };
+
   const renderStatus = (rows) => {
     if (!statusNode) {
       return;
@@ -3080,6 +3206,7 @@ function bindMicrotradesHandlers() {
     event.preventDefault();
     const button = byId("microtrades-run-cycle") || event.currentTarget.querySelector('button[type="submit"]');
     const steps = [];
+    let cycleConfig = null;
     const pushStep = (title, meta, tone = "") => {
       steps.push({ title, meta, tone });
       renderStatus(steps);
@@ -3092,6 +3219,7 @@ function bindMicrotradesHandlers() {
     setButtonLoading(button, true, "Executando ciclo...");
     try {
       const config = readConfig();
+      cycleConfig = config;
       state.microtradesLastAutoRunAt = Date.now();
       pushStep(
         "Escopo",
@@ -3189,6 +3317,31 @@ function bindMicrotradesHandlers() {
       }
       pushStep("4/5 Monitoramento", `${formatNumber(monitor.thesis_count || 0)} teses monitoradas.`);
       pushStep("Sugestoes", summarizeTopTheses(monitor));
+      const decisionPublication = await publishCycleDecision({
+        config,
+        monitor,
+        signal,
+        selectedThesisId,
+        signalSkippedReason,
+      });
+      if (decisionPublication.status === "created") {
+        pushStep(
+          "5/5 Centro de decisoes",
+          `Atualizacao enviada para acompanhamento remoto (${decisionPublication.decision_id || "sem id"}).`,
+        );
+      } else if (decisionPublication.status === "cooldown") {
+        pushStep(
+          "5/5 Centro de decisoes",
+          "Atualizacao local registrada. Publicacao em cooldown para evitar excesso de cards.",
+          "tone-warning",
+        );
+      } else if (decisionPublication.status === "error") {
+        pushStep(
+          "5/5 Centro de decisoes",
+          `Nao foi possivel publicar agora (${decisionPublication.error_message}).`,
+          "tone-warning",
+        );
+      }
 
       setOutput("microtrades-output", {
         etapa: "ciclo_completo",
@@ -3212,6 +3365,17 @@ function bindMicrotradesHandlers() {
     } catch (error) {
       const message = errorMessageFrom(error);
       pushStep("Falha no ciclo", message, "tone-danger");
+      const failureDecision = await publishCycleFailureDecision({
+        config: cycleConfig,
+        errorMessage: message,
+      });
+      if (failureDecision.status === "created") {
+        pushStep(
+          "Centro de decisoes",
+          `Falha registrada para aprovacao remota (${failureDecision.decision_id || "sem id"}).`,
+          "tone-warning",
+        );
+      }
       setOutput("microtrades-output", { erro: message, detalhe: error?.data || null });
       showToast("error", `Falha no ciclo de microtrades: ${message}`);
     } finally {
