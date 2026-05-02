@@ -17,6 +17,9 @@ const state = {
   game: null,
   selectedTicker: "PETR4",
   dashboardSnapshot: null,
+  microtradesCycleRunning: false,
+  microtradesAutoRunInFlight: false,
+  microtradesLastAutoRunAt: 0,
 };
 
 const realtime = {
@@ -55,6 +58,10 @@ const viewMeta = {
   microtrades: {
     title: "Microtrades (Beta)",
     subtitle: "Modulo experimental para operacoes curtas com controle de risco e validacao de edge.",
+  },
+  decisoes: {
+    title: "Centro de decisÃµes",
+    subtitle: "AprovaÃ§Ãµes rÃ¡pidas para seguir com seguranÃ§a quando vocÃª estiver longe.",
   },
   alertas: {
     title: "Alertas",
@@ -1183,6 +1190,13 @@ function switchView(viewId) {
   if (window.innerWidth <= 1023) {
     document.body.classList.remove("sidebar-open");
   }
+
+  if (viewId === "decisoes") {
+    void loadDecisionInbox();
+  }
+  if (viewId === "microtrades") {
+    window.dispatchEvent(new Event("microtrades:enter-view"));
+  }
 }
 
 function restoreSidebarState() {
@@ -2065,6 +2079,177 @@ function bindDashboardHandlers() {
   });
 }
 
+function decisionStatusTone(status, priority) {
+  const cleanStatus = String(status || "").toLowerCase();
+  if (cleanStatus === "answered") {
+    return "tone-success";
+  }
+  if (String(priority || "").toLowerCase() === "high") {
+    return "tone-danger";
+  }
+  return "tone-warning";
+}
+
+function renderDecisionInbox(payload) {
+  const summaryNode = byId("decision-summary");
+  const inboxNode = byId("decision-inbox");
+  const summary = payload?.summary || {};
+  if (summaryNode) {
+    const cards = [
+      { label: "Pendentes", value: summary.pending_count || 0, tone: "tone-warning" },
+      { label: "Alta prioridade", value: summary.high_priority_count || 0, tone: "tone-danger" },
+      { label: "Respondidas", value: summary.answered_count || 0, tone: "tone-success" },
+      { label: "Total", value: summary.total_count || 0, tone: "tone-accent" },
+    ];
+    summaryNode.innerHTML = cards
+      .map(
+        (card) => `
+        <article class="metric-card">
+          <p class="metric-label">${escapeHtml(card.label)}</p>
+          <p class="metric-value ${card.tone} mono">${escapeHtml(formatNumber(card.value))}</p>
+        </article>
+      `,
+      )
+      .join("");
+  }
+  if (!inboxNode) {
+    return;
+  }
+  const decisions = Array.isArray(payload?.decisions) ? payload.decisions : [];
+  if (decisions.length === 0) {
+    inboxNode.innerHTML = `
+      <div class="list-row">
+        <strong>Nenhuma decisÃ£o pendente</strong>
+        <p class="list-meta">Use "Preparar plano 5h" para criar uma pergunta de autonomia antes de sair.</p>
+      </div>
+    `;
+    return;
+  }
+  inboxNode.innerHTML = decisions
+    .map((decision) => {
+      const decisionId = String(decision.decision_id || "");
+      const status = String(decision.status || "pending");
+      const priority = String(decision.priority || "normal");
+      const tone = decisionStatusTone(status, priority);
+      const options = Array.isArray(decision.options) ? decision.options : [];
+      const answered = status === "answered";
+      const answer = decision.answer || {};
+      const optionControls = options
+        .map((option, index) => {
+          const optionId = String(option.option_id || String.fromCharCode(65 + index));
+          const label = String(option.label || optionId);
+          return `
+            <label class="checkbox-row">
+              <input type="radio" name="option_id" value="${escapeHtml(optionId)}" ${index === 0 ? "checked" : ""} />
+              ${escapeHtml(optionId)} - ${escapeHtml(label)}
+            </label>
+          `;
+        })
+        .join("");
+      return `
+        <div class="list-row">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+            <div>
+              <strong>${escapeHtml(decision.title || "DecisÃ£o")}</strong>
+              <p class="list-meta">${escapeHtml(decision.context || "")}</p>
+            </div>
+            <span class="${tone} mono"><strong>${escapeHtml(status.toUpperCase())}</strong></span>
+          </div>
+          <p>${escapeHtml(decision.question || "")}</p>
+          ${
+            answered
+              ? `<p class="list-meta"><strong>Resposta:</strong> ${escapeHtml(answer.option_label || answer.option_id || "")} ${answer.free_text ? `- ${escapeHtml(answer.free_text)}` : ""}</p>`
+              : `
+                <form class="decision-answer-form" data-decision-id="${escapeHtml(decisionId)}">
+                  <div class="stack-list">${optionControls}</div>
+                  <label>Complemento opcional
+                    <textarea name="free_text" rows="2" placeholder="Ex: aprovado, mas me avise se houver tese invalidada"></textarea>
+                  </label>
+                  <button type="submit">Enviar resposta</button>
+                </form>
+              `
+          }
+        </div>
+      `;
+    })
+    .join("");
+}
+
+async function loadDecisionInbox() {
+  const inboxNode = byId("decision-inbox");
+  if (inboxNode && !inboxNode.dataset.loaded) {
+    inboxNode.innerHTML = "<div class='list-row'><p class='list-meta'>Carregando decisÃµes...</p></div>";
+  }
+  try {
+    const payload = await apiRequest("GET", "/api/assistant/decisions", null, { timeoutMs: 15000 });
+    if (inboxNode) {
+      inboxNode.dataset.loaded = "1";
+    }
+    renderDecisionInbox(payload);
+  } catch (error) {
+    if (inboxNode) {
+      inboxNode.innerHTML = `<div class="list-row"><p class="tone-danger">Falha ao carregar decisÃµes: ${escapeHtml(error.message)}</p></div>`;
+    }
+  }
+}
+
+function bindDecisionHandlers() {
+  const refreshButton = byId("decision-refresh");
+  const seedButton = byId("decision-seed-away-plan");
+  const inboxNode = byId("decision-inbox");
+  if (refreshButton) {
+    refreshButton.addEventListener("click", async () => {
+      setButtonLoading(refreshButton, true, "Atualizando...");
+      try {
+        await loadDecisionInbox();
+      } finally {
+        setButtonLoading(refreshButton, false);
+      }
+    });
+  }
+  if (seedButton) {
+    seedButton.addEventListener("click", async () => {
+      setButtonLoading(seedButton, true, "Preparando...");
+      try {
+        await apiRequest("POST", "/api/assistant/decisions/seed-away-plan");
+        await loadDecisionInbox();
+        showToast("success", "Plano 5h criado no centro de decisÃµes.");
+      } catch (error) {
+        showToast("error", `Falha ao preparar decisÃ£o: ${error.message}`);
+      } finally {
+        setButtonLoading(seedButton, false);
+      }
+    });
+  }
+  if (inboxNode) {
+    inboxNode.addEventListener("submit", async (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.classList.contains("decision-answer-form")) {
+        return;
+      }
+      event.preventDefault();
+      const decisionId = form.dataset.decisionId;
+      const button = form.querySelector('button[type="submit"]');
+      const selected = form.querySelector('input[name="option_id"]:checked');
+      const formData = new FormData(form);
+      const payload = {
+        option_id: selected ? selected.value : null,
+        free_text: String(formData.get("free_text") || "").trim() || null,
+      };
+      setButtonLoading(button, true, "Enviando...");
+      try {
+        await apiRequest("POST", `/api/assistant/decisions/${decisionId}/answer`, payload);
+        await loadDecisionInbox();
+        showToast("success", "Resposta registrada. Eu consigo ler essa decisÃ£o no prÃ³ximo ciclo.");
+      } catch (error) {
+        showToast("error", `Falha ao responder decisÃ£o: ${error.message}`);
+      } finally {
+        setButtonLoading(button, false);
+      }
+    });
+  }
+}
+
 function renderBacktestMetrics(detail) {
 
   const node = byId("backtest-metrics");
@@ -2433,6 +2618,35 @@ function bindMicrotradesHandlers() {
     error && typeof error.message === "string" ? error.message : "Erro inesperado.";
   const isSuitabilityMissingError = (error) =>
     /suitability obrigatorio/i.test(errorMessageFrom(error));
+  const isIndicatorsMissingError = (error) =>
+    /nao ha indicadores disponiveis/i.test(errorMessageFrom(error));
+
+  const summarizeTopTheses = (monitorPayload) => {
+    const theses = Array.isArray(monitorPayload?.theses) ? [...monitorPayload.theses] : [];
+    if (!theses.length) {
+      return "Sem teses elegiveis neste momento.";
+    }
+    const ranked = theses
+      .sort((a, b) => {
+        const confA = Number(a.confidence_now_pct ?? a.confidence_tese_pct ?? 0);
+        const confB = Number(b.confidence_now_pct ?? b.confidence_tese_pct ?? 0);
+        if (confB !== confA) {
+          return confB - confA;
+        }
+        const expA = Number(a.expected_financial_pct ?? 0);
+        const expB = Number(b.expected_financial_pct ?? 0);
+        return expB - expA;
+      })
+      .slice(0, 3);
+    return ranked
+      .map((item) => {
+        const conf = formatMetric(item.confidence_now_pct ?? item.confidence_tese_pct ?? 0);
+        const expected = formatSignedMetricPercent(item.expected_financial_pct);
+        const status = String(item.executive_status_label || item.monitor_status || "monitorar");
+        return `${String(item.instrument || "-").toUpperCase()} ${expected} | conf ${conf}% | ${status}`;
+      })
+      .join(" | ");
+  };
 
   const renderStatus = (rows) => {
     if (!statusNode) {
@@ -2631,23 +2845,88 @@ function bindMicrotradesHandlers() {
     return result;
   };
 
-  const runGenerateSignal = async (config, { updateOutput = true } = {}) => {
-    const result = await apiRequest("POST", "/api/signals/generate", {
+  const generateSignalForInstrument = async (config, instrument) =>
+    apiRequest("POST", "/api/signals/generate", {
       user_id: config.userId,
-      instrument: config.instruments[0],
+      instrument: String(instrument).toUpperCase(),
     });
-    syncMicrotradesSignalId(result.signal_id);
-    if (updateOutput) {
-      setOutput("microtrades-output", {
-        etapa: "geracao_tese",
-        signal_id: result.signal_id,
-        instrument: result.instrument,
-        signal_type: result.signal_type,
-        confidence: result.confidence,
-        expected_return_pct: result.expected_return_pct,
-      });
+
+  const warmupIndicators = async (config) => {
+    const warmupConfig = {
+      ...config,
+      lookbackHours: Math.max(config.lookbackHours, 240),
+      maxCandles: Math.max(config.maxCandles, 2000),
+    };
+    await runBackfill(warmupConfig, { updateOutput: false });
+    await Promise.all(
+      warmupConfig.instruments.map((instrument) =>
+        apiRequest("POST", "/api/analysis/indicators/recompute", {
+          instrument: String(instrument).toUpperCase(),
+        }).catch(() => null),
+      ),
+    );
+  };
+
+  const runGenerateSignal = async (config, { updateOutput = true } = {}) => {
+    const instruments = Array.isArray(config.instruments) ? config.instruments : [];
+    let warmupDone = false;
+    let lastIndicatorsError = null;
+
+    for (const instrument of instruments) {
+      try {
+        const result = await generateSignalForInstrument(config, instrument);
+        syncMicrotradesSignalId(result.signal_id);
+        if (updateOutput) {
+          setOutput("microtrades-output", {
+            etapa: "geracao_tese",
+            signal_id: result.signal_id,
+            instrument: result.instrument,
+            signal_type: result.signal_type,
+            confidence: result.confidence,
+            expected_return_pct: result.expected_return_pct,
+          });
+        }
+        return result;
+      } catch (error) {
+        if (!isIndicatorsMissingError(error)) {
+          throw error;
+        }
+        lastIndicatorsError = error;
+        if (!warmupDone) {
+          try {
+            await warmupIndicators(config);
+            warmupDone = true;
+          } catch {
+            warmupDone = true;
+          }
+          try {
+            const retried = await generateSignalForInstrument(config, instrument);
+            syncMicrotradesSignalId(retried.signal_id);
+            if (updateOutput) {
+              setOutput("microtrades-output", {
+                etapa: "geracao_tese",
+                signal_id: retried.signal_id,
+                instrument: retried.instrument,
+                signal_type: retried.signal_type,
+                confidence: retried.confidence,
+                expected_return_pct: retried.expected_return_pct,
+              });
+            }
+            return retried;
+          } catch (retryError) {
+            if (!isIndicatorsMissingError(retryError)) {
+              throw retryError;
+            }
+            lastIndicatorsError = retryError;
+          }
+        }
+      }
     }
-    return result;
+
+    if (lastIndicatorsError) {
+      throw lastIndicatorsError;
+    }
+    throw new Error("Nao foi possivel gerar sinal para os ativos informados.");
   };
 
   const runCaseStudy = async (config, { updateOutput = true } = {}) => {
@@ -2805,9 +3084,15 @@ function bindMicrotradesHandlers() {
       steps.push({ title, meta, tone });
       renderStatus(steps);
     };
+    if (state.microtradesCycleRunning) {
+      pushStep("Ciclo em andamento", "Ja existe um ciclo automatico/manual em execucao.", "tone-warning");
+      return;
+    }
+    state.microtradesCycleRunning = true;
     setButtonLoading(button, true, "Executando ciclo...");
     try {
       const config = readConfig();
+      state.microtradesLastAutoRunAt = Date.now();
       pushStep(
         "Escopo",
         `${config.instruments.join(", ")} | ${config.interval} | provider ${config.providerName}`,
@@ -2861,11 +3146,25 @@ function bindMicrotradesHandlers() {
         );
       }
 
-      const signal = await runGenerateSignal(config, { updateOutput: false });
-      pushStep(
-        "2/5 Tese",
-        `signal_id ${signal.signal_id || "-"} em ${signal.instrument || config.instruments[0]}.`,
-      );
+      let signal = null;
+      let signalSkippedReason = null;
+      try {
+        signal = await runGenerateSignal(config, { updateOutput: false });
+        pushStep(
+          "2/5 Tese",
+          `signal_id ${signal.signal_id || "-"} em ${signal.instrument || config.instruments[0]}.`,
+        );
+      } catch (signalError) {
+        if (!isIndicatorsMissingError(signalError)) {
+          throw signalError;
+        }
+        signalSkippedReason = errorMessageFrom(signalError);
+        pushStep(
+          "2/5 Tese",
+          "Sinal indisponivel (indicadores ainda em aquecimento). Continuando com tese e monitoramento.",
+          "tone-warning",
+        );
+      }
 
       const caseStudyRun = await runCaseStudyWithAutoSuitability(config, { updateOutput: false });
       const caseStudy = caseStudyRun.result;
@@ -2889,6 +3188,7 @@ function bindMicrotradesHandlers() {
         );
       }
       pushStep("4/5 Monitoramento", `${formatNumber(monitor.thesis_count || 0)} teses monitoradas.`);
+      pushStep("Sugestoes", summarizeTopTheses(monitor));
 
       setOutput("microtrades-output", {
         etapa: "ciclo_completo",
@@ -2900,11 +3200,13 @@ function bindMicrotradesHandlers() {
         backfill_failed_count: backfill?.failed_count || 0,
         processed_count: ingest.processed_count,
         live_ingestion_skipped: ingest.skipped,
-        signal_id: signal.signal_id,
+        signal_id: signal?.signal_id || null,
+        signal_generation_skipped_reason: signalSkippedReason,
         selected_thesis_id: selectedThesisId,
         monitor_thesis_count: monitor.thesis_count,
         monitor_target_hits: monitor.summary?.target_hits,
         monitor_stop_alerts: monitor.summary?.stop_alerts,
+        top_theses: summarizeTopTheses(monitor),
       });
       showToast("success", "Ciclo de microtrades concluido com dados reais.");
     } catch (error) {
@@ -2913,6 +3215,7 @@ function bindMicrotradesHandlers() {
       setOutput("microtrades-output", { erro: message, detalhe: error?.data || null });
       showToast("error", `Falha no ciclo de microtrades: ${message}`);
     } finally {
+      state.microtradesCycleRunning = false;
       setButtonLoading(button, false);
     }
   });
@@ -2985,6 +3288,48 @@ function bindMicrotradesHandlers() {
     );
     showToast("success", "Ordem paper registrada para microtrades.");
   });
+
+  const AUTO_INTERVAL_MS = 20 * 60 * 1000;
+  const AUTO_DEBOUNCE_MS = 1500;
+  const requestCycleSubmit = () => {
+    if (typeof workflowForm.requestSubmit === "function") {
+      workflowForm.requestSubmit();
+      return;
+    }
+    workflowForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  };
+  const requestAutoCycle = (reason) => {
+    if (state.microtradesCycleRunning || state.microtradesAutoRunInFlight) {
+      return;
+    }
+    const elapsed = Date.now() - Number(state.microtradesLastAutoRunAt || 0);
+    if (elapsed < AUTO_INTERVAL_MS) {
+      return;
+    }
+    state.microtradesAutoRunInFlight = true;
+    setSingleStatus("Auto acompanhamento", `Executando ciclo automatico (${reason})...`, "tone-accent");
+    requestCycleSubmit();
+    window.setTimeout(() => {
+      state.microtradesAutoRunInFlight = false;
+    }, AUTO_DEBOUNCE_MS);
+  };
+
+  window.addEventListener("microtrades:enter-view", () => {
+    requestAutoCycle("abertura da aba");
+  });
+
+  window.setInterval(() => {
+    const panel = document.querySelector('[data-view="microtrades"]');
+    if (!panel || !panel.classList.contains("is-active")) {
+      return;
+    }
+    requestAutoCycle("acompanhamento continuo");
+  }, 60000);
+
+  const panel = document.querySelector('[data-view="microtrades"]');
+  if (panel?.classList.contains("is-active")) {
+    requestAutoCycle("inicio");
+  }
 }
 
 function bindAlertsHandlers() {
@@ -3714,6 +4059,7 @@ function showAuthenticatedExperience() {
   checkAndShowOnboarding();
   startRealtimeStreams();
   void loadDashboard();
+  void loadDecisionInbox();
   void loadActiveAlerts();
   void loadWhatsAppSettings();
   void refreshFeedStatus();
@@ -3730,6 +4076,7 @@ function bootstrap() {
   bindRiskHandlers();
   bindGameHandlers();
   bindMicrotradesHandlers();
+  bindDecisionHandlers();
   bindAlertsHandlers();
 
   switchView("finvest");
@@ -3739,6 +4086,12 @@ function bootstrap() {
 
   window.setInterval(updateClock, 1000);
   window.setInterval(refreshFeedStatus, 15000);
+  window.setInterval(() => {
+    const panel = document.querySelector('[data-view="decisoes"]');
+    if (panel?.classList.contains("is-active")) {
+      void loadDecisionInbox();
+    }
+  }, 60000);
 
   if (!AUTH_REQUIRED) {
     enableAnonymousSession();
