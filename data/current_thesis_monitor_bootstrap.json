@@ -1,0 +1,1431 @@
+{
+  "generated_at": "2026-05-03T12:42:32+00:00",
+  "user_id": 1,
+  "horizon_bars": 8,
+  "recent_bars_window": 2000,
+  "thesis_count": 11,
+  "scan_scope": {
+    "fronts": {
+      "acoes_b3": {
+        "label": "Acoes B3",
+        "instruments": [
+          "PETR4",
+          "VALE3",
+          "ITUB4",
+          "BBDC4",
+          "BBAS3",
+          "ABEV3",
+          "WEGE3",
+          "B3SA3",
+          "RENT3",
+          "SUZB3",
+          "JBSS3",
+          "PRIO3",
+          "RADL3",
+          "GGBR4",
+          "VBBR3",
+          "LREN3",
+          "HAPV3",
+          "BPAC11",
+          "RAIL3",
+          "CMIG4"
+        ],
+        "thesis_count": 8,
+        "tick_count": 71450,
+        "candidate_count": 64872,
+        "policy_candidate_count": 16454,
+        "current_candidate_count": 9831,
+        "error": ""
+      },
+      "cripto": {
+        "label": "Cripto",
+        "instruments": [
+          "BTCUSDT",
+          "ETHUSDT",
+          "SOLUSDT"
+        ],
+        "thesis_count": 3,
+        "tick_count": 8019,
+        "candidate_count": 7787,
+        "policy_candidate_count": 7706,
+        "current_candidate_count": 5624,
+        "error": ""
+      }
+    },
+    "instruments": [
+      "PETR4",
+      "VALE3",
+      "ITUB4",
+      "BBDC4",
+      "BBAS3",
+      "ABEV3",
+      "WEGE3",
+      "B3SA3",
+      "RENT3",
+      "SUZB3",
+      "JBSS3",
+      "PRIO3",
+      "RADL3",
+      "GGBR4",
+      "VBBR3",
+      "LREN3",
+      "HAPV3",
+      "BPAC11",
+      "RAIL3",
+      "CMIG4",
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT"
+    ],
+    "tick_count": 79469,
+    "candidate_count": 72659,
+    "policy_candidate_count": 24160,
+    "current_candidate_count": 15455
+  },
+  "summary": {
+    "target_hits": 0,
+    "stop_alerts": 1,
+    "monitoring_count": 10,
+    "avg_unrealized_financial_pct": 0.1826,
+    "executive_status_counts": {
+      "atencao": 9,
+      "invalidada": 2
+    },
+    "needs_attention_count": 11,
+    "front_errors": {}
+  },
+  "theses": [
+    {
+      "thesis_id": "TH-PETR4-range-4449",
+      "instrument": "PETR4",
+      "direction": "range",
+      "why_thesis": [
+        "momento_range_0.66pct",
+        "volatilidade_0.23pct",
+        "suporte_historico_36.04pct",
+        "suporte_tecnico_66.64pct",
+        "suporte_fundamental_83.20pct",
+        "suporte_news_83.97pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo + geopolitico",
+      "thesis_raised_at": "2026-04-21T11:07:00+00:00",
+      "suggested_entry_time": "2026-04-21T11:07:00+00:00",
+      "suggested_exit_time": "2026-04-22T20:46:19+00:00",
+      "entry_price": 41.03,
+      "target_price": 41.03,
+      "stop_price": 40.4145,
+      "suggested_operation": {
+        "strategy_id": "IRON_CONDOR",
+        "strategy_name": "Iron Condor",
+        "rationale": "Estrutura alinhada ao cenario range com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 2.4,
+        "max_loss_pct": 3.8,
+        "breakeven_price": 41.03,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "PETR4",
+            "option_type": "put",
+            "strike": 37.75,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "PETR4",
+            "option_type": "put",
+            "strike": 39.39,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "PETR4",
+            "option_type": "call",
+            "strike": 42.67,
+            "quantity": 1
+          },
+          {
+            "side": "long",
+            "instrument": "PETR4",
+            "option_type": "call",
+            "strike": 44.31,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 47.02,
+      "latest_event_time": "2026-04-22T20:46:19+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 0.8178,
+      "unrealized_financial_pct": -3.8,
+      "confidence_tese_pct": 71.5734,
+      "confidence_now_pct": 63.5734,
+      "confidence_delta_pct": -8.0,
+      "support_rate_pct": 36.0417,
+      "technical_support_pct": 66.64,
+      "fundamental_support_pct": 83.2,
+      "news_support_pct": 83.968,
+      "geo_oil_support_pct": 92.3706,
+      "fundamental_available": true,
+      "news_available": true,
+      "geo_oil_available": true,
+      "progress_to_target_pct": 0.0,
+      "distance_to_stop_pct": 16.0992,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Acompanhar se a deterioracao vira padrao recorrente.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 71.5734,
+        "confidence_now_pct": 63.5734,
+        "confidence_delta_pct": -8.0,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Acompanhar se a deterioracao vira padrao recorrente.",
+        "risk_flags": [
+          "moderate_support_rate_band",
+          "negative_move_gt_2pct"
+        ],
+        "postmortem_penalty_points": 0.0,
+        "matched_postmortem_rules": [],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-21T11:07:00+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 41.03
+        },
+        {
+          "event_time": "2026-04-22T20:27:08+00:00",
+          "event_type": "range_break_alert",
+          "severity": "medium",
+          "message": "Ativo saiu do range esperado para a estrutura neutra.",
+          "market_price": 47.02
+        },
+        {
+          "event_time": "2026-04-22T20:46:19+00:00",
+          "event_type": "range_break_alert",
+          "severity": "medium",
+          "message": "Ativo saiu do range esperado para a estrutura neutra.",
+          "market_price": 47.02
+        },
+        {
+          "event_time": "2026-04-22T20:46:19+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura IRON_CONDOR.",
+          "market_price": 47.02
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-GGBR4-bullish-48352",
+      "instrument": "GGBR4",
+      "direction": "bullish",
+      "why_thesis": [
+        "momento_bullish_9.64pct",
+        "volatilidade_2.66pct",
+        "suporte_historico_26.14pct",
+        "suporte_tecnico_81.69pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-04-14T00:00:00+00:00",
+      "suggested_entry_time": "2026-04-14T00:00:00+00:00",
+      "suggested_exit_time": "2026-04-20T00:00:00+00:00",
+      "entry_price": 21.6,
+      "target_price": 23.112,
+      "stop_price": 20.6928,
+      "suggested_operation": {
+        "strategy_id": "BULL_CALL_SPREAD",
+        "strategy_name": "Bull Call Spread",
+        "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 5.4,
+        "max_loss_pct": 2.2,
+        "breakeven_price": 22.16,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "GGBR4",
+            "option_type": "call",
+            "strike": 21.82,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "GGBR4",
+            "option_type": "call",
+            "strike": 22.9,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 21.44,
+      "latest_event_time": "2026-04-20T00:00:00+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 2.9725,
+      "unrealized_financial_pct": -0.5714,
+      "confidence_tese_pct": 64.0405,
+      "confidence_now_pct": 47.7533,
+      "confidence_delta_pct": -16.2872,
+      "support_rate_pct": 26.1352,
+      "technical_support_pct": 81.69,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": -10.582,
+      "distance_to_stop_pct": 3.4593,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 64.0405,
+        "confidence_now_pct": 47.7533,
+        "confidence_delta_pct": -16.2872,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs",
+          "negative_move"
+        ],
+        "postmortem_penalty_points": 3.2872,
+        "matched_postmortem_rules": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-14T00:00:00+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 21.6
+        },
+        {
+          "event_time": "2026-04-20T00:00:00+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+          "market_price": 21.44
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-RENT3-bullish-35313",
+      "instrument": "RENT3",
+      "direction": "bullish",
+      "why_thesis": [
+        "momento_bullish_5.23pct",
+        "volatilidade_2.30pct",
+        "suporte_historico_26.25pct",
+        "suporte_tecnico_74.38pct",
+        "suporte_fundamental_46.00pct",
+        "suporte_news_56.45pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-04-15T00:00:00+00:00",
+      "suggested_entry_time": "2026-04-15T00:00:00+00:00",
+      "suggested_exit_time": "2026-04-22T20:46:19+00:00",
+      "entry_price": 51.94,
+      "target_price": 55.5758,
+      "stop_price": 49.7585,
+      "suggested_operation": {
+        "strategy_id": "BULL_CALL_SPREAD",
+        "strategy_name": "Bull Call Spread",
+        "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 5.4,
+        "max_loss_pct": 2.2,
+        "breakeven_price": 53.29,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "RENT3",
+            "option_type": "call",
+            "strike": 52.46,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "RENT3",
+            "option_type": "call",
+            "strike": 55.06,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 51.98,
+      "latest_event_time": "2026-04-22T20:46:19+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 2.5794,
+      "unrealized_financial_pct": 0.0594,
+      "confidence_tese_pct": 60.5306,
+      "confidence_now_pct": 55.4663,
+      "confidence_delta_pct": -5.0643,
+      "support_rate_pct": 26.2471,
+      "technical_support_pct": 74.38,
+      "fundamental_support_pct": 46.0,
+      "news_support_pct": 56.455,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": true,
+      "news_available": true,
+      "geo_oil_available": false,
+      "progress_to_target_pct": 1.1002,
+      "distance_to_stop_pct": 4.2771,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 60.5306,
+        "confidence_now_pct": 55.4663,
+        "confidence_delta_pct": -5.0643,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "low_support_rate_band"
+        ],
+        "postmortem_penalty_points": 2.0643,
+        "matched_postmortem_rules": [
+          "low_support_rate_band"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-15T00:00:00+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 51.94
+        },
+        {
+          "event_time": "2026-04-22T20:46:19+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+          "market_price": 51.98
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-PRIO3-bearish-40340",
+      "instrument": "PRIO3",
+      "direction": "bearish",
+      "why_thesis": [
+        "momento_bearish_-3.19pct",
+        "volatilidade_2.49pct",
+        "suporte_historico_30.99pct",
+        "suporte_tecnico_72.87pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-04-08T00:00:00+00:00",
+      "suggested_entry_time": "2026-04-08T00:00:00+00:00",
+      "suggested_exit_time": "2026-04-20T00:00:00+00:00",
+      "entry_price": 64.1,
+      "target_price": 61.0095,
+      "stop_price": 65.9543,
+      "suggested_operation": {
+        "strategy_id": "BEAR_PUT_SPREAD",
+        "strategy_name": "Bear Put Spread",
+        "rationale": "Estrutura alinhada ao cenario bearish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 5.2,
+        "max_loss_pct": 2.3,
+        "breakeven_price": 62.31,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "PRIO3",
+            "option_type": "put",
+            "strike": 63.46,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "PRIO3",
+            "option_type": "put",
+            "strike": 60.25,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 61.63,
+      "latest_event_time": "2026-04-20T00:00:00+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 1.7968,
+      "unrealized_financial_pct": 4.1559,
+      "confidence_tese_pct": 60.7921,
+      "confidence_now_pct": 47.5049,
+      "confidence_delta_pct": -13.2872,
+      "support_rate_pct": 30.9896,
+      "technical_support_pct": 72.87,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": 79.9223,
+      "distance_to_stop_pct": 6.7462,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 60.7921,
+        "confidence_now_pct": 47.5049,
+        "confidence_delta_pct": -13.2872,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs"
+        ],
+        "postmortem_penalty_points": 3.2872,
+        "matched_postmortem_rules": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-08T00:00:00+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 64.1
+        },
+        {
+          "event_time": "2026-04-10T00:00:00+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 67.65
+        },
+        {
+          "event_time": "2026-04-10T00:00:00+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 67.65
+        },
+        {
+          "event_time": "2026-04-13T00:00:00+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 66.8
+        },
+        {
+          "event_time": "2026-04-13T00:00:00+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 66.8
+        },
+        {
+          "event_time": "2026-04-20T00:00:00+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura BEAR_PUT_SPREAD.",
+          "market_price": 61.63
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-RAIL3-bullish-60649",
+      "instrument": "RAIL3",
+      "direction": "bullish",
+      "why_thesis": [
+        "momento_bullish_3.17pct",
+        "volatilidade_1.73pct",
+        "suporte_historico_25.04pct",
+        "suporte_tecnico_69.06pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-04-14T00:00:00+00:00",
+      "suggested_entry_time": "2026-04-14T00:00:00+00:00",
+      "suggested_exit_time": "2026-04-20T00:00:00+00:00",
+      "entry_price": 16.92,
+      "target_price": 17.6805,
+      "stop_price": 16.4637,
+      "suggested_operation": {
+        "strategy_id": "BULL_CALL_SPREAD",
+        "strategy_name": "Bull Call Spread",
+        "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 5.4,
+        "max_loss_pct": 2.2,
+        "breakeven_price": 17.36,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "RAIL3",
+            "option_type": "call",
+            "strike": 17.09,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "RAIL3",
+            "option_type": "call",
+            "strike": 17.94,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 16.47,
+      "latest_event_time": "2026-04-20T00:00:00+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 1.4525,
+      "unrealized_financial_pct": -2.2,
+      "confidence_tese_pct": 57.696,
+      "confidence_now_pct": 32.4088,
+      "confidence_delta_pct": -25.2872,
+      "support_rate_pct": 25.0449,
+      "technical_support_pct": 69.06,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": -59.1716,
+      "distance_to_stop_pct": 0.0372,
+      "executive_status": "invalidada",
+      "executive_status_label": "Invalidada",
+      "executive_action": "encerrar_ou_reduzir_risco",
+      "thesis_validity": "perdeu_validade",
+      "revaluation_reason": "Risco superou a tese inicial: stop, baixa confirmacao ou aprendizado negativo.",
+      "next_trigger": "Preco/confirmacoes romperam o limite de risco; nao aumentar exposicao.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "invalidada",
+        "executive_status_label": "Invalidada",
+        "thesis_validity": "perdeu_validade",
+        "suggested_action": "encerrar_ou_reduzir_risco",
+        "confidence_initial_pct": 57.696,
+        "confidence_now_pct": 32.4088,
+        "confidence_delta_pct": -25.2872,
+        "next_trigger": "Preco/confirmacoes romperam o limite de risco; nao aumentar exposicao.",
+        "revaluation_reason": "Risco superou a tese inicial: stop, baixa confirmacao ou aprendizado negativo.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs",
+          "near_or_below_stop",
+          "negative_move_gt_2pct"
+        ],
+        "postmortem_penalty_points": 3.2872,
+        "matched_postmortem_rules": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-14T00:00:00+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 16.92
+        },
+        {
+          "event_time": "2026-04-20T00:00:00+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+          "market_price": 16.47
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-BPAC11-bullish-58287",
+      "instrument": "BPAC11",
+      "direction": "bullish",
+      "why_thesis": [
+        "momento_bullish_8.66pct",
+        "volatilidade_2.36pct",
+        "suporte_historico_30.26pct",
+        "suporte_tecnico_83.22pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-04-14T00:00:00+00:00",
+      "suggested_entry_time": "2026-04-14T00:00:00+00:00",
+      "suggested_exit_time": "2026-04-20T00:00:00+00:00",
+      "entry_price": 63.25,
+      "target_price": 67.6775,
+      "stop_price": 60.5935,
+      "suggested_operation": {
+        "strategy_id": "BULL_CALL_SPREAD",
+        "strategy_name": "Bull Call Spread",
+        "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 5.4,
+        "max_loss_pct": 2.2,
+        "breakeven_price": 64.89,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "BPAC11",
+            "option_type": "call",
+            "strike": 63.88,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "BPAC11",
+            "option_type": "call",
+            "strike": 67.05,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 64.13,
+      "latest_event_time": "2026-04-20T00:00:00+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 3.1528,
+      "unrealized_financial_pct": 1.0733,
+      "confidence_tese_pct": 65.6503,
+      "confidence_now_pct": 52.3631,
+      "confidence_delta_pct": -13.2872,
+      "support_rate_pct": 30.2632,
+      "technical_support_pct": 83.22,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": 19.8758,
+      "distance_to_stop_pct": 5.5913,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 65.6503,
+        "confidence_now_pct": 52.3631,
+        "confidence_delta_pct": -13.2872,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs"
+        ],
+        "postmortem_penalty_points": 3.2872,
+        "matched_postmortem_rules": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-14T00:00:00+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 63.25
+        },
+        {
+          "event_time": "2026-04-20T00:00:00+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+          "market_price": 64.13
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-SUZB3-bullish-37517",
+      "instrument": "SUZB3",
+      "direction": "bullish",
+      "why_thesis": [
+        "momento_bullish_4.48pct",
+        "volatilidade_1.21pct",
+        "suporte_historico_29.94pct",
+        "suporte_tecnico_76.89pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-04-14T00:00:00+00:00",
+      "suggested_entry_time": "2026-04-14T00:00:00+00:00",
+      "suggested_exit_time": "2026-04-20T00:00:00+00:00",
+      "entry_price": 48.51,
+      "target_price": 51.3517,
+      "stop_price": 46.805,
+      "suggested_operation": {
+        "strategy_id": "BULL_CALL_SPREAD",
+        "strategy_name": "Bull Call Spread",
+        "rationale": "Estrutura alinhada ao cenario bullish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 5.4,
+        "max_loss_pct": 2.2,
+        "breakeven_price": 49.77,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "SUZB3",
+            "option_type": "call",
+            "strike": 49.0,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "SUZB3",
+            "option_type": "call",
+            "strike": 51.42,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 47.8,
+      "latest_event_time": "2026-04-20T00:00:00+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 2.3449,
+      "unrealized_financial_pct": -1.3492,
+      "confidence_tese_pct": 62.5178,
+      "confidence_now_pct": 46.2306,
+      "confidence_delta_pct": -16.2872,
+      "support_rate_pct": 29.9413,
+      "technical_support_pct": 76.89,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": -24.985,
+      "distance_to_stop_pct": 2.0511,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 62.5178,
+        "confidence_now_pct": 46.2306,
+        "confidence_delta_pct": -16.2872,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs",
+          "negative_move"
+        ],
+        "postmortem_penalty_points": 3.2872,
+        "matched_postmortem_rules": [
+          "low_support_rate_band",
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-14T00:00:00+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 48.51
+        },
+        {
+          "event_time": "2026-04-20T00:00:00+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura BULL_CALL_SPREAD.",
+          "market_price": 47.8
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-B3SA3-bearish-31065",
+      "instrument": "B3SA3",
+      "direction": "bearish",
+      "why_thesis": [
+        "momento_bearish_-1.27pct",
+        "volatilidade_1.97pct",
+        "suporte_historico_25.05pct",
+        "suporte_tecnico_62.77pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_55.24pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-03-30T00:00:00+00:00",
+      "suggested_entry_time": "2026-03-30T00:00:00+00:00",
+      "suggested_exit_time": "2026-04-22T20:46:19+00:00",
+      "entry_price": 17.04,
+      "target_price": 16.6449,
+      "stop_price": 17.2771,
+      "suggested_operation": {
+        "strategy_id": "BEAR_PUT_SPREAD",
+        "strategy_name": "Bear Put Spread",
+        "rationale": "Estrutura alinhada ao cenario bearish com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 5.2,
+        "max_loss_pct": 2.3,
+        "breakeven_price": 16.56,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "B3SA3",
+            "option_type": "put",
+            "strike": 16.87,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "B3SA3",
+            "option_type": "put",
+            "strike": 16.02,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 19.25,
+      "latest_event_time": "2026-04-22T20:46:19+00:00",
+      "monitor_status": "stop_alert",
+      "suggested_action": "reduzir_risco_ou_encerrar",
+      "expected_financial_pct": 0.6569,
+      "unrealized_financial_pct": -2.3,
+      "confidence_tese_pct": 55.2044,
+      "confidence_now_pct": 17.1401,
+      "confidence_delta_pct": -38.0643,
+      "support_rate_pct": 25.0535,
+      "technical_support_pct": 62.77,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 55.245,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": true,
+      "geo_oil_available": false,
+      "progress_to_target_pct": -150.0,
+      "distance_to_stop_pct": -11.5781,
+      "executive_status": "invalidada",
+      "executive_status_label": "Invalidada",
+      "executive_action": "encerrar_ou_reduzir_risco",
+      "thesis_validity": "perdeu_validade",
+      "revaluation_reason": "Risco superou a tese inicial: stop, baixa confirmacao ou aprendizado negativo.",
+      "next_trigger": "Preco/confirmacoes romperam o limite de risco; nao aumentar exposicao.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "invalidada",
+        "executive_status_label": "Invalidada",
+        "thesis_validity": "perdeu_validade",
+        "suggested_action": "encerrar_ou_reduzir_risco",
+        "confidence_initial_pct": 55.2044,
+        "confidence_now_pct": 17.1401,
+        "confidence_delta_pct": -38.0643,
+        "next_trigger": "Preco/confirmacoes romperam o limite de risco; nao aumentar exposicao.",
+        "revaluation_reason": "Risco superou a tese inicial: stop, baixa confirmacao ou aprendizado negativo.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "low_support_rate_band",
+          "near_or_below_stop",
+          "negative_move_gt_2pct",
+          "partial_confirmation_inputs",
+          "stop_alert"
+        ],
+        "postmortem_penalty_points": 2.0643,
+        "matched_postmortem_rules": [
+          "low_support_rate_band"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-04-17T00:00:00+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 19.43
+        },
+        {
+          "event_time": "2026-04-20T00:00:00+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 19.25
+        },
+        {
+          "event_time": "2026-04-20T00:00:00+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 19.25
+        },
+        {
+          "event_time": "2026-04-22T20:27:08+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 19.25
+        },
+        {
+          "event_time": "2026-04-22T20:46:19+00:00",
+          "event_type": "stop_risk_warning",
+          "severity": "high",
+          "message": "Preco entrou na zona de invalidacao da tese bearish.",
+          "market_price": 19.25
+        },
+        {
+          "event_time": "2026-04-22T20:46:19+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura BEAR_PUT_SPREAD.",
+          "market_price": 19.25
+        }
+      ],
+      "asset_front": "acoes_b3",
+      "front_label": "Acoes B3"
+    },
+    {
+      "thesis_id": "TH-BTCUSDT-range-3965",
+      "instrument": "BTCUSDT",
+      "direction": "range",
+      "why_thesis": [
+        "momento_range_0.07pct",
+        "volatilidade_0.02pct",
+        "suporte_historico_99.87pct",
+        "suporte_tecnico_70.49pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-05-02T19:34:59+00:00",
+      "suggested_entry_time": "2026-05-02T19:34:59+00:00",
+      "suggested_exit_time": "2026-05-02T20:14:59+00:00",
+      "entry_price": 78465.05,
+      "target_price": 78465.05,
+      "stop_price": 77288.0743,
+      "suggested_operation": {
+        "strategy_id": "IRON_CONDOR",
+        "strategy_name": "Iron Condor",
+        "rationale": "Estrutura alinhada ao cenario range com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 2.4,
+        "max_loss_pct": 3.8,
+        "breakeven_price": 78465.05,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "BTCUSDT",
+            "option_type": "put",
+            "strike": 72187.85,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "BTCUSDT",
+            "option_type": "put",
+            "strike": 75326.45,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "BTCUSDT",
+            "option_type": "call",
+            "strike": 81603.65,
+            "quantity": 1
+          },
+          {
+            "side": "long",
+            "instrument": "BTCUSDT",
+            "option_type": "call",
+            "strike": 84742.25,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 78434.14,
+      "latest_event_time": "2026-05-02T20:14:59+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 0.8794,
+      "unrealized_financial_pct": 2.3475,
+      "confidence_tese_pct": 74.1403,
+      "confidence_now_pct": 65.9174,
+      "confidence_delta_pct": -8.2229,
+      "support_rate_pct": 99.8732,
+      "technical_support_pct": 70.49,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": 0.0,
+      "distance_to_stop_pct": 1.4606,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 74.1403,
+        "confidence_now_pct": 65.9174,
+        "confidence_delta_pct": -8.2229,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "missing_confirmation_inputs"
+        ],
+        "postmortem_penalty_points": 1.2229,
+        "matched_postmortem_rules": [
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-05-02T19:34:59+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 78465.05
+        },
+        {
+          "event_time": "2026-05-02T20:14:59+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura IRON_CONDOR.",
+          "market_price": 78434.14
+        }
+      ],
+      "asset_front": "cripto",
+      "front_label": "Cripto"
+    },
+    {
+      "thesis_id": "TH-ETHUSDT-range-5987",
+      "instrument": "ETHUSDT",
+      "direction": "range",
+      "why_thesis": [
+        "momento_range_0.05pct",
+        "volatilidade_0.03pct",
+        "suporte_historico_99.09pct",
+        "suporte_tecnico_67.08pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-05-02T19:34:59+00:00",
+      "suggested_entry_time": "2026-05-02T19:34:59+00:00",
+      "suggested_exit_time": "2026-05-02T20:14:59+00:00",
+      "entry_price": 2310.84,
+      "target_price": 2310.84,
+      "stop_price": 2276.1774,
+      "suggested_operation": {
+        "strategy_id": "IRON_CONDOR",
+        "strategy_name": "Iron Condor",
+        "rationale": "Estrutura alinhada ao cenario range com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 2.4,
+        "max_loss_pct": 3.8,
+        "breakeven_price": 2310.84,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "ETHUSDT",
+            "option_type": "put",
+            "strike": 2125.97,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "ETHUSDT",
+            "option_type": "put",
+            "strike": 2218.41,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "ETHUSDT",
+            "option_type": "call",
+            "strike": 2403.27,
+            "quantity": 1
+          },
+          {
+            "side": "long",
+            "instrument": "ETHUSDT",
+            "option_type": "call",
+            "strike": 2495.71,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 2309.73,
+      "latest_event_time": "2026-05-02T20:14:59+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 0.8358,
+      "unrealized_financial_pct": 2.336,
+      "confidence_tese_pct": 72.3255,
+      "confidence_now_pct": 64.1026,
+      "confidence_delta_pct": -8.2229,
+      "support_rate_pct": 99.095,
+      "technical_support_pct": 67.08,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": 0.0,
+      "distance_to_stop_pct": 1.452,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 72.3255,
+        "confidence_now_pct": 64.1026,
+        "confidence_delta_pct": -8.2229,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "missing_confirmation_inputs"
+        ],
+        "postmortem_penalty_points": 1.2229,
+        "matched_postmortem_rules": [
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-05-02T19:34:59+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 2310.84
+        },
+        {
+          "event_time": "2026-05-02T20:14:59+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura IRON_CONDOR.",
+          "market_price": 2309.73
+        }
+      ],
+      "asset_front": "cripto",
+      "front_label": "Cripto"
+    },
+    {
+      "thesis_id": "TH-SOLUSDT-range-7787",
+      "instrument": "SOLUSDT",
+      "direction": "range",
+      "why_thesis": [
+        "momento_range_0.12pct",
+        "volatilidade_0.08pct",
+        "suporte_historico_99.15pct",
+        "suporte_tecnico_65.06pct",
+        "suporte_fundamental_50.00pct",
+        "suporte_news_50.00pct"
+      ],
+      "reason_category": "grafico/tecnico + fundamentalista + noticias/contexto externo",
+      "thesis_raised_at": "2026-05-01T23:39:59+00:00",
+      "suggested_entry_time": "2026-05-01T23:39:59+00:00",
+      "suggested_exit_time": "2026-05-02T00:19:59+00:00",
+      "entry_price": 83.7,
+      "target_price": 83.7,
+      "stop_price": 82.4445,
+      "suggested_operation": {
+        "strategy_id": "IRON_CONDOR",
+        "strategy_name": "Iron Condor",
+        "rationale": "Estrutura alinhada ao cenario range com risco definido (perfil moderado/arrojado). Simulacao educacional baseada em historico local.",
+        "max_gain_pct": 2.4,
+        "max_loss_pct": 3.8,
+        "breakeven_price": 83.7,
+        "legs": [
+          {
+            "side": "long",
+            "instrument": "SOLUSDT",
+            "option_type": "put",
+            "strike": 77.0,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "SOLUSDT",
+            "option_type": "put",
+            "strike": 80.35,
+            "quantity": 1
+          },
+          {
+            "side": "short",
+            "instrument": "SOLUSDT",
+            "option_type": "call",
+            "strike": 87.05,
+            "quantity": 1
+          },
+          {
+            "side": "long",
+            "instrument": "SOLUSDT",
+            "option_type": "call",
+            "strike": 90.4,
+            "quantity": 1
+          }
+        ]
+      },
+      "latest_price": 83.61,
+      "latest_event_time": "2026-05-02T00:19:59+00:00",
+      "monitor_status": "monitoring",
+      "suggested_action": "manter_monitoramento",
+      "expected_financial_pct": 0.8126,
+      "unrealized_financial_pct": 2.2566,
+      "confidence_tese_pct": 71.3599,
+      "confidence_now_pct": 63.137,
+      "confidence_delta_pct": -8.2229,
+      "support_rate_pct": 99.154,
+      "technical_support_pct": 65.06,
+      "fundamental_support_pct": 50.0,
+      "news_support_pct": 50.0,
+      "geo_oil_support_pct": 50.0,
+      "fundamental_available": false,
+      "news_available": false,
+      "geo_oil_available": false,
+      "progress_to_target_pct": 0.0,
+      "distance_to_stop_pct": 1.3925,
+      "executive_status": "atencao",
+      "executive_status_label": "Atencao",
+      "executive_action": "manter_com_alerta",
+      "thesis_validity": "valida_com_ressalvas",
+      "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+      "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "operation_revaluation": {
+        "executive_status": "atencao",
+        "executive_status_label": "Atencao",
+        "thesis_validity": "valida_com_ressalvas",
+        "suggested_action": "manter_com_alerta",
+        "confidence_initial_pct": 71.3599,
+        "confidence_now_pct": 63.137,
+        "confidence_delta_pct": -8.2229,
+        "next_trigger": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+        "revaluation_reason": "Tese segue viva, mas preco, distancia do stop ou confianca deterioraram.",
+        "learning_signal": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+        "risk_flags": [
+          "missing_confirmation_inputs"
+        ],
+        "postmortem_penalty_points": 1.2229,
+        "matched_postmortem_rules": [
+          "missing_confirmation_inputs"
+        ],
+        "blocked_by_postmortem": false
+      },
+      "monitoring_events": [
+        {
+          "event_time": "2026-05-01T23:39:59+00:00",
+          "event_type": "entry_snapshot",
+          "severity": "info",
+          "message": "Operacao estruturada iniciada em simulacao.",
+          "market_price": 83.7
+        },
+        {
+          "event_time": "2026-05-02T00:19:59+00:00",
+          "event_type": "exit_snapshot",
+          "severity": "info",
+          "message": "Encerramento da simulacao da estrutura IRON_CONDOR.",
+          "market_price": 83.61
+        }
+      ],
+      "asset_front": "cripto",
+      "front_label": "Cripto"
+    }
+  ],
+  "disclaimer": "Este conteudo tem finalidade exclusivamente educacional e analitica. Nao constitui recomendacao de investimento, consultoria, analise nem indicacao de compra ou venda. O investidor e responsavel por suas decisoes."
+}
