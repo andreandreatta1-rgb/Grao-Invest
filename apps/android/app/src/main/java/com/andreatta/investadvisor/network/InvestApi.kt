@@ -4,6 +4,7 @@ import kotlinx.serialization.json.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -101,11 +102,28 @@ interface InvestApi {
     @POST("api/theses/case-study")
     suspend fun caseStudy(@Body body: JsonObject): Response<JsonObject>
 
+    @POST("api/theses/ai-analysis")
+    suspend fun aiThesisAnalysis(@Body body: JsonObject): Response<JsonObject>
+
     @POST("api/theses/game-playbook")
     suspend fun gamePlaybook(@Body body: JsonObject): Response<JsonObject>
 
     @POST("api/theses/game-simulation")
     suspend fun gameSimulation(@Body body: JsonObject): Response<JsonObject>
+
+    @GET("api/real-estate/candidates")
+    suspend fun realEstateCandidates(): Response<RealEstateCandidatesResponse>
+
+    @POST("api/real-estate/candidates")
+    suspend fun createRealEstateCandidate(
+        @Body body: RealEstateCandidateRequest,
+    ): Response<RealEstateCandidate>
+
+    @PATCH("api/real-estate/candidates/{candidate_id}")
+    suspend fun updateRealEstateCandidate(
+        @Path("candidate_id") candidateId: Int,
+        @Body body: JsonObject,
+    ): Response<RealEstateCandidate>
 
     @GET("api/alerts/events/{user_id}")
     suspend fun alertEvents(@Path("user_id") userId: Int): Response<List<JsonObject>>

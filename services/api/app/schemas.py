@@ -215,6 +215,102 @@ class AssistantDecisionAnswerRequest(BaseModel):
     free_text: str | None = Field(default=None, max_length=1000)
 
 
+class RealEstateCandidateBase(BaseModel):
+    title: str = Field(min_length=3, max_length=160)
+    source_url: str = Field(default="", max_length=500)
+    origin: str = Field(default="Venda direta vendedor", max_length=60)
+    strategy: str = Field(default="House flipping", max_length=60)
+    city: str = Field(default="", max_length=120)
+    neighborhood: str = Field(default="", max_length=120)
+    property_type: str = Field(default="", max_length=80)
+    private_area_m2: float = Field(default=0.0, ge=0)
+    bedrooms: int = Field(default=0, ge=0, le=20)
+    parking_spaces: int = Field(default=0, ge=0, le=20)
+    asking_price: float = Field(default=0.0, ge=0)
+    appraisal_value: float = Field(default=0.0, ge=0)
+    market_value_estimate: float = Field(default=0.0, ge=0)
+    estimated_sale_conservative: float = Field(default=0.0, ge=0)
+    estimated_sale_base: float = Field(default=0.0, ge=0)
+    estimated_sale_optimistic: float = Field(default=0.0, ge=0)
+    estimated_rent_conservative: float = Field(default=0.0, ge=0)
+    accepts_financing: bool = False
+    financing_validated: bool = False
+    occupancy_status: str = Field(
+        default="desconhecido",
+        pattern="^(desconhecido|desocupado|ocupado)$",
+    )
+    has_registration: bool = False
+    has_edital: bool = False
+    condo_debt_known: bool = False
+    iptu_debt_known: bool = False
+    renovation_type: str = Field(default="desconhecida", max_length=40)
+    renovation_budget: float = Field(default=0.0, ge=0)
+    carrying_months: int = Field(default=6, ge=0, le=60)
+    monthly_carrying_cost: float = Field(default=0.0, ge=0)
+    acquisition_costs: float = Field(default=0.0, ge=0)
+    selling_commission_pct: float = Field(default=6.0, ge=0, le=20)
+    cash_needed: float = Field(default=0.0, ge=0)
+    sale_comparables_count: int = Field(default=0, ge=0, le=50)
+    rent_comparables_count: int = Field(default=0, ge=0, le=50)
+    first_operation: bool = True
+    plan_a: str = Field(default="", max_length=1000)
+    plan_b: str = Field(default="", max_length=1000)
+    plan_c: str = Field(default="", max_length=1000)
+    notes: str = Field(default="", max_length=2000)
+
+
+class RealEstateCandidateCreateRequest(RealEstateCandidateBase):
+    pass
+
+
+class RealEstateCandidateUpdateRequest(BaseModel):
+    title: str | None = Field(default=None, min_length=3, max_length=160)
+    source_url: str | None = Field(default=None, max_length=500)
+    origin: str | None = Field(default=None, max_length=60)
+    strategy: str | None = Field(default=None, max_length=60)
+    city: str | None = Field(default=None, max_length=120)
+    neighborhood: str | None = Field(default=None, max_length=120)
+    property_type: str | None = Field(default=None, max_length=80)
+    private_area_m2: float | None = Field(default=None, ge=0)
+    bedrooms: int | None = Field(default=None, ge=0, le=20)
+    parking_spaces: int | None = Field(default=None, ge=0, le=20)
+    asking_price: float | None = Field(default=None, ge=0)
+    appraisal_value: float | None = Field(default=None, ge=0)
+    market_value_estimate: float | None = Field(default=None, ge=0)
+    estimated_sale_conservative: float | None = Field(default=None, ge=0)
+    estimated_sale_base: float | None = Field(default=None, ge=0)
+    estimated_sale_optimistic: float | None = Field(default=None, ge=0)
+    estimated_rent_conservative: float | None = Field(default=None, ge=0)
+    accepts_financing: bool | None = None
+    financing_validated: bool | None = None
+    occupancy_status: str | None = Field(
+        default=None,
+        pattern="^(desconhecido|desocupado|ocupado)$",
+    )
+    has_registration: bool | None = None
+    has_edital: bool | None = None
+    condo_debt_known: bool | None = None
+    iptu_debt_known: bool | None = None
+    renovation_type: str | None = Field(default=None, max_length=40)
+    renovation_budget: float | None = Field(default=None, ge=0)
+    carrying_months: int | None = Field(default=None, ge=0, le=60)
+    monthly_carrying_cost: float | None = Field(default=None, ge=0)
+    acquisition_costs: float | None = Field(default=None, ge=0)
+    selling_commission_pct: float | None = Field(default=None, ge=0, le=20)
+    cash_needed: float | None = Field(default=None, ge=0)
+    sale_comparables_count: int | None = Field(default=None, ge=0, le=50)
+    rent_comparables_count: int | None = Field(default=None, ge=0, le=50)
+    first_operation: bool | None = None
+    plan_a: str | None = Field(default=None, max_length=1000)
+    plan_b: str | None = Field(default=None, max_length=1000)
+    plan_c: str | None = Field(default=None, max_length=1000)
+    notes: str | None = Field(default=None, max_length=2000)
+
+
+class RealEstateCandidateDiscardRequest(BaseModel):
+    reason: str = Field(min_length=4, max_length=1000)
+
+
 class DashboardResponse(BaseModel):
     user_id: int
     investor_profile: str | None

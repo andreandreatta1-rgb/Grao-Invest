@@ -257,6 +257,55 @@ class AssistantDecision(Base):
     updated_at: Mapped[str] = mapped_column(String(40), index=True)
 
 
+class RealEstateCandidate(Base):
+    __tablename__ = "real_estate_candidates"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String(160))
+    source_url: Mapped[str] = mapped_column(String(500), default="")
+    origin: Mapped[str] = mapped_column(String(60), index=True)
+    strategy: Mapped[str] = mapped_column(String(60), index=True)
+    city: Mapped[str] = mapped_column(String(120), default="")
+    neighborhood: Mapped[str] = mapped_column(String(120), default="")
+    property_type: Mapped[str] = mapped_column(String(80), default="")
+    private_area_m2: Mapped[float] = mapped_column(Float, default=0.0)
+    bedrooms: Mapped[int] = mapped_column(Integer, default=0)
+    parking_spaces: Mapped[int] = mapped_column(Integer, default=0)
+    asking_price: Mapped[float] = mapped_column(Float, default=0.0)
+    appraisal_value: Mapped[float] = mapped_column(Float, default=0.0)
+    market_value_estimate: Mapped[float] = mapped_column(Float, default=0.0)
+    estimated_sale_conservative: Mapped[float] = mapped_column(Float, default=0.0)
+    estimated_sale_base: Mapped[float] = mapped_column(Float, default=0.0)
+    estimated_sale_optimistic: Mapped[float] = mapped_column(Float, default=0.0)
+    estimated_rent_conservative: Mapped[float] = mapped_column(Float, default=0.0)
+    accepts_financing: Mapped[bool] = mapped_column(Boolean, default=False)
+    financing_validated: Mapped[bool] = mapped_column(Boolean, default=False)
+    occupancy_status: Mapped[str] = mapped_column(String(32), default="desconhecido", index=True)
+    has_registration: Mapped[bool] = mapped_column(Boolean, default=False)
+    has_edital: Mapped[bool] = mapped_column(Boolean, default=False)
+    condo_debt_known: Mapped[bool] = mapped_column(Boolean, default=False)
+    iptu_debt_known: Mapped[bool] = mapped_column(Boolean, default=False)
+    renovation_type: Mapped[str] = mapped_column(String(40), default="desconhecida")
+    renovation_budget: Mapped[float] = mapped_column(Float, default=0.0)
+    carrying_months: Mapped[int] = mapped_column(Integer, default=6)
+    monthly_carrying_cost: Mapped[float] = mapped_column(Float, default=0.0)
+    acquisition_costs: Mapped[float] = mapped_column(Float, default=0.0)
+    selling_commission_pct: Mapped[float] = mapped_column(Float, default=6.0)
+    cash_needed: Mapped[float] = mapped_column(Float, default=0.0)
+    sale_comparables_count: Mapped[int] = mapped_column(Integer, default=0)
+    rent_comparables_count: Mapped[int] = mapped_column(Integer, default=0)
+    first_operation: Mapped[bool] = mapped_column(Boolean, default=True)
+    plan_a: Mapped[str] = mapped_column(Text, default="")
+    plan_b: Mapped[str] = mapped_column(Text, default="")
+    plan_c: Mapped[str] = mapped_column(Text, default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    status_override: Mapped[str | None] = mapped_column(String(40), nullable=True, index=True)
+    discard_reason: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[str] = mapped_column(String(40), index=True)
+    updated_at: Mapped[str] = mapped_column(String(40), index=True)
+
+
 class KillSwitchState(Base):
     __tablename__ = "kill_switch_states"
 

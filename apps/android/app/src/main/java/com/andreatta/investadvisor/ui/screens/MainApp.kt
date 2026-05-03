@@ -26,6 +26,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
@@ -42,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -58,17 +62,18 @@ import com.andreatta.investadvisor.ui.viewmodel.FeatureViewModel
 import com.andreatta.investadvisor.ui.viewmodel.simpleViewModelFactory
 
 private enum class MainTab(val title: String, val icon: ImageVector) {
-    Dashboard("Dashboard", Icons.Default.Dashboard),
-    Mercado("Mercado", Icons.AutoMirrored.Filled.ShowChart),
+    Home("Início", Icons.Default.Dashboard),
+    Operacoes("Operar", Icons.Default.AccountBalanceWallet),
     Teses("Teses", Icons.AutoMirrored.Filled.TrendingUp),
-    Operacoes("Operacoes", Icons.Default.AccountBalanceWallet),
-    Microtrades("Microtrades", Icons.Default.Bolt),
-    Backtest("Backtest", Icons.Default.Timeline),
-    Risco("Risco", Icons.Default.HealthAndSafety),
-    Game("Game", Icons.Default.SportsEsports),
-    Alertas("Alertas", Icons.Default.Notifications),
+    Aprender("Aprender", Icons.Default.Timeline),
     Config("Config", Icons.Default.Settings),
 }
+
+private val MainNavBackground = Color(0xFF0A0E1A)
+private val MainNavSelected = Color(0xFF00D4AA)
+private val MainNavText = Color(0xFFE8EDF7)
+private val MainNavMuted = Color(0xFF8A9BC0)
+private val MainNavIndicator = Color(0xFF16233D)
 
 @Composable
 fun InvestAdvisorApp(
@@ -98,19 +103,37 @@ private fun MainShell(
     modifier: Modifier = Modifier,
 ) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedFrontName by rememberSaveable { mutableStateOf(AssetFront.Stocks.name) }
     val tabs = MainTab.entries
+    val selectedFront = runCatching { AssetFront.valueOf(selectedFrontName) }.getOrDefault(AssetFront.Stocks)
+
+    fun openFront(front: AssetFront) {
+        selectedFrontName = front.name
+        selectedIndex = tabs.indexOf(MainTab.Operacoes)
+    }
+
     Scaffold(
-        topBar = {
-            Column {
-                ScrollableTabRow(selectedTabIndex = selectedIndex) {
-                    tabs.forEachIndexed { index, tab ->
-                        Tab(
-                            selected = selectedIndex == index,
-                            onClick = { selectedIndex = index },
-                            text = { Text(tab.title) },
-                            icon = { Icon(tab.icon, contentDescription = null) },
-                        )
-                    }
+        containerColor = MainNavBackground,
+        bottomBar = {
+            NavigationBar(
+                containerColor = MainNavBackground,
+                contentColor = MainNavText,
+                tonalElevation = 0.dp,
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    NavigationBarItem(
+                        selected = selectedIndex == index,
+                        onClick = { selectedIndex = index },
+                        icon = { Icon(tab.icon, contentDescription = tab.title) },
+                        label = { Text(tab.title) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MainNavSelected,
+                            selectedTextColor = MainNavText,
+                            indicatorColor = MainNavIndicator,
+                            unselectedIconColor = MainNavMuted,
+                            unselectedTextColor = MainNavMuted,
+                        ),
+                    )
                 }
             }
         },
@@ -120,114 +143,41 @@ private fun MainShell(
             .padding(padding)
             .fillMaxSize()
         when (tabs[selectedIndex]) {
-            MainTab.Dashboard -> DashboardScreen(session, repository, pageModifier)
-            MainTab.Mercado -> FeatureScreen(
-                title = "Mercado",
-                subtitle = "Feed, cobertura, noticias, fundamentos e indicadores.",
-                actions = listOf(
-                    FeatureAction.FeedHealth,
-                    FeatureAction.MarketCoverage,
-                    FeatureAction.MarketTicks,
-                    FeatureAction.News,
-                    FeatureAction.Fundamentals,
-                    FeatureAction.Indicators,
-                    FeatureAction.FetchIntraday,
-                ),
+            MainTab.Home -> HomeDashboardScreen(
                 session = session,
                 repository = repository,
+                onOpenFront = ::openFront,
                 modifier = pageModifier,
             )
-            MainTab.Teses -> FeatureScreen(
-                title = "Teses e sinais",
-                subtitle = "Geracao, monitoramento e leitura das teses.",
-                actions = listOf(
-                    FeatureAction.GenerateSignal,
-                    FeatureAction.ListSignals,
-                    FeatureAction.CurrentMonitor,
-                    FeatureAction.LatestMonitor,
-                    FeatureAction.CaseStudy,
-                ),
-                session = session,
-                repository = repository,
-                modifier = pageModifier,
-            )
-            MainTab.Operacoes -> FeatureScreen(
-                title = "Operacoes simuladas",
-                subtitle = "Paper trading, alocacao e rebalanceamento.",
-                actions = listOf(
-                    FeatureAction.PaperOrder,
-                    FeatureAction.AllocatePortfolio,
-                    FeatureAction.LatestAllocation,
-                    FeatureAction.Rebalance,
-                ),
-                session = session,
-                repository = repository,
-                modifier = pageModifier,
-            )
-            MainTab.Microtrades -> FeatureScreen(
-                title = "Microtrades (Beta)",
-                subtitle = "Modulo experimental para operacoes curtas e validacao objetiva de edge.",
-                actions = listOf(
-                    FeatureAction.FetchIntraday,
-                    FeatureAction.Indicators,
-                    FeatureAction.GenerateSignal,
-                    FeatureAction.ListSignals,
-                    FeatureAction.PaperOrder,
-                    FeatureAction.RunBacktest,
-                    FeatureAction.CircuitBreaker,
-                    FeatureAction.CreateAlertRule,
-                ),
-                session = session,
-                repository = repository,
-                defaultInstrument = "BTCUSDT",
-                defaultQuantity = "1",
-                defaultCapital = "25000",
-                topContent = { MicrotradesPlaybookPanel() },
-                modifier = pageModifier,
-            )
-            MainTab.Backtest -> FeatureScreen(
-                title = "Backtest",
-                subtitle = "Validacao historica de sinais e teses.",
-                actions = listOf(FeatureAction.RunBacktest, FeatureAction.BacktestDetail),
-                session = session,
-                repository = repository,
-                modifier = pageModifier,
-            )
-            MainTab.Risco -> FeatureScreen(
-                title = "Risco",
-                subtitle = "Circuit breaker e kill-switch.",
-                actions = listOf(
-                    FeatureAction.CircuitBreaker,
-                    FeatureAction.ActiveKillSwitches,
-                    FeatureAction.ActivateKillSwitch,
-                    FeatureAction.ReleaseKillSwitch,
-                ),
-                session = session,
-                repository = repository,
-                modifier = pageModifier,
-            )
-            MainTab.Game -> FeatureScreen(
-                title = "Game",
-                subtitle = "Playbook e simulacao de decisoes.",
-                actions = listOf(FeatureAction.GamePlaybook, FeatureAction.GameSimulation),
-                session = session,
-                repository = repository,
-                modifier = pageModifier,
-            )
-            MainTab.Alertas -> AlertsScreen(session, repository, pageModifier)
+            MainTab.Operacoes -> {
+                if (selectedFront == AssetFront.RealEstate) {
+                    RealEstateRadarScreen(repository, pageModifier)
+                } else {
+                    OperationsScreen(
+                        session = session,
+                        repository = repository,
+                        selectedFront = selectedFront,
+                        onFrontSelected = { selectedFrontName = it.name },
+                        modifier = pageModifier,
+                    )
+                }
+            }
+            MainTab.Teses -> ThesesOverviewScreen(session, repository, pageModifier)
+            MainTab.Aprender -> LearningScreen(session, repository, pageModifier)
             MainTab.Config -> SettingsScreen(session, sessionStore, repository, pageModifier)
         }
     }
 }
 
 @Composable
-private fun DashboardScreen(
+private fun HomeDashboardScreen(
     session: AppSession,
     repository: InvestmentRepository,
+    onOpenFront: (AssetFront) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel = viewModel<DashboardViewModel>(
-        key = "dashboard",
+        key = "dashboard-home",
         factory = simpleViewModelFactory { DashboardViewModel(repository) },
     )
     val state by viewModel.state.collectAsState()
@@ -242,10 +192,100 @@ private fun DashboardScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
-        SectionHeader("Dashboard", "Resumo operacional da conta ${session.email}.")
+        ThesisFrontHubState(
+            state = state,
+            onOpenFront = onOpenFront,
+        )
+    }
+}
+
+@Composable
+private fun ThesesOverviewScreen(
+    session: AppSession,
+    repository: InvestmentRepository,
+    modifier: Modifier = Modifier,
+) {
+    val viewModel = viewModel<DashboardViewModel>(
+        key = "dashboard-theses",
+        factory = simpleViewModelFactory { DashboardViewModel(repository) },
+    )
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(session.userId) {
+        session.userId?.let { viewModel.refresh(it) }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+    ) {
+        ThesisListState(state = state)
+    }
+}
+
+@Composable
+private fun OperationsScreen(
+    session: AppSession,
+    repository: InvestmentRepository,
+    selectedFront: AssetFront,
+    onFrontSelected: (AssetFront) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val viewModel = viewModel<DashboardViewModel>(
+        key = "dashboard-operations",
+        factory = simpleViewModelFactory { DashboardViewModel(repository) },
+    )
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(session.userId) {
+        session.userId?.let { viewModel.refresh(it) }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+    ) {
+        SectionHeader("Operações", "Acompanhamento das teses abertas por frente.")
         DisclaimerBar()
         RefreshButton("Atualizar", onClick = { session.userId?.let { viewModel.refresh(it) } })
-        SummaryState(state, idleText = "Toque em Atualizar para carregar o dashboard.")
+        ThesisDashboardState(
+            state = state,
+            selectedFront = selectedFront,
+            onFrontSelected = onFrontSelected,
+        )
+    }
+}
+
+@Composable
+private fun LearningScreen(
+    session: AppSession,
+    repository: InvestmentRepository,
+    modifier: Modifier = Modifier,
+) {
+    val viewModel = viewModel<DashboardViewModel>(
+        key = "dashboard-learning",
+        factory = simpleViewModelFactory { DashboardViewModel(repository) },
+    )
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(session.userId) {
+        session.userId?.let { viewModel.refresh(it) }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+    ) {
+        SectionHeader("Aprendizados", "Dor e remédio: o que o mecanismo está incorporando.")
+        DisclaimerBar()
+        RefreshButton("Atualizar", onClick = { session.userId?.let { viewModel.refresh(it) } })
+        ThesisLearningState(state)
     }
 }
 
@@ -300,7 +340,7 @@ private fun FeatureScreen(
             onDismissRequest = { pending = null },
             title = { Text("Confirmar ${action.label}") },
             text = {
-                Text("Esta acao altera estado operacional simulado ou de risco para ${instrument.uppercase()}.")
+                Text("Esta ação altera estado operacional simulado ou de risco para ${instrument.uppercase()}.")
             },
             confirmButton = {
                 TextButton(
@@ -389,7 +429,7 @@ private fun FeatureScreen(
                 ActionButton(action.label, onClick = { run(action) })
             }
         }
-        SummaryState(state, idleText = "Escolha uma acao para consultar ou executar.")
+        SummaryState(state, idleText = "Escolha uma ação para consultar ou executar.")
     }
 }
 

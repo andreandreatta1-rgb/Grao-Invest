@@ -76,6 +76,10 @@ const viewMeta = {
     title: "Grão Invest",
     subtitle: "Painel visual para exercícios de teses, metas e planejamento financeiro.",
   },
+  imoveis: {
+    title: "Imoveis e Projetos",
+    subtitle: "Radar imobiliario para candidatos, pendencias, score e decisao assistida.",
+  },
 };
 
 function byId(id) {
@@ -804,6 +808,9 @@ function renderThesisHistoryOverview(data) {
   };
 
   const isOpenStatus = (row) => {
+    if (typeof row?.is_open === "boolean") {
+      return row.is_open;
+    }
     const status = String(row.status || "").toLowerCase();
     if (status.includes("aberta") || status.includes("aberto") || status.includes("monitor")) {
       return true;
@@ -852,6 +859,8 @@ function renderThesisHistoryOverview(data) {
       const reason = trimText(row.thesis_reason || "-", 220);
       const raisedAt = String(row.thesis_raised_at || row.entry_time || row.suggested_entry_time || "");
       const raisedDay = raisedAt.length >= 10 ? `${raisedAt.slice(8, 10)}/${raisedAt.slice(5, 7)}/${raisedAt.slice(0, 4)}` : "-";
+      const plannedExitAt = String(row.planned_exit_at || "");
+      const plannedExitDay = plannedExitAt.length >= 10 ? `${plannedExitAt.slice(8, 10)}/${plannedExitAt.slice(5, 7)}/${plannedExitAt.slice(0, 4)}` : "-";
       const statusTone = String(status).toLowerCase().includes("aberta") ? "tone-warning" : "tone-success";
       const momentTone = Number.isFinite(momentResult) && momentResult < 0 ? "tone-danger" : "tone-success";
       const phaseLabel = classifyPhase(row) === "historical" ? "Historico" : "Pos go-live";
@@ -864,7 +873,7 @@ function renderThesisHistoryOverview(data) {
           </div>
           <p class="list-meta">${escapeHtml(phaseLabel)} | Inicio: ${escapeHtml(raisedDay)} | Desfecho atual: ${escapeHtml(outcome)}</p>
           <p class="list-meta">Esperado: <span class="mono">${escapeHtml(formatSignedMetricPercent(expectedResult))}</span> | Momento: <span class="mono ${momentTone}">${escapeHtml(formatSignedMetricPercent(momentResult))}</span></p>
-          <p class="list-meta">Entra em: <span class="mono">${escapeHtml(entryLabel)}</span></p>
+          <p class="list-meta">Entrada: <span class="mono">${escapeHtml(entryLabel)}</span> | Valida ate: <span class="mono">${escapeHtml(plannedExitDay)}</span></p>
           <p class="list-meta">Operacao: ${escapeHtml(operationPlan)}</p>
           <p class="list-meta">Estrutura: ${escapeHtml(structuredOperation)}</p>
           <p class="list-meta">Sai se: ${escapeHtml(exitRule)}</p>
@@ -1062,7 +1071,9 @@ function renderThesisOpenOperations(data) {
   });
 
   const currentOpenRows = currentRows.filter((row) =>
-    String(row.status || "").toLowerCase().includes("aberta"),
+    typeof row?.is_open === "boolean"
+      ? row.is_open
+      : String(row.status || "").toLowerCase().includes("aberta"),
   );
 
   if (historicalBody) {
@@ -4887,6 +4898,5 @@ function bootstrap() {
 }
 
 window.addEventListener("DOMContentLoaded", bootstrap);
-
 
 

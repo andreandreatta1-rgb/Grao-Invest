@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,12 +26,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.andreatta.investadvisor.network.JsonSummary
 import com.andreatta.investadvisor.ui.UiState
 
-const val DISCLAIMER_TEXT = "Conteudo educacional; nao e recomendacao de investimento."
+const val DISCLAIMER_TEXT = "Conteúdo educacional; não é recomendação de investimento."
+
+private val SharedCard = Color(0xFF141C30)
+private val SharedText = Color.White
+private val SharedMuted = Color(0xFF8A9BC0)
+private val SharedTeal = Color(0xFF00D4AA)
 
 @Composable
 fun DisclaimerBar(modifier: Modifier = Modifier) {
@@ -39,6 +47,11 @@ fun DisclaimerBar(modifier: Modifier = Modifier) {
         leadingIcon = {
             Icon(Icons.Default.CheckCircle, contentDescription = null)
         },
+        colors = AssistChipDefaults.assistChipColors(
+            containerColor = SharedCard,
+            labelColor = SharedMuted,
+            leadingIconContentColor = SharedTeal,
+        ),
         modifier = modifier.fillMaxWidth(),
     )
 }
@@ -50,12 +63,13 @@ fun SectionHeader(title: String, subtitle: String? = null, modifier: Modifier = 
             text = title,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold,
+            color = SharedText,
         )
         if (!subtitle.isNullOrBlank()) {
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = SharedMuted,
             )
         }
     }
@@ -95,7 +109,14 @@ fun ActionButton(
 
 @Composable
 fun RefreshButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    ElevatedButton(onClick = onClick, modifier = modifier) {
+    ElevatedButton(
+        onClick = onClick,
+        colors = ButtonDefaults.elevatedButtonColors(
+            containerColor = SharedCard,
+            contentColor = SharedTeal,
+        ),
+        modifier = modifier,
+    ) {
         Icon(Icons.Default.Refresh, contentDescription = null)
         Text(text = label, modifier = Modifier.padding(start = 8.dp))
     }
@@ -106,14 +127,15 @@ private fun LoadingPanel(modifier: Modifier = Modifier) {
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.outlinedCardColors(containerColor = SharedCard, contentColor = SharedText),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(16.dp),
         ) {
-            CircularProgressIndicator()
-            Text("Carregando dados...")
+            CircularProgressIndicator(color = SharedTeal)
+            Text("Carregando dados...", color = SharedText)
         }
     }
 }
@@ -123,11 +145,12 @@ private fun EmptyPanel(text: String, modifier: Modifier = Modifier) {
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.outlinedCardColors(containerColor = SharedCard, contentColor = SharedText),
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = SharedMuted,
             modifier = Modifier.padding(16.dp),
         )
     }
@@ -159,6 +182,7 @@ private fun SummaryPanel(summary: JsonSummary, modifier: Modifier = Modifier) {
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.outlinedCardColors(containerColor = SharedCard, contentColor = SharedText),
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -168,11 +192,13 @@ private fun SummaryPanel(summary: JsonSummary, modifier: Modifier = Modifier) {
                 text = summary.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
+                color = SharedText,
             )
             summary.rows.forEach { row ->
                 Text(
                     text = row,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = SharedMuted,
                 )
             }
         }

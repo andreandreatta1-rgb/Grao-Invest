@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 from collections import defaultdict
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -36,6 +37,7 @@ from app.models import (
     NewsArticle,
     PaperOrder,
     PortfolioPosition,
+    RealEstateCandidate,
     RiskDecision,
     Signal,
     SuitabilityProfile,
@@ -69,6 +71,9 @@ from app.schemas import (
     NewsIngestRequest,
     PortfolioAllocateRequest,
     PortfolioRebalanceRequest,
+    RealEstateCandidateCreateRequest,
+    RealEstateCandidateDiscardRequest,
+    RealEstateCandidateUpdateRequest,
     RecomputeIndicatorsRequest,
     RecomputePortfolioIndicatorsRequest,
     SignupRequest,
@@ -164,6 +169,7 @@ from app.services.portfolio_optimizer import (
     get_allocation_plan,
     get_latest_allocation_plan,
 )
+from app.services.real_estate_radar import build_candidate_analysis
 from app.services.reports import build_user_report
 from app.services.risk import evaluate_circuit_breaker, set_kill_switch
 from app.services.signals import generate_signal
@@ -1662,6 +1668,167 @@ def assistant_decisions_answer(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+REAL_ESTATE_CANDIDATE_FIELDS = [
+    "title",
+    "source_url",
+    "origin",
+    "strategy",
+    "city",
+    "neighborhood",
+    "property_type",
+    "private_area_m2",
+    "bedrooms",
+    "parking_spaces",
+    "asking_price",
+    "appraisal_value",
+    "market_value_estimate",
+    "estimated_sale_conservative",
+    "estimated_sale_base",
+    "estimated_sale_optimistic",
+    "estimated_rent_conservative",
+    "accepts_financing",
+    "financing_validated",
+    "occupancy_status",
+    "has_registration",
+    "has_edital",
+    "condo_debt_known",
+    "iptu_debt_known",
+    "renovation_type",
+    "renovation_budget",
+    "carrying_months",
+    "monthly_carrying_cost",
+    "acquisition_costs",
+    "selling_commission_pct",
+    "cash_needed",
+    "sale_comparables_count",
+    "rent_comparables_count",
+    "first_operation",
+    "plan_a",
+    "plan_b",
+    "plan_c",
+    "notes",
+]
+
+
+def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, object]:
+    base = {field: getattr(candidate, field) for field in REAL_ESTATE_CANDIDATE_FIELDS}
+    analysis = build_candidate_analysis(base)
+    status_value = candidate.status_override or str(analysis["suggested_status"])
+    return {
+        "id": candidate.id,
+        "user_id": candidate.user_id,
+        **base,
+        "status": status_value,
+        "discard_reason": candidate.discard_reason,
+        "created_at": candidate.created_at,
+        "updated_at": candidate.updated_at,
+        "analysis": analysis,
+    }
+
+
+def _get_real_estate_candidate_or_404(
+    db: Session,
+    *,
+    user_id: int,
+    candidate_id: int,
+) -> RealEstateCandidate:
+    candidate = db.scalar(
+        select(RealEstateCandidate).where(
+            RealEstateCandidate.id == candidate_id,
+            RealEstateCandidate.user_id == user_id,
+        )
+    )
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="Candidato imobiliario nao encontrado.")
+    return candidate
+
+
+@app.get("/api/real-estate/candidates")
+def real_estate_candidates_list(
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    candidates = list(
+        db.scalars(
+            select(RealEstateCandidate)
+            .where(RealEstateCandidate.user_id == user.id)
+            .order_by(desc(RealEstateCandidate.updated_at), desc(RealEstateCandidate.id))
+        )
+    )
+    items = [_real_estate_candidate_payload(candidate) for candidate in candidates]
+    status_counts: defaultdict[str, int] = defaultdict(int)
+    for item in items:
+        status_counts[str(item["status"])] += 1
+    return {
+        "summary": {
+            "total": len(items),
+            "status_counts": dict(sorted(status_counts.items())),
+        },
+        "items": items,
+    }
+
+
+@app.post("/api/real-estate/candidates")
+def real_estate_candidate_create(
+    payload: RealEstateCandidateCreateRequest,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    now = isoformat(utc_now())
+    candidate = RealEstateCandidate(
+        user_id=user.id,
+        **payload.model_dump(),
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(candidate)
+    db.commit()
+    db.refresh(candidate)
+    return _real_estate_candidate_payload(candidate)
+
+
+@app.patch("/api/real-estate/candidates/{candidate_id}")
+def real_estate_candidate_update(
+    candidate_id: int,
+    payload: RealEstateCandidateUpdateRequest,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    candidate = _get_real_estate_candidate_or_404(
+        db,
+        user_id=user.id,
+        candidate_id=candidate_id,
+    )
+    for field, value in payload.model_dump(exclude_unset=True, exclude_none=True).items():
+        setattr(candidate, field, value)
+    candidate.updated_at = isoformat(utc_now())
+    db.add(candidate)
+    db.commit()
+    db.refresh(candidate)
+    return _real_estate_candidate_payload(candidate)
+
+
+@app.post("/api/real-estate/candidates/{candidate_id}/discard")
+def real_estate_candidate_discard(
+    candidate_id: int,
+    payload: RealEstateCandidateDiscardRequest,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    candidate = _get_real_estate_candidate_or_404(
+        db,
+        user_id=user.id,
+        candidate_id=candidate_id,
+    )
+    candidate.status_override = "Descartado"
+    candidate.discard_reason = payload.reason
+    candidate.updated_at = isoformat(utc_now())
+    db.add(candidate)
+    db.commit()
+    db.refresh(candidate)
+    return _real_estate_candidate_payload(candidate)
+
+
 @app.get("/api/reports/executive")
 def report_executive() -> dict[str, object]:
     report_path = data_dir / "executive_report_latest.json"
@@ -2396,6 +2563,42 @@ def dashboard_summary(
             return None
         delta_days = (end_dt - start_dt).total_seconds() / 86400.0
         return int(round(max(0.0, delta_days)))
+
+    def _safe_day(value: object) -> date | None:
+        if value is None:
+            return None
+        raw = str(value).strip()
+        if not raw:
+            return None
+        try:
+            return date.fromisoformat(raw[:10])
+        except ValueError:
+            return None
+
+    def _extract_planned_exit_day(explicit_value: object, operation_plan: object) -> str:
+        explicit_day = _safe_day(explicit_value)
+        if explicit_day is not None:
+            return explicit_day.isoformat()
+        explicit_dt = _safe_datetime(explicit_value)
+        if explicit_dt is not None:
+            return explicit_dt.date().isoformat()
+        operation_plan_text = str(operation_plan or "")
+        match = re.search(r"\bat[eé]\s+(\d{4}-\d{2}-\d{2})\b", operation_plan_text.lower())
+        if match:
+            return match.group(1)
+        return ""
+
+    def _infer_open_operation(*, status: object, phase: object, planned_exit_at: object) -> bool:
+        status_text = str(status or "").strip().lower()
+        phase_text = str(phase or "").strip().lower()
+        if status_text == "fechada":
+            return False
+        if phase_text == "historico":
+            return False
+        planned_exit_day = _safe_day(planned_exit_at)
+        if planned_exit_day is not None and planned_exit_day < date.today():
+            return False
+        return status_text.startswith("aberta")
 
     def _humanize_signal(signal: object) -> str:
         raw = str(signal or "").strip()
@@ -3741,6 +3944,7 @@ def dashboard_summary(
             historical_rows_added += _append_case_study_operation(selected_case_dict)
 
     if current_monitor_latest is not None:
+        current_monitor_generated_at = str(current_monitor_latest.get("generated_at") or "")
         theses_payload = current_monitor_latest.get("theses")
         theses_payload_list = (
             [item for item in theses_payload if isinstance(item, dict)]
@@ -3808,10 +4012,6 @@ def dashboard_summary(
             learning_signal = str(
                 item.get("learning_signal") or revaluation_dict.get("learning_signal") or ""
             )
-            has_exit_event = any(
-                str(event.get("event_type") or "").lower() == "exit_snapshot"
-                for event in monitoring_events_list
-            )
             monitor_status = str(item.get("monitor_status") or "").lower()
             status_label = "Aberta"
             if monitor_status in {"closed", "encerrada", "finished", "exited"}:
@@ -3855,11 +4055,23 @@ def dashboard_summary(
                     outcome_label = "Alvo"
                 elif has_stop_event:
                     outcome_label = "Stop/Protecao"
-                elif has_exit_event:
-                    outcome_label = "Tempo"
                 else:
                     outcome_label = "Encerrada"
             entry_time = item.get("suggested_entry_time") or item.get("thesis_raised_at")
+            planned_exit_at_value = _extract_planned_exit_day(suggested_exit_time, "")
+            is_open_current = _infer_open_operation(
+                status=status_label,
+                phase="pos_go_live",
+                planned_exit_at=planned_exit_at_value,
+            )
+            if not is_open_current:
+                status_label = "Fechada"
+                if has_target_event:
+                    outcome_label = "Alvo"
+                elif has_stop_event:
+                    outcome_label = "Stop/Protecao"
+                else:
+                    outcome_label = "Tempo"
             exit_time = (
                 _extract_exit_datetime(
                     monitoring_events_list,
@@ -3869,6 +4081,16 @@ def dashboard_summary(
                 else None
             )
             duration_days = _duration_days(entry_time, exit_time) if status_label == "Fechada" else None
+            latest_price = round(_safe_number(item.get("latest_price"), 0.0), 4)
+            latest_price_at = str(item.get("latest_event_time") or "")
+            open_days = (
+                _duration_days(
+                    entry_time,
+                    current_monitor_generated_at or latest_price_at,
+                )
+                if status_label != "Fechada"
+                else None
+            )
 
             thesis_open_operations.append(
                 {
@@ -3896,6 +4118,9 @@ def dashboard_summary(
                         f"{strategy_name} | ganho max {max_gain_pct:.2f}% | perda max {max_loss_pct:.2f}%"
                     ),
                     "entry_price_brl": entry_price,
+                    "current_price_brl": latest_price,
+                    "latest_price_at": latest_price_at,
+                    "planned_exit_at": planned_exit_at_value,
                     "exit_rule": next_trigger
                     or f"Sai se subir para R$ {target_price:.2f} ou cair para R$ {stop_price:.2f}",
                     "status": status_label,
@@ -3905,6 +4130,7 @@ def dashboard_summary(
                         4,
                     ),
                     "duration_days": duration_days,
+                    "open_days": open_days,
                     "learning_note": learning_signal
                     or _build_learning_note(
                         direction=direction,
@@ -3916,6 +4142,7 @@ def dashboard_summary(
                             4,
                         ),
                     ),
+                    "is_open": is_open_current,
                 }
             )
 
@@ -3980,6 +4207,18 @@ def dashboard_summary(
                 expected_result_pct=_safe_number(row.get("expected_result_pct"), 0.0),
                 realized_result_pct=_safe_number(row.get("moment_result_pct"), 0.0),
             )
+
+        planned_exit_at = _extract_planned_exit_day(
+            row.get("planned_exit_at"),
+            row.get("operation_plan"),
+        )
+        if planned_exit_at:
+            row["planned_exit_at"] = planned_exit_at
+        row["is_open"] = _infer_open_operation(
+            status=row.get("status"),
+            phase=row.get("phase"),
+            planned_exit_at=planned_exit_at,
+        )
 
     total_tested_for_numbering = _safe_int(
         thesis_history_overview.get("total_tested"),

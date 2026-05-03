@@ -227,6 +227,10 @@
             <i data-lucide="radar"></i>
             <span class="menu-label">Grão Invest</span>
           </button>
+          <button class="menu-item" data-view-button="imoveis" type="button">
+            <i data-lucide="building-2"></i>
+            <span class="menu-label">Imóveis e Projetos</span>
+          </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -982,6 +986,10 @@
           <section class="view-panel is-active" data-view="finvest">
             <div id="finvest-root" aria-label="Painel Grão Invest"></div>
           </section>
+
+          <section class="view-panel" data-view="imoveis">
+            <div id="real-estate-root" aria-label="Radar Imobiliário"></div>
+          </section>
         </main>
       </div>
     </div>
@@ -1004,6 +1012,7 @@
     <script crossorigin src="https://cdn.jsdelivr.net/npm/lucide-react@0.468.0/dist/umd/lucide-react.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel" data-presets="react" src="/static/finvest.jsx?v=20260502execflow3"></script>
+    <script type="text/babel" data-presets="react" src="/static/real-estate.jsx?v=20260502radar2"></script>
     <script>
       (() => {
         const bootFinvestFallback = async (attempt = 0) => {
@@ -1025,6 +1034,33 @@
       };
       window.setTimeout(() => bootFinvestFallback(), 1000);
     })();
+    </script>
+    <script>
+      (() => {
+        const bootRealEstateFallback = async (attempt = 0) => {
+          const root = document.getElementById("real-estate-root");
+          if (!root || root.childElementCount) return;
+          if (!window.Babel || !window.React || !window.ReactDOM) {
+            if (attempt < 20) window.setTimeout(() => bootRealEstateFallback(attempt + 1), 1000);
+            return;
+          }
+          try {
+            const response = await fetch("/static/real-estate.jsx?v=20260502radar2", { cache: "no-store" });
+            const source = await response.text();
+            const compiled = window.Babel.transform(source, { presets: ["react"] }).code;
+            (0, eval)(compiled);
+          } catch (error) {
+            console.error("Falha ao carregar Radar Imobiliário", error);
+            root.innerHTML = [
+              "<div style='background:#101828;border:1px solid #ff5e5e55;border-radius:14px;padding:18px;color:#e2eaf8'>",
+              "<strong>Radar Imobiliário não carregou.</strong>",
+              "<p style='color:#5a7090;margin:8px 0 0'>Recarregue a página. Se persistir, abra o console para ver o erro técnico.</p>",
+              "</div>",
+            ].join("");
+          }
+        };
+        window.setTimeout(() => bootRealEstateFallback(), 1000);
+      })();
     </script>
   </body>
 </html>

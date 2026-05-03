@@ -24,11 +24,19 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "DEFAULT_BASE_API_URL", "\"http://10.0.2.2:8000/\"")
+            buildConfigField("String", "DEFAULT_BASE_API_URL", "\"http://127.0.0.1:8000/\"")
             manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
+        create("beta") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("String", "DEFAULT_BASE_API_URL", "\"https://grao-invest.vercel.app/\"")
+            manifestPlaceholders["usesCleartextTraffic"] = "false"
+            isDebuggable = false
+            matchingFallbacks += listOf("release")
+        }
         release {
-            buildConfigField("String", "DEFAULT_BASE_API_URL", "\"https://example.com/\"")
+            buildConfigField("String", "DEFAULT_BASE_API_URL", "\"https://grao-invest.vercel.app/\"")
             manifestPlaceholders["usesCleartextTraffic"] = "false"
             isMinifyEnabled = false
             proguardFiles(

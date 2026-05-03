@@ -19,7 +19,7 @@ EXECUTIVE_URL = "http://127.0.0.1:8000/api/reports/executive"
 DASHBOARD_URL = "http://127.0.0.1:8000/api/dashboard/summary/1"
 
 
-W, H = 1080, 1920
+W, H = 1080, 2860
 SCALE = 2
 CW, CH = W * SCALE, H * SCALE
 
@@ -116,6 +116,10 @@ def short_date(value: Any) -> str:
     return f"{raw[8:10]}/{raw[5:7]}/{raw[0:4]}"
 
 
+def friendly_strategy(case: dict[str, Any]) -> str:
+    return f"Compra simulada com alvo e stop | esperado {pct(case.get('expected_financial_pct'), 2)}"
+
+
 def draw_gradient(draw: ImageDraw.ImageDraw) -> None:
     for y in range(CH):
         t = y / CH
@@ -202,8 +206,8 @@ def case_card(draw: ImageDraw.ImageDraw, box, case: dict[str, Any], label: str) 
     text(draw, (x1 + s(22), y1 + s(18)), label.upper(), FONTS["tiny"], fill=COLORS["muted"])
     text(draw, (x1 + s(22), y1 + s(50)), str(case.get("instrument", "-")), FONTS["h2"], fill=COLORS["text"])
     text(draw, (x2 - s(172), y1 + s(50)), pct(result, 2), FONTS["metric_small"], fill=color)
-    text(draw, (x1 + s(22), y1 + s(96)), str(case.get("strategy", "Operacao")), FONTS["small"], fill=COLORS["cyan"])
-    y = y1 + s(130)
+    text(draw, (x1 + s(22), y1 + s(96)), friendly_strategy(case), FONTS["small"], fill=COLORS["cyan"])
+    y = y1 + s(138)
     rows = [
         ("Entrada", f"{short_date(case.get('entry_date'))} | {brl(case.get('entry_price'))}"),
         ("Alvo", brl(case.get("target_price"))),
@@ -217,8 +221,31 @@ def case_card(draw: ImageDraw.ImageDraw, box, case: dict[str, Any], label: str) 
         rounded(draw, (cx, cy, cx + col_w, cy + s(54)), fill=(7, 13, 25), outline=COLORS["line"], radius=12)
         text(draw, (cx + s(12), cy + s(7)), k.upper(), FONTS["tiny"], fill=COLORS["dim"])
         text(draw, (cx + s(12), cy + s(26)), v, FONTS["mono_bold"], fill=COLORS["text"])
-    wrapped(draw, (x1 + s(22), y + s(146)), "Por que entrou: " + str(case.get("why_entered", "")), FONTS["tiny"], x2 - x1 - s(44), fill=COLORS["muted"], max_lines=2)
-    wrapped(draw, (x1 + s(22), y2 - s(78)), "Aprendizado: " + str(case.get("learning", "")), FONTS["tiny"], x2 - x1 - s(44), fill=COLORS["text"], max_lines=2)
+    why_y = y + s(142)
+    text(draw, (x1 + s(22), why_y), "POR QUE ENTROU", FONTS["tiny"], fill=COLORS["cyan"])
+    wrapped(
+        draw,
+        (x1 + s(22), why_y + s(24)),
+        str(case.get("why_entered", "")),
+        FONTS["tiny"],
+        x2 - x1 - s(44),
+        fill=COLORS["muted"],
+        max_lines=2,
+        line_gap=4,
+    )
+    learn_y = why_y + s(78)
+    rounded(draw, (x1 + s(22), learn_y, x2 - s(22), y2 - s(24)), fill=(0, 210, 154, 18), outline=COLORS["line"], radius=14)
+    text(draw, (x1 + s(40), learn_y + s(12)), "APRENDIZADO", FONTS["tiny"], fill=COLORS["amber"])
+    wrapped(
+        draw,
+        (x1 + s(40), learn_y + s(38)),
+        str(case.get("learning", "")),
+        FONTS["tiny"],
+        x2 - x1 - s(80),
+        fill=COLORS["text"],
+        max_lines=2,
+        line_gap=4,
+    )
 
 
 def build_image(executive: dict[str, Any], dashboard: dict[str, Any]) -> Path:
@@ -288,17 +315,18 @@ def build_image(executive: dict[str, Any], dashboard: dict[str, Any]) -> Path:
     y += s(216)
     text(draw, (margin, y), "Pos-morte na pratica", FONTS["h1"], fill=COLORS["text"])
     y += s(50)
-    case_h = s(300)
+    case_h = s(488)
     for idx, case in enumerate(cases[:3]):
         case_card(draw, (margin, y, s(1024), y + case_h), case, f"Tese {chr(65 + idx)}")
         y += case_h + s(26)
 
     conclusion = (executive.get("learning_evolution") or {}).get("conclusion") or ""
-    rounded(draw, (margin, y, s(1024), y + s(120)), fill=(0, 210, 154, 24), outline=(*COLORS["teal"], 140), radius=24)
+    conclusion_h = s(132)
+    rounded(draw, (margin, y, s(1024), y + conclusion_h), fill=(0, 210, 154, 24), outline=(*COLORS["teal"], 140), radius=24)
     text(draw, (margin + s(24), y + s(18)), "Conclusao executiva", FONTS["body_bold"], fill=COLORS["teal"])
     wrapped(draw, (margin + s(24), y + s(52)), conclusion, FONTS["small"], s(880), fill=COLORS["text"], max_lines=3)
 
-    y = s(1776)
+    y += conclusion_h + s(42)
     draw.line((margin, y, s(1024), y), fill=(*COLORS["line"], 255), width=s(2))
     wrapped(
         draw,

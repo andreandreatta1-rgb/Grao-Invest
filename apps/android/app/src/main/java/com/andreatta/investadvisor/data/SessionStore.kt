@@ -17,27 +17,31 @@ private val Context.investAdvisorDataStore: DataStore<Preferences> by preference
     name = "invest_advisor_session",
 )
 
+private const val ANONYMOUS_USER_ID = 1
+private const val ANONYMOUS_EMAIL = "acesso.anonimo@grao.local"
+
 data class AppSession(
     val token: String = "",
-    val userId: Int? = null,
-    val email: String = "",
+    val userId: Int? = ANONYMOUS_USER_ID,
+    val email: String = ANONYMOUS_EMAIL,
     val baseUrl: String = BuildConfig.DEFAULT_BASE_API_URL,
-    val disclaimerAccepted: Boolean = false,
+    val disclaimerAccepted: Boolean = true,
 ) {
     val isAuthenticated: Boolean
-        get() = token.isNotBlank() && userId != null
+        get() = userId != null
 }
 
 class SessionStore(context: Context) {
     private val dataStore = context.applicationContext.investAdvisorDataStore
 
     val session: Flow<AppSession> = dataStore.data.map { prefs ->
+        val storedBaseUrl = prefs[BASE_URL]
         AppSession(
             token = prefs[TOKEN].orEmpty(),
-            userId = prefs[USER_ID],
-            email = prefs[EMAIL].orEmpty(),
-            baseUrl = prefs[BASE_URL] ?: BuildConfig.DEFAULT_BASE_API_URL,
-            disclaimerAccepted = prefs[DISCLAIMER_ACCEPTED] ?: false,
+            userId = prefs[USER_ID] ?: ANONYMOUS_USER_ID,
+            email = prefs[EMAIL] ?: ANONYMOUS_EMAIL,
+            baseUrl = sanitizeStoredBaseUrl(storedBaseUrl),
+            disclaimerAccepted = prefs[DISCLAIMER_ACCEPTED] ?: true,
         )
     }
 
@@ -74,5 +78,22 @@ class SessionStore(context: Context) {
         val EMAIL = stringPreferencesKey("email")
         val BASE_URL = stringPreferencesKey("base_url")
         val DISCLAIMER_ACCEPTED = booleanPreferencesKey("disclaimer_accepted")
+
+        fun sanitizeStoredBaseUrl(storedBaseUrl: String?): String {
+            val saved = storedBaseUrl?.trim().orEmpty()
+            if (saved.isBlank()) return BuildConfig.DEFAULT_BASE_API_URL
+            if (!BuildConfig.DEBUG && saved.isLocalDevelopmentUrl()) {
+                return BuildConfig.DEFAULT_BASE_API_URL
+            }
+            return saved.ensureTrailingSlash()
+        }
+
+        fun String.isLocalDevelopmentUrl(): Boolean {
+            val normalized = trim().lowercase()
+            return normalized.startsWith("http://127.") ||
+                normalized.startsWith("http://localhost") ||
+                normalized.startsWith("http://10.0.2.2") ||
+                normalized.startsWith("http://192.168.")
+        }
     }
 }

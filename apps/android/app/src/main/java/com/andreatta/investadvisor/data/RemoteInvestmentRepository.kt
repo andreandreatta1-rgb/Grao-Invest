@@ -7,6 +7,9 @@ import com.andreatta.investadvisor.network.JsonSummary
 import com.andreatta.investadvisor.network.LoginRequest
 import com.andreatta.investadvisor.network.MfaSetupRequest
 import com.andreatta.investadvisor.network.MfaVerifyRequest
+import com.andreatta.investadvisor.network.RealEstateCandidate
+import com.andreatta.investadvisor.network.RealEstateCandidateRequest
+import com.andreatta.investadvisor.network.RealEstateCandidatesResponse
 import com.andreatta.investadvisor.network.SignupRequest
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.JsonArray
@@ -102,6 +105,8 @@ class RemoteInvestmentRepository(
             FeatureAction.CurrentMonitor -> api.currentMonitor(thesisBody(input)).requireBody(action.label)
             FeatureAction.LatestMonitor -> api.latestMonitor().requireBody(action.label)
             FeatureAction.CaseStudy -> api.caseStudy(thesisBody(input)).requireBody(action.label)
+            FeatureAction.AiThesisAnalysis -> api.aiThesisAnalysis(aiThesisBody(input))
+                .requireBody(action.label)
             FeatureAction.PaperOrder -> api.paperOrderFromSignal(
                 input.signalId,
                 buildJsonObject {
@@ -194,6 +199,18 @@ class RemoteInvestmentRepository(
         return summarize("Historico de alertas", JsonArray(api().alertEvents(userId).requireBody("alertas")))
     }
 
+    override suspend fun realEstateCandidates(): RealEstateCandidatesResponse {
+        return api().realEstateCandidates().requireBody("radar imobiliario")
+    }
+
+    override suspend fun createRealEstateCandidate(input: RealEstateCandidateRequest): RealEstateCandidate {
+        return api().createRealEstateCandidate(input).requireBody("criar candidato imobiliario")
+    }
+
+    override suspend fun updateRealEstateCandidate(candidateId: Int, patch: JsonObject): RealEstateCandidate {
+        return api().updateRealEstateCandidate(candidateId, patch).requireBody("atualizar candidato imobiliario")
+    }
+
     private suspend fun api(): InvestApi {
         val session = sessionStore.session.first()
         return apiFactory(session)
@@ -208,6 +225,13 @@ class RemoteInvestmentRepository(
         put("user_id", input.userId)
         putJsonArray("instruments") { add(JsonPrimitive(input.instrument)) }
         put("horizon_bars", 8)
+    }
+
+    private fun aiThesisBody(input: FeatureInput): JsonObject = buildJsonObject {
+        put("user_id", input.userId)
+        put("instrument", input.instrument)
+        put("question", "Quais evidencias, riscos, gatilhos e condicoes de saida observar?")
+        put("horizon_days", 20)
     }
 
     private fun gameBody(input: FeatureInput, count: Int): JsonObject = buildJsonObject {
@@ -259,6 +283,12 @@ private fun summarizeObject(obj: JsonObject): List<String> {
         "instrument",
         "decision",
         "confidence_score",
+        "thesis",
+        "evidence",
+        "risks",
+        "triggers",
+        "exit_conditions",
+        "provider",
         "expected_return_pct",
         "risk_status",
         "summary",

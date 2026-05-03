@@ -1,11 +1,10 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from typing import TypedDict
 
-import json
-
-from app.db import DATA_DIR
+from app.db import BASE_DIR, DATA_DIR
 from app.models import AuditEvent, MarketTick, SuitabilityProfile
 from app.services.audit import record_audit_event
 from app.services.notifications import notify_current_thesis_monitor
@@ -136,18 +135,23 @@ def load_latest_current_thesis_monitor(
             .limit(1)
         )
     event = db.scalar(statement)
-    if event is None:
-        return None
-    try:
-        details = json.loads(event.details)
-    except ValueError:
-        return None
-    if isinstance(details, dict):
-        payload = details.get("payload")
-        if isinstance(payload, dict):
-            return payload
-        if "generated_at" in details and "theses" in details:
-            return details
+    if event is not None:
+        try:
+            details = json.loads(event.details)
+        except ValueError:
+            details = None
+        if isinstance(details, dict):
+            payload = details.get("payload")
+            if isinstance(payload, dict):
+                return payload
+            if "generated_at" in details and "theses" in details:
+                return details
+    bundled_bootstrap_path = BASE_DIR / "data" / "current_thesis_monitor_bootstrap.json"
+    if bundled_bootstrap_path.exists():
+        try:
+            return json.loads(bundled_bootstrap_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
     return None
 
 
@@ -185,6 +189,40 @@ def _is_current_candidate(
     if thesis["entry_index"] >= latest_index:
         return False
     return True
+
+
+def _parse_event_datetime(value: object) -> datetime | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def _is_latest_tick_fresh(
+    ticks: list[object],
+    max_latest_age_days: int | None,
+    reference_time: datetime,
+) -> bool:
+    if max_latest_age_days is None or max_latest_age_days <= 0:
+        return True
+    if not ticks:
+        return False
+    latest_time = _parse_event_datetime(getattr(ticks[-1], "event_time", ""))
+    if latest_time is None:
+        return False
+    reference_utc = (
+        reference_time.replace(tzinfo=UTC)
+        if reference_time.tzinfo is None
+        else reference_time.astimezone(UTC)
+    )
+    age_days = (reference_utc - latest_time).total_seconds() / 86400.0
+    return age_days <= float(max_latest_age_days)
 
 
 def _progress_metrics(thesis: ThesisSummary, latest_price: float) -> tuple[float, float]:
@@ -230,7 +268,65 @@ def _monitor_status_and_action(
         if latest_price >= stop_price:
             return "stop_alert", "reduzir_risco_ou_encerrar"
         return "monitoring", "manter_monitoramento"
+    if direction == "range":
+        lower_bound = min(target_price, stop_price)
+        upper_bound = max(target_price, stop_price)
+        if latest_price < lower_bound or latest_price > upper_bound:
+            return "stop_alert", "reduzir_risco_ou_encerrar"
     return "monitoring", "manter_monitoramento"
+
+
+def _planned_exit_time(
+    ticks: list[MarketTick],
+    thesis: ThesisSummary,
+) -> str:
+    entry_index = int(thesis.get("entry_index", -1))
+    horizon_bars = int(thesis.get("horizon_bars", 0))
+    exit_index = entry_index + horizon_bars
+    if entry_index < 0 or horizon_bars <= 0 or exit_index <= entry_index:
+        return ""
+    if exit_index >= len(ticks):
+        return ""
+    return str(ticks[exit_index].event_time)
+
+
+def _select_current_candidates(
+    current_candidates: list[ThesisSummary],
+    *,
+    thesis_count: int,
+    distinct_instruments: bool = False,
+    prefer_recent: bool = False,
+) -> list[ThesisSummary]:
+    if prefer_recent:
+        sort_key = lambda item: (  # noqa: E731
+            int(item.get("entry_index", 0)),
+            item["confidence_tese_pct"],
+            item["expected_financial_pct"],
+        )
+    else:
+        sort_key = lambda item: (  # noqa: E731
+            item["confidence_tese_pct"],
+            item["expected_financial_pct"],
+        )
+    sorted_candidates = sorted(
+        current_candidates,
+        key=sort_key,
+        reverse=True,
+    )
+    if not distinct_instruments:
+        return sorted_candidates[:thesis_count]
+
+    selected: list[ThesisSummary] = []
+    seen_instruments: set[str] = set()
+    for thesis in sorted_candidates:
+        instrument = str(thesis["instrument"]).upper()
+        if instrument in seen_instruments:
+            continue
+        selected.append(thesis)
+        seen_instruments.add(instrument)
+        if len(selected) >= thesis_count:
+            break
+    return selected
 
 
 def run_current_thesis_monitor(
@@ -241,6 +337,9 @@ def run_current_thesis_monitor(
     horizon_bars: int = 8,
     thesis_count: int = 8,
     recent_bars_window: int = 7,
+    distinct_instruments: bool = False,
+    prefer_recent: bool = False,
+    max_latest_age_days: int | None = None,
 ) -> CurrentThesisMonitorPayload:
     profile = db.scalar(
         select(SuitabilityProfile)
@@ -257,12 +356,17 @@ def run_current_thesis_monitor(
 
     raw_candidates = []
     ticks_by_instrument: dict[str, list[MarketTick]] = {}
+    reference_time = datetime.now(UTC)
+    fresh_instruments: list[str] = []
     for instrument in instrument_list:
         ticks = _ticks_for_instrument(db, instrument)
+        if not _is_latest_tick_fresh(ticks, max_latest_age_days, reference_time):
+            continue
+        fresh_instruments.append(instrument)
         ticks_by_instrument[instrument] = ticks
         raw_candidates.extend(_raw_candidates_from_ticks(instrument, ticks, horizon_bars))
     if not raw_candidates:
-        raise ValueError("Historico insuficiente para gerar teses atuais.")
+        raise ValueError("Historico recente insuficiente para gerar teses atuais.")
 
     enriched = _enriched_thesis_candidates(db, raw_candidates)
     policy_candidates, policy_metadata = apply_active_policy(enriched)
@@ -275,11 +379,12 @@ def run_current_thesis_monitor(
     if not current_candidates:
         raise ValueError("Nenhuma tese atual encontrada no recorte configurado.")
 
-    selected = sorted(
+    selected = _select_current_candidates(
         current_candidates,
-        key=lambda item: (item["confidence_tese_pct"], item["expected_financial_pct"]),
-        reverse=True,
-    )[:thesis_count]
+        thesis_count=thesis_count,
+        distinct_instruments=distinct_instruments,
+        prefer_recent=prefer_recent,
+    )
 
     cards: list[CurrentThesisCard] = []
     for thesis in selected:
@@ -315,7 +420,7 @@ def run_current_thesis_monitor(
                 "reason_category": _reason_category(thesis["supporting_signals"]),
                 "thesis_raised_at": thesis["entry_time"],
                 "suggested_entry_time": thesis["entry_time"],
-                "suggested_exit_time": latest_tick.event_time,
+                "suggested_exit_time": _planned_exit_time(ticks, thesis),
                 "entry_price": thesis["entry_price"],
                 "target_price": thesis["target_price"],
                 "stop_price": thesis["stop_price"],
@@ -372,6 +477,7 @@ def run_current_thesis_monitor(
         "thesis_count": len(cards),
         "scan_scope": {
             "instruments": instrument_list,
+            "fresh_instruments": fresh_instruments,
             "tick_count": sum(len(items) for items in ticks_by_instrument.values()),
             "candidate_count": len(enriched),
             "policy_candidate_count": len(policy_candidates),

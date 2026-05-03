@@ -3,7 +3,11 @@ package com.andreatta.investadvisor.data
 import com.andreatta.investadvisor.network.AuthResponse
 import com.andreatta.investadvisor.network.JsonSummary
 import com.andreatta.investadvisor.network.LoginRequest
+import com.andreatta.investadvisor.network.RealEstateCandidate
+import com.andreatta.investadvisor.network.RealEstateCandidateRequest
+import com.andreatta.investadvisor.network.RealEstateCandidatesResponse
 import com.andreatta.investadvisor.network.SignupRequest
+import kotlinx.serialization.json.JsonObject
 
 interface InvestmentRepository {
     suspend fun login(email: String, password: String, otpCode: String? = null): AuthResponse {
@@ -59,6 +63,18 @@ interface InvestmentRepository {
         unsupported()
     }
 
+    suspend fun realEstateCandidates(): RealEstateCandidatesResponse {
+        unsupported()
+    }
+
+    suspend fun createRealEstateCandidate(input: RealEstateCandidateRequest): RealEstateCandidate {
+        unsupported()
+    }
+
+    suspend fun updateRealEstateCandidate(candidateId: Int, patch: JsonObject): RealEstateCandidate {
+        unsupported()
+    }
+
     private fun unsupported(): Nothing = throw UnsupportedOperationException("Nao implementado")
 }
 
@@ -85,6 +101,7 @@ enum class FeatureAction(val label: String) {
     CurrentMonitor("Monitor atual"),
     LatestMonitor("Ultimo monitor"),
     CaseStudy("Estudo de caso"),
+    AiThesisAnalysis("Analise IA da tese"),
     PaperOrder("Criar ordem simulada"),
     AllocatePortfolio("Alocar carteira"),
     LatestAllocation("Ultima alocacao"),

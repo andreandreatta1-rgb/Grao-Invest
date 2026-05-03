@@ -56,6 +56,15 @@ const toNumber = (value, fallback = 0) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const toLooseNumber = (value, fallback = 0) => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : fallback;
+  const text = String(value ?? "").trim();
+  if (!text) return fallback;
+  const normalized = text.replace(/[^0-9,.\-+]/g, "").replace(",", ".");
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
 const formatPctLabel = (value) => {
   const n = toNumber(value, 0);
   return `${n >= 0 ? "+" : ""}${n.toFixed(2).replace(".", ",")}%`;
@@ -96,7 +105,10 @@ function useCompactLayout() {
   return compact;
 }
 
-const isOpenStatus = (status) => {
+const isOpenStatus = (rowOrStatus) => {
+  if (rowOrStatus?.isOpen === false || rowOrStatus?.is_open === false) return false;
+  if (rowOrStatus?.isOpen === true || rowOrStatus?.is_open === true) return true;
+  const status = rowOrStatus && typeof rowOrStatus === "object" ? rowOrStatus.status : rowOrStatus;
   const normalized = String(status || "").toLowerCase();
   return normalized.includes("aberta") || normalized.includes("aberto") || normalized.includes("monitor");
 };
@@ -140,7 +152,7 @@ const operationDirection = (row) => {
 
 const extractExitLevels = (exitRule) => {
   const text = String(exitRule || "");
-  const matches = [...text.matchAll(/R\\$\\s*([0-9]+(?:[\\.,][0-9]+)?)/g)];
+  const matches = [...text.matchAll(/(?:R\\$\\s*)?([0-9]+(?:[\\.,][0-9]+)?)/g)];
   const values = matches
     .map((m) => (m[1] || "").replace(",", "."))
     .map((v) => Number(v))
@@ -172,6 +184,7 @@ const mapOperationRowToTable = (row, index) => {
     desfecho: String(row?.outcome || "-"),
     dias: duration,
     status: String(row?.status || "Fechada"),
+    isOpen: typeof row?.is_open === "boolean" ? row.is_open : undefined,
     resultado: result,
     porQue: String(row?.thesis_reason || "Sem detalhamento disponivel para esta tese."),
     aprendizado: String(row?.learning_note || "Sem aprendizado registrado ainda."),
@@ -179,6 +192,30 @@ const mapOperationRowToTable = (row, index) => {
     sintomaDetectado,
     sintomaConfirmado,
     origem: row,
+  };
+};
+
+const mapOpenRowToCard = (row, index) => {
+  const levels = extractExitLevels(row?.saida || row?.exit_rule);
+  const raisedAt = String(row?.inicio || row?.origem?.thesis_raised_at || row?.thesis_raised_at || "");
+  const startLabel = /^[0-9]{2}\/[0-9]{2}$/.test(raisedAt)
+    ? raisedAt
+    : raisedAt.length >= 10
+      ? `${raisedAt.slice(8, 10)}/${raisedAt.slice(5, 7)}`
+      : "";
+  return {
+    id: toNumber(row?.id ?? row?.thesis_number, index + 1),
+    ativo: String(row?.ativo || row?.action || "n/d"),
+    direcao: String(row?.direcao || operationDirection(row)),
+    entrada: String(row?.entrada || formatMoneyLabel(row?.entry_price_brl)),
+    expected: toLooseNumber(row?.expected, toLooseNumber(row?.esperado, toNumber(row?.expected_result_pct, 0))),
+    momentum: toLooseNumber(row?.momentum, toLooseNumber(row?.resultado, toNumber(row?.moment_result_pct, 0))),
+    estrutura: String(row?.estrutura || row?.structured_operation || "-"),
+    saiGanho: levels.gain,
+    saiStop: levels.stop,
+    status: String(row?.status || "Aberta"),
+    desfecho: String(row?.desfecho || row?.outcome || "Em monitoramento"),
+    inicio: startLabel,
   };
 };
 
@@ -637,6 +674,17 @@ function OpenOperationsBoard({ rows, compact }) {
           const warning = group.warnings > 0;
           const statusType = warning ? "warning" : "open";
           const tone = warning ? C.amber : C.teal;
+          const latest = group.latest || {};
+          const isRange = String(latest.direcao || "").toLowerCase().includes("neutr")
+            || String(latest.estrutura || "").toLowerCase().includes("condor");
+          const levelA = toLooseNumber(latest.saiGanho, NaN);
+          const levelB = toLooseNumber(latest.saiStop, NaN);
+          const lowerBound = Number.isFinite(levelA) && Number.isFinite(levelB)
+            ? formatMoneyLabel(Math.min(levelA, levelB))
+            : latest.saiStop;
+          const upperBound = Number.isFinite(levelA) && Number.isFinite(levelB)
+            ? formatMoneyLabel(Math.max(levelA, levelB))
+            : latest.saiGanho;
           return (
             <div key={group.ativo} style={{
               background: C.card,
@@ -673,9 +721,18 @@ function OpenOperationsBoard({ rows, compact }) {
                 <div style={{ color: C.sky, fontSize: 12, lineHeight: 1.35 }}>{group.latest.estrutura}</div>
               </div>
               <div style={{ display: "flex", gap: 10, color: C.muted, fontSize: 11, marginTop: "auto" }}>
-                <span>Entrada R$ {group.latest.entrada}</span>
-                <span style={{ color: C.green }}>Alvo R$ {group.latest.saiGanho}</span>
-                <span style={{ color: C.coral }}>Stop R$ {group.latest.saiStop}</span>
+                <span>Entrada R$ {latest.entrada}</span>
+                {isRange ? (
+                  <>
+                    <span style={{ color: C.sky }}>Faixa R$ {lowerBound} a {upperBound}</span>
+                    <span style={{ color: C.coral }}>Saida se romper a faixa</span>
+                  </>
+                ) : (
+                  <>
+                    <span style={{ color: C.green }}>Alvo R$ {latest.saiGanho}</span>
+                    <span style={{ color: C.coral }}>Stop R$ {latest.saiStop}</span>
+                  </>
+                )}
               </div>
             </div>
           );
@@ -975,27 +1032,6 @@ function TabelaTeses({ rows, titulo }) {
 
 // â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-const tesisAbertas = [
-  {
-    id: 162, ativo: "KNRI11", direcao: "Alta", entrada: "154,25",
-    expected: 3.01, momentum: 0.83, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
-    saiGanho: "9,90", saiStop: "8,86", status: "Aberta", desfecho: "Em monitoramento",
-    inicio: "14/04",
-  },
-  {
-    id: 161, ativo: "AAPL34", direcao: "Alta", entrada: "46,39",
-    expected: 2.76, momentum: -0.36, estrutura: "Bull Call Spread Â· ganho 5,40% Â· perda 2,20%",
-    saiGanho: "9,99", saiStop: "9,03", status: "Aberta", desfecho: "Em monitoramento",
-    inicio: "15/04",
-  },
-  {
-    id: 160, ativo: "PETR4", direcao: "Neutro", entrada: "41,03",
-    expected: 0.82, momentum: -3.88, estrutura: "Iron Condor Â· ganho 2,40% Â· perda 3,80%",
-    saiGanho: "41,03", saiStop: "40,41", status: "Aberta", desfecho: "Alerta de stop",
-    inicio: "21/04",
-  },
-];
-
 const tesesHistoricas = [
   {
     id: 159,
@@ -1038,7 +1074,7 @@ const tesesPosGoLive = [
   },
   {
     id: 161,
-    ativo: "AAPL34",
+    ativo: "MGLU3",
     direcao: "Alta",
     esperado: "+2,76%",
     estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
@@ -1056,7 +1092,7 @@ const tesesPosGoLive = [
   },
   {
     id: 162,
-    ativo: "KNRI11",
+    ativo: "MGLU3",
     direcao: "Alta",
     esperado: "+3,01%",
     estrutura: "Bull Call Spread | ganho 5,40% | perda 2,20%",
@@ -1150,7 +1186,7 @@ function GraoDashboard() {
       .sort((a, b) => toNumber(a.id, 0) - toNumber(b.id, 0));
     const historical = mapped.filter((row) => classifyPhase(row.origem, kickoffDate) === "historical");
     const current = mapped.filter((row) => classifyPhase(row.origem, kickoffDate) === "current");
-    const currentOpen = current.filter((row) => isOpenStatus(row.status));
+    const currentOpen = current.filter((row) => isOpenStatus(row));
     const cards = currentOpen
       .slice()
       .sort((a, b) => toNumber(b.id, 0) - toNumber(a.id, 0))
@@ -1211,10 +1247,10 @@ function GraoDashboard() {
     };
   }, [apiData]);
 
-  const tesesHistoricasView = runtime?.historical?.length ? runtime.historical : tesesHistoricas;
-  const tesesPosGoLiveViewAll = runtime?.current?.length ? runtime.current : tesesPosGoLive;
-  const tesesPosGoLiveViewOpen = runtime?.currentOpen?.length ? runtime.currentOpen : tesesPosGoLive;
-  const tesisAbertasView = runtime?.cards?.length ? runtime.cards : tesisAbertas;
+  const tesesHistoricasView = runtime ? runtime.historical : tesesHistoricas;
+  const tesesPosGoLiveViewAll = runtime ? runtime.current : tesesPosGoLive;
+  const tesesPosGoLiveViewOpen = runtime ? runtime.currentOpen : tesesPosGoLive;
+  const tesisAbertasView = tesesPosGoLiveViewOpen.map((row, index) => mapOpenRowToCard(row, index));
   const tesesHistoricasDrilldown = tesesHistoricasView.slice(-12).reverse();
   const tesesPosGoLiveDrilldown = tesesPosGoLiveViewOpen.slice(0, 12);
   const resumoKpis = runtime?.summary || {
