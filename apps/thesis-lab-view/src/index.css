@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================
+   Grão Invest — Midnight Lab Design System
+   Toda cor em HSL. Tokens semânticos sempre.
+   =========================================================== */
+
+@layer base {
+  :root {
+    /* Surfaces — Midnight Lab */
+    --background: 213 56% 7%;          /* #08101C */
+    --foreground: 200 25% 92%;
+
+    --surface-1: 213 49% 11%;          /* #0F1B2D */
+    --surface-2: 213 40% 15%;
+    --surface-3: 213 35% 20%;
+    --elevated: 213 45% 13%;
+
+    --card: 213 45% 11%;
+    --card-foreground: 200 25% 94%;
+
+    --popover: 213 49% 10%;
+    --popover-foreground: 200 25% 94%;
+
+    /* Brand: Teal (ação) + Gold (acento executivo) */
+    --primary: 172 66% 50%;            /* #2DD4BF */
+    --primary-foreground: 213 56% 7%;
+    --primary-glow: 172 80% 60%;
+    --primary-soft: 172 50% 22%;
+
+    --accent: 45 56% 60%;              /* #D4B95E gold */
+    --accent-foreground: 213 56% 7%;
+    --accent-soft: 45 40% 22%;
+
+    --secondary: 213 35% 18%;
+    --secondary-foreground: 200 25% 92%;
+
+    --muted: 213 30% 16%;
+    --muted-foreground: 210 14% 62%;
+
+    /* Semânticos científicos */
+    --validated: 158 64% 48%;          /* tese validada / gain */
+    --validated-foreground: 158 60% 95%;
+    --refuted: 0 70% 58%;              /* tese refutada / loss */
+    --refuted-foreground: 0 0% 100%;
+    --pending: 38 92% 58%;             /* aguardando confirmação */
+    --pending-foreground: 38 80% 12%;
+    --info: 200 88% 60%;
+    --neutral: 213 18% 55%;
+
+    --destructive: 0 70% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 213 30% 20%;
+    --border-strong: 213 28% 28%;
+    --input: 213 35% 16%;
+    --ring: 172 66% 50%;
+
+    --radius: 1rem;
+
+    /* Gradientes / Sombras */
+    --gradient-cockpit: radial-gradient(ellipse at top, hsl(213 50% 16% / 0.9), hsl(213 56% 7%) 60%);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(172 70% 35%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(38 60% 45%) 100%);
+    --gradient-card: linear-gradient(160deg, hsl(213 45% 13% / 0.9) 0%, hsl(213 49% 10% / 0.9) 100%);
+    --gradient-lab: linear-gradient(135deg, hsl(172 66% 50% / 0.15), hsl(45 56% 60% / 0.08));
+
+    --shadow-elevated: 0 20px 50px -20px hsl(213 80% 2% / 0.6), 0 0 0 1px hsl(var(--border) / 0.6);
+    --shadow-glow: 0 0 30px hsl(var(--primary) / 0.25);
+    --shadow-gold: 0 0 30px hsl(var(--accent) / 0.18);
+
+    --transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar (não usado, mantido por compat) */
+    --sidebar-background: 213 49% 10%;
+    --sidebar-foreground: 200 25% 92%;
+    --sidebar-primary: 172 66% 50%;
+    --sidebar-primary-foreground: 213 56% 7%;
+    --sidebar-accent: 213 35% 16%;
+    --sidebar-accent-foreground: 200 25% 92%;
+    --sidebar-border: 213 30% 20%;
+    --sidebar-ring: 172 66% 50%;
+  }
+
+  /* Apenas tema único (escuro). .dark mantém os mesmos valores. */
+  .dark {
+    --background: 213 56% 7%;
+    --foreground: 200 25% 92%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    background-image:
+      radial-gradient(1200px 600px at 50% -10%, hsl(172 66% 50% / 0.06), transparent 60%),
+      radial-gradient(900px 500px at 90% 110%, hsl(45 56% 60% / 0.05), transparent 60%);
+    background-attachment: fixed;
+    overscroll-behavior-y: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', system-ui, sans-serif;
+    letter-spacing: -0.015em;
+  }
+
+  .font-mono, .tabular {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: var(--gradient-card);
+    border: 1px solid hsl(var(--border));
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius);
+  }
+
+  .lab-card {
+    background: var(--gradient-lab), hsl(var(--card));
+    border: 1px solid hsl(var(--primary) / 0.25);
+    border-radius: var(--radius);
+  }
+
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+    box-shadow: 0 0 0 3px hsl(var(--background));
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { scrollbar-width: none; }
+
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-top { padding-top: env(safe-area-inset-top); }
+}
+
+@layer utilities {
+  .text-validated { color: hsl(var(--validated)); }
+  .text-refuted { color: hsl(var(--refuted)); }
+  .text-pending { color: hsl(var(--pending)); }
+  .text-gold { color: hsl(var(--accent)); }
+  .bg-validated\/10 { background-color: hsl(var(--validated) / 0.1); }
+  .bg-refuted\/10 { background-color: hsl(var(--refuted) / 0.1); }
+  .bg-pending\/10 { background-color: hsl(var(--pending) / 0.1); }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+
+  .animate-live {
+    animation: live 1.6s ease-in-out infinite;
+  }
+  @keyframes live {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+    50% { box-shadow: 0 0 0 6px hsl(var(--primary) / 0); }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
