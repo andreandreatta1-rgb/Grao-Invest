@@ -256,6 +256,9 @@ DEFAULT_ANON_EMAIL = os.getenv("ANON_USER_EMAIL", "anon@graoinvest.local").strip
 DEFAULT_ANON_FULL_NAME = os.getenv("ANON_USER_FULL_NAME", "Convidado")
 DEFAULT_ANON_TENANT_NAME = os.getenv("ANON_TENANT_NAME", "Grao Invest")
 DEFAULT_ANON_PASSWORD = os.getenv("ANON_USER_PASSWORD", "anon-access-disabled")
+DEFAULT_DATA_CONTEXT_REFRESH_INSTRUMENTS = (
+    "PETR4,VALE3,ITUB4,BBDC4,BBAS3,WEGE3,B3SA3,ABEV3,RENT3,SUZB3"
+)
 
 
 def _frontend_shell_dir() -> Path:
@@ -1308,6 +1311,29 @@ def _resolve_microtrades_cron_user_id(db: Session) -> int:
     return user_id
 
 
+def _resolve_data_context_refresh_user_id(db: Session) -> int:
+    microtrades_user_id = _env_int(
+        "MICROTRADES_AUTOPILOT_USER_ID",
+        DEFAULT_ANON_USER_ID,
+        minimum=1,
+        maximum=10_000_000,
+    )
+    user_id = _env_int(
+        "DATA_CONTEXT_REFRESH_USER_ID",
+        microtrades_user_id,
+        minimum=1,
+        maximum=10_000_000,
+    )
+    if db.get(User, user_id) is None and AUTH_DISABLED and user_id == DEFAULT_ANON_USER_ID:
+        _resolve_anonymous_user(db)
+    if db.get(User, user_id) is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Usuario {user_id} nao encontrado para refresh de contexto.",
+        )
+    return user_id
+
+
 def _env_int(name: str, default: int, *, minimum: int, maximum: int) -> int:
     raw = os.getenv(name, "").strip()
     if not raw:
@@ -1331,6 +1357,27 @@ def _env_csv(name: str, default: str) -> list[str]:
     if not raw:
         return []
     return [item.strip().upper() for item in raw.split(",") if item.strip()]
+
+
+def _resolve_data_context_instruments(
+    instruments: str | None,
+    *,
+    max_instruments: int,
+) -> list[str]:
+    if instruments is None:
+        candidates = _env_csv(
+            "DATA_CONTEXT_REFRESH_INSTRUMENTS",
+            DEFAULT_DATA_CONTEXT_REFRESH_INSTRUMENTS,
+        )
+    else:
+        candidates = [item.strip().upper() for item in instruments.split(",") if item.strip()]
+    resolved = list(dict.fromkeys(candidates))
+    if not resolved:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe ao menos um instrumento para refresh de contexto.",
+        )
+    return resolved[:max_instruments]
 
 
 def _parse_iso_datetime(value: object) -> datetime | None:
@@ -1758,6 +1805,161 @@ def microtrades_data_refresh(
         run_backfill=run_backfill,
         run_live_ingestion=run_live_ingestion,
     )
+
+
+@app.post("/api/ops/data-context-refresh")
+def data_context_refresh(
+    authorization: Annotated[str | None, Header(alias="Authorization")] = None,
+    instruments: str | None = Query(
+        default=None,
+        description="Lista CSV de instrumentos alvo (ex.: PETR4,VALE3).",
+    ),
+    max_instruments: int | None = Query(default=None, ge=1, le=60),
+    run_fundamentals: bool = Query(default=True),
+    run_news: bool = Query(default=True),
+    dry_run: bool = Query(default=False),
+    news_lookback_days: int | None = Query(default=None, ge=1, le=30),
+    max_articles_per_instrument: int | None = Query(default=None, ge=1, le=100),
+    fundamentals_provider: str = Query(default="auto", min_length=2, max_length=64),
+    fundamentals_only_missing: bool | None = Query(default=None),
+    fundamentals_max_staleness_days: int | None = Query(default=None, ge=0, le=3650),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    _assert_cron_authorized(authorization)
+    if not dry_run and not run_fundamentals and not run_news:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe run_fundamentals=true ou run_news=true.",
+        )
+
+    user_id = _resolve_data_context_refresh_user_id(db)
+    effective_max_instruments = (
+        max_instruments
+        if max_instruments is not None
+        else _env_int(
+            "DATA_CONTEXT_REFRESH_MAX_INSTRUMENTS",
+            10,
+            minimum=1,
+            maximum=60,
+        )
+    )
+    instrument_list = _resolve_data_context_instruments(
+        instruments,
+        max_instruments=effective_max_instruments,
+    )
+    effective_news_lookback_days = (
+        news_lookback_days
+        if news_lookback_days is not None
+        else _env_int(
+            "DATA_CONTEXT_REFRESH_NEWS_LOOKBACK_DAYS",
+            7,
+            minimum=1,
+            maximum=30,
+        )
+    )
+    effective_max_articles = (
+        max_articles_per_instrument
+        if max_articles_per_instrument is not None
+        else _env_int(
+            "DATA_CONTEXT_REFRESH_MAX_ARTICLES_PER_INSTRUMENT",
+            20,
+            minimum=1,
+            maximum=100,
+        )
+    )
+    effective_fundamentals_only_missing = (
+        fundamentals_only_missing
+        if fundamentals_only_missing is not None
+        else _env_bool("DATA_CONTEXT_REFRESH_FUNDAMENTALS_ONLY_MISSING", False)
+    )
+    effective_fundamentals_max_staleness_days = (
+        fundamentals_max_staleness_days
+        if fundamentals_max_staleness_days is not None
+        else _env_int(
+            "DATA_CONTEXT_REFRESH_FUNDAMENTALS_MAX_STALENESS_DAYS",
+            7,
+            minimum=0,
+            maximum=3650,
+        )
+    )
+    run_started_at = utc_now()
+    news_end_date = run_started_at.date()
+    news_start_date = news_end_date - timedelta(days=effective_news_lookback_days)
+    config_payload = {
+        "user_id": user_id,
+        "instruments": instrument_list,
+        "max_instruments": effective_max_instruments,
+        "run_fundamentals": run_fundamentals,
+        "run_news": run_news,
+        "fundamentals_provider": fundamentals_provider,
+        "fundamentals_only_missing": effective_fundamentals_only_missing,
+        "fundamentals_max_staleness_days": effective_fundamentals_max_staleness_days,
+        "news_lookback_days": effective_news_lookback_days,
+        "news_start_date": news_start_date.isoformat(),
+        "news_end_date": news_end_date.isoformat(),
+        "max_articles_per_instrument": effective_max_articles,
+        "language": "pt-BR",
+    }
+
+    if dry_run:
+        return {
+            "status": "dry_run",
+            "mode": "data_context_refresh",
+            "config": config_payload,
+        }
+
+    try:
+        fundamentals_result: dict[str, object] | None = None
+        news_result: dict[str, object] | None = None
+        if run_fundamentals:
+            fundamentals_result = dict(
+                sync_external_fundamentals(
+                    db,
+                    user_id=user_id,
+                    provider_name=fundamentals_provider,
+                    instruments=instrument_list,
+                    only_missing=effective_fundamentals_only_missing,
+                    max_instruments=effective_max_instruments,
+                )
+            )
+        if run_news:
+            news_result = dict(
+                sync_external_news_period(
+                    db,
+                    user_id=user_id,
+                    start_date=news_start_date,
+                    end_date=news_end_date,
+                    instruments=instrument_list,
+                    max_articles_per_instrument=effective_max_articles,
+                    language="pt-BR",
+                )
+            )
+        data_quality = build_data_quality_gate_snapshot(
+            db,
+            instruments=instrument_list,
+            fundamentals_max_staleness_days=effective_fundamentals_max_staleness_days,
+            news_lookback_days=effective_news_lookback_days,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    problems: list[str] = []
+    if fundamentals_result is not None and int(fundamentals_result.get("failed", 0) or 0) > 0:
+        problems.append("fundamentals_failed")
+    if news_result is not None and int(news_result.get("failed", 0) or 0) > 0:
+        problems.append("news_failed")
+
+    return {
+        "status": "success" if not problems else "partial",
+        "mode": "data_context_refresh",
+        "run_started_at": isoformat(run_started_at),
+        "run_finished_at": isoformat(utc_now()),
+        "config": config_payload,
+        "fundamentals": fundamentals_result,
+        "news": news_result,
+        "data_quality": cast(dict[str, object], data_quality),
+        "problems": problems,
+    }
 
 
 @app.get("/api/cron/microtrades-autopilot")
