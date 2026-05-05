@@ -99,6 +99,15 @@ def _infer_source_type(source_name: str) -> str:
     return "financial_media"
 
 
+def _safe_source_url(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = value.strip()
+    if not normalized or len(normalized) > 400:
+        return None
+    return normalized
+
+
 def _parse_pubdate(value: str, fallback_tz: tzinfo) -> datetime | None:
     if not value.strip():
         return None
@@ -225,7 +234,7 @@ def sync_external_news_period(
                         source_name=item["source_name"],
                         source_type=item["source_type"],
                         published_at=item["published_at"],
-                        source_url=item["source_url"],
+                        source_url=_safe_source_url(item["source_url"]),
                         language=item["language"],
                     ),
                 )

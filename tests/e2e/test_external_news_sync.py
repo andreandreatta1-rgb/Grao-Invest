@@ -134,3 +134,52 @@ def test_news_external_sync_period_rejects_invalid_date_range(client) -> None:
     )
     assert response.status_code == 400
     assert "start_date" in response.json()["detail"]
+
+
+def test_news_external_sync_period_omits_overlong_source_url(client, monkeypatch) -> None:
+    user_id = _signup_and_authenticate(client, "external-news-long-url@example.com")
+    t0 = datetime(2026, 4, 20, 14, 0, tzinfo=UTC)
+
+    def fake_fetch_google_news_items(  # noqa: ANN202
+        *,
+        instrument: str,
+        start_date,  # noqa: ANN001
+        end_date,  # noqa: ANN001
+        max_items: int,
+        language: str,
+    ):
+        del start_date, end_date, max_items, language
+        return [
+            {
+                "instrument": instrument,
+                "headline": "Petrobras divulga novo plano de investimentos",
+                "source_name": "Agencia Teste",
+                "source_type": "financial_media",
+                "published_at": t0,
+                "source_url": "https://news.google.com/read/" + ("x" * 500),
+                "language": "pt-BR",
+            }
+        ]
+
+    monkeypatch.setattr(
+        "app.services.news_external._fetch_google_news_items",
+        fake_fetch_google_news_items,
+    )
+
+    response = client.post(
+        "/api/news/external/sync-period",
+        json={
+            "user_id": user_id,
+            "start_date": "2026-04-19",
+            "end_date": "2026-04-21",
+            "instruments": ["PETR4"],
+            "max_articles_per_instrument": 20,
+            "language": "pt-BR",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["fetched"] == 1
+    assert payload["inserted"] == 1
+    assert payload["failed"] == 0
