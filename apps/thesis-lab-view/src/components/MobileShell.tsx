@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation, Link } from "react-router-dom";
+﻿import { Outlet, NavLink, useLocation, Link } from "react-router-dom";
 import { Activity, FlaskConical, Inbox, LineChart, Radar, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ const tabs = [
   { to: "/teses",     label: "Teses",     icon: Radar },
   { to: "/lab",       label: "Lab",       icon: FlaskConical },
   { to: "/mercado",   label: "Mercado",   icon: LineChart },
-  { to: "/decisoes",  label: "Decisões",  icon: Inbox },
+  { to: "/decisoes",  label: "DecisÃµes",  icon: Inbox },
 ];
 
 export default function MobileShell() {
@@ -23,13 +23,13 @@ export default function MobileShell() {
   const titleMap: Record<string, string> = {
     "/": "Cockpit",
     "/teses": "Teses",
-    "/lab": "Laboratório Realtime",
+    "/lab": "LaboratÃ³rio Realtime",
     "/mercado": "Mercado",
-    "/decisoes": "Centro de Decisões",
-    "/config": "Configuração",
+    "/decisoes": "Centro de DecisÃµes",
+    "/config": "ConfiguraÃ§Ã£o",
     "/instalar": "Instalar app",
   };
-  const title = titleMap[pathname.split("/").slice(0, 2).join("/")] ?? "Grão Invest";
+  const title = titleMap[pathname.split("/").slice(0, 2).join("/")] ?? "GrÃ£o Invest";
   const overallHealth: SaudeDado =
     !data ? "atualizado" :
     Object.values(data.frentes).some(f => f.saude === "indisponivel") ? "indisponivel" :
@@ -47,7 +47,7 @@ export default function MobileShell() {
             </div>
             <div className="flex flex-col leading-tight">
               <span className="font-display text-[15px] font-semibold tracking-tight">{title}</span>
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Grão Invest · Laboratório</span>
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">GrÃ£o Invest Â· LaboratÃ³rio</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export default function MobileShell() {
             </div>
             <Link
               to="/config"
-              aria-label="Configuração da API"
+              aria-label="ConfiguraÃ§Ã£o da API"
               className="w-9 h-9 rounded-lg bg-surface-1 border border-border/60 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-surface-2 transition-colors"
             >
               <Settings2 className="w-4 h-4" />
@@ -71,9 +71,12 @@ export default function MobileShell() {
         </div>
       </header>
 
-      {/* Conteúdo */}
+      {/* ConteÃºdo */}
       <main className="flex-1 mx-auto w-full max-w-screen-md px-4 pt-4 pb-28">
         <Outlet />
+        <section className="mt-6 rounded-xl border border-border/50 bg-surface-1/70 px-3 py-2.5 text-[10px] leading-relaxed text-muted-foreground">
+          Conteúdo analítico e educacional. Operações simuladas para laboratório e acompanhamento de teses. Não constitui recomendação de investimento. CVM Res. 19/2021.
+        </section>
       </main>
 
       {/* Tab bar */}
@@ -106,3 +109,4 @@ export default function MobileShell() {
     </div>
   );
 }
+

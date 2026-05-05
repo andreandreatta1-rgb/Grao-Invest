@@ -211,11 +211,12 @@ app = FastAPI(
     ),
 )
 
-static_dir = Path(__file__).resolve().parent.parent / "static"
+legacy_static_dir = Path(__file__).resolve().parent.parent / "static"
+frontend_dist_dir = Path(__file__).resolve().parent.parent / "frontend_dist"
 bundled_data_dir = Path(__file__).resolve().parents[3] / "data"
 data_dir = Path(os.getenv("DATA_DIR", str(bundled_data_dir)))
 data_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/static", StaticFiles(directory=legacy_static_dir), name="static")
 agent_loop = AgentLoop()
 AUTH_DISABLED = os.getenv("DISABLE_AUTH", "1").strip().lower() in {"1", "true", "yes", "on"}
 DEFAULT_ANON_USER_ID = int(os.getenv("ANON_USER_ID", "1"))
@@ -225,9 +226,34 @@ DEFAULT_ANON_TENANT_NAME = os.getenv("ANON_TENANT_NAME", "Grao Invest")
 DEFAULT_ANON_PASSWORD = os.getenv("ANON_USER_PASSWORD", "anon-access-disabled")
 
 
+def _frontend_shell_dir() -> Path:
+    if (frontend_dist_dir / "index.html").exists():
+        return frontend_dist_dir
+    return legacy_static_dir
+
+
+def _frontend_index_file() -> Path:
+    return _frontend_shell_dir() / "index.html"
+
+
+def _frontend_asset_file(request_path: str) -> Path | None:
+    normalized_path = request_path.strip().lstrip("/")
+    if not normalized_path:
+        return None
+    root_dir = _frontend_shell_dir().resolve()
+    candidate = (root_dir / normalized_path).resolve()
+    try:
+        candidate.relative_to(root_dir)
+    except ValueError:
+        return None
+    if candidate.is_file():
+        return candidate
+    return None
+
+
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
-    return FileResponse(static_dir / "index.html")
+    return FileResponse(_frontend_index_file())
 
 
 def _extract_bearer_token(authorization: str | None) -> str:
@@ -4360,6 +4386,20 @@ def agent_status(
     _ = user.id
     payload = agent_loop.status(db)
     return dict(payload)
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def frontend_shell(full_path: str) -> FileResponse:
+    asset = _frontend_asset_file(full_path)
+    if asset is not None:
+        return FileResponse(asset)
+
+    normalized_path = full_path.strip().lstrip("/")
+    if normalized_path.startswith(("api/", "ws/", "static/")):
+        raise HTTPException(status_code=404, detail="Not Found")
+    if normalized_path and Path(normalized_path).suffix:
+        raise HTTPException(status_code=404, detail="Not Found")
+    return FileResponse(_frontend_index_file())
 
 
 @app.websocket("/ws/agent")

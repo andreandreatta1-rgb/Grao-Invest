@@ -1,137 +1,44 @@
+from __future__ import annotations
+
+import json
+import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-STATIC_DIR = REPO_ROOT / "services" / "api" / "static"
+FRONTEND_DIST_DIR = REPO_ROOT / "services" / "api" / "frontend_dist"
 
 
 def _read(path: Path) -> str:
+    assert path.exists(), f"Expected tracked frontend artifact at {path}"
     return path.read_text(encoding="utf-8")
 
 
-def test_index_contains_phase_ui_shell_and_disclaimer() -> None:
-    html = _read(STATIC_DIR / "index.html")
-    assert 'id="auth-gate"' in html
-    assert 'id="onboarding-wizard"' in html
-    assert 'data-view="dashboard"' in html
-    assert 'data-view="onboarding"' not in html
-    assert 'data-view="mercado"' in html
-    assert 'data-view="operacoes"' in html
-    assert 'data-view="backtest"' in html
-    assert 'data-view="risco"' in html
-    assert 'data-view="game"' in html
-    assert 'data-view="microtrades"' in html
-    assert 'data-view="decisoes"' in html
-    assert 'data-view="alertas"' in html
-    assert 'id="decision-refresh"' in html
-    assert 'id="decision-seed-away-plan"' in html
-    assert 'id="decision-inbox"' in html
-    assert 'id="whatsapp-settings-form"' in html
-    assert 'id="whatsapp-test-btn"' in html
-    assert 'id="whatsapp-deliveries-list"' in html
-    assert 'id="b3-universe-sync-form"' in html
-    assert 'id="news-sync-form"' in html
-    assert 'id="intraday-fetch-form"' in html
-    assert 'id="refresh-feed-health"' in html
-    assert 'id="thesis-ai-analysis"' in html
-    assert "Analisar tese com IA" in html
-    assert 'id="game-setup-form"' in html
-    assert 'id="game-decision-form"' in html
-    assert 'id="microtrades-workflow-form"' in html
-    assert 'id="microtrades-run-cycle"' in html
-    assert 'id="microtrades-fetch-live"' in html
-    assert 'id="microtrades-generate-signal"' in html
-    assert 'id="microtrades-case-study"' in html
-    assert 'id="microtrades-monitor"' in html
-    assert 'id="microtrades-monitor-latest"' in html
-    assert 'id="microtrades-paper-order"' in html
-    assert 'id="microtrades-monitor-table"' in html
-    assert 'id="microtrades-thesis-live-card"' in html
-    assert 'id="microtrades-result-live-card"' in html
-    assert 'id="microtrades-live-countdown"' in html
-    assert 'id="microtrades-live-pressure-fill"' in html
-    assert "Laboratorio realtime: tese ativa" in html
-    assert "Monitor realtime: resultado real" in html
-    assert 'name="instruments" value="BTCUSDT,ETHUSDT"' in html
-    assert 'id="dashboard-coverage-table"' in html
-    assert "<th scope=\"col\">Classe</th>" in html
-    assert "KNRI11" in html
-    assert "AAPL34" in html
-    assert "USD-BRL" in html
-    assert "Alertas de mercado" in html
-    assert "Movimento ativo %" in html
-    assert 'id="dashboard-quality-summary"' in html
-    assert 'id="dashboard-quality-table"' in html
-    assert 'id="logout-btn"' in html
-    assert 'id="sidebar-toggle"' in html
-    assert 'name="user_id"' not in html
-    assert "terminal-output" not in html
-    assert 'id="seed-market"' not in html
-    assert 'id="seed-news"' not in html
-    assert "Conteúdo analítico e educacional." in html
-    assert "Operações são simuladas. CVM Res. 19/2021." in html
+def test_frontend_bundle_contains_modern_shell_and_assets() -> None:
+    html = _read(FRONTEND_DIST_DIR / "index.html")
+
+    assert '<div id="root"></div>' in html
+    assert 'href="/manifest.webmanifest"' in html
+    assert 'href="/apple-touch-icon.png"' in html
+    assert re.search(r'src="/assets/index-[^"]+\.js"', html)
+    assert re.search(r'href="/assets/index-[^"]+\.css"', html)
+    assert "Grão Invest" in html
+    assert "Laboratório de Teses de Investimento" in html
+    assert (FRONTEND_DIST_DIR / "assets").is_dir()
+    assert (FRONTEND_DIST_DIR / "icon-192.png").exists()
+    assert (FRONTEND_DIST_DIR / "icon-512.png").exists()
+    assert (FRONTEND_DIST_DIR / "apple-touch-icon.png").exists()
 
 
-def test_styles_define_design_tokens_and_mono_font() -> None:
-    css = _read(STATIC_DIR / "styles.css")
-    assert ":root {" in css
-    assert "--c-bg:" in css
-    assert "--c-accent:" in css
-    assert "--font-mono:" in css
-    assert ".mono {" in css
-    assert "font-family: var(--font-mono);" in css
+def test_manifest_keeps_pwa_installability_metadata() -> None:
+    manifest = json.loads(_read(FRONTEND_DIST_DIR / "manifest.webmanifest"))
 
-
-def test_app_script_has_navigation_and_feed_status_logic() -> None:
-    script = _read(STATIC_DIR / "app.js")
-    assert 'const TOKEN_KEY = "ia_session_token";' in script
-    assert "function showAuthGate()" in script
-    assert "function getAuthUserId()" in script
-    assert "function switchView(viewId)" in script
-    assert "function refreshFeedStatus()" in script
-    assert '"/api/market/external/b3/sync-universe-range"' in script
-    assert '"/api/news/external/sync-period"' in script
-    assert '"/api/market/feed/health"' in script
-    assert '"/api/data-quality/gate"' in script
-    assert '"/api/market/intraday/fetch-live"' in script
-    assert '"/api/market/crypto/backfill"' in script
-    assert '"/api/theses/case-study"' in script
-    assert '"/api/theses/ai-analysis"' in script
-    assert '"/api/theses/current-monitor"' in script
-    assert '"/api/theses/current-monitor/latest"' in script
-    assert '"/api/microtrades/autopilot/run"' in script
-    assert '"/api/assistant/decisions"' in script
-    assert '"/api/assistant/decisions/seed-away-plan"' in script
-    assert "detail.user_message" in script
-    assert "function isDataGateBlockingError" in script
-    assert "gate_dados_bloqueado" in script
-    assert "Microtrades: gate de dados em modo conservador" in script
-    assert "function refreshLatestMonitorQuietly" in script
-    assert "const AUTO_CYCLE_COOLDOWN_MS = 5 * 60 * 1000;" in script
-    assert "const isMonitorPayloadStale = (payload) => {" in script
-    assert "const runMicrotradesAutopilotQuietly = async (reason) => {" in script
-    assert "Disparando ciclo automatico agora." in script
-    assert "function bindThesisAiAnalysisHandler()" in script
-    assert "const renderRealtimeLab =" in script
-    assert "const intervalToMs =" in script
-    assert "tempo esgotado ha" in script
-    assert 'renderRealtimeLab(state.microtradesLivePayload, { persist: false });' in script
-    assert "setLiveNeutral(" in script
-    assert "microtrades-live-pressure-fill" in script
-    assert "Rode o ciclo completo quando quiser atualizar." not in script
-    assert "/api/paper/orders/from-signal/" in script
-    assert "function bindDecisionHandlers()" in script
-    assert "function loadDecisionInbox()" in script
-    assert '"/api/theses/game-playbook"' in script
-    assert '"/api/notifications/whatsapp"' in script
-    assert '"/api/notifications/whatsapp/test"' in script
-    assert "function loadWhatsAppSettings()" in script
-    assert "function bindGameHandlers()" in script
-    assert "function bindMicrotradesHandlers()" in script
-    assert "function renderCoverage(coverage)" in script
-    assert "function assetClassLabel(value)" in script
-    assert 'allowed_bdi_codes: ["02", "12", "14", "34"]' in script
-    assert "function renderDataQualityGate(gate)" in script
-    assert "function buildTimeSeries(" not in script
-    assert "window.setInterval(refreshFeedStatus, 15000);" in script
-    assert "}, 15000);" in script
-    assert "}, 1000);" in script
+    assert manifest["name"].startswith("Grão Invest")
+    assert manifest["short_name"] == "Grão Invest"
+    assert manifest["display"] == "standalone"
+    assert manifest["start_url"] == "/"
+    assert manifest["theme_color"] == "#08101C"
+    assert manifest["background_color"] == "#08101C"
+    icon_sources = {icon["src"] for icon in manifest["icons"]}
+    assert "/icon-192.png" in icon_sources
+    assert "/icon-512.png" in icon_sources
+    assert "/icon-512-maskable.png" in icon_sources

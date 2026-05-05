@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "sync:backend": "powershell -ExecutionPolicy Bypass -File ../../scripts/sync_thesis_lab_frontend.ps1",
+    "build:backend-bundle": "npm run build && npm run sync:backend",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

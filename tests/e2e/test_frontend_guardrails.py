@@ -4,11 +4,22 @@ import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-HTML_PATH = REPO_ROOT / "services" / "api" / "static" / "index.html"
+FRONTEND_DIST_DIR = REPO_ROOT / "services" / "api" / "frontend_dist"
+HTML_PATH = FRONTEND_DIST_DIR / "index.html"
 
 
 def _html() -> str:
+    assert HTML_PATH.exists(), f"Expected tracked frontend artifact at {HTML_PATH}"
     return HTML_PATH.read_text(encoding="utf-8")
+
+
+def _bundle_text() -> str:
+    html = _html()
+    asset_match = re.search(r'src="(?P<asset>/assets/index-[^"]+\.js)"', html)
+    assert asset_match is not None, "Expected JS bundle reference in frontend_dist/index.html"
+    asset_path = FRONTEND_DIST_DIR / asset_match.group("asset").lstrip("/")
+    assert asset_path.exists(), f"Expected bundle at {asset_path}"
+    return asset_path.read_text(encoding="utf-8")
 
 
 FORBIDDEN_COPY_PATTERNS = [
@@ -24,8 +35,8 @@ FORBIDDEN_COPY_PATTERNS = [
 
 
 def test_no_forbidden_recommendation_copy() -> None:
-    html = _html().lower()
-    violations = [pattern for pattern in FORBIDDEN_COPY_PATTERNS if re.search(pattern, html)]
+    bundle = f"{_html()}\n{_bundle_text()}".lower()
+    violations = [pattern for pattern in FORBIDDEN_COPY_PATTERNS if re.search(pattern, bundle)]
     assert not violations, (
         "HTML contém linguagem proibida de recomendação: "
         f"{', '.join(violations)}"
@@ -33,39 +44,39 @@ def test_no_forbidden_recommendation_copy() -> None:
 
 
 def test_disclaimer_is_present() -> None:
-    html = _html()
-    assert "global-disclaimer" in html
-    assert "CVM" in html
-    assert "simulad" in html.lower()
+    bundle = _bundle_text()
+    assert "CVM" in bundle
+    assert "simulad" in bundle.lower()
+    assert "educacional" in bundle.lower()
 
 
 def test_no_hardcoded_credentials() -> None:
-    html = _html()
-    assert "SenhaForte123!" not in html
-    assert "enzo@example.com" not in html
-    assert "andre@example.com" not in html.lower()
+    bundle = f"{_html()}\n{_bundle_text()}"
+    assert "SenhaForte123!" not in bundle
+    assert "enzo@example.com" not in bundle
+    assert "andre@example.com" not in bundle.lower()
     assert not re.search(
         r'<input[^>]*type=["\']password["\'][^>]*\bvalue=["\']',
-        html,
+        bundle,
         flags=re.IGNORECASE,
     )
 
 
 def test_no_visible_user_id_fields() -> None:
-    html = _html()
+    bundle = _bundle_text()
     visible_user_id_fields = re.findall(
         r'<input(?![^>]*type=["\']hidden["\'])[^>]*name=["\']user_id["\'][^>]*>',
-        html,
+        bundle,
         flags=re.IGNORECASE,
     )
     assert not visible_user_id_fields
 
 
 def test_no_terminal_output_elements() -> None:
-    html = _html()
+    bundle = _bundle_text()
     terminal_outputs = re.findall(
         r'class=["\'][^"\']*terminal-output[^"\']*["\']',
-        html,
+        bundle,
         flags=re.IGNORECASE,
     )
     assert not terminal_outputs
