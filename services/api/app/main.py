@@ -4844,6 +4844,29 @@ def dashboard_summary(
         if isinstance(seed_open_operations, list):
             thesis_open_operations = [item for item in seed_open_operations if isinstance(item, dict)]
 
+    if dashboard_seed is not None and _env_bool(
+        "DASHBOARD_SEED_CANONICAL_HISTORY",
+        bool(os.getenv("VERCEL", "").strip()),
+    ):
+        seed_overview = dashboard_seed.get("thesis_history_overview")
+        seed_historical = dashboard_seed.get("historical_analysis_summary")
+        seed_exec_summary = dashboard_seed.get("thesis_executive_summary")
+        if isinstance(seed_overview, dict):
+            runtime_total_tested = _safe_int(thesis_history_overview.get("total_tested"))
+            seed_total_tested = _safe_int(seed_overview.get("total_tested"))
+            if seed_total_tested > runtime_total_tested:
+                promoted_overview = dict(seed_overview)
+                seed_quality = promoted_overview.get("sample_quality")
+                promoted_quality = dict(seed_quality) if isinstance(seed_quality, dict) else {}
+                promoted_quality["runtime_policy"] = "seed_promoted_over_thin_runtime"
+                promoted_quality["runtime_total_tested_replaced"] = runtime_total_tested
+                promoted_overview["sample_quality"] = promoted_quality
+                thesis_history_overview = promoted_overview
+                if isinstance(seed_historical, dict):
+                    historical_analysis_summary = cast(dict[str, object], dict(seed_historical))
+                if isinstance(seed_exec_summary, dict):
+                    thesis_executive_summary = cast(dict[str, object], dict(seed_exec_summary))
+
     def _append_real_estate_candidate_operations() -> None:
         existing_ids = {str(row.get("thesis_id") or "") for row in thesis_open_operations}
         real_estate_candidates = list(

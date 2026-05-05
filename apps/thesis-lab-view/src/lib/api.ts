@@ -62,7 +62,12 @@ function readLS(key: string): string | undefined {
 }
 
 export function getApiBase(): string | undefined {
-  return readLS(LS_BASE) || (import.meta.env.VITE_API_BASE_URL as string | undefined) || undefined;
+  const configured = readLS(LS_BASE) || (import.meta.env.VITE_API_BASE_URL as string | undefined);
+  if (configured) return configured;
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin;
+  }
+  return undefined;
 }
 
 export function setApiBase(url: string | null) {
@@ -140,6 +145,10 @@ async function request<T>(path: string, init?: RequestInit, timeoutMs = DEFAULT_
     }
 
     if (response.status === 204) return undefined as T;
+    const contentType = response.headers.get("Content-Type") || "";
+    if (!contentType.toLowerCase().includes("application/json")) {
+      throw new ApiError(path, 404, `API ${path} retornou conteudo nao-JSON`);
+    }
     return (await response.json()) as T;
   } catch (error) {
     if ((error as Error).name === "AbortError") {
