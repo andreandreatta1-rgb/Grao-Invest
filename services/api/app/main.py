@@ -139,6 +139,9 @@ from app.services.market import (
 from app.services.microtrades_autopilot import (
     MicrotradesAutopilotConfig,
     build_microtrades_autopilot_config,
+    build_stale_reused_current_monitor_payload,
+    has_valid_current_monitor_snapshot,
+    is_no_fresh_market_data_monitor_payload,
     load_latest_microtrades_autopilot_snapshot,
     persist_microtrades_autopilot_snapshot,
     run_microtrades_autopilot_cycle,
@@ -2562,6 +2565,12 @@ def thesis_current_monitor_latest(
                 status_code=503,
                 detail="Nao foi possivel recomputar o monitor diario no momento.",
             )
+        if (
+            payload_stale
+            and has_valid_current_monitor_snapshot(payload, user_id=user.id)
+            and is_no_fresh_market_data_monitor_payload(monitor_payload)
+        ):
+            return build_stale_reused_current_monitor_payload(payload)
         return monitor_payload
     return payload
 
@@ -3504,6 +3513,16 @@ def dashboard_summary(
             .order_by(AuditEvent.created_at.asc(), AuditEvent.id.asc())
         )
     )
+    raw_global_case_study_events = sum(
+        1
+        for event in thesis_audit_events_global
+        if event.event_type == "thesis.case_study.generated"
+    )
+    raw_global_current_monitor_events = sum(
+        1
+        for event in thesis_audit_events_global
+        if event.event_type == "thesis.current_monitor.generated"
+    )
 
     def _maybe_float(value: object) -> float | None:
         try:
@@ -3531,6 +3550,16 @@ def dashboard_summary(
         return _maybe_float(
             kpis_dict.get("expected_financial_pct"),
         ) or _maybe_float(thesis_dict.get("expected_financial_pct"))
+
+    def _case_study_event_key(event: AuditEvent, details: dict[str, object]) -> str:
+        selected_case = details.get("selected_case")
+        selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+        thesis = selected_case_dict.get("thesis")
+        thesis_dict = thesis if isinstance(thesis, dict) else {}
+        thesis_id = details.get("selected_thesis_id") or thesis_dict.get("thesis_id")
+        if thesis_id:
+            return str(thesis_id)
+        return f"case-study-event-{event.id}"
 
     def _extract_thesis_event_metrics(
         event_type: str,
@@ -3570,14 +3599,7 @@ def dashboard_summary(
             return thesis_count, success_count, avg_result_pct
 
         if event_type == "thesis.current_monitor.generated":
-            thesis_count = max(0, thesis_count)
-            avg_result_pct = _maybe_float(details.get("avg_unrealized_financial_pct"))
-            target_hits = _safe_int(details.get("target_hits"), -1)
-            if target_hits >= 0:
-                success_count = max(0, min(thesis_count, target_hits))
-            elif avg_result_pct is not None and thesis_count > 0:
-                success_count = thesis_count if avg_result_pct >= 0.0 else 0
-            return thesis_count, success_count, avg_result_pct
+            return 0, 0, None
 
         return thesis_count, success_count, avg_result_pct
 
@@ -3635,9 +3657,15 @@ def dashboard_summary(
 
     thesis_event_counts_by_type: dict[str, int] = defaultdict(int)
     user_total_theses_tested = 0
+    counted_user_case_study_keys: set[str] = set()
     for event in thesis_audit_events:
-        thesis_event_counts_by_type[event.event_type] += 1
         details_dict = _parse_audit_details(event)
+        if event.event_type == "thesis.case_study.generated":
+            case_key = _case_study_event_key(event, details_dict)
+            if case_key in counted_user_case_study_keys:
+                continue
+            counted_user_case_study_keys.add(case_key)
+        thesis_event_counts_by_type[event.event_type] += 1
         tested_count, _, _ = _extract_thesis_event_metrics(event.event_type, details_dict)
         user_total_theses_tested += tested_count
 
@@ -3674,9 +3702,15 @@ def dashboard_summary(
             "weighted_return_sum": 0.0,
         },
     )
+    counted_global_case_study_keys: set[str] = set()
     for event in thesis_audit_events_global:
-        thesis_event_counts_global_by_type[event.event_type] += 1
         details_dict = _parse_audit_details(event)
+        if event.event_type == "thesis.case_study.generated":
+            case_key = _case_study_event_key(event, details_dict)
+            if case_key in counted_global_case_study_keys:
+                continue
+            counted_global_case_study_keys.add(case_key)
+        thesis_event_counts_global_by_type[event.event_type] += 1
         tested_count, success_count, avg_result_pct = _extract_thesis_event_metrics(
             event.event_type,
             details_dict,
@@ -3927,6 +3961,22 @@ def dashboard_summary(
             "current_monitor_runs": int(
                 thesis_event_counts_global_by_type.get("thesis.current_monitor.generated", 0)
             ),
+        },
+        "sample_quality": {
+            "counting_policy": "unique_resolved_case_studies",
+            "raw_case_study_events": int(raw_global_case_study_events),
+            "duplicate_case_study_events_excluded": int(
+                max(
+                    0,
+                    raw_global_case_study_events
+                    - thesis_event_counts_global_by_type.get(
+                        "thesis.case_study.generated",
+                        0,
+                    ),
+                )
+            ),
+            "current_monitor_snapshots_excluded": int(raw_global_current_monitor_events),
+            "current_monitor_policy": "excluded_until_resolved_and_deduplicated",
         },
     }
 
@@ -4505,6 +4555,29 @@ def dashboard_summary(
             candidate_payload = _real_estate_candidate_payload(candidate)
             analysis = candidate_payload.get("analysis")
             analysis_dict = analysis if isinstance(analysis, dict) else {}
+            candidate_snapshot = {
+                field: candidate_payload.get(field)
+                for field in [
+                    "strategy",
+                    "city",
+                    "neighborhood",
+                    "property_type",
+                    "private_area_m2",
+                    "bedrooms",
+                    "parking_spaces",
+                    "renovation_type",
+                    "renovation_budget",
+                    "sale_comparables_count",
+                    "rent_comparables_count",
+                    "carrying_months",
+                    "monthly_carrying_cost",
+                    "estimated_sale_base",
+                    "estimated_sale_conservative",
+                    "estimated_sale_optimistic",
+                    "notes",
+                ]
+            }
+            real_estate_analysis = {**analysis_dict, "candidate": candidate_snapshot}
             scenarios = analysis_dict.get("scenarios")
             scenarios_dict = scenarios if isinstance(scenarios, dict) else {}
             base_scenario = scenarios_dict.get("base")
@@ -4631,7 +4704,7 @@ def dashboard_summary(
                     "duration_days": duration_days,
                     "open_days": open_days,
                     "learning_note": learning_note,
-                    "real_estate_analysis": analysis_dict,
+                    "real_estate_analysis": real_estate_analysis,
                 }
             )
             existing_ids.add(thesis_id_value)

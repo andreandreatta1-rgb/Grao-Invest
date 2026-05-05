@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from typing import TypedDict
 
@@ -19,6 +20,7 @@ from app.services.signals import generate_signal
 from app.services.suitability import save_suitability
 from app.services.thesis_case_study import run_thesis_case_study
 from app.services.thesis_current_monitor import (
+    load_latest_current_thesis_monitor,
     persist_current_thesis_monitor_snapshot,
     run_current_thesis_monitor,
 )
@@ -143,6 +145,7 @@ _INDICATORS_MISSING_TOKEN = "nao ha indicadores disponiveis"
 _SUITABILITY_MISSING_TOKEN = "suitability obrigatorio"
 _NO_CURRENT_THESES_TOKEN = "nenhuma tese atual encontrada"
 _NO_FRESH_MARKET_DATA_TOKEN = "nao ha dados de mercado frescos"
+_STALE_MONITOR_REUSED_NOTE = "Dados de mercado sem frescor; mantendo ultimo monitor valido."
 
 
 def _autopilot_debug(config: MicrotradesAutopilotConfig, message: str) -> None:
@@ -227,6 +230,17 @@ def _is_no_current_theses_error(message: str) -> bool:
         _NO_CURRENT_THESES_TOKEN in normalized
         or _NO_FRESH_MARKET_DATA_TOKEN in normalized
     )
+
+
+def _is_no_fresh_market_data_error(message: str) -> bool:
+    return _NO_FRESH_MARKET_DATA_TOKEN in message.strip().lower()
+
+
+def _safe_int(value: object, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _safe_iso_to_utc(value: str | None) -> datetime | None:
@@ -630,6 +644,63 @@ def _empty_monitor_payload(
     }
 
 
+def has_valid_current_monitor_snapshot(
+    payload: object,
+    *,
+    user_id: int | None = None,
+) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    if user_id is not None:
+        payload_user_id = _safe_int(payload.get("user_id"), -1)
+        if payload_user_id != int(user_id):
+            return False
+    theses_raw = payload.get("theses")
+    theses = (
+        [item for item in theses_raw if isinstance(item, dict)]
+        if isinstance(theses_raw, list)
+        else []
+    )
+    return _safe_int(payload.get("thesis_count"), 0) > 0 and bool(theses)
+
+
+def is_no_fresh_market_data_monitor_payload(payload: object) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    if _safe_int(payload.get("thesis_count"), 0) != 0:
+        return False
+    theses_raw = payload.get("theses")
+    if isinstance(theses_raw, list) and theses_raw:
+        return False
+    summary = payload.get("summary")
+    summary_dict = summary if isinstance(summary, dict) else {}
+    notes_raw = summary_dict.get("notes")
+    notes = notes_raw if isinstance(notes_raw, list) else []
+    return any(_is_no_fresh_market_data_error(str(note)) for note in notes)
+
+
+def build_stale_reused_current_monitor_payload(payload: dict[str, object]) -> dict[str, object]:
+    reused = deepcopy(payload)
+    summary = reused.get("summary")
+    summary_dict = deepcopy(summary) if isinstance(summary, dict) else {}
+    summary_dict["notes"] = [_STALE_MONITOR_REUSED_NOTE]
+    reused["summary"] = summary_dict
+
+    data_quality = reused.get("data_quality")
+    data_quality_dict = deepcopy(data_quality) if isinstance(data_quality, dict) else {}
+    data_quality_dict.update(
+        {
+            "status": "stale_reused",
+            "reason": "no_fresh_market_data",
+            "message": _STALE_MONITOR_REUSED_NOTE,
+            "reused_at": isoformat(utc_now()),
+            "previous_generated_at": reused.get("generated_at"),
+        }
+    )
+    reused["data_quality"] = data_quality_dict
+    return reused
+
+
 def _run_monitor_with_auto_suitability(
     db: Session,
     *,
@@ -658,6 +729,14 @@ def _run_monitor_with_auto_suitability(
                 recent_bars_window=config["recent_bars_window"],
             )
             return payload, True, False
+        if _is_no_fresh_market_data_error(message):
+            previous_payload = load_latest_current_thesis_monitor(
+                db,
+                user_id=config["user_id"],
+                include_bundled_bootstrap=False,
+            )
+            if has_valid_current_monitor_snapshot(previous_payload, user_id=config["user_id"]):
+                return build_stale_reused_current_monitor_payload(previous_payload), False, False
         if _is_no_current_theses_error(message):
             payload = _empty_monitor_payload(config=config, reason=message)
             persist_current_thesis_monitor_snapshot(db, payload, user_id=config["user_id"])

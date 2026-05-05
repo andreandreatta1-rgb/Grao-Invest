@@ -89,6 +89,51 @@ def test_load_latest_current_monitor_falls_back_to_audit_snapshot(
     assert loaded == payload
 
 
+def test_load_latest_current_monitor_skips_no_fresh_empty_snapshot(
+    db_session: Session,
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(thesis_current_monitor, "DATA_DIR", tmp_path)
+    valid_payload = {
+        "generated_at": "2026-05-05T20:00:00+00:00",
+        "user_id": 1,
+        "horizon_bars": 8,
+        "recent_bars_window": 2000,
+        "thesis_count": 2,
+        "scan_scope": {"instruments": ["PETR4", "BTCUSDT"], "candidate_count": 20},
+        "summary": {"target_hits": 0, "stop_alerts": 0, "monitoring_count": 2},
+        "theses": [{"thesis_id": "TH-PETR4-1"}, {"thesis_id": "TH-BTCUSDT-1"}],
+        "disclaimer": "simulado",
+    }
+    empty_no_fresh_payload = {
+        "generated_at": "2026-05-05T21:26:19+00:00",
+        "user_id": 1,
+        "horizon_bars": 8,
+        "recent_bars_window": 7,
+        "thesis_count": 0,
+        "scan_scope": {"instruments": ["BTCUSDT"], "candidate_count": 0},
+        "summary": {
+            "target_hits": 0,
+            "stop_alerts": 0,
+            "monitoring_count": 0,
+            "notes": ["Nao ha dados de mercado frescos para monitorar teses atuais."],
+        },
+        "theses": [],
+        "disclaimer": "simulado",
+    }
+    persist_current_thesis_monitor_snapshot(db_session, valid_payload, user_id=1)
+    persist_current_thesis_monitor_snapshot(db_session, empty_no_fresh_payload, user_id=1)
+
+    loaded = load_latest_current_thesis_monitor(
+        db_session,
+        user_id=1,
+        include_bundled_bootstrap=False,
+    )
+
+    assert loaded == valid_payload
+
+
 def test_select_current_candidates_can_prioritize_distinct_instruments() -> None:
     candidates = [
         {

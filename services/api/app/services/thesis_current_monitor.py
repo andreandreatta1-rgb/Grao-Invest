@@ -113,6 +113,46 @@ class CurrentThesisMonitorPayload(TypedDict):
     disclaimer: str
 
 
+_NO_FRESH_MARKET_DATA_TOKEN = "nao ha dados de mercado frescos"
+
+
+def _safe_int(value: object, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _is_no_fresh_empty_monitor_payload(payload: object) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    if _safe_int(payload.get("thesis_count"), 0) != 0:
+        return False
+    theses_raw = payload.get("theses")
+    if isinstance(theses_raw, list) and theses_raw:
+        return False
+    summary = payload.get("summary")
+    summary_dict = summary if isinstance(summary, dict) else {}
+    notes_raw = summary_dict.get("notes")
+    notes = notes_raw if isinstance(notes_raw, list) else []
+    return any(_NO_FRESH_MARKET_DATA_TOKEN in str(note).strip().lower() for note in notes)
+
+
+def _monitor_payload_from_audit_event(event: AuditEvent) -> dict[str, object] | None:
+    try:
+        details = json.loads(event.details)
+    except ValueError:
+        return None
+    if not isinstance(details, dict):
+        return None
+    payload = details.get("payload")
+    if isinstance(payload, dict):
+        return payload
+    if "generated_at" in details and "theses" in details:
+        return details
+    return None
+
+
 def persist_current_thesis_monitor_snapshot(
     db: Session,
     payload: CurrentThesisMonitorPayload | dict[str, object],
@@ -145,15 +185,18 @@ def load_latest_current_thesis_monitor(
     output_path = DATA_DIR / "current_thesis_monitor_latest.json"
     if output_path.exists():
         try:
-            return json.loads(output_path.read_text(encoding="utf-8"))
+            payload = json.loads(output_path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             pass
+        else:
+            if not _is_no_fresh_empty_monitor_payload(payload):
+                return payload
 
     statement = (
         select(AuditEvent)
         .where(AuditEvent.event_type == "thesis.current_monitor.snapshot")
         .order_by(AuditEvent.id.desc())
-        .limit(1)
+        .limit(50)
     )
     if user_id is not None:
         statement = (
@@ -163,20 +206,12 @@ def load_latest_current_thesis_monitor(
                 AuditEvent.user_id == user_id,
             )
             .order_by(AuditEvent.id.desc())
-            .limit(1)
+            .limit(50)
         )
-    event = db.scalar(statement)
-    if event is not None:
-        try:
-            details = json.loads(event.details)
-        except ValueError:
-            details = None
-        if isinstance(details, dict):
-            payload = details.get("payload")
-            if isinstance(payload, dict):
-                return payload
-            if "generated_at" in details and "theses" in details:
-                return details
+    for event in db.scalars(statement).all():
+        payload = _monitor_payload_from_audit_event(event)
+        if payload is not None and not _is_no_fresh_empty_monitor_payload(payload):
+            return payload
     if include_bundled_bootstrap:
         bundled_bootstrap_path = BASE_DIR / "data" / "current_thesis_monitor_bootstrap.json"
         if bundled_bootstrap_path.exists():

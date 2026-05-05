@@ -484,13 +484,75 @@ def test_run_monitor_returns_empty_payload_when_intraday_data_is_stale(
         _capture_snapshot,
     )
 
-    payload, suitability_created, empty_payload = microtrades_autopilot._run_monitor_with_auto_suitability(
-        db_session,
-        config=config,
-    )
+    (
+        payload,
+        suitability_created,
+        empty_payload,
+    ) = microtrades_autopilot._run_monitor_with_auto_suitability(db_session, config=config)
 
     assert suitability_created is False
     assert empty_payload is True
     assert payload["thesis_count"] == 0
     assert payload["summary"]["notes"] == ["Nao ha dados de mercado frescos para monitorar teses atuais."]
     assert captured["user_id"] == 1
+
+
+def test_run_monitor_reuses_previous_valid_snapshot_when_local_refresh_has_no_fresh_data(
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = build_microtrades_autopilot_config(
+        user_id=1,
+        instruments=["BTCUSDT", "ETHUSDT"],
+        interval="5m",
+        lookback_hours=72,
+        max_candles_per_instrument=900,
+        horizon_bars=8,
+        thesis_count=4,
+        recent_bars_window=7,
+        allow_external_fetches=False,
+        publish_decisions=False,
+    )
+    previous_monitor = {
+        "generated_at": "2026-05-05T20:00:00+00:00",
+        "user_id": 1,
+        "horizon_bars": 8,
+        "recent_bars_window": 2000,
+        "thesis_count": 2,
+        "scan_scope": {"instruments": ["PETR4", "BTCUSDT"], "candidate_count": 20},
+        "summary": {"monitoring_count": 2, "notes": []},
+        "theses": [{"thesis_id": "TH-PETR4-1"}, {"thesis_id": "TH-BTCUSDT-1"}],
+        "disclaimer": "simulado",
+    }
+    persisted: list[dict[str, object]] = []
+
+    def _stale_monitor(*args: object, **kwargs: object) -> dict[str, object]:
+        raise ValueError("Nao ha dados de mercado frescos para monitorar teses atuais.")
+
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot.run_current_thesis_monitor",
+        _stale_monitor,
+    )
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot.load_latest_current_thesis_monitor",
+        lambda db, user_id, include_bundled_bootstrap=False: previous_monitor,
+    )
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot.persist_current_thesis_monitor_snapshot",
+        lambda db, payload, *, user_id: persisted.append(payload),
+    )
+
+    (
+        payload,
+        suitability_created,
+        empty_payload,
+    ) = microtrades_autopilot._run_monitor_with_auto_suitability(db_session, config=config)
+
+    assert suitability_created is False
+    assert empty_payload is False
+    assert payload["thesis_count"] == 2
+    assert payload["data_quality"]["status"] == "stale_reused"
+    assert payload["summary"]["notes"] == [
+        "Dados de mercado sem frescor; mantendo ultimo monitor valido."
+    ]
+    assert persisted == []

@@ -341,10 +341,12 @@ def test_current_monitor_latest_rebuilds_when_runtime_snapshot_is_stale(client, 
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["thesis_count"] == 0
+    assert payload["thesis_count"] == 1
+    assert payload["theses"][0]["thesis_id"] == "TH-BTCUSDT-STALE-0001"
     assert payload["summary"]["notes"] == [
-        "Nao ha dados de mercado frescos para monitorar teses atuais."
+        "Dados de mercado sem frescor; mantendo ultimo monitor valido."
     ]
+    assert payload["data_quality"]["status"] == "stale_reused"
     assert captured["load_user_id"] == user_id
     assert captured["load_include_bootstrap"] is False
     assert captured["config_user_id"] == user_id
