@@ -3,6 +3,7 @@ import type { SpecificImovel, SpecificMicrotrade, TheseEnvelope } from "@/types/
 import {
   adaptCockpitFromData,
   adaptCurrentMonitorTheses,
+  adaptDataHealthFromCurrentMonitor,
   adaptMicrotradesAutopilotLatest,
   adaptRealEstateCandidates,
   type BackendCurrentMonitorPayload,
@@ -340,5 +341,37 @@ describe("backend adapters", () => {
 
     expect(cockpit.tesesAtivas).toBe(1);
     expect(cockpit.frentes.B3.ativas).toBe(1);
+  });
+
+  it("explains when the latest monitor is a preserved stale fallback", () => {
+    const health = adaptDataHealthFromCurrentMonitor({
+      generated_at: "2026-05-05T20:00:00Z",
+      thesis_count: 8,
+      data_quality: {
+        status: "stale_reused",
+        source_generated_at: "2026-05-04T19:30:00Z",
+        notes: ["Dados de mercado sem frescor; mantendo ultimo monitor valido."],
+      },
+      summary: {
+        monitoring_count: 8,
+        needs_attention_count: 1,
+      },
+      theses: [
+        {
+          thesis_id: "TH-BTCUSDT-LIVE-0001",
+          instrument: "BTCUSDT",
+          asset_front: "cripto",
+          latest_event_time: "2026-05-04T19:20:00Z",
+        },
+      ],
+    });
+
+    expect(health.status).toBe("stale_reused");
+    expect(health.saude).toBe("parcial");
+    expect(health.fallbackActive).toBe(true);
+    expect(health.headline).toContain("preservado");
+    expect(health.thesisCount).toBe(8);
+    expect(health.frontCounts.Cripto).toBe(1);
+    expect(health.notes).toEqual(["Dados de mercado sem frescor; mantendo ultimo monitor valido."]);
   });
 });

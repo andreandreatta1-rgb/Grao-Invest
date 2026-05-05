@@ -8,7 +8,7 @@ import { ConfidenceBar } from "@/components/ConfidenceBar";
 import { CompletionRing } from "@/components/CompletionRing";
 import { FreshnessBadge } from "@/components/FreshnessBadge";
 import { fmtNumber, fmtPct, fmtRelative } from "@/lib/format";
-import { AlertTriangle, ChevronRight, Filter } from "lucide-react";
+import { AlertTriangle, ChevronRight, Filter, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   apiFrenteToFrente,
@@ -37,6 +37,7 @@ export default function Teses() {
   const [grupo, setGrupo] = useState<typeof STATUS_GROUPS[number]["key"]>("todos");
 
   const { data = [], isLoading } = useQuery({ queryKey: ["teses"], queryFn: api.teses, refetchInterval: 20_000 });
+  const { data: dataHealth } = useQuery({ queryKey: ["data-health"], queryFn: api.dataHealth, refetchInterval: 30_000 });
 
   const baseFiltrada = useMemo(() => {
     return data.filter(t => {
@@ -129,6 +130,18 @@ export default function Teses() {
           </button>
         ))}
       </div>
+
+      {dataHealth?.fallbackActive && (
+        <div className="rounded-xl border border-pending/25 bg-pending/10 px-3.5 py-3 text-xs leading-relaxed text-pending">
+          <div className="flex items-center gap-2 font-medium text-foreground">
+            <ShieldCheck className="w-3.5 h-3.5 text-pending" />
+            Monitor preservado
+          </div>
+          <p className="mt-1 text-pending/90">
+            Sem dados frescos agora. As teses abaixo sao o ultimo retrato valido ate a proxima ingestao.
+          </p>
+        </div>
+      )}
 
       {isLoading && <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-44 rounded-xl bg-surface-1 animate-pulse" />)}</div>}
 

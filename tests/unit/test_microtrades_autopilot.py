@@ -483,6 +483,10 @@ def test_run_monitor_returns_empty_payload_when_intraday_data_is_stale(
         "app.services.microtrades_autopilot.persist_current_thesis_monitor_snapshot",
         _capture_snapshot,
     )
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot.load_latest_current_thesis_monitor",
+        lambda db, user_id, include_bundled_bootstrap=False: None,
+    )
 
     (
         payload,

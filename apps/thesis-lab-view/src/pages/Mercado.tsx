@@ -4,9 +4,9 @@ import { api } from "@/lib/api";
 import { FrenteBadge } from "@/components/FrenteBadge";
 import { HealthBadge } from "@/components/HealthBadge";
 import { fmtNumber, fmtPct, fmtRelative } from "@/lib/format";
-import { ArrowDownRight, ArrowUpRight, Star } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Database, ShieldCheck, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Frente } from "@/types/domain";
+import type { DataHealthSnapshot, Frente } from "@/types/domain";
 
 const filtros: ("Todas" | Frente)[] = ["Todas", "B3", "Cripto", "Imoveis"];
 
@@ -14,6 +14,7 @@ export default function Mercado() {
   const [filtro, setFiltro] = useState<typeof filtros[number]>("Todas");
   const { data: ativos = [] } = useQuery({ queryKey: ["mercado"], queryFn: api.mercado, refetchInterval: 15_000 });
   const { data: fontes = [] } = useQuery({ queryKey: ["fontes"], queryFn: api.fontes, refetchInterval: 30_000 });
+  const { data: dataHealth } = useQuery({ queryKey: ["data-health"], queryFn: api.dataHealth, refetchInterval: 30_000 });
 
   const lista = filtro === "Todas" ? ativos : ativos.filter(a => a.frente === filtro);
   const destaques = lista.filter(a => a.destaque);
@@ -21,6 +22,8 @@ export default function Mercado() {
 
   return (
     <div className="space-y-5 animate-fade-up">
+      {dataHealth && <DataHealthPanel health={dataHealth} />}
+
       {/* Filtros horizontais */}
       <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
         {filtros.map(f => (
@@ -93,6 +96,55 @@ export default function Mercado() {
           ))}
         </ul>
       </section>
+    </div>
+  );
+}
+
+function DataHealthPanel({ health }: { health: DataHealthSnapshot }) {
+  const modeLabel = health.fallbackActive ? "Fallback ativo" : health.status === "fresh" ? "Fluxo normal" : "Cobertura parcial";
+
+  return (
+    <section className="glass-card p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <ShieldCheck className="w-3 h-3" /> Confianca operacional
+          </div>
+          <h3 className="mt-1 font-display text-base font-semibold">{health.headline}</h3>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{health.detail}</p>
+        </div>
+        <HealthBadge saude={health.saude} showLabel={false} className="mt-1 shrink-0" />
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 border-y border-border/50 py-3">
+        <HealthMetric label="Teses" value={`${health.thesisCount}`} />
+        <HealthMetric label="Atencao" value={`${health.needsAttentionCount}`} />
+        <HealthMetric label="Modo" value={modeLabel} />
+      </div>
+
+      <div className="flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <Database className="w-3 h-3" /> ultimo monitor {fmtRelative(health.lastUpdateAt)}
+        </span>
+        <span className="font-mono tabular">
+          B3 {health.frontCounts.B3} | Cripto {health.frontCounts.Cripto} | Imoveis {health.frontCounts.Imoveis}
+        </span>
+      </div>
+
+      {health.notes.length > 0 && (
+        <div className="rounded-lg border border-pending/20 bg-pending/10 px-3 py-2 text-[11px] leading-relaxed text-pending">
+          {health.notes[0]}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function HealthMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-1 truncate font-mono text-xs font-semibold tabular text-foreground">{value}</div>
     </div>
   );
 }

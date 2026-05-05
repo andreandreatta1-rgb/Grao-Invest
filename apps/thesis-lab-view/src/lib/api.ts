@@ -1,6 +1,7 @@
 import type {
   AtivoMercado,
   CockpitResumo,
+  DataHealthSnapshot,
   Decisao,
   FonteDados,
   TheseEnvelope,
@@ -10,6 +11,7 @@ import {
   adaptAssistantDecisions,
   adaptCockpitFromData,
   adaptCurrentMonitorTheses,
+  adaptDataHealthFromCurrentMonitor,
   adaptFontesFromTeses,
   adaptMarketAssetsFromTeses,
   adaptMicrotradesAutopilotLatest,
@@ -274,6 +276,11 @@ async function loadFontes(): Promise<FonteDados[]> {
   return adapted.length ? adapted : mockFontes();
 }
 
+async function loadDataHealth(): Promise<DataHealthSnapshot> {
+  const monitor = await loadCurrentMonitor();
+  return adaptDataHealthFromCurrentMonitor(monitor);
+}
+
 export const api = {
   cockpit: () => withFallback("/cockpit/resumo", mockCockpit(), loadCockpitResumo),
 
@@ -304,6 +311,12 @@ export const api = {
   mercado: () => withFallback("/mercado/ativos", mockMercado(), loadMercado),
 
   fontes: () => withFallback("/mercado/fontes", mockFontes(), loadFontes),
+
+  dataHealth: () => withFallback(
+    "/api/theses/current-monitor/latest",
+    adaptDataHealthFromCurrentMonitor(undefined),
+    loadDataHealth,
+  ),
 
   ping: async (): Promise<{ ok: boolean; latencyMs: number; status?: number; error?: string }> => {
     const startedAt = performance.now();

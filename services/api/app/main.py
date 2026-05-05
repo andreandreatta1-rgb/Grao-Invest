@@ -1692,8 +1692,29 @@ def microtrades_autopilot_cron(
             detail=f"Usuario {user_id} nao encontrado para cron de microtrades.",
         )
 
-    config = _build_default_microtrades_autopilot_config(user_id)
-    return _execute_microtrades_autopilot(db, config=config)
+    cron_allow_external_fetches = _env_bool(
+        "MICROTRADES_AUTOPILOT_CRON_EXTERNAL_FETCHES",
+        False,
+    )
+    cron_publish_decisions = _env_bool(
+        "MICROTRADES_AUTOPILOT_CRON_PUBLISH_DECISIONS",
+        False,
+    )
+    config = _build_default_microtrades_autopilot_config(
+        user_id,
+        allow_external_fetches=cron_allow_external_fetches,
+        publish_decisions=cron_publish_decisions,
+    )
+    payload = _execute_microtrades_autopilot(db, config=config)
+    response = dict(payload)
+    response["cron_mode"] = (
+        "external_fetches" if cron_allow_external_fetches else "fast_monitor_refresh"
+    )
+    response["cron_policy"] = {
+        "allow_external_fetches": cron_allow_external_fetches,
+        "publish_decisions": cron_publish_decisions,
+    }
+    return response
 
 
 @app.get("/api/audit/events")

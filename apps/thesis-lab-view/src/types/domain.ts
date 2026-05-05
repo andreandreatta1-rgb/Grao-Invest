@@ -28,6 +28,23 @@ export interface DataQuality {
   confidence_in_data_pct: number;  // 0..100
 }
 
+export type DataHealthStatus = "fresh" | "partial" | "stale_reused" | "missing";
+
+export interface DataHealthSnapshot {
+  status: DataHealthStatus;
+  saude: SaudeDado;
+  headline: string;
+  detail: string;
+  generatedAt: string;
+  lastUpdateAt: string;
+  thesisCount: number;
+  monitoringCount: number;
+  needsAttentionCount: number;
+  notes: string[];
+  fallbackActive: boolean;
+  frontCounts: Record<Frente, number>;
+}
+
 export interface Completion {
   is_complete: boolean;
   completion_pct: number;          // 0..100

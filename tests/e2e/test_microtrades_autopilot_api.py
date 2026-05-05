@@ -65,9 +65,53 @@ def test_microtrades_autopilot_cron_runs_cycle(client, monkeypatch) -> None:
     payload = response.json()
     assert payload["status"] == "success"
     assert payload["error"] is None
+    assert payload["cron_mode"] == "fast_monitor_refresh"
+    assert payload["cron_policy"] == {
+        "allow_external_fetches": False,
+        "publish_decisions": False,
+    }
     config = dict(captured["config"])
     assert config["user_id"] == 1
     assert config["instruments"] == ["BTCUSDT", "ETHUSDT"]
+    assert config["allow_external_fetches"] is False
+    assert config["publish_decisions"] is False
+
+
+def test_microtrades_autopilot_cron_allows_explicit_heavy_mode(client, monkeypatch) -> None:
+    monkeypatch.setenv("CRON_SECRET", "cron-secret")
+    monkeypatch.setenv("MICROTRADES_AUTOPILOT_ENABLED", "1")
+    monkeypatch.setenv("MICROTRADES_AUTOPILOT_USER_ID", "1")
+    monkeypatch.setenv("MICROTRADES_AUTOPILOT_CRON_EXTERNAL_FETCHES", "1")
+    monkeypatch.setenv("MICROTRADES_AUTOPILOT_CRON_PUBLISH_DECISIONS", "1")
+    captured: dict[str, object] = {}
+
+    def fake_run(_db, *, config):  # noqa: ANN001, ANN202
+        captured["config"] = dict(config)
+        return {
+            "status": "success",
+            "error": None,
+            "run_started_at": "2026-05-02T10:00:00+00:00",
+            "run_finished_at": "2026-05-02T10:00:10+00:00",
+            "steps": [],
+        }
+
+    monkeypatch.setattr("app.main.run_microtrades_autopilot_cycle", fake_run)
+
+    response = client.post(
+        "/api/cron/microtrades-autopilot",
+        headers={"Authorization": "Bearer cron-secret"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["cron_mode"] == "external_fetches"
+    assert payload["cron_policy"] == {
+        "allow_external_fetches": True,
+        "publish_decisions": True,
+    }
+    config = dict(captured["config"])
+    assert config["allow_external_fetches"] is True
+    assert config["publish_decisions"] is True
 
 
 def test_microtrades_autopilot_manual_run_uses_current_user(client, monkeypatch) -> None:

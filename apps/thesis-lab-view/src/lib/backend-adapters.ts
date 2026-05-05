@@ -2,6 +2,7 @@ import type {
   AtivoMercado,
   CockpitResumo,
   Completion,
+  DataHealthSnapshot,
   Decisao,
   FonteDados,
   FreshnessStatus,
@@ -68,6 +69,7 @@ export type BackendCurrentMonitorThesis = {
 export type BackendCurrentMonitorPayload = {
   generated_at?: string;
   user_id?: number;
+  thesis_count?: number;
   theses?: BackendCurrentMonitorThesis[];
   summary?: {
     target_hits?: number;
@@ -75,6 +77,14 @@ export type BackendCurrentMonitorPayload = {
     monitoring_count?: number;
     avg_unrealized_financial_pct?: number;
     needs_attention_count?: number;
+    notes?: string[];
+  };
+  data_quality?: {
+    status?: string;
+    generated_at?: string;
+    source_generated_at?: string;
+    notes?: string[];
+    reused?: boolean;
   };
 };
 
@@ -352,6 +362,58 @@ export function adaptCurrentMonitorTheses(payload: BackendCurrentMonitorPayload)
     .map(mapCurrentMonitorThesis)
     .filter((item): item is TheseEnvelope => item !== null)
     .sort((a, b) => sortByUpdatedDesc(a.updated_at, b.updated_at));
+}
+
+export function adaptDataHealthFromCurrentMonitor(
+  payload?: BackendCurrentMonitorPayload,
+): DataHealthSnapshot {
+  const theses = payload?.theses ?? [];
+  const generatedAt = safeIso(payload?.data_quality?.generated_at || payload?.generated_at);
+  const sourceGeneratedAt = safeOptionalIso(payload?.data_quality?.source_generated_at);
+  const frontCounts = buildMonitorFrontCounts(theses);
+  const freshnessList = theses.map((item) => {
+    const front = monitorFrontToApi(item.asset_front);
+    return freshnessFromTimestamp(safeIso(item.latest_event_time || item.suggested_exit_time || payload?.generated_at), front);
+  });
+  const aggregate = aggregateFreshness(freshnessList);
+  const backendStatus = cleanText(payload?.data_quality?.status).toLowerCase();
+  const thesisCount = safeNumber(payload?.thesis_count, theses.length);
+  const monitoringCount = safeNumber(payload?.summary?.monitoring_count, thesisCount);
+  const needsAttentionCount = safeNumber(payload?.summary?.needs_attention_count);
+  const notes = uniqueTexts([
+    ...(payload?.data_quality?.notes ?? []),
+    ...(payload?.summary?.notes ?? []),
+  ]);
+
+  const status: DataHealthSnapshot["status"] =
+    backendStatus === "stale_reused" || payload?.data_quality?.reused
+      ? "stale_reused"
+      : !payload || aggregate === "missing"
+        ? "missing"
+        : aggregate === "fresh"
+          ? "fresh"
+          : "partial";
+  const fallbackActive = status === "stale_reused";
+  const lastUpdateAt = newestDate([
+    sourceGeneratedAt,
+    generatedAt,
+    ...theses.map((item) => item.latest_event_time || item.suggested_exit_time),
+  ]);
+
+  return {
+    status,
+    saude: dataHealthStatusToSaude(status),
+    headline: dataHealthHeadline(status),
+    detail: dataHealthDetail(status, thesisCount, needsAttentionCount),
+    generatedAt,
+    lastUpdateAt,
+    thesisCount,
+    monitoringCount,
+    needsAttentionCount,
+    notes,
+    fallbackActive,
+    frontCounts,
+  };
 }
 
 export function adaptRealEstateCandidates(payload: BackendRealEstateCandidatesResponse): TheseEnvelope[] {
@@ -877,6 +939,51 @@ function buildFrontSummary(front: FrenteApi, teses: TheseEnvelope[]) {
   };
 }
 
+function buildMonitorFrontCounts(theses: BackendCurrentMonitorThesis[]): DataHealthSnapshot["frontCounts"] {
+  const counts: DataHealthSnapshot["frontCounts"] = {
+    B3: 0,
+    Cripto: 0,
+    Imoveis: 0,
+  };
+  for (const item of theses) {
+    counts[frontApiToFrontLabel(monitorFrontToApi(item.asset_front))] += 1;
+  }
+  return counts;
+}
+
+function dataHealthStatusToSaude(status: DataHealthSnapshot["status"]) {
+  if (status === "fresh") return "atualizado";
+  if (status === "missing") return "indisponivel";
+  return "parcial";
+}
+
+function dataHealthHeadline(status: DataHealthSnapshot["status"]): string {
+  if (status === "fresh") return "Dados frescos";
+  if (status === "stale_reused") return "Monitor preservado";
+  if (status === "missing") return "Dados indisponiveis";
+  return "Dados parciais";
+}
+
+function dataHealthDetail(
+  status: DataHealthSnapshot["status"],
+  thesisCount: number,
+  needsAttentionCount: number,
+): string {
+  if (status === "fresh") {
+    return `${thesisCount} teses alimentadas com dados recentes.`;
+  }
+  if (status === "stale_reused") {
+    return `Sem tick fresco; mantendo ${thesisCount} teses validas ate a proxima ingestao.`;
+  }
+  if (status === "missing") {
+    return "O laboratorio nao encontrou dados suficientes para atualizar o monitor.";
+  }
+  if (needsAttentionCount > 0) {
+    return `${needsAttentionCount} tese(s) precisam de cuidado por atraso ou cobertura parcial.`;
+  }
+  return "Parte das fontes esta atrasada, mas ainda ha base para acompanhamento.";
+}
+
 function mapMonitorStatus(
   item: BackendCurrentMonitorThesis,
   front: FrenteApi,
@@ -1383,6 +1490,10 @@ function round(value: number, digits = 2): number {
 
 function cleanText(value?: string | null): string {
   return String(value ?? "").trim();
+}
+
+function uniqueTexts(values: Array<string | undefined>): string[] {
+  return Array.from(new Set(values.map((value) => cleanText(value)).filter(Boolean)));
 }
 
 function pluralize(value: number, singular: string, plural = `${singular}s`): string {
