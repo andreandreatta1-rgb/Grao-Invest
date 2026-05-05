@@ -303,6 +303,92 @@ def test_run_live_ingestion_skips_provider_when_external_fetches_are_disabled(
     assert called["quotes"] is False
 
 
+def test_run_data_refresh_runs_only_ingestion_steps(
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = build_microtrades_autopilot_config(
+        user_id=1,
+        instruments=["BTCUSDT", "ETHUSDT"],
+        interval="5m",
+        lookback_hours=72,
+        max_candles_per_instrument=900,
+        horizon_bars=8,
+        thesis_count=4,
+        recent_bars_window=7,
+        allow_external_fetches=True,
+        publish_decisions=False,
+    )
+    captured: dict[str, object] = {}
+
+    def fake_backfill(
+        _db,
+        *,
+        config,
+        lookback_hours=None,
+        max_candles_per_instrument=None,
+    ):  # noqa: ANN001, ANN202
+        captured["backfill_config"] = dict(config)
+        captured["lookback_hours"] = lookback_hours
+        captured["max_candles_per_instrument"] = max_candles_per_instrument
+        return {"processed_count": 42, "failed_count": 0}
+
+    def fake_live(_db, *, config):  # noqa: ANN001, ANN202
+        captured["live_config"] = dict(config)
+        return {"processed_count": 2, "failed_count": 0}
+
+    def forbidden_step(*args: object, **kwargs: object) -> None:
+        raise AssertionError("data refresh nao deve recalcular teses nem publicar decisoes")
+
+    monkeypatch.setattr("app.services.microtrades_autopilot._run_backfill", fake_backfill)
+    monkeypatch.setattr("app.services.microtrades_autopilot._run_live_ingestion", fake_live)
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot._run_monitor_with_auto_suitability",
+        forbidden_step,
+    )
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot._publish_cycle_decision",
+        forbidden_step,
+    )
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot.build_data_quality_gate_snapshot",
+        lambda _db, *, instruments, include_provider_health=False: {
+            "scope": {"target_instruments_sample": instruments},
+            "summary": {"gate_status": "pass"},
+        },
+    )
+    monkeypatch.setattr(
+        "app.services.microtrades_autopilot.record_audit_event",
+        lambda _db, event_type, details, user_id: captured.update(
+            {
+                "event_type": event_type,
+                "event_user_id": user_id,
+                "audit_payload": details["payload"],
+            }
+        ),
+    )
+
+    payload = microtrades_autopilot.run_microtrades_data_refresh(
+        db_session,
+        config=config,
+        lookback_hours=2,
+        max_candles_per_instrument=75,
+        run_backfill=True,
+        run_live_ingestion=True,
+    )
+
+    assert payload["status"] == "success"
+    assert payload["mode"] == "data_refresh"
+    assert payload["backfill"]["processed_count"] == 42
+    assert payload["live_ingestion"]["processed_count"] == 2
+    assert payload["data_quality"]["summary"]["gate_status"] == "pass"
+    assert captured["lookback_hours"] == 2
+    assert captured["max_candles_per_instrument"] == 75
+    assert captured["event_type"] == "microtrades.data_refresh"
+    assert captured["event_user_id"] == 1
+    assert captured["audit_payload"]["mode"] == "data_refresh"
+
+
 def test_autopilot_keeps_monitoring_when_case_study_fails(
     db_session: Session,
     monkeypatch: pytest.MonkeyPatch,

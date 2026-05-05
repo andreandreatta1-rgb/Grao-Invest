@@ -114,6 +114,66 @@ def test_microtrades_autopilot_cron_allows_explicit_heavy_mode(client, monkeypat
     assert config["publish_decisions"] is True
 
 
+def test_microtrades_data_refresh_requires_cron_authorization(client, monkeypatch) -> None:
+    monkeypatch.setenv("CRON_SECRET", "cron-secret")
+    response = client.post("/api/ops/microtrades-data-refresh")
+    assert response.status_code == 401
+
+
+def test_microtrades_data_refresh_uses_bounded_external_fetch_config(client, monkeypatch) -> None:
+    monkeypatch.setenv("CRON_SECRET", "cron-secret")
+    monkeypatch.setenv("MICROTRADES_AUTOPILOT_ENABLED", "1")
+    monkeypatch.setenv("MICROTRADES_AUTOPILOT_USER_ID", "1")
+    monkeypatch.setenv("MICROTRADES_AUTOPILOT_INSTRUMENTS", "BTCUSDT,ETHUSDT")
+    captured: dict[str, object] = {}
+
+    def fake_refresh(
+        _db,
+        *,
+        config,
+        lookback_hours,
+        max_candles_per_instrument,
+        run_backfill,
+        run_live_ingestion,
+    ):  # noqa: ANN001, ANN202
+        captured["config"] = dict(config)
+        captured["lookback_hours"] = lookback_hours
+        captured["max_candles_per_instrument"] = max_candles_per_instrument
+        captured["run_backfill"] = run_backfill
+        captured["run_live_ingestion"] = run_live_ingestion
+        return {
+            "status": "success",
+            "mode": "data_refresh",
+            "run_started_at": "2026-05-05T10:00:00+00:00",
+            "run_finished_at": "2026-05-05T10:00:05+00:00",
+            "backfill": {"processed_count": 120},
+            "live_ingestion": {"processed_count": 2},
+            "data_quality": {"summary": {"gate_status": "pass"}},
+            "error": None,
+        }
+
+    monkeypatch.setattr("app.main.run_microtrades_data_refresh", fake_refresh)
+
+    response = client.post(
+        "/api/ops/microtrades-data-refresh?lookback_hours=2&max_candles_per_instrument=75&run_live_ingestion=false",
+        headers={"Authorization": "Bearer cron-secret"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "success"
+    assert payload["mode"] == "data_refresh"
+    config = dict(captured["config"])
+    assert config["user_id"] == 1
+    assert config["instruments"] == ["BTCUSDT", "ETHUSDT"]
+    assert config["allow_external_fetches"] is True
+    assert config["publish_decisions"] is False
+    assert captured["lookback_hours"] == 2
+    assert captured["max_candles_per_instrument"] == 75
+    assert captured["run_backfill"] is True
+    assert captured["run_live_ingestion"] is False
+
+
 def test_microtrades_autopilot_manual_run_uses_current_user(client, monkeypatch) -> None:
     user_id = _authenticate(client, email="microtrades-autopilot@example.com")
     captured: dict[str, object] = {}

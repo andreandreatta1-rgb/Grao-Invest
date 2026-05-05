@@ -144,6 +144,7 @@ from app.services.microtrades_autopilot import (
     is_no_fresh_market_data_monitor_payload,
     load_latest_microtrades_autopilot_snapshot,
     persist_microtrades_autopilot_snapshot,
+    run_microtrades_data_refresh,
     run_microtrades_autopilot_cycle,
 )
 from app.services.news import (
@@ -1290,6 +1291,23 @@ def _assert_cron_authorized(authorization: str | None) -> None:
         raise HTTPException(status_code=401, detail="Cron nao autorizado.")
 
 
+def _resolve_microtrades_cron_user_id(db: Session) -> int:
+    user_id = _env_int(
+        "MICROTRADES_AUTOPILOT_USER_ID",
+        DEFAULT_ANON_USER_ID,
+        minimum=1,
+        maximum=10_000_000,
+    )
+    if db.get(User, user_id) is None and AUTH_DISABLED and user_id == DEFAULT_ANON_USER_ID:
+        _resolve_anonymous_user(db)
+    if db.get(User, user_id) is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Usuario {user_id} nao encontrado para microtrades.",
+        )
+    return user_id
+
+
 def _env_int(name: str, default: int, *, minimum: int, maximum: int) -> int:
     raw = os.getenv(name, "").strip()
     if not raw:
@@ -1663,6 +1681,85 @@ def whatsapp_digest_cron(
     return send_daily_digest_for_all(db)
 
 
+@app.post("/api/ops/microtrades-data-refresh")
+def microtrades_data_refresh(
+    authorization: Annotated[str | None, Header(alias="Authorization")] = None,
+    lookback_hours: int | None = Query(default=None, ge=1, le=72),
+    max_candles_per_instrument: int | None = Query(default=None, ge=50, le=1000),
+    run_backfill: bool = Query(default=True),
+    run_live_ingestion: bool = Query(default=True),
+    dry_run: bool = Query(default=False),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    _assert_cron_authorized(authorization)
+    if not _env_bool("MICROTRADES_AUTOPILOT_ENABLED", True):
+        return {
+            "status": "disabled",
+            "mode": "data_refresh",
+            "reason": "MICROTRADES_AUTOPILOT_ENABLED desativado.",
+            "run_started_at": isoformat(utc_now()),
+            "run_finished_at": isoformat(utc_now()),
+        }
+    if not dry_run and not run_backfill and not run_live_ingestion:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe run_backfill=true ou run_live_ingestion=true.",
+        )
+
+    user_id = _resolve_microtrades_cron_user_id(db)
+    effective_lookback_hours = (
+        lookback_hours
+        if lookback_hours is not None
+        else _env_int(
+            "MICROTRADES_DATA_REFRESH_LOOKBACK_HOURS",
+            24,
+            minimum=1,
+            maximum=72,
+        )
+    )
+    effective_max_candles = (
+        max_candles_per_instrument
+        if max_candles_per_instrument is not None
+        else _env_int(
+            "MICROTRADES_DATA_REFRESH_MAX_CANDLES_PER_INSTRUMENT",
+            300,
+            minimum=50,
+            maximum=1000,
+        )
+    )
+    config = _build_default_microtrades_autopilot_config(
+        user_id,
+        allow_external_fetches=True,
+        publish_decisions=False,
+    )
+    if dry_run:
+        return {
+            "status": "dry_run",
+            "mode": "data_refresh",
+            "config": {
+                "user_id": user_id,
+                "instruments": config["instruments"],
+                "provider_name": config["provider_name"],
+                "history_provider_name": config["history_provider_name"],
+                "interval": config["interval"],
+                "lookback_hours": effective_lookback_hours,
+                "max_candles_per_instrument": effective_max_candles,
+                "run_backfill": run_backfill,
+                "run_live_ingestion": run_live_ingestion,
+                "allow_external_fetches": config["allow_external_fetches"],
+                "publish_decisions": config["publish_decisions"],
+            },
+        }
+    return run_microtrades_data_refresh(
+        db,
+        config=config,
+        lookback_hours=effective_lookback_hours,
+        max_candles_per_instrument=effective_max_candles,
+        run_backfill=run_backfill,
+        run_live_ingestion=run_live_ingestion,
+    )
+
+
 @app.get("/api/cron/microtrades-autopilot")
 @app.post("/api/cron/microtrades-autopilot")
 def microtrades_autopilot_cron(
@@ -1678,20 +1775,7 @@ def microtrades_autopilot_cron(
             "run_finished_at": isoformat(utc_now()),
         }
 
-    user_id = _env_int(
-        "MICROTRADES_AUTOPILOT_USER_ID",
-        DEFAULT_ANON_USER_ID,
-        minimum=1,
-        maximum=10_000_000,
-    )
-    if db.get(User, user_id) is None and AUTH_DISABLED and user_id == DEFAULT_ANON_USER_ID:
-        _resolve_anonymous_user(db)
-    if db.get(User, user_id) is None:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Usuario {user_id} nao encontrado para cron de microtrades.",
-        )
-
+    user_id = _resolve_microtrades_cron_user_id(db)
     cron_allow_external_fetches = _env_bool(
         "MICROTRADES_AUTOPILOT_CRON_EXTERNAL_FETCHES",
         False,

@@ -14,6 +14,7 @@ from app.services.crypto_history_provider import (
     CryptoHistoryProviderError,
     fetch_historical_crypto_candles,
 )
+from app.services.data_quality import build_data_quality_gate_snapshot
 from app.services.intraday_provider import IntradayProviderError, fetch_intraday_quotes
 from app.services.market import ingest_tick, ingest_tick_live, recompute_indicators, resolve_active_provider
 from app.services.signals import generate_signal
@@ -501,6 +502,161 @@ def _run_live_ingestion(db: Session, *, config: MicrotradesAutopilotConfig) -> d
         "requested_instruments": config["instruments"],
         "skipped": False,
     }
+
+
+def run_microtrades_data_refresh(
+    db: Session,
+    *,
+    config: MicrotradesAutopilotConfig,
+    lookback_hours: int,
+    max_candles_per_instrument: int,
+    run_backfill: bool = True,
+    run_live_ingestion: bool = True,
+) -> dict[str, object]:
+    started_at = utc_now()
+    status = "success"
+    error_message: str | None = None
+    steps: list[dict[str, object]] = []
+    backfill_payload: dict[str, object] = {
+        "skipped": True,
+        "skip_reason": "run_backfill_disabled",
+    }
+    live_payload: dict[str, object] = {
+        "skipped": True,
+        "skip_reason": "run_live_ingestion_disabled",
+    }
+
+    if run_backfill:
+        try:
+            backfill_payload = _run_backfill(
+                db,
+                config=config,
+                lookback_hours=lookback_hours,
+                max_candles_per_instrument=max_candles_per_instrument,
+            )
+            failed_count = int(backfill_payload.get("failed_count") or 0)
+            steps.append(
+                {
+                    "title": "historico",
+                    "status": "warning" if failed_count else "ok",
+                    "meta": (
+                        f"{backfill_payload.get('processed_count', 0)} candles processados "
+                        f"({failed_count} falhas)."
+                    ),
+                }
+            )
+            if failed_count:
+                status = "partial"
+        except CryptoHistoryProviderError as exc:
+            status = "partial"
+            backfill_payload = {
+                "status": "warning",
+                "error": exc.to_detail(),
+            }
+            steps.append(
+                {
+                    "title": "historico",
+                    "status": "warning",
+                    "meta": f"Backfill indisponivel: {exc}",
+                }
+            )
+        except ValueError as exc:
+            status = "partial"
+            backfill_payload = {"status": "warning", "error": str(exc)}
+            steps.append(
+                {
+                    "title": "historico",
+                    "status": "warning",
+                    "meta": f"Backfill nao executado: {exc}",
+                }
+            )
+
+    if run_live_ingestion:
+        try:
+            live_payload = _run_live_ingestion(db, config=config)
+            failed_count = int(live_payload.get("failed_count") or 0)
+            steps.append(
+                {
+                    "title": "cotacao",
+                    "status": "warning" if failed_count else "ok",
+                    "meta": (
+                        f"{live_payload.get('processed_count', 0)} ativos processados "
+                        f"({failed_count} falhas)."
+                    ),
+                }
+            )
+            if failed_count:
+                status = "partial"
+        except IntradayProviderError as exc:
+            status = "partial"
+            live_payload = {
+                "status": "warning",
+                "error": str(exc),
+            }
+            steps.append(
+                {
+                    "title": "cotacao",
+                    "status": "warning",
+                    "meta": f"Ingestao intraday indisponivel: {exc}",
+                }
+            )
+        except ValueError as exc:
+            status = "partial"
+            live_payload = {"status": "warning", "error": str(exc)}
+            steps.append(
+                {
+                    "title": "cotacao",
+                    "status": "warning",
+                    "meta": f"Ingestao intraday nao executada: {exc}",
+                }
+            )
+
+    try:
+        data_quality_payload: dict[str, object] = build_data_quality_gate_snapshot(
+            db,
+            instruments=config["instruments"],
+            include_provider_health=False,
+        )
+    except ValueError as exc:
+        status = "partial"
+        error_message = str(exc)
+        data_quality_payload = {
+            "status": "warning",
+            "error": str(exc),
+        }
+
+    payload: dict[str, object] = {
+        "run_started_at": isoformat(started_at),
+        "run_finished_at": isoformat(utc_now()),
+        "user_id": config["user_id"],
+        "status": status,
+        "mode": "data_refresh",
+        "config": {
+            "instruments": config["instruments"],
+            "provider_name": config["provider_name"],
+            "history_provider_name": config["history_provider_name"],
+            "interval": config["interval"],
+            "lookback_hours": lookback_hours,
+            "max_candles_per_instrument": max_candles_per_instrument,
+            "auto_recompute_indicators": config["auto_recompute_indicators"],
+            "allow_external_fetches": config["allow_external_fetches"],
+            "publish_decisions": config["publish_decisions"],
+            "run_backfill": run_backfill,
+            "run_live_ingestion": run_live_ingestion,
+        },
+        "steps": steps,
+        "backfill": backfill_payload,
+        "live_ingestion": live_payload,
+        "data_quality": data_quality_payload,
+        "error": error_message,
+    }
+    record_audit_event(
+        db,
+        "microtrades.data_refresh",
+        {"payload": payload},
+        config["user_id"],
+    )
+    return payload
 
 
 def _warmup_indicators(db: Session, *, config: MicrotradesAutopilotConfig) -> dict[str, object]:
