@@ -24,6 +24,7 @@ token.txt
 
 # Logs and temporary runtime files
 *.log
+.tmp_*
 .tmp_*.log
 cloudflared_tunnel.*.log
 uvicorn*.log
@@ -46,6 +47,15 @@ data/kpi_*.json
 data/aie_spec_extracted.txt
 data/uiux_spec_extracted.txt
 data/instrucoes_redesign.txt
+data/current_thesis_monitor_*.json
+data/assistant_decisions.json
+data/executive_reports/
+data/android_*.png
+data/android_*.xml
+data/cockpit_*.png
+data/grao_invest_*preview*.png
+data/grao_invest_mobile_*.png
+data/grao_home_fronts_only.png
 
 # Keep small example inputs versioned
 data/*example*.json
@@ -58,9 +68,22 @@ tmp_b3_*.js
 
 # Build/install metadata
 *.egg-info/
+apps/grao-invest-mobile-web/node_modules/
+apps/grao-invest-mobile-web/dist/
+apps/grao-invest-mobile-web/*.tsbuildinfo
+apps/grao-invest-mobile-web/tailwind.config.js
+apps/grao-invest-mobile-web/tailwind.config.d.ts
+apps/grao-invest-mobile-web/vite.config.js
+apps/grao-invest-mobile-web/vite.config.d.ts
+backups/
+playwright_lab*.png
+playwright_lab*.txt
 
 # OS/editor noise
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+.superpowers/
+
+.vercel
