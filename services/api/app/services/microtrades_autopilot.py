@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
 from typing import TypedDict
 
-from app.models import AssistantDecision as AssistantDecisionRecord, MarketTick
+from app.db import BASE_DIR, DATA_DIR
+from app.models import AuditEvent, AssistantDecision as AssistantDecisionRecord, MarketTick
 from app.schemas import MarketTickIngestRequest, SuitabilityRequest
+from app.services.audit import record_audit_event
 from app.services.assistant_decisions import create_decision
 from app.services.crypto_history_provider import (
     CryptoHistoryProviderError,
@@ -36,6 +39,7 @@ class MicrotradesAutopilotConfig(TypedDict):
     thesis_count: int
     recent_bars_window: int
     auto_recompute_indicators: bool
+    allow_external_fetches: bool
     publish_decisions: bool
     decision_cooldown_minutes: int
 
@@ -56,9 +60,93 @@ class MicrotradesAutopilotPayload(TypedDict):
     error: str | None
 
 
+def persist_microtrades_autopilot_snapshot(
+    db: Session,
+    payload: MicrotradesAutopilotPayload | dict[str, object],
+    *,
+    user_id: int,
+    persist_audit_event: bool = True,
+) -> None:
+    output_path = DATA_DIR / "microtrades_autopilot_latest.json"
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            json.dumps(payload, ensure_ascii=True, indent=2),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+    if persist_audit_event:
+        record_audit_event(
+            db,
+            "microtrades.autopilot.snapshot",
+            {"payload": payload},
+            user_id,
+        )
+
+
+def load_latest_microtrades_autopilot_snapshot(
+    db: Session,
+    *,
+    user_id: int | None = None,
+    include_bundled_bootstrap: bool = True,
+) -> dict[str, object] | None:
+    output_path = DATA_DIR / "microtrades_autopilot_latest.json"
+    if output_path.exists():
+        try:
+            return json.loads(output_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            pass
+
+    statement = (
+        select(AuditEvent)
+        .where(AuditEvent.event_type == "microtrades.autopilot.snapshot")
+        .order_by(AuditEvent.id.desc())
+        .limit(1)
+    )
+    if user_id is not None:
+        statement = (
+            select(AuditEvent)
+            .where(
+                AuditEvent.event_type == "microtrades.autopilot.snapshot",
+                AuditEvent.user_id == user_id,
+            )
+            .order_by(AuditEvent.id.desc())
+            .limit(1)
+        )
+    event = db.scalar(statement)
+    if event is None:
+        details = None
+    else:
+        try:
+            details = json.loads(event.details)
+        except ValueError:
+            details = None
+    if isinstance(details, dict):
+        payload = details.get("payload")
+        if isinstance(payload, dict):
+            return payload
+        if "run_started_at" in details and "steps" in details:
+            return details
+
+    if include_bundled_bootstrap:
+        bundled_bootstrap_path = BASE_DIR / "data" / "microtrades_autopilot_latest.json"
+        if bundled_bootstrap_path.exists():
+            try:
+                return json.loads(bundled_bootstrap_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                return None
+    return None
+
+
 _INDICATORS_MISSING_TOKEN = "nao ha indicadores disponiveis"
 _SUITABILITY_MISSING_TOKEN = "suitability obrigatorio"
 _NO_CURRENT_THESES_TOKEN = "nenhuma tese atual encontrada"
+_NO_FRESH_MARKET_DATA_TOKEN = "nao ha dados de mercado frescos"
+
+
+def _autopilot_debug(config: MicrotradesAutopilotConfig, message: str) -> None:
+    return None
 
 
 def _normalize_instruments(instruments: list[str] | None) -> list[str]:
@@ -88,6 +176,7 @@ def build_microtrades_autopilot_config(
     thesis_count: int = 8,
     recent_bars_window: int = 7,
     auto_recompute_indicators: bool = True,
+    allow_external_fetches: bool = True,
     publish_decisions: bool = True,
     decision_cooldown_minutes: int = 45,
 ) -> MicrotradesAutopilotConfig:
@@ -106,6 +195,7 @@ def build_microtrades_autopilot_config(
         "thesis_count": max(1, min(int(thesis_count), 30)),
         "recent_bars_window": max(2, min(int(recent_bars_window), 40)),
         "auto_recompute_indicators": bool(auto_recompute_indicators),
+        "allow_external_fetches": bool(allow_external_fetches),
         "publish_decisions": bool(publish_decisions),
         "decision_cooldown_minutes": max(5, min(int(decision_cooldown_minutes), 24 * 12)),
     }
@@ -132,7 +222,11 @@ def _is_suitability_missing_error(message: str) -> bool:
 
 
 def _is_no_current_theses_error(message: str) -> bool:
-    return _NO_CURRENT_THESES_TOKEN in message.strip().lower()
+    normalized = message.strip().lower()
+    return (
+        _NO_CURRENT_THESES_TOKEN in normalized
+        or _NO_FRESH_MARKET_DATA_TOKEN in normalized
+    )
 
 
 def _safe_iso_to_utc(value: str | None) -> datetime | None:
@@ -224,6 +318,23 @@ def _run_backfill(
     lookback_hours: int | None = None,
     max_candles_per_instrument: int | None = None,
 ) -> dict[str, object]:
+    if not config["allow_external_fetches"]:
+        _autopilot_debug(config, "backfill: external fetches disabled")
+        effective_lookback = (
+            lookback_hours if lookback_hours is not None else config["lookback_hours"]
+        )
+        return {
+            "provider_name": config["history_provider_name"],
+            "interval": config["interval"],
+            "lookback_hours": effective_lookback,
+            "requested_candles": 0,
+            "processed_count": 0,
+            "failed_count": 0,
+            "indicators_recomputed": [],
+            "indicators_skipped": [],
+            "skipped": True,
+            "skip_reason": "external_fetches_disabled",
+        }
     now = utc_now()
     effective_lookback = lookback_hours if lookback_hours is not None else config["lookback_hours"]
     effective_max_candles = (
@@ -333,6 +444,16 @@ def _run_backfill(
 
 
 def _run_live_ingestion(db: Session, *, config: MicrotradesAutopilotConfig) -> dict[str, object]:
+    if not config["allow_external_fetches"]:
+        _autopilot_debug(config, "live_ingestion: external fetches disabled")
+        return {
+            "provider_name": config["provider_name"],
+            "processed_count": 0,
+            "failed_count": 0,
+            "requested_instruments": config["instruments"],
+            "skipped": True,
+            "skip_reason": "external_fetches_disabled",
+        }
     symbol_overrides = _build_symbol_overrides(config["instruments"])
     quotes = fetch_intraday_quotes(
         config["provider_name"],
@@ -396,9 +517,11 @@ def _run_signal_generation(
     warmup_done = False
     warmup_payload: dict[str, object] | None = None
     last_error = ""
+    _autopilot_debug(config, f"signal_generation: start instruments={config['instruments']}")
     for instrument in config["instruments"]:
         try:
             signal = generate_signal(db, config["user_id"], instrument)
+            _autopilot_debug(config, f"signal_generation: signal ready instrument={instrument}")
             return {
                 "skipped": False,
                 "signal_id": signal.id,
@@ -418,6 +541,10 @@ def _run_signal_generation(
                 warmup_done = True
                 try:
                     signal = generate_signal(db, config["user_id"], instrument)
+                    _autopilot_debug(
+                        config,
+                        f"signal_generation: signal ready after warmup instrument={instrument}",
+                    )
                     return {
                         "skipped": False,
                         "signal_id": signal.id,
@@ -432,8 +559,13 @@ def _run_signal_generation(
                     if not _is_indicators_missing_error(retry_message):
                         raise
                     last_error = retry_message
+                    _autopilot_debug(
+                        config,
+                        f"signal_generation: retry still missing indicators instrument={instrument}",
+                    )
                     continue
             continue
+    _autopilot_debug(config, f"signal_generation: skipped reason={last_error}")
     return {
         "skipped": True,
         "signal_id": None,
@@ -705,6 +837,15 @@ def run_microtrades_autopilot_cycle(
     *,
     config: MicrotradesAutopilotConfig,
 ) -> MicrotradesAutopilotPayload:
+    _autopilot_debug(
+        config,
+        (
+            "cycle:start "
+            f"user_id={config['user_id']} "
+            f"instruments={config['instruments']} "
+            f"allow_external_fetches={config['allow_external_fetches']}"
+        ),
+    )
     started_at = utc_now()
     steps: list[dict[str, object]] = []
     backfill_payload: dict[str, object] = {}
@@ -718,6 +859,7 @@ def run_microtrades_autopilot_cycle(
 
     try:
         try:
+            _autopilot_debug(config, "cycle: step backfill")
             backfill_payload = _run_backfill(db, config=config)
             steps.append(
                 {
@@ -740,6 +882,7 @@ def run_microtrades_autopilot_cycle(
             )
 
         try:
+            _autopilot_debug(config, "cycle: step live_ingestion")
             live_payload = _run_live_ingestion(db, config=config)
             steps.append(
                 {
@@ -768,6 +911,7 @@ def run_microtrades_autopilot_cycle(
             else:
                 raise
 
+        _autopilot_debug(config, "cycle: step signal_generation")
         signal_payload = _run_signal_generation(db, config=config)
         if signal_payload.get("skipped"):
             status = "partial"
@@ -791,44 +935,59 @@ def run_microtrades_autopilot_cycle(
                 }
             )
 
-        try:
-            case_study_payload, suitability_created_case = _run_case_study_with_auto_suitability(
-                db,
-                config=config,
-            )
-            if suitability_created_case:
-                steps.append(
-                    {
-                        "title": "suitability",
-                        "status": "warning",
-                        "meta": "Perfil moderado criado automaticamente para case-study.",
-                    }
-                )
-            selected_case = case_study_payload.get("selected_case")
-            selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
-            thesis = selected_case_dict.get("thesis")
-            thesis_dict = thesis if isinstance(thesis, dict) else {}
-            steps.append(
-                {
-                    "title": "comprovacao",
-                    "status": "ok",
-                    "meta": f"Case selecionado: {thesis_dict.get('thesis_id', '-')}",
-                }
-            )
-        except Exception as exc:  # noqa: BLE001
-            status = "partial"
+        if not config["allow_external_fetches"]:
             case_study_payload = {
                 "skipped": True,
-                "error": str(exc),
+                "reason": "local_only_fast_refresh",
             }
             steps.append(
                 {
                     "title": "comprovacao",
                     "status": "warning",
-                    "meta": f"Case-study indisponivel neste ciclo: {exc}",
+                    "meta": "Case-study pulado no refresh rapido local.",
                 }
             )
+        else:
+            try:
+                _autopilot_debug(config, "cycle: step case_study")
+                case_study_payload, suitability_created_case = _run_case_study_with_auto_suitability(
+                    db,
+                    config=config,
+                )
+                if suitability_created_case:
+                    steps.append(
+                        {
+                            "title": "suitability",
+                            "status": "warning",
+                            "meta": "Perfil moderado criado automaticamente para case-study.",
+                        }
+                    )
+                selected_case = case_study_payload.get("selected_case")
+                selected_case_dict = selected_case if isinstance(selected_case, dict) else {}
+                thesis = selected_case_dict.get("thesis")
+                thesis_dict = thesis if isinstance(thesis, dict) else {}
+                steps.append(
+                    {
+                        "title": "comprovacao",
+                        "status": "ok",
+                        "meta": f"Case selecionado: {thesis_dict.get('thesis_id', '-')}",
+                    }
+                )
+            except Exception as exc:  # noqa: BLE001
+                status = "partial"
+                case_study_payload = {
+                    "skipped": True,
+                    "error": str(exc),
+                }
+                steps.append(
+                    {
+                        "title": "comprovacao",
+                        "status": "warning",
+                        "meta": f"Case-study indisponivel neste ciclo: {exc}",
+                    }
+                )
 
+        _autopilot_debug(config, "cycle: step monitor")
         monitor_payload, suitability_created_monitor, monitor_empty = _run_monitor_with_auto_suitability(
             db,
             config=config,
@@ -867,6 +1026,7 @@ def run_microtrades_autopilot_cycle(
         )
 
         if config["publish_decisions"]:
+            _autopilot_debug(config, "cycle: step publish_decision")
             decision_payload = _publish_cycle_decision(
                 db,
                 config=config,
@@ -904,6 +1064,7 @@ def run_microtrades_autopilot_cycle(
     except Exception as exc:  # noqa: BLE001
         status = "failed"
         error_message = str(exc)
+        _autopilot_debug(config, f"cycle: failed error={error_message}")
         steps.append(
             {
                 "title": "falha",
@@ -925,6 +1086,14 @@ def run_microtrades_autopilot_cycle(
                 }
 
     finished_at = utc_now()
+    _autopilot_debug(
+        config,
+        (
+            "cycle: finished "
+            f"status={status} "
+            f"monitor_thesis_count={monitor_payload.get('thesis_count', 0)}"
+        ),
+    )
     payload: MicrotradesAutopilotPayload = {
         "run_started_at": isoformat(started_at),
         "run_finished_at": isoformat(finished_at),
@@ -941,6 +1110,7 @@ def run_microtrades_autopilot_cycle(
             "thesis_count": config["thesis_count"],
             "recent_bars_window": config["recent_bars_window"],
             "auto_recompute_indicators": config["auto_recompute_indicators"],
+            "allow_external_fetches": config["allow_external_fetches"],
             "publish_decisions": config["publish_decisions"],
             "decision_cooldown_minutes": config["decision_cooldown_minutes"],
         },

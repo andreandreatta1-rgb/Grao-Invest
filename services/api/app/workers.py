@@ -45,6 +45,11 @@ class AgentStatusPayload(TypedDict):
     feed_health: dict[str, int]
 
 
+class AgentRuntimePayload(TypedDict):
+    running: bool
+    started_at: str | None
+
+
 def _next_run(worker_name: str, from_iso: str | None = None) -> str:
     if from_iso is None:
         base = utc_now()
@@ -116,6 +121,32 @@ def update_worker_heartbeat(
     return row
 
 
+def get_worker_status(
+    db: Session,
+    *,
+    worker_name: str,
+) -> WorkerStatusPayload | None:
+    ensure_worker_heartbeats(db)
+    row = db.scalar(select(WorkerHeartbeat).where(WorkerHeartbeat.worker_name == worker_name))
+    if row is None:
+        return None
+    return {
+        "worker_name": row.worker_name,
+        "status": row.status,
+        "last_run_at": row.last_run_at,
+        "next_run_at": row.next_run_at,
+        "last_error": row.last_error,
+        "cycles_today": row.cycles_today,
+    }
+
+
+def get_agent_runtime_status() -> AgentRuntimePayload:
+    return {
+        "running": _AGENT_RUNNING,
+        "started_at": _AGENT_STARTED_AT,
+    }
+
+
 def _llm_cost_today_usd(db: Session) -> float:
     today = utc_now().date().isoformat()
     total = db.scalar(
@@ -154,10 +185,7 @@ def get_agent_status(db: Session) -> AgentStatusPayload:
 
     return {
         "generated_at": isoformat(utc_now()),
-        "runtime": {
-            "running": _AGENT_RUNNING,
-            "started_at": _AGENT_STARTED_AT,
-        },
+        "runtime": get_agent_runtime_status(),
         "summary": {
             "total_workers": len(workers),
             "running_workers": running_count,

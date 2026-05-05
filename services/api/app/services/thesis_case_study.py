@@ -528,6 +528,100 @@ def _confidence_base(momentum_pct: float, volatility_pct: float, volume_ratio: f
     return round(_clamp(45.0 + direction_strength + volatility_bonus + volume_bonus, 30.0, 95.0), 2)
 
 
+def _raw_candidate_for_entry(
+    instrument: str,
+    ticks: list[MarketTick],
+    closes: list[float],
+    volumes: list[int],
+    *,
+    entry_index: int,
+    horizon_bars: int,
+    require_full_horizon: bool,
+) -> RawCandidate | None:
+    if entry_index < 10 or entry_index >= len(ticks):
+        return None
+
+    lookback = closes[entry_index - 10 : entry_index + 1]
+    if len(lookback) < 11:
+        return None
+
+    entry_price = closes[entry_index]
+    if entry_price <= 0:
+        return None
+
+    momentum_pct = ((entry_price - lookback[0]) / lookback[0]) * 100
+    volatility_pct = 0.0
+    if len(lookback) > 1:
+        volatility_pct = (pstdev(lookback) / mean(lookback)) * 100
+
+    direction = _direction_from_momentum(momentum_pct, volatility_pct)
+    if direction is None:
+        return None
+
+    window_volumes = volumes[entry_index - 10 : entry_index]
+    baseline_volume = max(1, int(mean(window_volumes)))
+    volume_ratio = volumes[entry_index] / baseline_volume
+    confidence_base_pct = _confidence_base(momentum_pct, volatility_pct, volume_ratio)
+    target_move = _target_move_pct(direction, momentum_pct, volatility_pct)
+
+    if direction == "bullish":
+        target_price = entry_price * (1 + (target_move / 100))
+        stop_price = entry_price * (1 - ((target_move * 0.6) / 100))
+    elif direction == "bearish":
+        target_price = entry_price * (1 - (target_move / 100))
+        stop_price = entry_price * (1 + ((target_move * 0.6) / 100))
+    else:
+        target_price = entry_price
+        stop_price = entry_price * (1 - (target_move / 100))
+
+    future_prices = closes[entry_index + 1 : min(len(ticks), entry_index + 1 + horizon_bars)]
+    if require_full_horizon and len(future_prices) < horizon_bars:
+        return None
+
+    success_realized = False
+    realized_move_pct = 0.0
+    if future_prices:
+        terminal_price = future_prices[-1]
+        if require_full_horizon:
+            if direction == "bullish":
+                success_realized = max(future_prices) >= target_price
+                realized_move_pct = ((terminal_price - entry_price) / entry_price) * 100
+            elif direction == "bearish":
+                success_realized = min(future_prices) <= target_price
+                realized_move_pct = ((entry_price - terminal_price) / entry_price) * 100
+            else:
+                upper_bound = entry_price * 1.015
+                lower_bound = entry_price * 0.985
+                success_realized = (
+                    min(future_prices) >= lower_bound
+                    and max(future_prices) <= upper_bound
+                )
+                realized_move_pct = (
+                    1 - (abs(terminal_price - entry_price) / entry_price)
+                ) * 100
+        elif direction == "bullish":
+            realized_move_pct = ((terminal_price - entry_price) / entry_price) * 100
+        elif direction == "bearish":
+            realized_move_pct = ((entry_price - terminal_price) / entry_price) * 100
+
+    return {
+        "instrument": instrument.upper(),
+        "direction": direction,
+        "entry_index": entry_index,
+        "entry_time": ticks[entry_index].event_time,
+        "horizon_bars": horizon_bars,
+        "entry_price": round(entry_price, 4),
+        "target_price": round(target_price, 4),
+        "stop_price": round(stop_price, 4),
+        "target_move_pct": round(target_move, 4),
+        "volatility_pct": round(volatility_pct, 4),
+        "momentum_pct": round(momentum_pct, 4),
+        "confidence_base_pct": confidence_base_pct,
+        "success_realized": success_realized,
+        "realized_move_pct": round(realized_move_pct, 4),
+    }
+
+
 def _raw_candidates_from_ticks(
     instrument: str,
     ticks: list[MarketTick],
@@ -541,73 +635,54 @@ def _raw_candidates_from_ticks(
     results: list[RawCandidate] = []
 
     for entry_index in range(10, len(ticks) - horizon_bars):
-        lookback = closes[entry_index - 10 : entry_index + 1]
-        entry_price = closes[entry_index]
-        if entry_price <= 0:
-            continue
-        momentum_pct = ((entry_price - lookback[0]) / lookback[0]) * 100
-        volatility_pct = 0.0
-        if len(lookback) > 1:
-            volatility_pct = (pstdev(lookback) / mean(lookback)) * 100
-
-        direction = _direction_from_momentum(momentum_pct, volatility_pct)
-        if direction is None:
-            continue
-
-        window_volumes = volumes[entry_index - 10 : entry_index]
-        baseline_volume = max(1, int(mean(window_volumes)))
-        volume_ratio = volumes[entry_index] / baseline_volume
-        confidence_base_pct = _confidence_base(momentum_pct, volatility_pct, volume_ratio)
-        target_move = _target_move_pct(direction, momentum_pct, volatility_pct)
-
-        if direction == "bullish":
-            target_price = entry_price * (1 + (target_move / 100))
-            stop_price = entry_price * (1 - ((target_move * 0.6) / 100))
-        elif direction == "bearish":
-            target_price = entry_price * (1 - (target_move / 100))
-            stop_price = entry_price * (1 + ((target_move * 0.6) / 100))
-        else:
-            target_price = entry_price
-            stop_price = entry_price * (1 - (target_move / 100))
-
-        future_prices = closes[entry_index + 1 : entry_index + 1 + horizon_bars]
-        if not future_prices:
-            continue
-        terminal_price = future_prices[-1]
-        success_realized = False
-        if direction == "bullish":
-            success_realized = max(future_prices) >= target_price
-            realized_move_pct = ((terminal_price - entry_price) / entry_price) * 100
-        elif direction == "bearish":
-            success_realized = min(future_prices) <= target_price
-            realized_move_pct = ((entry_price - terminal_price) / entry_price) * 100
-        else:
-            upper_bound = entry_price * 1.015
-            lower_bound = entry_price * 0.985
-            success_realized = (
-                min(future_prices) >= lower_bound
-                and max(future_prices) <= upper_bound
-            )
-            realized_move_pct = (1 - (abs(terminal_price - entry_price) / entry_price)) * 100
-
-        results.append(
-            {
-                "instrument": instrument.upper(),
-                "direction": direction,
-                "entry_index": entry_index,
-                "entry_time": ticks[entry_index].event_time,
-                "horizon_bars": horizon_bars,
-                "entry_price": round(entry_price, 4),
-                "target_price": round(target_price, 4),
-                "stop_price": round(stop_price, 4),
-                "target_move_pct": round(target_move, 4),
-                "volatility_pct": round(volatility_pct, 4),
-                "momentum_pct": round(momentum_pct, 4),
-                "confidence_base_pct": confidence_base_pct,
-                "success_realized": success_realized,
-                "realized_move_pct": round(realized_move_pct, 4),
-            }
+        candidate = _raw_candidate_for_entry(
+            instrument,
+            ticks,
+            closes,
+            volumes,
+            entry_index=entry_index,
+            horizon_bars=horizon_bars,
+            require_full_horizon=True,
         )
+        if candidate is not None:
+            results.append(candidate)
+    return results
+
+
+def _live_candidates_from_ticks(
+    instrument: str,
+    ticks: list[MarketTick],
+    horizon_bars: int,
+    recent_bars_window: int,
+) -> list[RawCandidate]:
+    if len(ticks) < 11:
+        return []
+
+    closes = [float(tick.price) for tick in ticks]
+    volumes = [int(tick.volume) for tick in ticks]
+    latest_index = len(ticks) - 1
+    start_index = max(
+        10,
+        latest_index - max(recent_bars_window - 1, 0),
+        len(ticks) - horizon_bars,
+    )
+
+    results: list[RawCandidate] = []
+    for entry_index in range(start_index, latest_index + 1):
+        candidate = _raw_candidate_for_entry(
+            instrument,
+            ticks,
+            closes,
+            volumes,
+            entry_index=entry_index,
+            horizon_bars=horizon_bars,
+            require_full_horizon=False,
+        )
+        if candidate is None:
+            continue
+        if entry_index + horizon_bars <= latest_index:
+            continue
+        results.append(candidate)
     return results
 
 
@@ -630,12 +705,15 @@ def _enriched_thesis_candidates(
     db: Session,
     candidates: list[RawCandidate],
     *,
+    support_candidates: list[RawCandidate] | None = None,
     use_skill_profile: bool = True,
 ) -> list[ThesisSummary]:
     if not candidates:
         return []
 
-    support_map = _support_rate_by_signature(candidates)
+    support_map = _support_rate_by_signature(
+        support_candidates if support_candidates is not None else candidates
+    )
     skill_profile = _load_thesis_skill_profile() if use_skill_profile else None
     fundamental_cache: dict[str, FundamentalContext] = {}
     news_cache: dict[str, tuple[float, bool, str]] = {}

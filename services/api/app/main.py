@@ -20,6 +20,7 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import and_, desc, or_, select
@@ -138,6 +139,8 @@ from app.services.market import (
 from app.services.microtrades_autopilot import (
     MicrotradesAutopilotConfig,
     build_microtrades_autopilot_config,
+    load_latest_microtrades_autopilot_snapshot,
+    persist_microtrades_autopilot_snapshot,
     run_microtrades_autopilot_cycle,
 )
 from app.services.news import (
@@ -198,7 +201,7 @@ from app.services.utils import (
     isoformat,
     utc_now,
 )
-from app.workers import AgentLoop, update_worker_heartbeat
+from app.workers import AgentLoop, get_agent_runtime_status, get_worker_status, update_worker_heartbeat
 
 Base.metadata.create_all(bind=engine)
 run_startup_migrations()
@@ -209,6 +212,31 @@ app = FastAPI(
     description=(
         "MVP funcional da Fase 1, focado em simulacao, paper trading e postura anti-recomendacao."
     ),
+)
+DEFAULT_CORS_ALLOW_ORIGINS = (
+    "http://localhost:5173,http://127.0.0.1:5173,"
+    "http://localhost:4173,http://127.0.0.1:4173,"
+    "http://localhost:4174,http://127.0.0.1:4174,"
+    "https://thesis-lab-view.vercel.app,"
+    "https://thesis-lab-view.lovable.app"
+)
+DEFAULT_CORS_ALLOW_ORIGIN_REGEX = r"https://thesis-lab-view(?:-[a-z0-9-]+)?\.vercel\.app"
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOW_ORIGINS",
+        DEFAULT_CORS_ALLOW_ORIGINS,
+    ).split(",")
+    if origin.strip()
+]
+cors_origin_regex = os.getenv("CORS_ALLOW_ORIGIN_REGEX", DEFAULT_CORS_ALLOW_ORIGIN_REGEX).strip() or None
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_origin_regex=cors_origin_regex,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 legacy_static_dir = Path(__file__).resolve().parent.parent / "static"
@@ -1284,38 +1312,274 @@ def _env_csv(name: str, default: str) -> list[str]:
     return [item.strip().upper() for item in raw.split(",") if item.strip()]
 
 
+def _parse_iso_datetime(value: object) -> datetime | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def _interval_to_minutes(interval: object) -> int:
+    raw = str(interval or "").strip().lower()
+    if len(raw) < 2:
+        return 5
+    amount_str = raw[:-1]
+    unit = raw[-1]
+    if not amount_str.isdigit():
+        return 5
+    amount = max(1, int(amount_str))
+    if unit == "m":
+        return amount
+    if unit == "h":
+        return amount * 60
+    if unit == "d":
+        return amount * 24 * 60
+    return 5
+
+
+def _age_exceeds_limit(
+    observed_at: datetime | None,
+    *,
+    reference_time: datetime,
+    limit: timedelta,
+) -> bool:
+    if observed_at is None or observed_at > reference_time:
+        return False
+    return reference_time - observed_at > limit
+
+
+def _latest_monitor_event_time(payload: dict[str, object]) -> datetime | None:
+    theses_raw = payload.get("theses")
+    theses = [item for item in theses_raw if isinstance(item, dict)] if isinstance(theses_raw, list) else []
+    latest_times = [
+        latest_time
+        for thesis in theses
+        if (latest_time := _parse_iso_datetime(thesis.get("latest_event_time"))) is not None
+    ]
+    if not latest_times:
+        return None
+    return max(latest_times)
+
+
+def _current_monitor_payload_is_stale(
+    payload: dict[str, object],
+    *,
+    max_age_minutes: int = 30,
+) -> bool:
+    reference_time = utc_now()
+    freshness_limit = timedelta(minutes=max(1, max_age_minutes))
+    latest_event_time = _latest_monitor_event_time(payload)
+    if _age_exceeds_limit(latest_event_time, reference_time=reference_time, limit=freshness_limit):
+        return True
+    generated_at = _parse_iso_datetime(payload.get("generated_at"))
+    return _age_exceeds_limit(generated_at, reference_time=reference_time, limit=freshness_limit)
+
+
+def _microtrades_autopilot_payload_is_stale(payload: dict[str, object]) -> bool:
+    config = payload.get("config")
+    config_dict = config if isinstance(config, dict) else {}
+    freshness_minutes = max(_interval_to_minutes(config_dict.get("interval") or "5m") * 3, 30)
+    reference_time = utc_now()
+    freshness_limit = timedelta(minutes=freshness_minutes)
+    run_finished_at = _parse_iso_datetime(payload.get("run_finished_at"))
+    if _age_exceeds_limit(run_finished_at, reference_time=reference_time, limit=freshness_limit):
+        return True
+    monitor = payload.get("monitor")
+    if isinstance(monitor, dict):
+        return _current_monitor_payload_is_stale(
+            monitor,
+            max_age_minutes=freshness_minutes,
+        )
+    return False
+
+
+def _build_microtrades_autopilot_payload_from_current_monitor(
+    monitor_payload: dict[str, object],
+    *,
+    user_id: int,
+    base_payload: dict[str, object] | None = None,
+) -> dict[str, object]:
+    def _int_or_default(value: object, default: int = 0) -> int:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
+
+    base_payload_dict = base_payload if isinstance(base_payload, dict) else {}
+    base_config = base_payload_dict.get("config")
+    base_config_dict = dict(base_config) if isinstance(base_config, dict) else {}
+    scan_scope = monitor_payload.get("scan_scope")
+    scan_scope_dict = scan_scope if isinstance(scan_scope, dict) else {}
+    instruments_raw = scan_scope_dict.get("instruments")
+    instruments = (
+        [str(item).strip().upper() for item in instruments_raw if str(item).strip()]
+        if isinstance(instruments_raw, list)
+        else []
+    )
+    if not instruments:
+        config_instruments = base_config_dict.get("instruments")
+        if isinstance(config_instruments, list):
+            instruments = [str(item).strip().upper() for item in config_instruments if str(item).strip()]
+    if not instruments:
+        instruments = _env_csv("MICROTRADES_AUTOPILOT_INSTRUMENTS", "BTCUSDT,ETHUSDT,SOLUSDT")
+
+    interval = str(base_config_dict.get("interval") or os.getenv("MICROTRADES_AUTOPILOT_INTERVAL", "5m")).strip() or "5m"
+    generated_at = str(monitor_payload.get("generated_at") or isoformat(utc_now()))
+    thesis_count = _int_or_default(monitor_payload.get("thesis_count"), 0)
+    summary = monitor_payload.get("summary")
+    summary_dict = summary if isinstance(summary, dict) else {}
+    monitoring_count = _int_or_default(summary_dict.get("monitoring_count"), thesis_count)
+    config_payload = {
+        **base_config_dict,
+        "interval": interval,
+        "instruments": instruments,
+        "allow_external_fetches": False,
+        "publish_decisions": False,
+    }
+    return {
+        "run_started_at": generated_at,
+        "run_finished_at": generated_at,
+        "user_id": user_id,
+        "status": "success",
+        "config": config_payload,
+        "steps": [
+            {
+                "title": "monitoramento",
+                "status": "ok",
+                "meta": f"{monitoring_count} teses monitoradas.",
+            },
+            {
+                "title": "cache",
+                "status": "ok",
+                "meta": "Envelope do autopilot reaproveitado do monitor atual.",
+            },
+        ],
+        "backfill": {
+            "skipped": True,
+            "skip_reason": "current_monitor_snapshot_reuse",
+        },
+        "live_ingestion": {
+            "skipped": True,
+            "skip_reason": "current_monitor_snapshot_reuse",
+        },
+        "signal": {
+            "skipped": True,
+            "skip_reason": "current_monitor_snapshot_reuse",
+        },
+        "case_study": {
+            "skipped": True,
+            "reason": "current_monitor_snapshot_reuse",
+        },
+        "monitor": monitor_payload,
+        "decision": {
+            "status": "skipped",
+        },
+        "error": None,
+    }
+
+
+def _build_default_microtrades_autopilot_config(
+    user_id: int,
+    *,
+    allow_external_fetches: bool = True,
+    publish_decisions: bool | None = None,
+) -> MicrotradesAutopilotConfig:
+    return build_microtrades_autopilot_config(
+        user_id=user_id,
+        instruments=_env_csv("MICROTRADES_AUTOPILOT_INSTRUMENTS", "BTCUSDT,ETHUSDT,SOLUSDT"),
+        provider_name=os.getenv("MICROTRADES_AUTOPILOT_PROVIDER", "finnhub"),
+        history_provider_name=os.getenv("MICROTRADES_AUTOPILOT_HISTORY_PROVIDER", "binance"),
+        interval=os.getenv("MICROTRADES_AUTOPILOT_INTERVAL", "5m"),
+        lookback_hours=_env_int(
+            "MICROTRADES_AUTOPILOT_LOOKBACK_HOURS",
+            168,
+            minimum=1,
+            maximum=24 * 365,
+        ),
+        max_candles_per_instrument=_env_int(
+            "MICROTRADES_AUTOPILOT_MAX_CANDLES_PER_INSTRUMENT",
+            1200,
+            minimum=50,
+            maximum=5000,
+        ),
+        horizon_bars=_env_int("MICROTRADES_AUTOPILOT_HORIZON_BARS", 8, minimum=3, maximum=60),
+        thesis_count=_env_int("MICROTRADES_AUTOPILOT_THESIS_COUNT", 8, minimum=1, maximum=30),
+        recent_bars_window=_env_int(
+            "MICROTRADES_AUTOPILOT_RECENT_BARS_WINDOW",
+            7,
+            minimum=2,
+            maximum=40,
+        ),
+        auto_recompute_indicators=_env_bool("MICROTRADES_AUTOPILOT_AUTO_RECOMPUTE", True),
+        allow_external_fetches=allow_external_fetches,
+        publish_decisions=(
+            publish_decisions
+            if publish_decisions is not None
+            else _env_bool("MICROTRADES_AUTOPILOT_PUBLISH_DECISIONS", True)
+        ),
+        decision_cooldown_minutes=_env_int(
+            "MICROTRADES_AUTOPILOT_DECISION_COOLDOWN_MINUTES",
+            45,
+            minimum=5,
+            maximum=24 * 12,
+        ),
+    )
+
+
 def _execute_microtrades_autopilot(
     db: Session,
     *,
     config: MicrotradesAutopilotConfig,
 ) -> dict[str, object]:
     worker_name = "microtrades_autopilot_worker"
-    update_worker_heartbeat(
-        db,
-        worker_name=worker_name,
-        status="running",
-        last_error=None,
-        increment_cycle=False,
-    )
-    try:
-        payload = run_microtrades_autopilot_cycle(db, config=config)
-    except Exception as exc:  # noqa: BLE001
+    persist_runtime_artifacts = config.get("allow_external_fetches", True)
+    if persist_runtime_artifacts:
         update_worker_heartbeat(
             db,
             worker_name=worker_name,
-            status="error",
-            last_error=str(exc),
-            increment_cycle=True,
+            status="running",
+            last_error=None,
+            increment_cycle=False,
         )
+    try:
+        payload = run_microtrades_autopilot_cycle(db, config=config)
+    except Exception as exc:  # noqa: BLE001
+        if persist_runtime_artifacts:
+            update_worker_heartbeat(
+                db,
+                worker_name=worker_name,
+                status="error",
+                last_error=str(exc),
+                increment_cycle=True,
+            )
         raise
     status = str(payload.get("status") or "failed")
-    update_worker_heartbeat(
-        db,
-        worker_name=worker_name,
-        status="idle" if status in {"success", "partial"} else "error",
-        last_error=cast(str | None, payload.get("error")),
-        increment_cycle=True,
-    )
+    if persist_runtime_artifacts:
+        update_worker_heartbeat(
+            db,
+            worker_name=worker_name,
+            status="idle" if status in {"success", "partial"} else "error",
+            last_error=cast(str | None, payload.get("error")),
+            increment_cycle=True,
+        )
+        persist_microtrades_autopilot_snapshot(
+            db,
+            payload,
+            user_id=config["user_id"],
+        )
+    else:
+        persist_microtrades_autopilot_snapshot(
+            db,
+            payload,
+            user_id=config["user_id"],
+            persist_audit_event=False,
+        )
     return payload
 
 
@@ -1343,6 +1607,47 @@ def microtrades_autopilot_run(
         decision_cooldown_minutes=payload.decision_cooldown_minutes,
     )
     return _execute_microtrades_autopilot(db, config=config)
+
+
+@app.get("/api/microtrades/autopilot/latest")
+def microtrades_autopilot_latest(
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    payload = load_latest_microtrades_autopilot_snapshot(
+        db,
+        user_id=user.id,
+        include_bundled_bootstrap=False,
+    )
+    payload_stale = isinstance(payload, dict) and _microtrades_autopilot_payload_is_stale(payload)
+    if payload is None or payload_stale:
+        current_monitor_payload = load_latest_current_thesis_monitor(
+            db,
+            user_id=user.id,
+            include_bundled_bootstrap=False,
+        )
+        if (
+            isinstance(current_monitor_payload, dict)
+            and not _current_monitor_payload_is_stale(current_monitor_payload)
+        ):
+            payload = _build_microtrades_autopilot_payload_from_current_monitor(
+                current_monitor_payload,
+                user_id=user.id,
+                base_payload=payload if isinstance(payload, dict) else None,
+            )
+        else:
+            config = _build_default_microtrades_autopilot_config(
+                user.id,
+                allow_external_fetches=False,
+                publish_decisions=False,
+            )
+            payload = _execute_microtrades_autopilot(db, config=config)
+    response = dict(payload)
+    worker = get_worker_status(db, worker_name="microtrades_autopilot_worker")
+    if worker is not None:
+        response["worker"] = worker
+    response["runtime"] = get_agent_runtime_status()
+    return response
 
 
 @app.get("/api/cron/whatsapp-digest")
@@ -1384,44 +1689,7 @@ def microtrades_autopilot_cron(
             detail=f"Usuario {user_id} nao encontrado para cron de microtrades.",
         )
 
-    config = build_microtrades_autopilot_config(
-        user_id=user_id,
-        instruments=_env_csv("MICROTRADES_AUTOPILOT_INSTRUMENTS", "BTCUSDT,ETHUSDT,SOLUSDT"),
-        provider_name=os.getenv("MICROTRADES_AUTOPILOT_PROVIDER", "finnhub"),
-        history_provider_name=os.getenv("MICROTRADES_AUTOPILOT_HISTORY_PROVIDER", "binance"),
-        interval=os.getenv("MICROTRADES_AUTOPILOT_INTERVAL", "5m"),
-        lookback_hours=_env_int(
-            "MICROTRADES_AUTOPILOT_LOOKBACK_HOURS",
-            168,
-            minimum=1,
-            maximum=24 * 365,
-        ),
-        max_candles_per_instrument=_env_int(
-            "MICROTRADES_AUTOPILOT_MAX_CANDLES_PER_INSTRUMENT",
-            1200,
-            minimum=50,
-            maximum=5000,
-        ),
-        horizon_bars=_env_int("MICROTRADES_AUTOPILOT_HORIZON_BARS", 8, minimum=3, maximum=60),
-        thesis_count=_env_int("MICROTRADES_AUTOPILOT_THESIS_COUNT", 8, minimum=1, maximum=30),
-        recent_bars_window=_env_int(
-            "MICROTRADES_AUTOPILOT_RECENT_BARS_WINDOW",
-            7,
-            minimum=2,
-            maximum=40,
-        ),
-        auto_recompute_indicators=_env_bool(
-            "MICROTRADES_AUTOPILOT_AUTO_RECOMPUTE",
-            True,
-        ),
-        publish_decisions=_env_bool("MICROTRADES_AUTOPILOT_PUBLISH_DECISIONS", True),
-        decision_cooldown_minutes=_env_int(
-            "MICROTRADES_AUTOPILOT_DECISION_COOLDOWN_MINUTES",
-            45,
-            minimum=5,
-            maximum=24 * 12,
-        ),
-    )
+    config = _build_default_microtrades_autopilot_config(user_id)
     return _execute_microtrades_autopilot(db, config=config)
 
 
@@ -2273,12 +2541,28 @@ def thesis_current_monitor_latest(
     db: Session = Depends(get_db),
     user: User = Depends(current_user),
 ) -> dict[str, object]:
-    payload = load_latest_current_thesis_monitor(db, user_id=user.id)
-    if payload is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Monitor diario de teses atuais ainda nao foi gerado.",
+    payload = load_latest_current_thesis_monitor(
+        db,
+        user_id=user.id,
+        include_bundled_bootstrap=False,
+    )
+    payload_stale = isinstance(payload, dict) and _current_monitor_payload_is_stale(payload)
+    if payload is None or payload_stale:
+        autopilot_payload = _execute_microtrades_autopilot(
+            db,
+            config=_build_default_microtrades_autopilot_config(
+                user.id,
+                allow_external_fetches=False,
+                publish_decisions=False,
+            ),
         )
+        monitor_payload = autopilot_payload.get("monitor")
+        if not isinstance(monitor_payload, dict):
+            raise HTTPException(
+                status_code=503,
+                detail="Nao foi possivel recomputar o monitor diario no momento.",
+            )
+        return monitor_payload
     return payload
 
 
@@ -4202,6 +4486,157 @@ def dashboard_summary(
         seed_open_operations = dashboard_seed.get("thesis_open_operations")
         if isinstance(seed_open_operations, list):
             thesis_open_operations = [item for item in seed_open_operations if isinstance(item, dict)]
+
+    def _append_real_estate_candidate_operations() -> None:
+        existing_ids = {str(row.get("thesis_id") or "") for row in thesis_open_operations}
+        real_estate_candidates = list(
+            db.scalars(
+                select(RealEstateCandidate)
+                .where(RealEstateCandidate.user_id == user_id)
+                .order_by(desc(RealEstateCandidate.updated_at), desc(RealEstateCandidate.id))
+                .limit(12)
+            )
+        )
+        for candidate in real_estate_candidates:
+            thesis_id_value = f"IM-RADAR-{candidate.id}"
+            if thesis_id_value in existing_ids:
+                continue
+
+            candidate_payload = _real_estate_candidate_payload(candidate)
+            analysis = candidate_payload.get("analysis")
+            analysis_dict = analysis if isinstance(analysis, dict) else {}
+            scenarios = analysis_dict.get("scenarios")
+            scenarios_dict = scenarios if isinstance(scenarios, dict) else {}
+            base_scenario = scenarios_dict.get("base")
+            base_scenario_dict = base_scenario if isinstance(base_scenario, dict) else {}
+            pending_items = analysis_dict.get("pending_items")
+            pending_items_list = (
+                [item for item in pending_items if isinstance(item, dict)]
+                if isinstance(pending_items, list)
+                else []
+            )
+
+            status_value = str(candidate_payload.get("status") or "").strip()
+            status_lower = status_value.lower()
+            is_discarded = "descart" in status_lower
+            if is_discarded:
+                status_label = "Fechada"
+                outcome_label = "Descartado pelo radar"
+            elif "pend" in status_lower:
+                status_label = "Aberta - Atencao"
+                outcome_label = "Pendencias abertas"
+            elif "forte" in status_lower:
+                status_label = "Aberta - Forte"
+                outcome_label = "Candidato forte"
+            elif "dilig" in status_lower:
+                status_label = "Aberta - Diligencia"
+                outcome_label = "Em diligencia"
+            elif "estudo" in status_lower:
+                status_label = "Aberta - Estudo"
+                outcome_label = "Em estudo"
+            else:
+                status_label = "Aberta"
+                outcome_label = status_value or "Em monitoramento"
+
+            expected_result_pct = round(_safe_number(base_scenario_dict.get("roi_pct"), 0.0), 4)
+            asking_price = round(_safe_number(candidate_payload.get("asking_price"), 0.0), 2)
+            market_value = round(
+                _safe_number(
+                    candidate_payload.get("market_value_estimate"),
+                    _safe_number(candidate_payload.get("appraisal_value"), 0.0),
+                ),
+                2,
+            )
+            max_purchase_price = round(
+                _safe_number(analysis_dict.get("max_purchase_price"), 0.0),
+                2,
+            )
+            cash_needed = round(_safe_number(analysis_dict.get("cash_needed"), 0.0), 2)
+            score = _safe_int(analysis_dict.get("score"))
+            confidence = _safe_int(analysis_dict.get("confidence"))
+            next_action = str(analysis_dict.get("next_action") or "Revisar candidato").strip()
+            pending_titles = [
+                str(item.get("title") or "").strip()
+                for item in pending_items_list[:3]
+                if str(item.get("title") or "").strip()
+            ]
+            location_parts = [
+                str(candidate_payload.get("neighborhood") or "").strip(),
+                str(candidate_payload.get("city") or "").strip(),
+            ]
+            location = " / ".join(part for part in location_parts if part) or "localizacao n/d"
+            price_ceiling_status = str(
+                analysis_dict.get("price_ceiling_status") or "Sem preco teto"
+            )
+            origin = str(candidate_payload.get("origin") or "origem n/d")
+            thesis_reason = (
+                f"Radar imobiliario: {origin} em {location}. "
+                f"Score {score}/100, confianca {confidence}/100, status {status_value or 'n/d'}."
+            )
+            operation_plan = (
+                f"Preco pedido R$ {asking_price:,.2f} | "
+                f"Teto de compra R$ {max_purchase_price:,.2f} | "
+                f"Caixa necessario R$ {cash_needed:,.2f} | Proximo passo: {next_action}"
+            )
+            structured_operation = (
+                f"{candidate_payload.get('strategy') or 'Estrategia n/d'} | "
+                f"{candidate_payload.get('origin') or 'Origem n/d'} | "
+                f"{candidate_payload.get('property_type') or 'Imovel'} | {price_ceiling_status}"
+            )
+            if is_discarded:
+                learning_note = (
+                    "Aprendizado: candidato descartado pelo radar. Revisar preco teto, "
+                    "margem conservadora e pendencias antes de reabrir."
+                )
+                exit_rule = str(candidate_payload.get("discard_reason") or next_action)
+                planned_exit_at_value = ""
+                duration_days = _duration_days(candidate.created_at, candidate.updated_at)
+                open_days = None
+                moment_result_pct: float | None = expected_result_pct
+            else:
+                pending_summary = (
+                    ", ".join(pending_titles) if pending_titles else "sem pendencias criticas"
+                )
+                learning_note = (
+                    f"Antes de proposta: {next_action}. "
+                    f"Pendencias principais: {pending_summary}."
+                )
+                exit_rule = next_action
+                planned_exit_at_value = (utc_now().date() + timedelta(days=14)).isoformat()
+                duration_days = None
+                open_days = _duration_days(candidate.created_at, utc_now())
+                moment_result_pct = 0.0
+
+            thesis_open_operations.append(
+                {
+                    "phase": "pos_go_live",
+                    "thesis_number": len(thesis_open_operations) + 1,
+                    "thesis_id": thesis_id_value,
+                    "thesis_raised_at": candidate.created_at,
+                    "front": "imoveis",
+                    "source_url": candidate.source_url,
+                    "action": candidate.title,
+                    "thesis_reason": thesis_reason,
+                    "expected_result_pct": expected_result_pct,
+                    "operation_plan": operation_plan,
+                    "structured_operation": structured_operation,
+                    "entry_price_brl": asking_price,
+                    "current_price_brl": market_value,
+                    "latest_price_at": candidate.updated_at,
+                    "planned_exit_at": planned_exit_at_value,
+                    "exit_rule": exit_rule,
+                    "status": status_label,
+                    "outcome": outcome_label,
+                    "moment_result_pct": moment_result_pct,
+                    "duration_days": duration_days,
+                    "open_days": open_days,
+                    "learning_note": learning_note,
+                    "real_estate_analysis": analysis_dict,
+                }
+            )
+            existing_ids.add(thesis_id_value)
+
+    _append_real_estate_candidate_operations()
 
     for row in thesis_open_operations:
         if not str(row.get("phase") or "").strip():

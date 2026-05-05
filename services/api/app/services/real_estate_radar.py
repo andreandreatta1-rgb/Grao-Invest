@@ -160,15 +160,45 @@ def _cash_points(cash_needed: float) -> int:
     return 3
 
 
+def _breakdown_item(
+    *,
+    key: str,
+    label: str,
+    points: int,
+    max_points: int,
+    detail: str,
+    status: str = "calculado",
+) -> dict[str, Any]:
+    return {
+        "key": key,
+        "label": label,
+        "points": points,
+        "max_points": max_points,
+        "status": status,
+        "detail": detail,
+    }
+
+
+def _clarified_item(*, key: str, title: str, detail: str) -> dict[str, str]:
+    return {
+        "key": key,
+        "title": title,
+        "status": "esclarecido",
+        "detail": detail,
+    }
+
+
 def _add_pending(
     items: list[dict[str, str]],
     *,
+    key: str,
     title: str,
     priority: str,
     action: str,
 ) -> None:
     items.append(
         {
+            "key": key,
             "title": title,
             "priority": priority,
             "status": "aberta",
@@ -229,37 +259,180 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     base_profit_pct = (
         scenarios["base"]["net_profit"] / purchase_price * 100.0 if purchase_price > 0 else 0.0
     )
-    location_score = _float(payload, "location_liquidity_score", 60.0)
-    score = 0
-    score += round(max(0.0, min(location_score, 100.0)) * 0.20)
-    score += _discount_points(purchase_price, market_value)
-    score += _value_creation_points(base_profit_pct)
-    score += _renovation_points(_text(payload, "renovation_type", "desconhecida"))
-    score += _time_points(carrying_months)
-    score += _legal_points(payload)
-    score += _cash_points(cash_needed)
-    score += 5 if _text(payload, "plan_b") else 0
-    score = int(max(0, min(score, 100)))
-
     occupancy = _text(payload, "occupancy_status", "desconhecido").lower()
     sale_comparables_count = _int(payload, "sale_comparables_count")
     rent_comparables_count = _int(payload, "rent_comparables_count")
-    confidence = 0
-    confidence += 15 if occupancy in {"desocupado", "ocupado"} else 0
-    confidence += 15 if _bool(payload, "has_registration") else 0
+
+    location_score = _float(payload, "location_liquidity_score", 60.0)
+    location_points = round(max(0.0, min(location_score, 100.0)) * 0.20)
+    discount_points = _discount_points(purchase_price, market_value)
+    value_creation_points = _value_creation_points(base_profit_pct)
+    renovation_points = _renovation_points(_text(payload, "renovation_type", "desconhecida"))
+    time_points = _time_points(carrying_months)
+    legal_points = _legal_points(payload)
+    cash_points = _cash_points(cash_needed)
+    plan_b_points = 5 if _text(payload, "plan_b") else 0
+    score_breakdown = [
+        _breakdown_item(
+            key="location_liquidity",
+            label="Liquidez/localizacao",
+            points=location_points,
+            max_points=20,
+            detail=f"Indice informado/estimado: {round(location_score, 2)}/100.",
+        ),
+        _breakdown_item(
+            key="discount",
+            label="Desconto vs valor de mercado",
+            points=discount_points,
+            max_points=15,
+            detail=f"Preco pedido R$ {purchase_price:,.2f}; valor referencia R$ {market_value:,.2f}.",
+        ),
+        _breakdown_item(
+            key="value_creation",
+            label="Criacao de valor",
+            points=value_creation_points,
+            max_points=15,
+            detail=f"Lucro base sobre compra: {round(base_profit_pct, 2)}%.",
+        ),
+        _breakdown_item(
+            key="renovation",
+            label="Tipo de reforma",
+            points=renovation_points,
+            max_points=15,
+            detail=f"Reforma: {_text(payload, 'renovation_type', 'desconhecida')}.",
+        ),
+        _breakdown_item(
+            key="time",
+            label="Prazo de carregamento",
+            points=time_points,
+            max_points=10,
+            detail=f"Prazo estimado: {carrying_months} meses.",
+        ),
+        _breakdown_item(
+            key="legal",
+            label="Risco documental/legal",
+            points=legal_points,
+            max_points=10,
+            detail=f"Ocupacao: {occupancy}; matricula/debitos conforme campos informados.",
+        ),
+        _breakdown_item(
+            key="cash",
+            label="Caixa necessario",
+            points=cash_points,
+            max_points=10,
+            detail=f"Caixa estimado: R$ {cash_needed:,.2f}.",
+        ),
+        _breakdown_item(
+            key="plan_b",
+            label="Plano B",
+            points=plan_b_points,
+            max_points=5,
+            detail="Plano alternativo informado." if plan_b_points else "Plano alternativo pendente.",
+        ),
+    ]
+    score = int(max(0, min(sum(item["points"] for item in score_breakdown), 100)))
+
+    occupancy_confidence = 15 if occupancy in {"desocupado", "ocupado"} else 0
+    registration_confidence = 15 if _bool(payload, "has_registration") else 0
+    edital_confidence = 3 if _bool(payload, "has_edital") else 0
     debts_are_known = _bool(payload, "condo_debt_known") and _bool(payload, "iptu_debt_known")
-    confidence += 10 if debts_are_known else 0
-    confidence += min(sale_comparables_count, 3) * 5
-    confidence += min(rent_comparables_count, 3) * 3 + (1 if rent_comparables_count >= 3 else 0)
-    confidence += 15 if renovation_budget > 0 else 0
-    confidence += 10 if _bool(payload, "financing_validated") else 0
-    confidence += 10 if _text(payload, "plan_b") else 0
-    confidence = int(max(0, min(confidence, 100)))
+    debt_confidence = 10 if debts_are_known else 0
+    sale_comparables_confidence = min(sale_comparables_count, 3) * 5
+    rent_comparables_confidence = min(rent_comparables_count, 3) * 3 + (
+        1 if rent_comparables_count >= 3 else 0
+    )
+    renovation_budget_confidence = 15 if renovation_budget > 0 else 0
+    financing_confidence = 10 if _bool(payload, "financing_validated") else 0
+    plan_b_confidence = 10 if _text(payload, "plan_b") else 0
+    confidence_breakdown = [
+        _breakdown_item(
+            key="occupancy",
+            label="Ocupacao confirmada",
+            points=occupancy_confidence,
+            max_points=15,
+            status="esclarecido" if occupancy_confidence else "pendente",
+            detail=f"Ocupacao: {occupancy}.",
+        ),
+        _breakdown_item(
+            key="registration",
+            label="Matricula atualizada",
+            points=registration_confidence,
+            max_points=15,
+            status="esclarecido" if registration_confidence else "pendente",
+            detail="Matricula informada." if registration_confidence else "Matricula pendente.",
+        ),
+        _breakdown_item(
+            key="edital",
+            label="Fonte/Edital localizado",
+            points=edital_confidence,
+            max_points=3,
+            status="esclarecido" if edital_confidence else "pendente",
+            detail=(
+                "Edital ou pagina oficial informado."
+                if edital_confidence
+                else "Edital ou pagina oficial pendente."
+            ),
+        ),
+        _breakdown_item(
+            key="debts",
+            label="Dividas conhecidas",
+            points=debt_confidence,
+            max_points=10,
+            status="esclarecido" if debt_confidence else "pendente",
+            detail="Condominio e IPTU conhecidos." if debt_confidence else "Debitos ainda parciais.",
+        ),
+        _breakdown_item(
+            key="sale_comparables",
+            label="Comparaveis de venda",
+            points=sale_comparables_confidence,
+            max_points=15,
+            status="esclarecido" if sale_comparables_count >= 3 else "parcial",
+            detail=f"{sale_comparables_count}/3 comparaveis de venda.",
+        ),
+        _breakdown_item(
+            key="rent_comparables",
+            label="Comparaveis de aluguel",
+            points=rent_comparables_confidence,
+            max_points=10,
+            status="esclarecido" if rent_comparables_count >= 3 else "parcial",
+            detail=f"{rent_comparables_count}/3 comparaveis de aluguel.",
+        ),
+        _breakdown_item(
+            key="renovation_budget",
+            label="Orcamento de reforma",
+            points=renovation_budget_confidence,
+            max_points=15,
+            status="esclarecido" if renovation_budget_confidence else "pendente",
+            detail=(
+                f"Orcamento informado: R$ {renovation_budget:,.2f}."
+                if renovation_budget_confidence
+                else "Orcamento pendente."
+            ),
+        ),
+        _breakdown_item(
+            key="financing",
+            label="Financiamento validado",
+            points=financing_confidence,
+            max_points=10,
+            status="esclarecido" if financing_confidence else "pendente",
+            detail="Financiamento validado." if financing_confidence else "Financiamento pendente.",
+        ),
+        _breakdown_item(
+            key="plan_b",
+            label="Plano B validado",
+            points=plan_b_confidence,
+            max_points=10,
+            status="esclarecido" if plan_b_confidence else "pendente",
+            detail="Plano B informado." if plan_b_confidence else "Plano B pendente.",
+        ),
+    ]
+    confidence = int(max(0, min(sum(item["points"] for item in confidence_breakdown), 100)))
 
     pending_items: list[dict[str, str]] = []
     if occupancy == "desconhecido":
         _add_pending(
             pending_items,
+            key="occupancy",
             title="Confirmar ocupacao",
             priority="P0",
             action="Validar com fonte oficial, corretor ou responsavel pelo edital.",
@@ -267,6 +440,7 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     if occupancy == "ocupado" and _bool(payload, "first_operation", True):
         _add_pending(
             pending_items,
+            key="occupied_first_operation",
             title="Imovel ocupado na primeira operacao",
             priority="P0",
             action="Descartar ou travar decisao ate avaliar desocupacao com especialista.",
@@ -274,13 +448,15 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     if not _bool(payload, "has_registration"):
         _add_pending(
             pending_items,
+            key="registration",
             title="Buscar matricula atualizada",
             priority="P0",
-            action="Conferir propriedade, onus, restricoes e averbações relevantes.",
+            action="Conferir propriedade, onus, restricoes e averbacoes relevantes.",
         )
     if not _bool(payload, "condo_debt_known"):
         _add_pending(
             pending_items,
+            key="condo_debt",
             title="Confirmar divida de condominio",
             priority="P0",
             action="Levantar valor vencido, limite de responsabilidade e acordo possivel.",
@@ -288,6 +464,7 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     if not _bool(payload, "iptu_debt_known"):
         _add_pending(
             pending_items,
+            key="iptu_debt",
             title="Confirmar divida de IPTU",
             priority="P1",
             action="Checar debitos municipais antes de calcular lucro.",
@@ -295,6 +472,7 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     if sale_comparables_count < 3:
         _add_pending(
             pending_items,
+            key="sale_comparables",
             title="Buscar 3 comparaveis de venda",
             priority="P1",
             action="Usar comparaveis do mesmo condominio ou raio muito proximo.",
@@ -302,9 +480,92 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     if renovation_budget <= 0:
         _add_pending(
             pending_items,
+            key="renovation_budget",
             title="Fazer orcamento de reforma",
             priority="P1",
             action="Separar maquiagem, reforma leve, retrofit e obra pesada.",
+        )
+
+    clarified_items: list[dict[str, str]] = []
+    if occupancy in {"desocupado", "ocupado"}:
+        clarified_items.append(
+            _clarified_item(
+                key="occupancy",
+                title="Ocupacao informada",
+                detail=f"Ocupacao registrada como {occupancy}.",
+            )
+        )
+    if _bool(payload, "has_registration"):
+        clarified_items.append(
+            _clarified_item(
+                key="registration",
+                title="Matricula localizada",
+                detail="Campo de matricula marcado como validado.",
+            )
+        )
+    if _bool(payload, "has_edital"):
+        clarified_items.append(
+            _clarified_item(
+                key="edital",
+                title="Edital localizado",
+                detail="Edital ou pagina oficial informado no radar.",
+            )
+        )
+    if _bool(payload, "condo_debt_known"):
+        clarified_items.append(
+            _clarified_item(
+                key="condo_debt",
+                title="Divida de condominio esclarecida",
+                detail="Campo de condominio marcado como conhecido.",
+            )
+        )
+    if _bool(payload, "iptu_debt_known"):
+        clarified_items.append(
+            _clarified_item(
+                key="iptu_debt",
+                title="Divida de IPTU esclarecida",
+                detail="Campo de IPTU marcado como conhecido.",
+            )
+        )
+    if sale_comparables_count > 0:
+        clarified_items.append(
+            _clarified_item(
+                key="sale_comparables",
+                title="Comparaveis de venda iniciados",
+                detail=f"{sale_comparables_count} comparaveis de venda informados.",
+            )
+        )
+    if rent_comparables_count > 0:
+        clarified_items.append(
+            _clarified_item(
+                key="rent_comparables",
+                title="Comparaveis de aluguel iniciados",
+                detail=f"{rent_comparables_count} comparaveis de aluguel informados.",
+            )
+        )
+    if renovation_budget > 0:
+        clarified_items.append(
+            _clarified_item(
+                key="renovation_budget",
+                title="Orcamento de reforma informado",
+                detail=f"Orcamento de R$ {renovation_budget:,.2f}.",
+            )
+        )
+    if _bool(payload, "financing_validated"):
+        clarified_items.append(
+            _clarified_item(
+                key="financing",
+                title="Financiamento validado",
+                detail="Campo de financiamento marcado como validado.",
+            )
+        )
+    if _text(payload, "plan_b"):
+        clarified_items.append(
+            _clarified_item(
+                key="plan_b",
+                title="Plano B informado",
+                detail=_text(payload, "plan_b"),
+            )
         )
 
     has_p0 = any(item["priority"] == "P0" for item in pending_items)
@@ -363,7 +624,10 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         "confidence": confidence,
         "suggested_status": suggested_status,
         "next_action": next_action,
+        "score_breakdown": score_breakdown,
+        "confidence_breakdown": confidence_breakdown,
         "pending_items": pending_items,
+        "clarified_items": clarified_items,
         "scenarios": scenarios,
         "breakeven_sale_price": round(breakeven_sale_price, 2),
         "max_purchase_price": max_purchase_price,
@@ -373,3 +637,4 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         "cash_needed": round(cash_needed, 2),
         "base_profit_pct": round(base_profit_pct, 2),
     }
+

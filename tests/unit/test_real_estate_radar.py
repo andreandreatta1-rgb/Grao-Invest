@@ -40,6 +40,27 @@ def test_candidate_with_open_p0_items_keeps_partial_score_but_waits_for_diligenc
         "Buscar 3 comparaveis de venda",
     }
     assert analysis["breakeven_sale_price"] > 170000
+    assert {item["key"] for item in analysis["score_breakdown"]} == {
+        "location_liquidity",
+        "discount",
+        "value_creation",
+        "renovation",
+        "time",
+        "legal",
+        "cash",
+        "plan_b",
+    }
+    assert sum(item["points"] for item in analysis["score_breakdown"]) == analysis["score"]
+    assert sum(item["points"] for item in analysis["confidence_breakdown"]) == analysis["confidence"]
+    assert {item["key"] for item in analysis["pending_items"]} >= {
+        "occupancy",
+        "registration",
+        "condo_debt",
+    }
+    assert {item["key"] for item in analysis["clarified_items"]} >= {
+        "renovation_budget",
+        "plan_b",
+    }
 
 
 def test_strong_candidate_without_p0_items_becomes_candidate_for_diligence() -> None:
