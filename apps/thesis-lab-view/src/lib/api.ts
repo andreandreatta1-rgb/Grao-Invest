@@ -236,8 +236,11 @@ async function loadCockpitResumo(): Promise<CockpitResumo> {
   const canonical = await tryRequest<CockpitResumo>("/cockpit/resumo");
   if (canonical) return canonical;
 
-  const [dashboard, teses] = await Promise.all([loadDashboardSummary(), loadAdaptedTeses()]);
-  if (dashboard || teses.length) return adaptCockpitFromData(dashboard, teses);
+  const dashboard = await loadDashboardSummary();
+  if (dashboard) return adaptCockpitFromData(dashboard, []);
+
+  const teses = await loadAdaptedTeses();
+  if (teses.length) return adaptCockpitFromData(undefined, teses);
 
   return mockCockpit();
 }

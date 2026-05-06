@@ -14,8 +14,10 @@ describe("api cockpit loading", () => {
   });
 
   it("continues to dashboard API when a legacy route returns the SPA html", async () => {
+    const requestedUrls: string[] = [];
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
+      requestedUrls.push(url);
       if (url.endsWith("/cockpit/resumo")) {
         return new Response("<!doctype html><div id=\"root\"></div>", {
           status: 200,
@@ -53,5 +55,6 @@ describe("api cockpit loading", () => {
       "https://grao-invest.vercel.app/api/dashboard/summary/1",
       expect.any(Object),
     );
+    expect(requestedUrls.some((url) => url.endsWith("/api/theses/current-monitor/latest"))).toBe(false);
   });
 });

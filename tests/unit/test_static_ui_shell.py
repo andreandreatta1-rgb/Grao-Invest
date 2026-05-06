@@ -29,6 +29,15 @@ def test_frontend_bundle_contains_modern_shell_and_assets() -> None:
     assert (FRONTEND_DIST_DIR / "apple-touch-icon.png").exists()
 
 
+def test_frontend_bundle_has_no_mojibake_in_visible_shell_text() -> None:
+    bundle_paths = sorted((FRONTEND_DIST_DIR / "assets").glob("index-*.js"))
+    assert bundle_paths, "Expected a built frontend JS bundle"
+    bundle = bundle_paths[-1].read_text(encoding="utf-8")
+
+    forbidden_tokens = ["GrÃ", "DecisÃ", "LaboratÃ", "ConfiguraÃ", "ConteÃ", "Â·"]
+    assert not any(token in bundle for token in forbidden_tokens)
+
+
 def test_manifest_keeps_pwa_installability_metadata() -> None:
     manifest = json.loads(_read(FRONTEND_DIST_DIR / "manifest.webmanifest"))
 
