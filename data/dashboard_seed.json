@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T22:26:28+00:00",
+  "generated_at": "2026-05-06T15:50:22+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -207,23 +207,23 @@
         ]
       }
     ],
-    "event_count": 1592,
-    "global_event_count": 1595,
+    "event_count": 1613,
+    "global_event_count": 1616,
     "global_total_tested": 879,
     "user_total_tested": 878,
     "sources": {
       "case_study_runs": 879,
-      "current_monitor_runs": 200
+      "current_monitor_runs": 220
     },
     "sample_quality": {
       "counting_policy": "unique_resolved_case_studies",
-      "raw_case_study_events": 1395,
-      "duplicate_case_study_events_excluded": 516,
-      "current_monitor_snapshots_excluded": 200,
+      "raw_case_study_events": 1396,
+      "duplicate_case_study_events_excluded": 517,
+      "current_monitor_snapshots_excluded": 220,
       "current_monitor_policy": "excluded_until_resolved_and_deduplicated"
     },
-    "avg_resolution_days": 0.56,
-    "resolution_sample_count": 18
+    "avg_resolution_days": 0.53,
+    "resolution_sample_count": 19
   },
   "thesis_executive_summary": {
     "historical": {
@@ -26748,8 +26748,27 @@
       "is_open": false
     },
     {
-      "phase": "pos_go_live",
+      "phase": "historico",
       "thesis_number": 1396,
+      "thesis_id": "TH-PETR4-bullish-3514",
+      "thesis_raised_at": "2026-05-06T15:50:21+00:00",
+      "action": "PETR4",
+      "thesis_reason": "Tese historica compra para PETR4 no exercicio continuo. Registro legado com confianca 80.58% e retorno esperado 4.82%.",
+      "expected_result_pct": 4.8248,
+      "operation_plan": "Compra ate - (case study historico continuo; detalhes completos de prazo/preco nao persistidos no evento legado)",
+      "structured_operation": "Bull Call Spread | ganho max n/d | perda max n/d",
+      "entry_price_brl": null,
+      "exit_rule": "Sai por alvo/stop/tempo da estrategia (detalhe de preco indisponivel no legado)",
+      "status": "Fechada",
+      "outcome": "Alvo",
+      "moment_result_pct": 3.1405,
+      "duration_days": null,
+      "learning_note": "A direção estava correta, mas o ganho veio abaixo do esperado. Próxima: calibrar melhor alvo e prazo.",
+      "is_open": false
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 1397,
       "thesis_id": "TH-PETR4-bullish-0006",
       "thesis_raised_at": "2026-04-22T20:46:19+00:00",
       "action": "PETR4",
@@ -26772,7 +26791,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1397,
+      "thesis_number": 1398,
       "thesis_id": "TH-RENT3-bullish-0066",
       "thesis_raised_at": "2026-04-22T20:46:19+00:00",
       "action": "RENT3",
@@ -26785,17 +26804,17 @@
       "latest_price_at": "2026-04-22T20:46:19+00:00",
       "planned_exit_at": "2026-05-05",
       "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
-      "status": "Aberta - Atencao",
-      "outcome": "Atencao",
+      "status": "Fechada",
+      "outcome": "Tempo",
       "moment_result_pct": 0.0,
-      "duration_days": null,
-      "open_days": 13,
+      "duration_days": 0,
+      "open_days": null,
       "learning_note": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1398,
+      "thesis_number": 1399,
       "thesis_id": "TH-GGBR4-bullish-0090",
       "thesis_raised_at": "2026-04-20T00:00:00+00:00",
       "action": "GGBR4",
@@ -26818,7 +26837,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1399,
+      "thesis_number": 1400,
       "thesis_id": "TH-PRIO3-bearish-0080",
       "thesis_raised_at": "2026-04-20T00:00:00+00:00",
       "action": "PRIO3",
@@ -26841,7 +26860,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1400,
+      "thesis_number": 1401,
       "thesis_id": "TH-RAIL3-bullish-0124",
       "thesis_raised_at": "2026-04-16T00:00:00+00:00",
       "action": "RAIL3",
@@ -26864,7 +26883,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1401,
+      "thesis_number": 1402,
       "thesis_id": "TH-BPAC11-bullish-0118",
       "thesis_raised_at": "2026-04-17T00:00:00+00:00",
       "action": "BPAC11",
@@ -26887,7 +26906,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1402,
+      "thesis_number": 1403,
       "thesis_id": "TH-SUZB3-bullish-0070",
       "thesis_raised_at": "2026-04-17T00:00:00+00:00",
       "action": "SUZB3",
@@ -26910,7 +26929,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1403,
+      "thesis_number": 1404,
       "thesis_id": "TH-HAPV3-bearish-0112",
       "thesis_raised_at": "2026-04-20T00:00:00+00:00",
       "action": "HAPV3",
@@ -26933,7 +26952,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1404,
+      "thesis_number": 1405,
       "thesis_id": "TH-BTCUSDT-range-0008",
       "thesis_raised_at": "2026-05-02T20:14:59+00:00",
       "action": "BTCUSDT",
@@ -26956,7 +26975,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1405,
+      "thesis_number": 1406,
       "thesis_id": "TH-ETHUSDT-range-0016",
       "thesis_raised_at": "2026-05-02T20:14:59+00:00",
       "action": "ETHUSDT",
@@ -26979,7 +26998,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1406,
+      "thesis_number": 1407,
       "thesis_id": "TH-SOLUSDT-range-0024",
       "thesis_raised_at": "2026-05-02T00:19:59+00:00",
       "action": "SOLUSDT",
@@ -27002,7 +27021,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1407,
+      "thesis_number": 1408,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -27015,13 +27034,13 @@
       "entry_price_brl": 120000.0,
       "current_price_brl": 300000.0,
       "latest_price_at": "2026-05-05T17:11:00+00:00",
-      "planned_exit_at": "2026-05-19",
+      "planned_exit_at": "2026-05-20",
       "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 0,
+      "open_days": 1,
       "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
       "real_estate_analysis": {
         "score": 70,
@@ -27266,14 +27285,16 @@
           "estimated_sale_base": 300000.0,
           "estimated_sale_conservative": 280000.0,
           "estimated_sale_optimistic": 330000.0,
-          "notes": "Cenario irmao do mesmo caso real. Premissa de reforma pesada estimada em R para 50m2, ainda sem orcamento formal. Venda base em R considera apartamentos similares anunciados em padrao superior; precisa validar comparaveis vendidos, nao apenas anuncios."
-        }
+          "notes": "Cenario irmao do mesmo caso real. Premissa de reforma pesada estimada em R para 50m2, ainda sem orcamento formal. Venda base em R considera apartamentos similares anunciados em padrao superior; precisa validar comparaveis vendidos, nao apenas anuncios.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": true
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1408,
+      "thesis_number": 1409,
       "thesis_id": "IM-RADAR-16",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -27286,13 +27307,13 @@
       "entry_price_brl": 120000.0,
       "current_price_brl": 300000.0,
       "latest_price_at": "2026-05-05T17:11:00+00:00",
-      "planned_exit_at": "2026-05-19",
+      "planned_exit_at": "2026-05-20",
       "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 0,
+      "open_days": 1,
       "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
       "real_estate_analysis": {
         "score": 75,
@@ -27538,14 +27559,16 @@
           "estimated_sale_base": 220000.0,
           "estimated_sale_conservative": 210000.0,
           "estimated_sale_optimistic": 230000.0,
-          "notes": "Caso real informado pelo Andre em 05/05/2026. Residencial Parque do Estado, Agua Funda, 50m2, 2 quartos, 1 vaga. Vendedor pede R em 18 meses. Comprador ja visitou e sinalizou R no estado atual. Premissas de custo: R aquisicao/cartorio/reserva inicial, R/mes por 2 meses, sem corretagem. Caixa necessario estimado em R e precisa ser substituido pelo sinal real/fluxo de parcelas."
-        }
+          "notes": "Caso real informado pelo Andre em 05/05/2026. Residencial Parque do Estado, Agua Funda, 50m2, 2 quartos, 1 vaga. Vendedor pede R em 18 meses. Comprador ja visitou e sinalizou R no estado atual. Premissas de custo: R aquisicao/cartorio/reserva inicial, R/mes por 2 meses, sem corretagem. Caixa necessario estimado em R e precisa ser substituido pelo sinal real/fluxo de parcelas.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": true
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1409,
+      "thesis_number": 1410,
       "thesis_id": "IM-RADAR-15",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -27810,14 +27833,16 @@
           "estimated_sale_base": 228000.0,
           "estimated_sale_conservative": 212000.0,
           "estimated_sale_optimistic": 240000.0,
-          "notes": "Caso real em estudo. PDF da incorporadora lista Plano&Estacao Belem, UND204, 1 dorm, HIS2, sacada, sem vaga, de R.986 por R.986. Area, fluxo e data de entrega precisam ser confirmados."
-        }
+          "notes": "Caso real em estudo. PDF da incorporadora lista Plano&Estacao Belem, UND204, 1 dorm, HIS2, sacada, sem vaga, de R.986 por R.986. Area, fluxo e data de entrega precisam ser confirmados.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1410,
+      "thesis_number": 1411,
       "thesis_id": "IM-RADAR-14",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28082,14 +28107,16 @@
           "estimated_sale_base": 207000.0,
           "estimated_sale_conservative": 195000.0,
           "estimated_sale_optimistic": 220000.0,
-          "notes": "Caso real em estudo. PDF da incorporadora lista Plano&Estacao Bras, torre A, UND210, 1 dorm, HIS1, sem vaga, de R.071 por R.071. Area e fluxo precisam ser confirmados."
-        }
+          "notes": "Caso real em estudo. PDF da incorporadora lista Plano&Estacao Bras, torre A, UND210, 1 dorm, HIS1, sem vaga, de R.071 por R.071. Area e fluxo precisam ser confirmados.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1411,
+      "thesis_number": 1412,
       "thesis_id": "IM-RADAR-13",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28353,14 +28380,16 @@
           "estimated_sale_base": 170000.0,
           "estimated_sale_conservative": 155000.0,
           "estimated_sale_optimistic": 182000.0,
-          "notes": "Caso real em estudo. Fonte informa Residencial Plano & Vista do Carmo II, Colonia, 32m2, 1 quarto, 1 banheiro e preco de R.828. Dados de aluguel ainda precisam ser buscados."
-        }
+          "notes": "Caso real em estudo. Fonte informa Residencial Plano & Vista do Carmo II, Colonia, 32m2, 1 quarto, 1 banheiro e preco de R.828. Dados de aluguel ainda precisam ser buscados.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1412,
+      "thesis_number": 1413,
       "thesis_id": "IM-RADAR-12",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28641,14 +28670,16 @@
           "estimated_sale_base": 270000.0,
           "estimated_sale_conservative": 255000.0,
           "estimated_sale_optimistic": 285000.0,
-          "notes": "Caso real em estudo. Fonte informa Avenida Rangel Pestana, Bras, R, condominio R, IPTU R, 34m2 e descricao de renda imediata com studios alugados. Validar disponibilidade e dados com corretor."
-        }
+          "notes": "Caso real em estudo. Fonte informa Avenida Rangel Pestana, Bras, R, condominio R, IPTU R, 34m2 e descricao de renda imediata com studios alugados. Validar disponibilidade e dados com corretor.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1413,
+      "thesis_number": 1414,
       "thesis_id": "IM-RADAR-11",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -28918,14 +28949,16 @@
           "estimated_sale_base": 272000.0,
           "estimated_sale_conservative": 252000.0,
           "estimated_sale_optimistic": 285000.0,
-          "notes": "Caso real para estudo. Fonte informa 40m2, 2 quartos, 1 vaga e preco de 250k; documentos, ocupacao e comparaveis ainda pendentes."
-        }
+          "notes": "Caso real para estudo. Fonte informa 40m2, 2 quartos, 1 vaga e preco de 250k; documentos, ocupacao e comparaveis ainda pendentes.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1414,
+      "thesis_number": 1415,
       "thesis_id": "IM-RADAR-10",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29198,14 +29231,16 @@
           "estimated_sale_base": 268000.0,
           "estimated_sale_conservative": 248000.0,
           "estimated_sale_optimistic": 280000.0,
-          "notes": "Caso real para estudo. Fonte informa preco a partir de 245k, 41m2, 2 quartos, sem vaga e aceita financiamento/FGTS; validar unidade exata e IPTU."
-        }
+          "notes": "Caso real para estudo. Fonte informa preco a partir de 245k, 41m2, 2 quartos, sem vaga e aceita financiamento/FGTS; validar unidade exata e IPTU.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1415,
+      "thesis_number": 1416,
       "thesis_id": "IM-RADAR-9",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29480,14 +29515,16 @@
           "estimated_sale_base": 310000.0,
           "estimated_sale_conservative": 288000.0,
           "estimated_sale_optimistic": 325000.0,
-          "notes": "Caso real para estudo. Fonte informa 40m2, 2 dormitorios, documentacao ok e aceita financiamento; ocupacao, debitos e preco efetivo precisam ser validados."
-        }
+          "notes": "Caso real para estudo. Fonte informa 40m2, 2 dormitorios, documentacao ok e aceita financiamento; ocupacao, debitos e preco efetivo precisam ser validados.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1416,
+      "thesis_number": 1417,
       "thesis_id": "IM-RADAR-8",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29756,14 +29793,16 @@
           "estimated_sale_base": 255000.0,
           "estimated_sale_conservative": 238000.0,
           "estimated_sale_optimistic": 268000.0,
-          "notes": "Caso real para estudo. Fonte informa preco, 25m2, 1 quarto, sem vaga, condominio e IPTU; documentos, ocupacao e comparaveis precisam ser validados."
-        }
+          "notes": "Caso real para estudo. Fonte informa preco, 25m2, 1 quarto, sem vaga, condominio e IPTU; documentos, ocupacao e comparaveis precisam ser validados.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1417,
+      "thesis_number": 1418,
       "thesis_id": "IM-RADAR-7",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29776,13 +29815,13 @@
       "entry_price_brl": 114838.57,
       "current_price_brl": 190000.0,
       "latest_price_at": "2026-05-04T13:40:52+00:00",
-      "planned_exit_at": "2026-05-19",
+      "planned_exit_at": "2026-05-20",
       "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 1,
+      "open_days": 2,
       "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Confirmar divida de condominio, Confirmar divida de IPTU.",
       "real_estate_analysis": {
         "score": 83,
@@ -30038,14 +30077,16 @@
           "estimated_sale_base": 190000.0,
           "estimated_sale_conservative": 170000.0,
           "estimated_sale_optimistic": 202000.0,
-          "notes": "Caso real para estudo. Fonte informa preco, avaliacao, area e nao aceita financiamento; validar ocupacao, condominio e tributos."
-        }
+          "notes": "Caso real para estudo. Fonte informa preco, avaliacao, area e nao aceita financiamento; validar ocupacao, condominio e tributos.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": true
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1418,
+      "thesis_number": 1419,
       "thesis_id": "IM-RADAR-6",
       "thesis_raised_at": "2026-05-04T13:40:51+00:00",
       "front": "imoveis",
@@ -30058,13 +30099,13 @@
       "entry_price_brl": 137307.64,
       "current_price_brl": 233000.0,
       "latest_price_at": "2026-05-04T13:40:51+00:00",
-      "planned_exit_at": "2026-05-19",
+      "planned_exit_at": "2026-05-20",
       "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 1,
+      "open_days": 2,
       "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Confirmar divida de condominio, Confirmar divida de IPTU.",
       "real_estate_analysis": {
         "score": 83,
@@ -30320,8 +30361,10 @@
           "estimated_sale_base": 233000.0,
           "estimated_sale_conservative": 205000.0,
           "estimated_sale_optimistic": 245000.0,
-          "notes": "Caso real para estudo. Fonte informa valor minimo, valor de avaliacao, area, quartos, matricula e financiamento; ocupacao e debitos precisam ser validados."
-        }
+          "notes": "Caso real para estudo. Fonte informa valor minimo, valor de avaliacao, area, quartos, matricula e financiamento; ocupacao e debitos precisam ser validados.",
+          "visit_evidence": []
+        },
+        "visit_evidence": []
       },
       "is_open": true
     }
