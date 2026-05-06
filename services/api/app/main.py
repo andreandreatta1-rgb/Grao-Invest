@@ -271,7 +271,47 @@ def _frontend_index_file() -> Path:
     return _frontend_shell_dir() / "index.html"
 
 
+FRONTEND_INDEX_HEADERS = {
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
+
+
+def _frontend_index_response() -> FileResponse:
+    return FileResponse(_frontend_index_file(), headers=FRONTEND_INDEX_HEADERS)
+
+
+def _frontend_current_entry_asset(extension: str) -> Path | None:
+    root_dir = _frontend_shell_dir()
+    index_file = root_dir / "index.html"
+    if index_file.exists():
+        index_html = index_file.read_text(encoding="utf-8", errors="ignore")
+        entry_matches = re.findall(
+            rf"""["']/(assets/index-[^"']+\.{re.escape(extension)})["']""",
+            index_html,
+        )
+        for entry_path in entry_matches:
+            entry_asset = _frontend_asset_file_for_path(entry_path, allow_entry_fallback=False)
+            if entry_asset is not None:
+                return entry_asset
+
+    assets_dir = root_dir / "assets"
+    if not assets_dir.exists():
+        return None
+    candidates = sorted(
+        assets_dir.glob(f"index-*.{extension}"),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
+    return candidates[0] if candidates else None
+
+
 def _frontend_asset_file(request_path: str) -> Path | None:
+    return _frontend_asset_file_for_path(request_path, allow_entry_fallback=True)
+
+
+def _frontend_asset_file_for_path(request_path: str, *, allow_entry_fallback: bool) -> Path | None:
     normalized_path = request_path.strip().lstrip("/")
     if not normalized_path:
         return None
@@ -283,12 +323,16 @@ def _frontend_asset_file(request_path: str) -> Path | None:
         return None
     if candidate.is_file():
         return candidate
+    if allow_entry_fallback:
+        entry_match = re.fullmatch(r"assets/index-[A-Za-z0-9_-]+\.(js|css)", normalized_path)
+        if entry_match is not None:
+            return _frontend_current_entry_asset(entry_match.group(1))
     return None
 
 
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
-    return FileResponse(_frontend_index_file())
+    return _frontend_index_response()
 
 
 def _extract_bearer_token(authorization: str | None) -> str:
@@ -5237,7 +5281,7 @@ def frontend_shell(full_path: str) -> FileResponse:
         raise HTTPException(status_code=404, detail="Not Found")
     if normalized_path and Path(normalized_path).suffix:
         raise HTTPException(status_code=404, detail="Not Found")
-    return FileResponse(_frontend_index_file())
+    return _frontend_index_response()
 
 
 @app.websocket("/ws/agent")
