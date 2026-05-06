@@ -57,4 +57,25 @@ describe("api cockpit loading", () => {
     );
     expect(requestedUrls.some((url) => url.endsWith("/api/theses/current-monitor/latest"))).toBe(false);
   });
+
+  it("does not replace a production cockpit timeout with mock data", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/cockpit/resumo")) {
+        return new Response("<!doctype html><div id=\"root\"></div>", {
+          status: 200,
+          headers: { "Content-Type": "text/html" },
+        });
+      }
+      if (url.endsWith("/api/dashboard/summary/1")) {
+        const error = new Error("aborted");
+        error.name = "AbortError";
+        throw error;
+      }
+      throw new Error(`Unexpected URL in test: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(api.cockpit()).rejects.toThrow("Timeout");
+  });
 });

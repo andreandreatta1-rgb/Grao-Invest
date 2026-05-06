@@ -38,6 +38,12 @@ def test_frontend_bundle_has_no_mojibake_in_visible_shell_text() -> None:
     assert not any(token in bundle for token in forbidden_tokens)
 
 
+def test_cockpit_defers_full_thesis_fetch_until_summary_loaded() -> None:
+    source = _read(REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "pages" / "Cockpit.tsx")
+
+    assert 'enabled: Boolean(data)' in source
+
+
 def test_manifest_keeps_pwa_installability_metadata() -> None:
     manifest = json.loads(_read(FRONTEND_DIST_DIR / "manifest.webmanifest"))
 

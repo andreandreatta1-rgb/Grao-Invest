@@ -14,7 +14,12 @@ export default function Cockpit() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["cockpit-resumo"], queryFn: api.cockpit, refetchInterval: 30_000,
   });
-  const { data: teses = [] } = useQuery({ queryKey: ["teses"], queryFn: api.teses, refetchInterval: 30_000 });
+  const { data: teses = [] } = useQuery({
+    queryKey: ["teses"],
+    queryFn: api.teses,
+    refetchInterval: 30_000,
+    enabled: Boolean(data),
+  });
 
   if (isLoading) return <SkeletonCockpit />;
   if (isError || !data) return <ErrorState />;

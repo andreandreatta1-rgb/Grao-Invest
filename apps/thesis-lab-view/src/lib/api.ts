@@ -37,6 +37,7 @@ const LS_BASE = "graoinvest.api_base";
 const LS_TOKEN = "graoinvest.token";
 const LS_USE_MOCK = "graoinvest.use_mock";
 const DEFAULT_TIMEOUT_MS = 12_000;
+const DASHBOARD_TIMEOUT_MS = 30_000;
 
 export class ApiError extends Error {
   status: number;
@@ -195,7 +196,7 @@ async function withFallback<T>(label: string, fallback: T, loader: () => Promise
 
 async function loadDashboardSummary(): Promise<BackendDashboardSummary | undefined> {
   const userId = getConfiguredUserId();
-  return tryRequest<BackendDashboardSummary>(`/api/dashboard/summary/${userId}`);
+  return tryRequest<BackendDashboardSummary>(`/api/dashboard/summary/${userId}`, undefined, DASHBOARD_TIMEOUT_MS);
 }
 
 async function loadCurrentMonitor(): Promise<BackendCurrentMonitorPayload | undefined> {
@@ -294,7 +295,7 @@ async function loadDataHealth(): Promise<DataHealthSnapshot> {
 }
 
 export const api = {
-  cockpit: () => withFallback("/cockpit/resumo", mockCockpit(), loadCockpitResumo),
+  cockpit: () => isMock() ? Promise.resolve(mockCockpit()) : loadCockpitResumo(),
 
   teses: () => withFallback("/teses", mockTeses(), loadAllTeses),
 
