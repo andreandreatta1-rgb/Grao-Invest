@@ -49,6 +49,10 @@ export default function MetodoGrao() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  const elapsedRef = useRef(0);
+  const audioOnRef = useRef(audioOn);
+  const isPlayingRef = useRef(isPlaying);
+  const hasStartedRef = useRef(hasStarted);
 
   const scene = metodoGraoScenes[index];
   const totalDuration = useMemo(() => sceneDuration(scene), [scene]);
@@ -65,19 +69,24 @@ export default function MetodoGrao() {
   const finishOnboarding = useCallback(() => {
     markMetodoOnboardingSeen();
     setIsPlaying(false);
+    isPlayingRef.current = false;
     navigate("/", { replace: true });
   }, [navigate]);
 
-  const stopMedia = useCallback(() => {
-    videoRef.current?.pause();
-    audioRef.current?.pause();
+  const stopTicker = useCallback(() => {
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
   }, []);
 
-  const playMedia = useCallback(() => {
+  const stopMedia = useCallback(() => {
+    stopTicker();
+    videoRef.current?.pause();
+    audioRef.current?.pause();
+  }, [stopTicker]);
+
+  const playMedia = useCallback((shouldPlayAudio = audioOnRef.current) => {
     const video = videoRef.current;
     const audio = audioRef.current;
 
@@ -87,7 +96,7 @@ export default function MetodoGrao() {
       video.play().catch(() => undefined);
     }
 
-    if (audioOn && audio) {
+    if (shouldPlayAudio && audio) {
       audio.volume = 1;
       audio.muted = false;
       audio.defaultPlaybackRate = audioRate(scene);
@@ -95,6 +104,7 @@ export default function MetodoGrao() {
       audio.play().then(() => {
         setStatus("Áudio ativo.");
       }).catch((error: Error) => {
+        audioOnRef.current = false;
         setAudioOn(false);
         setStatus(error.name === "NotAllowedError"
           ? "Áudio bloqueado pelo navegador. Toque em Áudio para tentar de novo."
@@ -103,10 +113,23 @@ export default function MetodoGrao() {
     } else {
       setStatus("Reprodução visual sem áudio.");
     }
-  }, [audioOn, scene]);
+  }, [scene]);
+
+  useEffect(() => {
+    audioOnRef.current = audioOn;
+  }, [audioOn]);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  useEffect(() => {
+    hasStartedRef.current = hasStarted;
+  }, [hasStarted]);
 
   useEffect(() => {
     stopMedia();
+    elapsedRef.current = 0;
     setElapsedMs(0);
 
     const video = videoRef.current;
@@ -124,10 +147,10 @@ export default function MetodoGrao() {
       audio.load();
     }
 
-    if (hasStarted && isPlaying) {
-      window.setTimeout(playMedia, 80);
+    if (hasStartedRef.current && isPlayingRef.current) {
+      window.setTimeout(() => playMedia(audioOnRef.current), 80);
     }
-  }, [hasStarted, index, isPlaying, playMedia, scene, stopMedia]);
+  }, [index, playMedia, scene, stopMedia]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -135,60 +158,100 @@ export default function MetodoGrao() {
       return undefined;
     }
 
-    const startedAt = performance.now() - elapsedMs;
-    playMedia();
+    const startedAt = performance.now() - elapsedRef.current;
 
     const tick = () => {
       const nextElapsed = performance.now() - startedAt;
       if (nextElapsed >= totalDuration) {
         if (index >= metodoGraoScenes.length - 1) {
           markMetodoOnboardingSeen();
+          elapsedRef.current = totalDuration;
           setElapsedMs(totalDuration);
           setIsPlaying(false);
+          isPlayingRef.current = false;
           setStatus("Apresentação concluída. Método antes da convicção.");
           return;
         }
+        elapsedRef.current = 0;
         setIndex((current) => current + 1);
         setElapsedMs(0);
         return;
       }
 
+      elapsedRef.current = nextElapsed;
       setElapsedMs(nextElapsed);
       rafRef.current = requestAnimationFrame(tick);
     };
 
     rafRef.current = requestAnimationFrame(tick);
-    return stopMedia;
-  }, [elapsedMs, index, isPlaying, playMedia, stopMedia, totalDuration]);
+    return stopTicker;
+  }, [index, isPlaying, stopMedia, stopTicker, totalDuration]);
 
   function start(withAudio: boolean) {
+    audioOnRef.current = withAudio;
+    hasStartedRef.current = true;
+    isPlayingRef.current = true;
+    elapsedRef.current = elapsedMs;
     setAudioOn(withAudio);
     setHasStarted(true);
     setIsPlaying(true);
     setStatus(withAudio ? "Iniciando com áudio." : "Iniciando sem áudio.");
+    playMedia(withAudio);
   }
 
   function togglePlay() {
     if (!hasStarted) {
-      start(audioOn);
+      start(audioOnRef.current);
       return;
     }
-    setIsPlaying((value) => !value);
+
+    const nextPlaying = !isPlayingRef.current;
+    isPlayingRef.current = nextPlaying;
+    setIsPlaying(nextPlaying);
+    if (nextPlaying) {
+      playMedia(audioOnRef.current);
+    } else {
+      stopMedia();
+    }
   }
 
   function goTo(nextIndex: number, keepPlaying = isPlaying) {
+    elapsedRef.current = 0;
     setIndex(Math.max(0, Math.min(metodoGraoScenes.length - 1, nextIndex)));
     setElapsedMs(0);
+    isPlayingRef.current = keepPlaying;
+    hasStartedRef.current = true;
     setIsPlaying(keepPlaying);
     setHasStarted(true);
   }
 
   function restart() {
+    stopMedia();
+    elapsedRef.current = 0;
+    isPlayingRef.current = false;
+    hasStartedRef.current = false;
     setIndex(0);
     setElapsedMs(0);
     setHasStarted(false);
     setIsPlaying(false);
     setStatus("Pronto para reiniciar.");
+  }
+
+  function toggleAudio() {
+    const nextAudioOn = !audioOnRef.current;
+    audioOnRef.current = nextAudioOn;
+    setAudioOn(nextAudioOn);
+
+    if (nextAudioOn) {
+      setStatus("Tentando ativar áudio.");
+      if (isPlayingRef.current) {
+        playMedia(nextAudioOn);
+      }
+      return;
+    }
+
+    audioRef.current?.pause();
+    setStatus("Reprodução visual sem áudio.");
   }
 
   return (
@@ -342,14 +405,15 @@ export default function MetodoGrao() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAudioOn((value) => !value)}
+                  onClick={toggleAudio}
                   className={cn(
-                    "hidden h-11 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold sm:inline-flex",
+                    "inline-flex h-11 w-11 items-center justify-center gap-2 rounded-lg border text-sm font-semibold sm:w-auto sm:px-3",
                     audioOn ? "border-primary/40 bg-primary/10 text-primary" : "border-border/60 bg-surface-1 text-muted-foreground",
                   )}
+                  aria-label={audioOn ? "Desativar áudio" : "Ativar áudio"}
                 >
                   {audioOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-                  Áudio
+                  <span className="hidden sm:inline">Áudio</span>
                 </button>
               </div>
 

@@ -73,6 +73,15 @@ def test_metodo_grao_onboarding_is_routed_and_asset_backed() -> None:
     assert (public_metodo / "image" / "03.png").exists()
 
 
+def test_metodo_grao_audio_playback_is_user_gesture_driven() -> None:
+    metodo_page = _read(REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "pages" / "MetodoGrao.tsx")
+
+    assert "playMedia(withAudio)" in metodo_page
+    assert "playMedia(nextAudioOn)" in metodo_page
+    assert "audioOnRef.current" in metodo_page
+    assert "elapsedMs, index, isPlaying" not in metodo_page
+
+
 def test_manifest_keeps_pwa_installability_metadata() -> None:
     manifest = json.loads(_read(FRONTEND_DIST_DIR / "manifest.webmanifest"))
 
