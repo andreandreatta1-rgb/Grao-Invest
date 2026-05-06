@@ -276,10 +276,47 @@ FRONTEND_INDEX_HEADERS = {
     "Pragma": "no-cache",
     "Expires": "0",
 }
+FRONTEND_HASHED_ENTRY_RE = re.compile(r"assets/index-[A-Za-z0-9_-]+\.(js|css)")
+FRONTEND_MEDIA_EXTENSIONS = {
+    ".avif",
+    ".css",
+    ".gif",
+    ".ico",
+    ".jpeg",
+    ".jpg",
+    ".js",
+    ".json",
+    ".mp3",
+    ".mp4",
+    ".png",
+    ".svg",
+    ".webmanifest",
+    ".webp",
+    ".woff2",
+}
 
 
 def _frontend_index_response() -> FileResponse:
     return FileResponse(_frontend_index_file(), headers=FRONTEND_INDEX_HEADERS)
+
+
+def _frontend_asset_headers(asset: Path, request_path: str) -> dict[str, str]:
+    normalized_path = request_path.strip().lstrip("/")
+    root_dir = _frontend_shell_dir().resolve()
+    requested_asset = (root_dir / normalized_path).resolve()
+    is_exact_asset = requested_asset == asset.resolve() and requested_asset.is_file()
+
+    if not is_exact_asset:
+        return FRONTEND_INDEX_HEADERS
+    if FRONTEND_HASHED_ENTRY_RE.fullmatch(normalized_path):
+        return {"Cache-Control": "public, max-age=31536000, immutable"}
+    if asset.suffix.lower() in FRONTEND_MEDIA_EXTENSIONS:
+        return {"Cache-Control": "public, max-age=86400, stale-while-revalidate=604800"}
+    return {"Cache-Control": "public, max-age=0, must-revalidate"}
+
+
+def _frontend_asset_response(asset: Path, request_path: str) -> FileResponse:
+    return FileResponse(asset, headers=_frontend_asset_headers(asset, request_path))
 
 
 def _frontend_current_entry_asset(extension: str) -> Path | None:
@@ -5274,7 +5311,7 @@ def agent_status(
 def frontend_shell(full_path: str) -> FileResponse:
     asset = _frontend_asset_file(full_path)
     if asset is not None:
-        return FileResponse(asset)
+        return _frontend_asset_response(asset, full_path)
 
     normalized_path = full_path.strip().lstrip("/")
     if normalized_path.startswith(("api/", "ws/", "static/")):
