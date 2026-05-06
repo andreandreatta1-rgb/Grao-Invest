@@ -1,6 +1,7 @@
 export const METODO_ONBOARDING_KEY = "graoinvest.metodo_onboarding_seen";
 
 const ASSET_BASE = "/metodo/06_sequencia_09";
+const SCREEN_IMAGE_BASE = "/metodo/imagens";
 
 export type MetodoGraoScene = {
   step: string;
@@ -147,6 +148,62 @@ export const metodoGraoScenes: MetodoGraoScene[] = [
     pauseAfterMs: 1_200,
   },
 ];
+
+export type MetodoGraoScreenImage = {
+  src: string;
+  alt: string;
+};
+
+export const metodoGraoScreenImages = {
+  cockpit: {
+    src: `${SCREEN_IMAGE_BASE}/01.webp`,
+    alt: "Metodo Grao - Cockpit",
+  },
+  teses: {
+    src: `${SCREEN_IMAGE_BASE}/02.webp`,
+    alt: "Metodo Grao - Teses",
+  },
+  mercado: {
+    src: `${SCREEN_IMAGE_BASE}/03.webp`,
+    alt: "Metodo Grao - Mercado",
+  },
+  lab: {
+    src: `${SCREEN_IMAGE_BASE}/04.webp`,
+    alt: "Metodo Grao - Laboratorio",
+  },
+  decisoes: {
+    src: `${SCREEN_IMAGE_BASE}/05.webp`,
+    alt: "Metodo Grao - Decisoes",
+  },
+  metodo: {
+    src: `${SCREEN_IMAGE_BASE}/06.webp`,
+    alt: "Metodo Grao - Onboarding",
+  },
+  configuracao: {
+    src: `${SCREEN_IMAGE_BASE}/07.webp`,
+    alt: "Metodo Grao - Configuracao",
+  },
+  instalar: {
+    src: `${SCREEN_IMAGE_BASE}/08.webp`,
+    alt: "Metodo Grao - Instalacao",
+  },
+  teseDetalhe: {
+    src: `${SCREEN_IMAGE_BASE}/09.webp`,
+    alt: "Metodo Grao - Detalhe da tese",
+  },
+} satisfies Record<string, MetodoGraoScreenImage>;
+
+export function getMetodoGraoScreenImage(pathname: string): MetodoGraoScreenImage {
+  if (pathname.startsWith("/teses/")) return metodoGraoScreenImages.teseDetalhe;
+  if (pathname === "/teses") return metodoGraoScreenImages.teses;
+  if (pathname === "/mercado") return metodoGraoScreenImages.mercado;
+  if (pathname === "/lab") return metodoGraoScreenImages.lab;
+  if (pathname === "/decisoes") return metodoGraoScreenImages.decisoes;
+  if (pathname === "/metodo") return metodoGraoScreenImages.metodo;
+  if (pathname === "/config") return metodoGraoScreenImages.configuracao;
+  if (pathname === "/instalar") return metodoGraoScreenImages.instalar;
+  return metodoGraoScreenImages.cockpit;
+}
 
 export function markMetodoOnboardingSeen() {
   try {

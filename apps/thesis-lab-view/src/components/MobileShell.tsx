@@ -8,7 +8,7 @@ import { fmtRelative } from "@/lib/format";
 import { HealthBadge } from "@/components/HealthBadge";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import type { SaudeDado } from "@/types/domain";
-import { hasSeenMetodoOnboarding } from "@/lib/metodo-grao-scenes";
+import { getMetodoGraoScreenImage, hasSeenMetodoOnboarding } from "@/lib/metodo-grao-scenes";
 
 const tabs = [
   { to: "/",          label: "Cockpit",   icon: Activity },
@@ -41,6 +41,7 @@ export default function MobileShell() {
     "/metodo": "Método Grão",
   };
   const title = titleMap[pathname.split("/").slice(0, 2).join("/")] ?? "Grão Invest";
+  const screenImage = getMetodoGraoScreenImage(pathname);
   const overallHealth: SaudeDado =
     !data ? "atualizado" :
     Object.values(data.frentes).some(f => f.saude === "indisponivel") ? "indisponivel" :
@@ -52,8 +53,16 @@ export default function MobileShell() {
       <header className="safe-top sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto max-w-screen-md px-4 pt-3 pb-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary grid place-items-center shadow-glow">
-              <span className="font-display text-sm font-bold text-primary-foreground">G</span>
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-primary/35 bg-surface-1 shadow-glow">
+              <img
+                src={screenImage.src}
+                alt={screenImage.alt}
+                className="h-full w-full object-cover object-top"
+                loading="eager"
+              />
+              <span className="absolute bottom-0.5 right-0.5 grid h-4 w-4 place-items-center rounded-[5px] bg-primary text-[9px] font-bold text-primary-foreground shadow-sm">
+                G
+              </span>
             </div>
             <div className="flex flex-col leading-tight">
               <span className="font-display text-[15px] font-semibold tracking-tight">{title}</span>

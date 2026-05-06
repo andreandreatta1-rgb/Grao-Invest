@@ -73,6 +73,25 @@ def test_metodo_grao_onboarding_is_routed_and_asset_backed() -> None:
     assert (public_metodo / "image" / "03.png").exists()
 
 
+def test_metodo_grao_screen_images_are_used_by_shell() -> None:
+    scene_source = _read(
+        REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "lib" / "metodo-grao-scenes.ts"
+    )
+    shell_source = _read(
+        REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "components" / "MobileShell.tsx"
+    )
+    public_images = REPO_ROOT / "apps" / "thesis-lab-view" / "public" / "metodo" / "imagens"
+
+    assert "metodoGraoScreenImages" in scene_source
+    assert "getMetodoGraoScreenImage" in scene_source
+    assert "getMetodoGraoScreenImage(pathname)" in shell_source
+    assert 'alt={screenImage.alt}' in shell_source
+    assert 'src={screenImage.src}' in shell_source
+
+    for step in [f"{index:02d}" for index in range(1, 10)]:
+        assert (public_images / f"{step}.webp").exists()
+
+
 def test_metodo_grao_audio_playback_is_user_gesture_driven() -> None:
     metodo_page = _read(REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "pages" / "MetodoGrao.tsx")
 
