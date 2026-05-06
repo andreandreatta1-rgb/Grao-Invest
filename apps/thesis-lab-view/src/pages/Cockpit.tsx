@@ -6,8 +6,8 @@ import { FrenteBadge } from "@/components/FrenteBadge";
 import { fmtNumber, fmtPctRatio, fmtRelative } from "@/lib/format";
 import { CheckCircle2, Brain, Sparkles, Activity, AlertTriangle, ChevronRight, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Frente, FreshnessStatus, TheseEnvelope } from "@/types/domain";
-import { apiFrenteToFrente } from "@/types/domain";
+import type { Frente, FreshnessStatus, SaudeDado, TheseEnvelope } from "@/types/domain";
+import { isOpenThesis } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
 export default function Cockpit() {
@@ -24,8 +24,6 @@ export default function Cockpit() {
   if (isLoading) return <SkeletonCockpit />;
   if (isError || !data) return <ErrorState />;
 
-  const sistemaOk = Object.values(data.frentes).every(f => f.saude !== "indisponivel");
-
   // agregados de qualidade calculados a partir do envelope canônico
   const fresh   = teses.filter(t => t.data_quality.freshness_status === "fresh").length;
   const partial = teses.filter(t => t.data_quality.freshness_status === "partial" || t.data_quality.freshness_status === "stale").length;
@@ -33,6 +31,31 @@ export default function Cockpit() {
   const lowCompletion = teses.filter(t => t.completion.completion_pct < 70).length;
 
   const byFrente = (front: "b3" | "cripto" | "imoveis") => teses.filter(t => t.front === front);
+  const hasDetailedTeses = teses.length > 0;
+  const frontDetails = (Object.keys(data.frentes) as Frente[]).reduce((acc, f) => {
+    const info = data.frentes[f];
+    const apiFront = f === "B3" ? "b3" : f === "Cripto" ? "cripto" : "imoveis";
+    const list = byFrente(apiFront);
+    const dist = countFreshness(list);
+    acc[f] = {
+      apiFront,
+      dist,
+      total: list.length || 1,
+      ativas: hasDetailedTeses ? list.filter(isOpenThesis).length : info.ativas,
+      saude: hasDetailedTeses ? saudeFromFreshnessDist(dist, list.length) : info.saude,
+      ultimaIngestaoEm: info.ultimaIngestaoEm,
+    };
+    return acc;
+  }, {} as Record<Frente, {
+    apiFront: "b3" | "cripto" | "imoveis";
+    dist: { fresh: number; partial: number; missing: number };
+    total: number;
+    ativas: number;
+    saude: SaudeDado;
+    ultimaIngestaoEm: string;
+  }>);
+  const effectiveTesesAtivas = hasDetailedTeses ? teses.filter(isOpenThesis).length : data.tesesAtivas;
+  const sistemaOk = Object.values(frontDetails).every(f => f.saude !== "indisponivel");
 
   return (
     <div className="space-y-5 animate-fade-up">
@@ -47,7 +70,7 @@ export default function Cockpit() {
           </div>
           <span className="pill bg-primary/10 text-primary border border-primary/30">
             <span className={`w-1.5 h-1.5 rounded-full bg-primary ${sistemaOk ? "animate-pulse-slow" : ""}`} />
-            {data.tesesAtivas} ativas
+            {effectiveTesesAtivas} ativas
           </span>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed mb-4">
@@ -84,32 +107,29 @@ export default function Cockpit() {
         </div>
         <div className="space-y-2">
           {(Object.keys(data.frentes) as Frente[]).map((f) => {
-            const info = data.frentes[f];
-            const apiFront = f === "B3" ? "b3" : f === "Cripto" ? "cripto" : "imoveis";
-            const list = byFrente(apiFront);
-            const dist = countFreshness(list);
+            const detail = frontDetails[f];
             return (
               <Link
                 key={f}
-                to={`/teses?frente=${apiFront}`}
+                to={`/teses?frente=${detail.apiFront}`}
                 className="block glass-card p-4 active:scale-[0.99] transition-transform"
               >
                 <div className="flex items-center justify-between mb-2.5">
                   <div className="flex items-center gap-3">
                     <FrenteBadge frente={f} />
                     <div>
-                      <div className="text-sm font-medium">{info.ativas} {info.ativas === 1 ? "tese ativa" : "teses ativas"}</div>
-                      <div className="text-[11px] text-muted-foreground">ingestão {fmtRelative(info.ultimaIngestaoEm)}</div>
+                      <div className="text-sm font-medium">{detail.ativas} {detail.ativas === 1 ? "tese ativa" : "teses ativas"}</div>
+                      <div className="text-[11px] text-muted-foreground">ingestão {fmtRelative(detail.ultimaIngestaoEm)}</div>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
                 {/* barra de qualidade */}
-                <FreshnessBar dist={dist} total={list.length || 1} />
+                <FreshnessBar dist={detail.dist} total={detail.total} />
                 <div className="flex items-center justify-between mt-2 text-[11px] text-muted-foreground">
-                  <HealthBadge saude={info.saude} />
+                  <HealthBadge saude={detail.saude} />
                   <span className="tabular">
-                    {dist.fresh} ok · {dist.partial} parcial · {dist.missing} ind.
+                    {detail.dist.fresh} ok · {detail.dist.partial} parcial · {detail.dist.missing} ind.
                   </span>
                 </div>
               </Link>
@@ -121,7 +141,7 @@ export default function Cockpit() {
       {/* Indicadores rápidos */}
       <section className="grid grid-cols-2 gap-3">
         <RespostaRapida icon={Activity} label="O sistema está funcionando?" valor={sistemaOk ? "Sim" : "Parcial"} ok={sistemaOk} />
-        <RespostaRapida icon={Sparkles} label="Há teses ativas agora?" valor={`${data.tesesAtivas}`} ok={data.tesesAtivas > 0} />
+        <RespostaRapida icon={Sparkles} label="Há teses ativas agora?" valor={`${effectiveTesesAtivas}`} ok={effectiveTesesAtivas > 0} />
         <RespostaRapida icon={Brain} label="O método está aprendendo?" valor={`+${data.aprendizadosAplicados}`} ok />
         <RespostaRapida icon={CheckCircle2} label="Validação histórica" valor={fmtPctRatio(data.validacaoHistoricaPct, 0)} ok={data.validacaoHistoricaPct >= 0.5} />
       </section>
@@ -138,6 +158,16 @@ function countFreshness(list: TheseEnvelope[]) {
     else acc.partial++;
   }
   return acc;
+}
+
+function saudeFromFreshnessDist(
+  dist: { fresh: number; partial: number; missing: number },
+  total: number,
+): SaudeDado {
+  if (total <= 0) return "indisponivel";
+  if (dist.missing >= total) return "indisponivel";
+  if (dist.partial > 0 || dist.missing > 0) return "parcial";
+  return "atualizado";
 }
 
 function FreshnessBar({ dist, total }: { dist: { fresh: number; partial: number; missing: number }; total: number }) {
