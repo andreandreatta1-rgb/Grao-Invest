@@ -12,6 +12,7 @@ import Mercado from "./pages/Mercado";
 import Decisoes from "./pages/Decisoes";
 import Configuracao from "./pages/Configuracao";
 import Instalar from "./pages/Instalar";
+import MetodoGrao from "./pages/MetodoGrao";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient({
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/decisoes" element={<Decisoes />} />
             <Route path="/config" element={<Configuracao />} />
             <Route path="/instalar" element={<Instalar />} />
+            <Route path="/metodo" element={<MetodoGrao />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

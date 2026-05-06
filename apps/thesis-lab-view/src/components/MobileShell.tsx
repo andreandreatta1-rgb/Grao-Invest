@@ -1,5 +1,6 @@
-﻿import { Outlet, NavLink, useLocation, Link } from "react-router-dom";
-import { Activity, FlaskConical, Inbox, LineChart, Radar, Settings2 } from "lucide-react";
+import { useEffect } from "react";
+import { Outlet, NavLink, useLocation, Link, useNavigate } from "react-router-dom";
+import { Activity, BookOpen, FlaskConical, Inbox, LineChart, Radar, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { api, isMock } from "@/lib/api";
@@ -7,6 +8,7 @@ import { fmtRelative } from "@/lib/format";
 import { HealthBadge } from "@/components/HealthBadge";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import type { SaudeDado } from "@/types/domain";
+import { hasSeenMetodoOnboarding } from "@/lib/metodo-grao-scenes";
 
 const tabs = [
   { to: "/",          label: "Cockpit",   icon: Activity },
@@ -14,11 +16,19 @@ const tabs = [
   { to: "/lab",       label: "Lab",       icon: FlaskConical },
   { to: "/mercado",   label: "Mercado",   icon: LineChart },
   { to: "/decisoes",  label: "Decisões",  icon: Inbox },
+  { to: "/metodo",    label: "Método",    icon: BookOpen },
 ];
 
 export default function MobileShell() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { data } = useQuery({ queryKey: ["cockpit-resumo"], queryFn: api.cockpit, refetchInterval: 30_000 });
+
+  useEffect(() => {
+    if (pathname !== "/metodo" && !hasSeenMetodoOnboarding()) {
+      navigate("/metodo", { replace: true });
+    }
+  }, [navigate, pathname]);
 
   const titleMap: Record<string, string> = {
     "/": "Cockpit",
@@ -28,6 +38,7 @@ export default function MobileShell() {
     "/decisoes": "Centro de Decisões",
     "/config": "Configuração",
     "/instalar": "Instalar app",
+    "/metodo": "Método Grão",
   };
   const title = titleMap[pathname.split("/").slice(0, 2).join("/")] ?? "Grão Invest";
   const overallHealth: SaudeDado =
@@ -38,7 +49,6 @@ export default function MobileShell() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <OfflineBanner />
-      {/* Header */}
       <header className="safe-top sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto max-w-screen-md px-4 pt-3 pb-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -71,7 +81,6 @@ export default function MobileShell() {
         </div>
       </header>
 
-      {/* Conteúdo */}
       <main className="flex-1 mx-auto w-full max-w-screen-md px-4 pt-4 pb-28">
         <Outlet />
         <section className="mt-6 rounded-xl border border-border/50 bg-surface-1/70 px-3 py-2.5 text-[10px] leading-relaxed text-muted-foreground">
@@ -79,9 +88,8 @@ export default function MobileShell() {
         </section>
       </main>
 
-      {/* Tab bar */}
       <nav className="safe-bottom fixed bottom-0 inset-x-0 z-50 border-t border-border/60 bg-background/90 backdrop-blur-xl">
-        <ul className="mx-auto max-w-screen-md grid grid-cols-5">
+        <ul className="mx-auto max-w-screen-md grid grid-cols-6">
           {tabs.map(({ to, label, icon: Icon }) => (
             <li key={to}>
               <NavLink
@@ -89,7 +97,7 @@ export default function MobileShell() {
                 end={to === "/"}
                 className={({ isActive }) =>
                   cn(
-                    "relative flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition-colors",
+                    "relative flex flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-medium transition-colors sm:text-[11px]",
                     isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   )
                 }
@@ -109,4 +117,3 @@ export default function MobileShell() {
     </div>
   );
 }
-

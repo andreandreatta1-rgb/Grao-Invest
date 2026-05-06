@@ -44,6 +44,35 @@ def test_cockpit_defers_full_thesis_fetch_until_summary_loaded() -> None:
     assert 'enabled: Boolean(data)' in source
 
 
+def test_metodo_grao_onboarding_is_routed_and_asset_backed() -> None:
+    app_source = _read(REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "App.tsx")
+    shell_source = _read(
+        REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "components" / "MobileShell.tsx"
+    )
+    metodo_source = _read(
+        REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "lib" / "metodo-grao-scenes.ts"
+    )
+    metodo_page = _read(REPO_ROOT / "apps" / "thesis-lab-view" / "src" / "pages" / "MetodoGrao.tsx")
+    public_metodo = REPO_ROOT / "apps" / "thesis-lab-view" / "public" / "metodo" / "06_sequencia_09"
+
+    assert 'path="/metodo"' in app_source
+    assert 'label: "Método"' in shell_source
+    assert "hasSeenMetodoOnboarding" in shell_source
+    assert 'METODO_ONBOARDING_KEY = "graoinvest.metodo_onboarding_seen"' in metodo_source
+    assert "markMetodoOnboardingSeen" in metodo_page
+    assert "order-2 lg:order-1" in metodo_page
+    assert "order-1 lg:order-2" in metodo_page
+
+    for step in [f"{index:02d}" for index in range(1, 10)]:
+        assert (public_metodo / "audio" / f"{step}.mp3").exists()
+
+    for step in ["01", "02", "04", "05", "06", "07", "08", "09"]:
+        assert (public_metodo / "video" / f"{step}.mp4").exists()
+        assert (public_metodo / "poster" / f"{step}.png").exists()
+
+    assert (public_metodo / "image" / "03.png").exists()
+
+
 def test_manifest_keeps_pwa_installability_metadata() -> None:
     manifest = json.loads(_read(FRONTEND_DIST_DIR / "manifest.webmanifest"))
 
