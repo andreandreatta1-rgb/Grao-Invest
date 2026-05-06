@@ -296,7 +296,7 @@ export default function MetodoGrao() {
         </aside>
 
         <section className="relative order-1 lg:order-2 overflow-hidden rounded-xl border border-border/70 bg-surface-1 shadow-elevated">
-          <div className="relative aspect-[9/13] sm:aspect-video min-h-[32rem] max-h-[72vh] bg-background">
+          <div className="relative h-[32rem] w-full max-h-[72vh] bg-background">
             {scene.media === "video" ? (
               <>
                 {scene.poster && (
@@ -329,8 +329,8 @@ export default function MetodoGrao() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-background/20" />
 
             {!hasStarted && (
-              <div className="absolute inset-0 z-10 grid place-items-center bg-background/55 backdrop-blur-sm">
-                <div className="mx-4 max-w-sm rounded-xl border border-border/70 bg-background/85 p-4 text-center shadow-elevated">
+              <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-background/55 backdrop-blur-sm">
+                <div className="w-full max-w-sm rounded-xl border border-border/70 bg-background/85 p-4 text-center shadow-elevated">
                   <h2 className="font-display text-xl font-semibold">Começar pelo método</h2>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     O áudio precisa de um toque para ser liberado pelo navegador.

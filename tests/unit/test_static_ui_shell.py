@@ -80,6 +80,10 @@ def test_metodo_grao_audio_playback_is_user_gesture_driven() -> None:
     assert "playMedia(nextAudioOn)" in metodo_page
     assert "audioOnRef.current" in metodo_page
     assert "elapsedMs, index, isPlaying" not in metodo_page
+    assert "flex items-center justify-center p-4" in metodo_page
+    assert "w-full max-w-sm" in metodo_page
+    assert "h-[32rem] w-full max-h-[72vh]" in metodo_page
+    assert "aspect-video min-h-[32rem]" not in metodo_page
 
 
 def test_manifest_keeps_pwa_installability_metadata() -> None:
