@@ -2061,7 +2061,7 @@ def microtrades_autopilot_cron(
     user_id = _resolve_microtrades_cron_user_id(db)
     cron_allow_external_fetches = _env_bool(
         "MICROTRADES_AUTOPILOT_CRON_EXTERNAL_FETCHES",
-        False,
+        True,
     )
     cron_publish_decisions = _env_bool(
         "MICROTRADES_AUTOPILOT_CRON_PUBLISH_DECISIONS",

@@ -65,15 +65,15 @@ def test_microtrades_autopilot_cron_runs_cycle(client, monkeypatch) -> None:
     payload = response.json()
     assert payload["status"] == "success"
     assert payload["error"] is None
-    assert payload["cron_mode"] == "fast_monitor_refresh"
+    assert payload["cron_mode"] == "external_fetches"
     assert payload["cron_policy"] == {
-        "allow_external_fetches": False,
+        "allow_external_fetches": True,
         "publish_decisions": False,
     }
     config = dict(captured["config"])
     assert config["user_id"] == 1
     assert config["instruments"] == ["BTCUSDT", "ETHUSDT"]
-    assert config["allow_external_fetches"] is False
+    assert config["allow_external_fetches"] is True
     assert config["publish_decisions"] is False
 
 
