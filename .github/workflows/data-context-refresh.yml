@@ -1,0 +1,43 @@
+name: Data context refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 11,21 * * *"
+
+concurrency:
+  group: data-context-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh news and fundamentals
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      BASE_URL: https://grao-invest.vercel.app
+      REFRESH_PATH: /api/ops/data-context-refresh
+      REFRESH_QUERY: run_fundamentals=true&run_news=true&max_instruments=10&news_lookback_days=3&max_articles_per_instrument=20&fundamentals_provider=auto&fundamentals_only_missing=false
+    steps:
+      - name: Check CRON_SECRET is configured
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::Configure the repository secret CRON_SECRET before enabling data context refresh."
+            exit 1
+          fi
+
+      - name: Call bounded data context refresh
+        run: |
+          curl \
+            --request POST \
+            --fail-with-body \
+            --silent \
+            --show-error \
+            --max-time 180 \
+            --retry 2 \
+            --retry-delay 10 \
+            --header "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --header "X-GitHub-Actions-Refresh: data-context-twice-daily" \
+            "$BASE_URL$REFRESH_PATH?$REFRESH_QUERY"
