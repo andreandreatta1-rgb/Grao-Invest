@@ -1,0 +1,43 @@
+name: Microtrades data refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"
+
+concurrency:
+  group: microtrades-data-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh market data
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASE_URL: https://grao-invest.vercel.app
+      REFRESH_PATH: /api/ops/microtrades-data-refresh
+      REFRESH_QUERY: lookback_hours=2&max_candles_per_instrument=75&run_backfill=true&run_live_ingestion=true
+    steps:
+      - name: Check CRON_SECRET is configured
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::Configure the repository secret CRON_SECRET before enabling hourly refresh."
+            exit 1
+          fi
+
+      - name: Call bounded microtrades data refresh
+        run: |
+          curl \
+            --request POST \
+            --fail-with-body \
+            --silent \
+            --show-error \
+            --max-time 120 \
+            --retry 2 \
+            --retry-delay 10 \
+            --header "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --header "X-GitHub-Actions-Refresh: microtrades-hourly" \
+            "$BASE_URL$REFRESH_PATH?$REFRESH_QUERY"
