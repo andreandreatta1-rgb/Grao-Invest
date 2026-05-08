@@ -179,12 +179,15 @@ async function activateScreen(page, screen) {
 
 async function waitForScreen(page, screen) {
   const startedAt = Date.now();
-  while (Date.now() - startedAt < 20_000) {
-    if (await textIncludesAny(page, screen.expectedAny)) return;
+  while (Date.now() - startedAt < appReadyTimeoutMs) {
+    const body = await bodyText(page);
+    const hasExpectedText = screen.expectedAny.some((candidate) => hasToken(body, candidate));
+    const hasRequiredText = (screen.requiredAll || []).every((candidate) => hasToken(body, candidate));
+    if (hasExpectedText && hasRequiredText) return;
     await page.waitForTimeout(300);
   }
   throw new Error(
-    `A tela ${screen.id} nao exibiu nenhum texto esperado: ${screen.expectedAny.join(", ")}`,
+    `A tela ${screen.id} nao exibiu os textos esperados: ${screen.expectedAny.join(", ")}`,
   );
 }
 
