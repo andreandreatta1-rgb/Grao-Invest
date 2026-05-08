@@ -53,3 +53,33 @@ jobs:
           --dashboard-url https://grao-invest.vercel.app/api/dashboard/summary/1
           --attempts 3
           --json
+
+  public-visual-smoke:
+    name: Public visual smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install chromium
+
+      - name: Run public visual smoke
+        env:
+          VISUAL_SMOKE_BASE_URL: https://grao-invest.vercel.app
+          VISUAL_SMOKE_OUTPUT_DIR: data/reports/visual-smoke
+        run: node scripts/run_visual_smoke.mjs
+
+      - name: Upload visual smoke screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-smoke-report
+          path: data/reports/visual-smoke
