@@ -73,3 +73,18 @@ def test_real_estate_candidate_api_roundtrip(client) -> None:
     discarded = discard_response.json()
     assert discarded["status"] == "Descartado"
     assert discarded["discard_reason"] == "Exercicio encerrado sem decisao de compra."
+
+
+def test_real_estate_strategy_territory_candidates_api(client) -> None:
+    response = client.get("/api/real-estate/strategy-territory-candidates")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["summary"]["strategy_count"] == 7
+    assert payload["summary"]["territory_count"] == 7
+    assert payload["summary"]["matrix_brief_count"] == 49
+    assert payload["summary"]["source_confirmed_requalification_count"] >= 4
+    assert payload["matrix_briefs"][0]["trust_level"] == "hypothesis"
+    assert payload["condominium_requalification_watchlist"][0]["trust_level"] == (
+        "source_confirmed"
+    )

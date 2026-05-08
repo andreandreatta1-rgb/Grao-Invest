@@ -76,6 +76,8 @@ class RawCandidate(TypedDict):
     entry_price: float
     target_price: float
     stop_price: float
+    range_lower_price: float | None
+    range_upper_price: float | None
     target_move_pct: float
     volatility_pct: float
     momentum_pct: float
@@ -93,6 +95,8 @@ class ThesisSummary(TypedDict):
     entry_price: float
     target_price: float
     stop_price: float
+    range_lower_price: float | None
+    range_upper_price: float | None
     target_move_pct: float
     horizon_bars: int
     confidence_tese_pct: float
@@ -567,12 +571,18 @@ def _raw_candidate_for_entry(
     if direction == "bullish":
         target_price = entry_price * (1 + (target_move / 100))
         stop_price = entry_price * (1 - ((target_move * 0.6) / 100))
+        range_lower_price = None
+        range_upper_price = None
     elif direction == "bearish":
         target_price = entry_price * (1 - (target_move / 100))
         stop_price = entry_price * (1 + ((target_move * 0.6) / 100))
+        range_lower_price = None
+        range_upper_price = None
     else:
         target_price = entry_price
-        stop_price = entry_price * (1 - (target_move / 100))
+        range_lower_price = entry_price * (1 - (target_move / 100))
+        range_upper_price = entry_price * (1 + (target_move / 100))
+        stop_price = range_lower_price
 
     future_prices = closes[entry_index + 1 : min(len(ticks), entry_index + 1 + horizon_bars)]
     if require_full_horizon and len(future_prices) < horizon_bars:
@@ -590,8 +600,8 @@ def _raw_candidate_for_entry(
                 success_realized = min(future_prices) <= target_price
                 realized_move_pct = ((entry_price - terminal_price) / entry_price) * 100
             else:
-                upper_bound = entry_price * 1.015
-                lower_bound = entry_price * 0.985
+                upper_bound = range_upper_price or entry_price * 1.015
+                lower_bound = range_lower_price or entry_price * 0.985
                 success_realized = (
                     min(future_prices) >= lower_bound
                     and max(future_prices) <= upper_bound
@@ -613,6 +623,8 @@ def _raw_candidate_for_entry(
         "entry_price": round(entry_price, 4),
         "target_price": round(target_price, 4),
         "stop_price": round(stop_price, 4),
+        "range_lower_price": round(range_lower_price, 4) if range_lower_price is not None else None,
+        "range_upper_price": round(range_upper_price, 4) if range_upper_price is not None else None,
         "target_move_pct": round(target_move, 4),
         "volatility_pct": round(volatility_pct, 4),
         "momentum_pct": round(momentum_pct, 4),
@@ -819,6 +831,8 @@ def _enriched_thesis_candidates(
                 "entry_price": candidate["entry_price"],
                 "target_price": candidate["target_price"],
                 "stop_price": candidate["stop_price"],
+                "range_lower_price": candidate["range_lower_price"],
+                "range_upper_price": candidate["range_upper_price"],
                 "target_move_pct": candidate["target_move_pct"],
                 "horizon_bars": candidate["horizon_bars"],
                 "confidence_tese_pct": success_probability,
@@ -880,10 +894,12 @@ def _strategy_for_thesis(
     else:
         strategy_id = "IRON_CONDOR"
         strategy_name = "Iron Condor"
-        lower_put = round(entry_price * 0.92, 2)
-        upper_put = round(entry_price * 0.96, 2)
-        lower_call = round(entry_price * 1.04, 2)
-        upper_call = round(entry_price * 1.08, 2)
+        range_lower = float(thesis.get("range_lower_price") or entry_price * 0.985)
+        range_upper = float(thesis.get("range_upper_price") or entry_price * 1.015)
+        lower_put = round(range_lower * 0.97, 2)
+        upper_put = round(range_lower, 2)
+        lower_call = round(range_upper, 2)
+        upper_call = round(range_upper * 1.03, 2)
         max_gain_pct = 2.4
         max_loss_pct = 3.8
         breakeven = round(entry_price, 2)
@@ -988,8 +1004,8 @@ def _monitoring_timeline(
             )
             continue
         if thesis["direction"] == "range":
-            upper = thesis["entry_price"] * 1.018
-            lower = thesis["entry_price"] * 0.982
+            upper = float(thesis.get("range_upper_price") or thesis["entry_price"] * 1.015)
+            lower = float(thesis.get("range_lower_price") or thesis["entry_price"] * 0.985)
             if price > upper or price < lower:
                 events.append(
                     {

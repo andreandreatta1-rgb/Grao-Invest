@@ -100,8 +100,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-latest-age-days",
         type=int,
-        default=45,
-        help="Ignora ativos cujo ultimo preco local esteja mais velho que este limite.",
+        default=0,
+        help=(
+            "Ignora ativos cujo ultimo preco local esteja mais velho que este limite. "
+            "Use 0 para inferir a janela pelo intervalo dos ticks e evitar publicar "
+            "dado velho como atual."
+        ),
     )
     parser.add_argument(
         "--skip-dashboard-seed",

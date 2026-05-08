@@ -70,6 +70,8 @@ class CurrentThesisCard(TypedDict):
     entry_price: float
     target_price: float
     stop_price: float
+    range_lower_price: float | None
+    range_upper_price: float | None
     suggested_operation: dict[str, object]
     latest_price: float
     latest_event_time: str
@@ -114,6 +116,212 @@ class CurrentThesisMonitorPayload(TypedDict):
 
 
 _NO_FRESH_MARKET_DATA_TOKEN = "nao ha dados de mercado frescos"
+
+
+def _contract_issue(
+    issues: list[dict[str, str]],
+    code: str,
+    message: str,
+    *,
+    severity: str = "error",
+) -> None:
+    issues.append({"severity": severity, "code": code, "message": message})
+
+
+def _contract_datetime(value: object) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def _contract_float(value: object) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str) and value.strip():
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _is_b3_instrument(instrument: str) -> bool:
+    symbol = instrument.upper()
+    return bool(symbol) and not symbol.endswith("USDT")
+
+
+def _is_range_direction(direction: object) -> bool:
+    normalized = str(direction or "").strip().lower()
+    return normalized in {"range", "neutra", "neutral"}
+
+
+def current_monitor_contract_issues(
+    payload: dict[str, object],
+    *,
+    reference_time: datetime | None = None,
+    enforce_fresh_b3: bool = False,
+    b3_max_current_age_hours: int = 96,
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    reference = reference_time or datetime.now(UTC)
+    reference = (
+        reference.replace(tzinfo=UTC)
+        if reference.tzinfo is None
+        else reference.astimezone(UTC)
+    )
+
+    theses_raw = payload.get("theses")
+    theses = (
+        [item for item in theses_raw if isinstance(item, dict)]
+        if isinstance(theses_raw, list)
+        else []
+    )
+    if _contract_float(payload.get("thesis_count")) != float(len(theses)):
+        _contract_issue(
+            issues,
+            "payload.thesis_count.mismatch",
+            "thesis_count nao bate com a quantidade de teses.",
+        )
+
+    summary = payload.get("summary")
+    summary_dict = summary if isinstance(summary, dict) else {}
+    expected_status_counts = {
+        "target_hits": sum(1 for item in theses if str(item.get("monitor_status")) == "target_hit"),
+        "stop_alerts": sum(1 for item in theses if str(item.get("monitor_status")) == "stop_alert"),
+        "monitoring_count": sum(
+            1 for item in theses if str(item.get("monitor_status")) == "monitoring"
+        ),
+    }
+    for key, expected in expected_status_counts.items():
+        if _contract_float(summary_dict.get(key)) != float(expected):
+            _contract_issue(
+                issues,
+                f"summary.{key}.mismatch",
+                f"{key} nao bate com os status das teses.",
+            )
+
+    for index, thesis in enumerate(theses):
+        prefix = f"theses.{index}"
+        instrument = str(thesis.get("instrument") or "").upper()
+        direction = str(thesis.get("direction") or "").lower()
+        if not instrument:
+            _contract_issue(issues, f"{prefix}.instrument.missing", "Tese sem instrumento.")
+        if direction not in {"bullish", "bearish", "range"}:
+            _contract_issue(issues, f"{prefix}.direction.invalid", "Direcao da tese invalida.")
+
+        for field in ("thesis_raised_at", "latest_event_time"):
+            observed_at = _contract_datetime(thesis.get(field))
+            if observed_at is None:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.{field}.missing",
+                    f"{field} ausente ou invalido.",
+                )
+                continue
+            if observed_at > reference + timedelta(seconds=60):
+                _contract_issue(issues, f"{prefix}.{field}.future", f"{field} esta no futuro.")
+
+        latest_event_time = _contract_datetime(thesis.get("latest_event_time"))
+        if (
+            enforce_fresh_b3
+            and _is_b3_instrument(instrument)
+            and latest_event_time is not None
+            and reference - latest_event_time > timedelta(hours=b3_max_current_age_hours)
+        ):
+            _contract_issue(
+                issues,
+                f"{prefix}.b3.stale_current",
+                "Tese B3 antiga nao pode ser publicada como monitor atual.",
+            )
+
+        entry_price = _contract_float(thesis.get("entry_price"))
+        target_price = _contract_float(thesis.get("target_price"))
+        stop_price = _contract_float(thesis.get("stop_price"))
+        if entry_price is None or entry_price <= 0:
+            _contract_issue(issues, f"{prefix}.entry_price.invalid", "Entrada invalida.")
+            continue
+        if target_price is None or target_price <= 0:
+            _contract_issue(issues, f"{prefix}.target_price.invalid", "Alvo/centro invalido.")
+            continue
+        if stop_price is None or stop_price <= 0:
+            _contract_issue(issues, f"{prefix}.stop_price.invalid", "Stop invalido.")
+            continue
+
+        if _is_range_direction(direction):
+            range_lower = _contract_float(thesis.get("range_lower_price"))
+            range_upper = _contract_float(thesis.get("range_upper_price"))
+            if range_lower is None or range_upper is None:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.range.bounds",
+                    "Tese range precisa de range_lower_price e range_upper_price.",
+                )
+                continue
+            if range_lower >= range_upper:
+                _contract_issue(issues, f"{prefix}.range.bounds_order", "Faixa range invalida.")
+            if not range_lower <= entry_price <= range_upper:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.range.entry_outside",
+                    "Entrada/centro fora da faixa range.",
+                )
+        elif direction == "bullish":
+            if abs(target_price - entry_price) <= 0.0001:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.target.same_as_entry",
+                    "Tese direcional com entrada igual ao alvo.",
+                )
+            if target_price <= entry_price:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.target.not_above_entry",
+                    "Alvo bullish precisa ficar acima da entrada.",
+                )
+            if stop_price >= entry_price:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.stop.not_below_entry",
+                    "Stop bullish precisa ficar abaixo da entrada.",
+                )
+        elif direction == "bearish":
+            if abs(target_price - entry_price) <= 0.0001:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.target.same_as_entry",
+                    "Tese direcional com entrada igual ao alvo.",
+                )
+            if target_price >= entry_price:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.target.not_below_entry",
+                    "Alvo bearish precisa ficar abaixo da entrada.",
+                )
+            if stop_price <= entry_price:
+                _contract_issue(
+                    issues,
+                    f"{prefix}.stop.not_above_entry",
+                    "Stop bearish precisa ficar acima da entrada.",
+                )
+
+    return issues
+
+
+def _raise_for_current_monitor_contract(payload: dict[str, object]) -> None:
+    errors = [
+        issue
+        for issue in current_monitor_contract_issues(payload)
+        if issue["severity"] == "error"
+    ]
+    if errors:
+        codes = ", ".join(issue["code"] for issue in errors[:6])
+        raise ValueError(f"Payload de monitor atual inconsistente: {codes}")
 
 
 def _safe_int(value: object, default: int = 0) -> int:
@@ -276,7 +484,7 @@ def _parse_event_datetime(value: object) -> datetime | None:
 def _infer_tick_interval_seconds(ticks: list[object]) -> float | None:
     recent_ticks = ticks[-10:]
     intervals: list[float] = []
-    for previous_tick, current_tick in zip(recent_ticks, recent_ticks[1:]):
+    for previous_tick, current_tick in zip(recent_ticks, recent_ticks[1:], strict=False):
         previous_time = _parse_event_datetime(getattr(previous_tick, "event_time", ""))
         current_time = _parse_event_datetime(getattr(current_tick, "event_time", ""))
         if previous_time is None or current_time is None or current_time <= previous_time:
@@ -336,7 +544,16 @@ def _progress_metrics(thesis: ThesisSummary, latest_price: float) -> tuple[float
         stop_distance = ((stop_price - latest_price) / entry_price) * 100
     else:
         progress = 0.0
-        stop_distance = ((latest_price - stop_price) / entry_price) * 100
+        range_lower = float(thesis.get("range_lower_price") or stop_price)
+        range_upper = float(thesis.get("range_upper_price") or target_price or entry_price)
+        if latest_price < range_lower:
+            stop_distance = ((latest_price - range_lower) / entry_price) * 100
+        elif latest_price > range_upper:
+            stop_distance = ((range_upper - latest_price) / entry_price) * 100
+        else:
+            stop_distance = (
+                min(latest_price - range_lower, range_upper - latest_price) / entry_price
+            ) * 100
 
     return round(_clamp(progress, -150.0, 150.0), 4), round(stop_distance, 4)
 
@@ -362,8 +579,8 @@ def _monitor_status_and_action(
             return "stop_alert", "reduzir_risco_ou_encerrar"
         return "monitoring", "manter_monitoramento"
     if direction == "range":
-        lower_bound = min(target_price, stop_price)
-        upper_bound = max(target_price, stop_price)
+        lower_bound = float(thesis.get("range_lower_price") or min(target_price, stop_price))
+        upper_bound = float(thesis.get("range_upper_price") or max(target_price, stop_price))
         if latest_price < lower_bound or latest_price > upper_bound:
             return "stop_alert", "reduzir_risco_ou_encerrar"
     return "monitoring", "manter_monitoramento"
@@ -383,7 +600,7 @@ def _planned_exit_time(
         if latest_time is None:
             return ""
         intervals: list[float] = []
-        for previous_tick, current_tick in zip(ticks[-10:], ticks[-9:]):
+        for previous_tick, current_tick in zip(ticks[-10:], ticks[-9:], strict=False):
             previous_time = _parse_event_datetime(getattr(previous_tick, "event_time", ""))
             current_time = _parse_event_datetime(getattr(current_tick, "event_time", ""))
             if previous_time is None or current_time is None or current_time <= previous_time:
@@ -611,6 +828,8 @@ def run_current_thesis_monitor(
                 "entry_price": thesis["entry_price"],
                 "target_price": thesis["target_price"],
                 "stop_price": thesis["stop_price"],
+                "range_lower_price": thesis.get("range_lower_price"),
+                "range_upper_price": thesis.get("range_upper_price"),
                 "suggested_operation": operation,
                 "latest_price": latest_price,
                 "latest_event_time": latest_tick.event_time,
@@ -684,6 +903,7 @@ def run_current_thesis_monitor(
         "theses": cards,
         "disclaimer": DISCLAIMER,
     }
+    _raise_for_current_monitor_contract(payload)
     persist_current_thesis_monitor_snapshot(db, payload, user_id=user_id)
     notify_current_thesis_monitor(db, payload)
     record_audit_event(

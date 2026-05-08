@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from app.services.thesis_current_by_front_job import (
+    FrontConfig,
     FrontRunResult,
     build_current_by_front_job_markdown,
     merge_front_monitor_payloads,
+    run_current_thesis_by_front_job,
     trim_payload_theses_for_front,
 )
 
@@ -146,6 +148,7 @@ def test_merge_front_monitor_payloads_keeps_front_errors_visible() -> None:
     assert merged["thesis_count"] == 0
     assert merged["summary"]["front_errors"]["cripto"].startswith("Nenhuma tese atual")
     assert merged["scan_scope"]["fronts"]["cripto"]["error"].startswith("Nenhuma tese atual")
+    assert merged["data_quality"]["status"] == "no_fresh_market_data"
 
 
 def test_trim_payload_theses_for_front_prioritizes_one_thesis_per_instrument() -> None:
@@ -236,3 +239,47 @@ def test_build_current_by_front_job_markdown_renders_front_summary() -> None:
     assert "Acoes B3" in markdown
     assert "PETR4" in markdown
     assert "monitoring" in markdown
+
+
+def test_current_by_front_job_uses_inferred_freshness_by_default(monkeypatch) -> None:
+    captured_max_age_days: list[int | None] = []
+
+    def fake_run_current_thesis_monitor(*args, **kwargs) -> dict[str, object]:
+        captured_max_age_days.append(kwargs.get("max_latest_age_days"))
+        return _payload(
+            thesis_count=1,
+            candidate_count=4,
+            current_candidate_count=1,
+            theses=[
+                {
+                    "thesis_id": "CR-1",
+                    "instrument": "BTCUSDT",
+                    "monitor_status": "monitoring",
+                    "unrealized_financial_pct": 1.0,
+                    "executive_status": "mantida",
+                }
+            ],
+        )
+
+    monkeypatch.setattr(
+        "app.services.thesis_current_by_front_job.run_current_thesis_monitor",
+        fake_run_current_thesis_monitor,
+    )
+    monkeypatch.setattr(
+        "app.services.thesis_current_by_front_job.persist_current_thesis_monitor_snapshot",
+        lambda *args, **kwargs: None,
+    )
+
+    run_current_thesis_by_front_job(
+        object(),  # type: ignore[arg-type]
+        user_id=1,
+        fronts=[
+            FrontConfig(
+                front_id="cripto",
+                label="Cripto",
+                instruments=["BTCUSDT"],
+            )
+        ],
+    )
+
+    assert captured_max_age_days == [0]

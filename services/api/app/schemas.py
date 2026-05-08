@@ -311,6 +311,11 @@ class RealEstateCandidateDiscardRequest(BaseModel):
     reason: str = Field(min_length=4, max_length=1000)
 
 
+class RealEstateVisitEvidenceRequest(BaseModel):
+    section: str = Field(min_length=2, max_length=80)
+    evidence: str = Field(min_length=2, max_length=1200)
+
+
 class DashboardResponse(BaseModel):
     user_id: int
     investor_profile: str | None
@@ -335,6 +340,7 @@ class DashboardResponse(BaseModel):
     thesis_history_overview: dict[str, object] | None = None
     thesis_executive_summary: dict[str, object] | None = None
     thesis_open_operations: list[dict[str, object]] | None = None
+    ops_health: dict[str, object] | None = None
     disclaimer: str
 
 

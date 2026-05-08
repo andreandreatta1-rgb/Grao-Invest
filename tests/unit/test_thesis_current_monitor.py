@@ -13,6 +13,7 @@ from app.services.thesis_current_monitor import (
     _is_latest_tick_fresh,
     _monitor_status_and_action,
     _select_current_candidates,
+    current_monitor_contract_issues,
     load_latest_current_thesis_monitor,
     persist_current_thesis_monitor_snapshot,
 )
@@ -31,6 +32,54 @@ class _MarketTickStub:
         self.event_time = event_time
         self.price = price
         self.volume = volume
+
+
+def _contract_payload(thesis: dict[str, object]) -> dict[str, object]:
+    return {
+        "generated_at": "2026-05-06T23:00:00+00:00",
+        "user_id": 1,
+        "horizon_bars": 8,
+        "recent_bars_window": 7,
+        "thesis_count": 1,
+        "scan_scope": {"instruments": [thesis.get("instrument", "PETR4")]},
+        "summary": {
+            "target_hits": 0,
+            "stop_alerts": 0,
+            "monitoring_count": 1,
+            "avg_unrealized_financial_pct": 0.0,
+            "executive_status_counts": {"mantida": 1},
+            "needs_attention_count": 0,
+        },
+        "theses": [
+            {
+                "thesis_id": "TH-1",
+                "instrument": "PETR4",
+                "direction": "bullish",
+                "thesis_raised_at": "2026-05-06T20:00:00+00:00",
+                "latest_event_time": "2026-05-06T22:55:00+00:00",
+                "entry_price": 40.0,
+                "target_price": 42.0,
+                "stop_price": 38.8,
+                "monitor_status": "monitoring",
+                **thesis,
+            }
+        ],
+        "disclaimer": "simulado",
+    }
+
+
+def _fake_revaluation(**_: object) -> dict[str, object]:
+    return {
+        "confidence_now_pct": 73.0,
+        "confidence_delta_pct": -1.0,
+        "executive_status": "mantida",
+        "executive_status_label": "Mantida",
+        "suggested_action": "manter_monitoramento",
+        "thesis_validity": "valida",
+        "revaluation_reason": "teste",
+        "next_trigger": "acompanhar",
+        "learning_signal": "neutro",
+    }
 
 
 @pytest.fixture()
@@ -218,6 +267,8 @@ def test_monitor_status_marks_range_break_as_stop_alert() -> None:
         "entry_price": 41.03,
         "target_price": 41.03,
         "stop_price": 40.4145,
+        "range_lower_price": 40.4145,
+        "range_upper_price": 41.6455,
     }
 
     monitor_status, suggested_action = _monitor_status_and_action(  # type: ignore[arg-type]
@@ -227,6 +278,70 @@ def test_monitor_status_marks_range_break_as_stop_alert() -> None:
 
     assert monitor_status == "stop_alert"
     assert suggested_action == "reduzir_risco_ou_encerrar"
+
+
+def test_monitor_status_keeps_range_alive_above_center_when_inside_band() -> None:
+    thesis = {
+        "direction": "range",
+        "entry_price": 41.03,
+        "target_price": 41.03,
+        "stop_price": 40.4145,
+        "range_lower_price": 40.4145,
+        "range_upper_price": 41.6455,
+    }
+
+    monitor_status, suggested_action = _monitor_status_and_action(  # type: ignore[arg-type]
+        thesis,
+        latest_price=41.4,
+    )
+
+    assert monitor_status == "monitoring"
+    assert suggested_action == "manter_monitoramento"
+
+
+def test_current_monitor_contract_rejects_directional_target_equal_to_entry() -> None:
+    issues = current_monitor_contract_issues(
+        _contract_payload({"entry_price": 40.0, "target_price": 40.0}),
+        reference_time=datetime.fromisoformat("2026-05-06T23:00:00+00:00"),
+    )
+
+    assert "theses.0.target.same_as_entry" in {issue["code"] for issue in issues}
+
+
+def test_current_monitor_contract_rejects_range_without_explicit_bounds() -> None:
+    issues = current_monitor_contract_issues(
+        _contract_payload(
+            {
+                "instrument": "BTCUSDT",
+                "direction": "range",
+                "entry_price": 81212.04,
+                "target_price": 81212.04,
+                "stop_price": 79993.86,
+            }
+        ),
+        reference_time=datetime.fromisoformat("2026-05-06T23:00:00+00:00"),
+    )
+
+    assert "theses.0.range.bounds" in {issue["code"] for issue in issues}
+
+
+def test_current_monitor_contract_rejects_future_timestamps() -> None:
+    issues = current_monitor_contract_issues(
+        _contract_payload({"thesis_raised_at": "2026-05-07T00:05:00+00:00"}),
+        reference_time=datetime.fromisoformat("2026-05-06T23:00:00+00:00"),
+    )
+
+    assert "theses.0.thesis_raised_at.future" in {issue["code"] for issue in issues}
+
+
+def test_current_monitor_contract_rejects_stale_b3_when_enforced() -> None:
+    issues = current_monitor_contract_issues(
+        _contract_payload({"latest_event_time": "2026-04-22T20:46:19+00:00"}),
+        reference_time=datetime.fromisoformat("2026-05-06T23:00:00+00:00"),
+        enforce_fresh_b3=True,
+    )
+
+    assert "theses.0.b3.stale_current" in {issue["code"] for issue in issues}
 
 
 def test_load_latest_current_monitor_falls_back_to_bundled_bootstrap(
@@ -514,17 +629,7 @@ def test_run_current_monitor_only_enriches_candidates_inside_current_window(
     monkeypatch.setattr(
         thesis_current_monitor,
         "build_operation_revaluation",
-        lambda thesis, latest_price, monitor_status, unrealized_financial_pct, progress_to_target_pct, distance_to_stop_pct: {
-            "confidence_now_pct": 73.0,
-            "confidence_delta_pct": 1.0,
-            "executive_status": "mantida",
-            "executive_status_label": "Mantida",
-            "suggested_action": "manter_monitoramento",
-            "thesis_validity": "valida",
-            "revaluation_reason": "teste",
-            "next_trigger": "acompanhar",
-            "learning_signal": "neutro",
-        },
+        lambda thesis, **kwargs: _fake_revaluation(**kwargs),
     )
     monkeypatch.setattr(
         thesis_current_monitor,
@@ -676,17 +781,7 @@ def test_run_current_monitor_builds_live_open_candidate_from_latest_bars(
     monkeypatch.setattr(
         thesis_current_monitor,
         "build_operation_revaluation",
-        lambda thesis, latest_price, monitor_status, unrealized_financial_pct, progress_to_target_pct, distance_to_stop_pct: {
-            "confidence_now_pct": 73.0,
-            "confidence_delta_pct": -1.0,
-            "executive_status": "mantida",
-            "executive_status_label": "Mantida",
-            "suggested_action": "manter_monitoramento",
-            "thesis_validity": "valida",
-            "revaluation_reason": "teste",
-            "next_trigger": "acompanhar",
-            "learning_signal": "neutro",
-        },
+        lambda thesis, **kwargs: _fake_revaluation(**kwargs),
     )
     monkeypatch.setattr(
         thesis_current_monitor,
@@ -717,5 +812,7 @@ def test_run_current_monitor_builds_live_open_candidate_from_latest_bars(
     assert payload["thesis_count"] == 1
     thesis = payload["theses"][0]
     assert thesis["monitor_status"] == "monitoring"
-    assert datetime.fromisoformat(thesis["suggested_exit_time"]) > datetime.fromisoformat(thesis["latest_event_time"])
+    assert datetime.fromisoformat(thesis["suggested_exit_time"]) > datetime.fromisoformat(
+        thesis["latest_event_time"]
+    )
     assert all(event["event_type"] != "exit_snapshot" for event in thesis["monitoring_events"])

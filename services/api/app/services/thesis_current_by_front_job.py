@@ -157,6 +157,34 @@ def _summary_from_theses(theses: list[dict[str, object]]) -> dict[str, object]:
     }
 
 
+def _data_quality_summary(
+    *,
+    generated_at: str,
+    thesis_count: int,
+    front_errors: dict[str, str],
+) -> dict[str, object]:
+    if thesis_count == 0 and front_errors:
+        return {
+            "status": "no_fresh_market_data",
+            "reason": "no_fresh_market_data",
+            "generated_at": generated_at,
+            "message": "Nenhuma frente tem dados frescos para publicar teses atuais.",
+        }
+    if front_errors:
+        return {
+            "status": "partial",
+            "reason": "front_errors",
+            "generated_at": generated_at,
+            "message": "Algumas frentes ficaram fora por falta de dados frescos.",
+        }
+    return {
+        "status": "fresh",
+        "reason": "",
+        "generated_at": generated_at,
+        "message": "Monitor atual gerado com dados frescos.",
+    }
+
+
 def trim_payload_theses_for_front(
     payload: dict[str, object],
     *,
@@ -299,6 +327,11 @@ def merge_front_monitor_payloads(
             "needs_attention_count": needs_attention_count,
             "front_errors": front_errors,
         },
+        "data_quality": _data_quality_summary(
+            generated_at=generated_at,
+            thesis_count=len(merged_theses),
+            front_errors=front_errors,
+        ),
         "theses": merged_theses,
         "disclaimer": DISCLAIMER,
     }
@@ -373,7 +406,7 @@ def run_current_thesis_by_front_job(
     horizon_bars: int = 8,
     thesis_count_per_front: int = 8,
     recent_bars_window: int = 30,
-    max_latest_age_days: int = 45,
+    max_latest_age_days: int = 0,
     oversample_factor: int = 5,
     generated_at: str | None = None,
 ) -> dict[str, object]:

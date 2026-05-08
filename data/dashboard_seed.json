@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-08T03:37:02+00:00",
+  "generated_at": "2026-05-08T05:52:16+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -26825,7 +26825,7 @@
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 2,
+      "open_days": 3,
       "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
       "real_estate_analysis": {
         "score": 70,
@@ -27098,7 +27098,7 @@
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 2,
+      "open_days": 3,
       "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
       "real_estate_analysis": {
         "score": 75,
@@ -30153,201 +30153,5 @@
       },
       "is_open": true
     }
-  ],
-  "ops_health": {
-    "generated_at": "2026-05-08T03:37:03+00:00",
-    "user_id": 1,
-    "status": "blocked",
-    "message": "O ciclo executou verificacoes, mas os numeros podem nao mudar porque o feed nao esta fresco ou o gerador bloqueou teses atuais.",
-    "stages": {
-      "preflight": {
-        "status": "ok",
-        "message": "Preflight operacional: scripts, venv e banco encontrados."
-      },
-      "scheduler": {
-        "status": "ok",
-        "message": "Task Scheduler aponta para powershell.exe com paths protegidos.",
-        "details": {
-          "status": "ok",
-          "repo_root": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-          "checked_at": "2026-05-08T03:37:18.4125453Z",
-          "tasks": [
-            {
-              "task_name": "GraoInvest-B3-01",
-              "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1778211001000)/",
-              "last_task_result": 267009,
-              "next_run_time": "/Date(1778297400000)/"
-            },
-            {
-              "task_name": "GraoInvest-B3-02",
-              "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1778156803000)/",
-              "last_task_result": 2147942405,
-              "next_run_time": "/Date(1778225400000)/"
-            },
-            {
-              "task_name": "GraoInvest-B3-03",
-              "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1778157156000)/",
-              "last_task_result": 2147946720,
-              "next_run_time": "/Date(1778239800000)/"
-            },
-            {
-              "task_name": "GraoInvest-B3-04",
-              "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1778167801000)/",
-              "last_task_result": 2147942405,
-              "next_run_time": "/Date(1778254200000)/"
-            },
-            {
-              "task_name": "GraoInvest-B3-05",
-              "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1778182201000)/",
-              "last_task_result": 2147942405,
-              "next_run_time": "/Date(1778268600000)/"
-            },
-            {
-              "task_name": "GraoInvest-CaseStudy-Night",
-              "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_case_study_overnight_loop.ps1\" -SleepSeconds 5 -PublishEveryMinutes 30 -EndHour 6",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1778202001000)/",
-              "last_task_result": 2147942405,
-              "next_run_time": "/Date(1778288400000)/"
-            }
-          ]
-        }
-      },
-      "b3_daily_job": {
-        "status": "ok",
-        "message": "Resumo do ultimo job B3 encontrado.",
-        "run_at": "2026-05-08T03:30:10+00:00",
-        "age_days": 0.005,
-        "build_executed": true,
-        "load_executed": true,
-        "case_study_executed": true,
-        "inserted": 0,
-        "duplicates_ignored": 4336552,
-        "parse_errors": 66
-      },
-      "market_feed": {
-        "status": "blocked",
-        "message": "Feed de mercado stale; o gerador nao deve publicar teses atuais com dado velho.",
-        "stale_fronts": [
-          "b3",
-          "crypto"
-        ],
-        "fronts": {
-          "b3": {
-            "count": 75649,
-            "instrument_count": 20,
-            "requested_instrument_count": 20,
-            "latest_event_time": "2026-04-22T20:46:19+00:00",
-            "latest_ingest_time": "2026-04-23T19:22:55+00:00",
-            "providers": [
-              {
-                "provider": "b3-cotahist",
-                "count": 69113
-              },
-              {
-                "provider": "b3-cotahist-lake",
-                "count": 6263
-              },
-              {
-                "provider": "demo-live",
-                "count": 2
-              },
-              {
-                "provider": "demo-primary",
-                "count": 251
-              },
-              {
-                "provider": "intraday-mock",
-                "count": 2
-              },
-              {
-                "provider": "refresh-local-b3",
-                "count": 18
-              }
-            ],
-            "age_days": 15.285,
-            "max_age_days": 4.0
-          },
-          "crypto": {
-            "count": 8019,
-            "instrument_count": 3,
-            "requested_instrument_count": 3,
-            "latest_event_time": "2026-05-02T20:14:59+00:00",
-            "latest_ingest_time": "2026-05-02T20:16:23+00:00",
-            "providers": [
-              {
-                "provider": "crypto-binance-5m",
-                "count": 8019
-              }
-            ],
-            "age_days": 5.307,
-            "max_age_days": 1.0
-          }
-        }
-      },
-      "current_thesis_generator": {
-        "status": "blocked",
-        "message": "Gerador rodou, mas bloqueou publicacao de teses atuais por falta de dados frescos.",
-        "generated_at": "2026-05-08T03:37:00+00:00",
-        "thesis_count": 0,
-        "data_quality": {
-          "status": "no_fresh_market_data",
-          "reason": "no_fresh_market_data",
-          "generated_at": "2026-05-08T03:37:00+00:00",
-          "message": "Nenhuma frente tem dados frescos para publicar teses atuais."
-        },
-        "front_errors": {
-          "acoes_b3": "Nao ha dados de mercado frescos para monitorar teses atuais.",
-          "cripto": "Nao ha dados de mercado frescos para monitorar teses atuais."
-        }
-      },
-      "dashboard_seed": {
-        "status": "ok",
-        "message": "Dashboard seed legivel.",
-        "generated_at": "2026-05-08T03:37:02+00:00",
-        "age_days": 0.0,
-        "thesis_open_operations": 1410,
-        "operations_by_front": {
-          "sem_frente": 1398,
-          "imoveis": 12
-        }
-      },
-      "api": {
-        "status": "skipped",
-        "message": "Comparacao com API viva nao configurada."
-      }
-    },
-    "recommended_actions": [
-      "Atualizar feed B3/Cripto antes de esperar novas teses atuais.",
-      "Nao forcar publicacao: o bloqueio protege contra tese atual com dado velho."
-    ]
-  }
+  ]
 }

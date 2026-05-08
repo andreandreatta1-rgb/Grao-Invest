@@ -41,6 +41,7 @@ This repository is structured to help coding agents implement the product safely
 ## Quality Loop
 - `python scripts/check.py`
 - `make check`
+- `python scripts/trust_sanity_gate.py` antes de publicar ou entregar mudancas de dados/UI.
 
 ## Daily Ops (B3 + Case Study)
 - Se existir `COTAHIST_A<ano>.ZIP` na raiz do repo (ou pasta pai), o sync B3 usa o arquivo local antes do download.

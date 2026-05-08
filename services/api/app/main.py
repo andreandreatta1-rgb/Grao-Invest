@@ -75,6 +75,7 @@ from app.schemas import (
     RealEstateCandidateCreateRequest,
     RealEstateCandidateDiscardRequest,
     RealEstateCandidateUpdateRequest,
+    RealEstateVisitEvidenceRequest,
     RecomputeIndicatorsRequest,
     RecomputePortfolioIndicatorsRequest,
     SignupRequest,
@@ -176,6 +177,7 @@ from app.services.portfolio_optimizer import (
     get_allocation_plan,
     get_latest_allocation_plan,
 )
+from app.services.real_estate_candidate_generation import strategy_territory_report
 from app.services.real_estate_radar import build_candidate_analysis
 from app.services.reports import build_user_report
 from app.services.risk import evaluate_circuit_breaker, set_kill_switch
@@ -2395,14 +2397,74 @@ REAL_ESTATE_CANDIDATE_FIELDS = [
 ]
 
 
+VISIT_EVIDENCE_PREFIX = "[VISITA_HF] "
+
+
+def _parse_real_estate_visit_evidence(notes: str | None) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    for line in str(notes or "").splitlines():
+        if not line.startswith(VISIT_EVIDENCE_PREFIX):
+            continue
+        try:
+            raw_entry = json.loads(line[len(VISIT_EVIDENCE_PREFIX) :])
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(raw_entry, dict):
+            continue
+        section = str(raw_entry.get("section") or "").strip()
+        evidence = str(raw_entry.get("evidence") or "").strip()
+        created_at = str(raw_entry.get("created_at") or "").strip()
+        if section and evidence:
+            entries.append({"section": section, "evidence": evidence, "created_at": created_at})
+    return entries
+
+
+def _strip_real_estate_visit_evidence(notes: str | None) -> str:
+    return "\n".join(
+        line
+        for line in str(notes or "").splitlines()
+        if not line.startswith(VISIT_EVIDENCE_PREFIX)
+    ).strip()
+
+
+def _merge_real_estate_notes_preserving_visit_evidence(current_notes: str | None, visible_notes: str) -> str:
+    evidence_lines = [
+        line
+        for line in str(current_notes or "").splitlines()
+        if line.startswith(VISIT_EVIDENCE_PREFIX)
+    ]
+    parts = [str(visible_notes or "").strip(), *evidence_lines]
+    return "\n".join(part for part in parts if part).strip()
+
+
+def _append_real_estate_visit_evidence(
+    notes: str | None,
+    *,
+    section: str,
+    evidence: str,
+    created_at: str,
+) -> str:
+    entry = {
+        "section": section.strip(),
+        "evidence": evidence.strip(),
+        "created_at": created_at,
+    }
+    serialized = json.dumps(entry, ensure_ascii=False, separators=(",", ":"))
+    parts = [str(notes or "").strip(), f"{VISIT_EVIDENCE_PREFIX}{serialized}"]
+    return "\n".join(part for part in parts if part).strip()
+
+
 def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, object]:
     base = {field: getattr(candidate, field) for field in REAL_ESTATE_CANDIDATE_FIELDS}
+    base["notes"] = _strip_real_estate_visit_evidence(candidate.notes)
+    visit_evidence = _parse_real_estate_visit_evidence(candidate.notes)
     analysis = build_candidate_analysis(base)
     status_value = candidate.status_override or str(analysis["suggested_status"])
     return {
         "id": candidate.id,
         "user_id": candidate.user_id,
         **base,
+        "visit_evidence": visit_evidence,
         "status": status_value,
         "discard_reason": candidate.discard_reason,
         "created_at": candidate.created_at,
@@ -2453,6 +2515,13 @@ def real_estate_candidates_list(
     }
 
 
+@app.get("/api/real-estate/strategy-territory-candidates")
+def real_estate_strategy_territory_candidates(
+    user: User = Depends(current_user),
+) -> dict[str, object]:
+    return strategy_territory_report()
+
+
 @app.post("/api/real-estate/candidates")
 def real_estate_candidate_create(
     payload: RealEstateCandidateCreateRequest,
@@ -2485,8 +2554,36 @@ def real_estate_candidate_update(
         candidate_id=candidate_id,
     )
     for field, value in payload.model_dump(exclude_unset=True, exclude_none=True).items():
+        if field == "notes":
+            value = _merge_real_estate_notes_preserving_visit_evidence(candidate.notes, str(value))
         setattr(candidate, field, value)
     candidate.updated_at = isoformat(utc_now())
+    db.add(candidate)
+    db.commit()
+    db.refresh(candidate)
+    return _real_estate_candidate_payload(candidate)
+
+
+@app.post("/api/real-estate/candidates/{candidate_id}/visit-evidence")
+def real_estate_candidate_visit_evidence(
+    candidate_id: int,
+    payload: RealEstateVisitEvidenceRequest,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    candidate = _get_real_estate_candidate_or_404(
+        db,
+        user_id=user.id,
+        candidate_id=candidate_id,
+    )
+    now = isoformat(utc_now())
+    candidate.notes = _append_real_estate_visit_evidence(
+        candidate.notes,
+        section=payload.section,
+        evidence=payload.evidence,
+        created_at=now,
+    )
+    candidate.updated_at = now
     db.add(candidate)
     db.commit()
     db.refresh(candidate)
@@ -3705,6 +3802,17 @@ def dashboard_summary(
     )
     case_study_latest = _load_runtime_or_bundled_json("case_study_latest.json")
     dashboard_seed = _load_runtime_or_bundled_json("dashboard_seed.json")
+    ops_health_latest = _load_runtime_or_bundled_json("ops_health_latest.json")
+    ops_health: dict[str, object] | None = (
+        cast(dict[str, object], ops_health_latest)
+        if isinstance(ops_health_latest, dict)
+        else None
+    )
+    if ops_health is None and isinstance(dashboard_seed, dict):
+        seed_ops_health = dashboard_seed.get("ops_health")
+        if isinstance(seed_ops_health, dict):
+            ops_health = cast(dict[str, object], seed_ops_health)
+
     if historical_empty and historical_case_study_events:
         expected_values: list[float] = []
         realized_values: list[float] = []
@@ -4988,7 +5096,12 @@ def dashboard_summary(
                     "notes",
                 ]
             }
-            real_estate_analysis = {**analysis_dict, "candidate": candidate_snapshot}
+            candidate_snapshot["visit_evidence"] = candidate_payload.get("visit_evidence") or []
+            real_estate_analysis = {
+                **analysis_dict,
+                "candidate": candidate_snapshot,
+                "visit_evidence": candidate_payload.get("visit_evidence") or [],
+            }
             scenarios = analysis_dict.get("scenarios")
             scenarios_dict = scenarios if isinstance(scenarios, dict) else {}
             base_scenario = scenarios_dict.get("base")
@@ -5293,6 +5406,7 @@ def dashboard_summary(
         thesis_history_overview=thesis_history_overview,
         thesis_executive_summary=thesis_executive_summary,
         thesis_open_operations=thesis_open_operations,
+        ops_health=ops_health,
         disclaimer=DISCLAIMER,
     )
 
