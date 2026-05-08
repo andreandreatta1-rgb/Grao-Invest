@@ -75,6 +75,7 @@ jobs:
         env:
           VISUAL_SMOKE_BASE_URL: https://grao-invest.vercel.app
           VISUAL_SMOKE_OUTPUT_DIR: data/reports/visual-smoke
+          VISUAL_SMOKE_STRICT_MOBILE: "1"
         run: node scripts/run_visual_smoke.mjs
 
       - name: Upload visual smoke screenshots
