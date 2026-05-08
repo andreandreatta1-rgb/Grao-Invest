@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-08T19:45:24+00:00",
+  "generated_at": "2026-05-08T23:58:48+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -207,19 +207,19 @@
         ]
       }
     ],
-    "event_count": 1660,
-    "global_event_count": 1663,
+    "event_count": 1669,
+    "global_event_count": 1672,
     "global_total_tested": 879,
     "user_total_tested": 878,
     "sources": {
       "case_study_runs": 879,
-      "current_monitor_runs": 263
+      "current_monitor_runs": 271
     },
     "sample_quality": {
       "counting_policy": "unique_resolved_case_studies",
-      "raw_case_study_events": 1400,
-      "duplicate_case_study_events_excluded": 521,
-      "current_monitor_snapshots_excluded": 263,
+      "raw_case_study_events": 1401,
+      "duplicate_case_study_events_excluded": 522,
+      "current_monitor_snapshots_excluded": 271,
       "current_monitor_policy": "excluded_until_resolved_and_deduplicated"
     },
     "avg_resolution_days": 0.0,
@@ -26843,8 +26843,27 @@
       "is_open": false
     },
     {
-      "phase": "pos_go_live",
+      "phase": "historico",
       "thesis_number": 1401,
+      "thesis_id": "TH-PETR4-bullish-3514",
+      "thesis_raised_at": "2026-05-08T23:57:10+00:00",
+      "action": "PETR4",
+      "thesis_reason": "Tese historica compra para PETR4 no exercicio continuo. Registro legado com confianca 80.57% e retorno esperado 4.82%.",
+      "expected_result_pct": 4.8236,
+      "operation_plan": "Compra ate - (case study historico continuo; detalhes completos de prazo/preco nao persistidos no evento legado)",
+      "structured_operation": "Bull Call Spread | ganho max n/d | perda max n/d",
+      "entry_price_brl": null,
+      "exit_rule": "Sai por alvo/stop/tempo da estrategia (detalhe de preco indisponivel no legado)",
+      "status": "Fechada",
+      "outcome": "Alvo",
+      "moment_result_pct": 3.1405,
+      "duration_days": null,
+      "learning_note": "A direção estava correta, mas o ganho veio abaixo do esperado. Próxima: calibrar melhor alvo e prazo.",
+      "is_open": false
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 1402,
       "thesis_id": "TH-PETR4-range-0007",
       "thesis_raised_at": "2026-05-06T00:00:00+00:00",
       "action": "PETR4",
@@ -26867,7 +26886,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1402,
+      "thesis_number": 1403,
       "thesis_id": "TH-GGBR4-bullish-0104",
       "thesis_raised_at": "2026-05-07T00:00:00+00:00",
       "action": "GGBR4",
@@ -26890,7 +26909,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1403,
+      "thesis_number": 1404,
       "thesis_id": "TH-PRIO3-bullish-0087",
       "thesis_raised_at": "2026-05-06T00:00:00+00:00",
       "action": "PRIO3",
@@ -26913,7 +26932,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1404,
+      "thesis_number": 1405,
       "thesis_id": "TH-BPAC11-bearish-0133",
       "thesis_raised_at": "2026-05-07T00:00:00+00:00",
       "action": "BPAC11",
@@ -26936,7 +26955,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1405,
+      "thesis_number": 1406,
       "thesis_id": "TH-B3SA3-bearish-0064",
       "thesis_raised_at": "2026-05-07T00:00:00+00:00",
       "action": "B3SA3",
@@ -26959,7 +26978,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1406,
+      "thesis_number": 1407,
       "thesis_id": "TH-HAPV3-bearish-0125",
       "thesis_raised_at": "2026-05-07T00:00:00+00:00",
       "action": "HAPV3",
@@ -26982,41 +27001,18 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1407,
-      "thesis_id": "TH-BTCUSDT-range-0008",
-      "thesis_raised_at": "2026-05-08T19:29:59+00:00",
-      "action": "BTCUSDT",
-      "thesis_reason": "Tese de estabilidade para BTCUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação razoável.",
-      "expected_result_pct": 0.8204,
-      "operation_plan": "Neutra até 2026-05-08. Plano: operar em faixa, esperando preço entre 78829.48 e 80029.93. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.82%.",
-      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
-      "entry_price_brl": 80029.93,
-      "current_price_brl": 80029.93,
-      "latest_price_at": "2026-05-08T19:29:59+00:00",
-      "planned_exit_at": "2026-05-08",
-      "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
-      "status": "Aberta - Atencao",
-      "outcome": "Atencao",
-      "moment_result_pct": 2.4,
-      "duration_days": null,
-      "open_days": 0,
-      "learning_note": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
-      "is_open": true
-    },
-    {
-      "phase": "pos_go_live",
       "thesis_number": 1408,
-      "thesis_id": "TH-ETHUSDT-range-0016",
-      "thesis_raised_at": "2026-05-08T19:29:59+00:00",
-      "action": "ETHUSDT",
-      "thesis_reason": "Tese de estabilidade para ETHUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação mista.",
-      "expected_result_pct": 0.8109,
-      "operation_plan": "Neutra até 2026-05-08. Plano: operar em faixa, esperando preço entre 2280.74 e 2315.47. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.81%.",
+      "thesis_id": "TH-BTCUSDT-range-0008",
+      "thesis_raised_at": "2026-05-08T23:44:59+00:00",
+      "action": "BTCUSDT",
+      "thesis_reason": "Tese de estabilidade para BTCUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança alto e sustentação razoável.",
+      "expected_result_pct": 0.9596,
+      "operation_plan": "Neutra até 2026-05-09. Plano: operar em faixa, esperando preço entre 78936.92 e 80139.01. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.96%.",
       "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
-      "entry_price_brl": 2315.47,
-      "current_price_brl": 2315.47,
-      "latest_price_at": "2026-05-08T19:29:59+00:00",
-      "planned_exit_at": "2026-05-08",
+      "entry_price_brl": 80139.01,
+      "current_price_brl": 80139.01,
+      "latest_price_at": "2026-05-08T23:44:59+00:00",
+      "planned_exit_at": "2026-05-09",
       "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
       "status": "Aberta - Atencao",
       "outcome": "Atencao",
@@ -27029,17 +27025,17 @@
     {
       "phase": "pos_go_live",
       "thesis_number": 1409,
-      "thesis_id": "TH-SOLUSDT-range-0024",
-      "thesis_raised_at": "2026-05-08T19:29:59+00:00",
-      "action": "SOLUSDT",
-      "thesis_reason": "Tese de estabilidade para SOLUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação mista.",
-      "expected_result_pct": 0.8098,
-      "operation_plan": "Neutra até 2026-05-08. Plano: operar em faixa, esperando preço entre 91.36 e 92.75. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.81%.",
+      "thesis_id": "TH-ETHUSDT-range-0016",
+      "thesis_raised_at": "2026-05-08T23:44:59+00:00",
+      "action": "ETHUSDT",
+      "thesis_reason": "Tese de estabilidade para ETHUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação razoável.",
+      "expected_result_pct": 0.819,
+      "operation_plan": "Neutra até 2026-05-09. Plano: operar em faixa, esperando preço entre 2270.13 e 2304.70. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.82%.",
       "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
-      "entry_price_brl": 92.75,
-      "current_price_brl": 92.75,
-      "latest_price_at": "2026-05-08T19:29:59+00:00",
-      "planned_exit_at": "2026-05-08",
+      "entry_price_brl": 2304.7,
+      "current_price_brl": 2304.7,
+      "latest_price_at": "2026-05-08T23:44:59+00:00",
+      "planned_exit_at": "2026-05-09",
       "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
       "status": "Aberta - Atencao",
       "outcome": "Atencao",
@@ -27052,6 +27048,29 @@
     {
       "phase": "pos_go_live",
       "thesis_number": 1410,
+      "thesis_id": "TH-SOLUSDT-range-0024",
+      "thesis_raised_at": "2026-05-08T23:44:59+00:00",
+      "action": "SOLUSDT",
+      "thesis_reason": "Tese de estabilidade para SOLUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação razoável.",
+      "expected_result_pct": 0.8229,
+      "operation_plan": "Neutra até 2026-05-09. Plano: operar em faixa, esperando preço entre 90.44 e 91.82. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.82%.",
+      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
+      "entry_price_brl": 91.82,
+      "current_price_brl": 91.82,
+      "latest_price_at": "2026-05-08T23:44:59+00:00",
+      "planned_exit_at": "2026-05-09",
+      "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
+      "status": "Aberta - Atencao",
+      "outcome": "Atencao",
+      "moment_result_pct": 2.4,
+      "duration_days": null,
+      "open_days": 0,
+      "learning_note": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
+      "is_open": true
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 1411,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -27324,7 +27343,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1411,
+      "thesis_number": 1412,
       "thesis_id": "IM-RADAR-16",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -27598,7 +27617,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1412,
+      "thesis_number": 1413,
       "thesis_id": "IM-RADAR-15",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -27872,7 +27891,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1413,
+      "thesis_number": 1414,
       "thesis_id": "IM-RADAR-14",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28146,7 +28165,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1414,
+      "thesis_number": 1415,
       "thesis_id": "IM-RADAR-13",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28419,7 +28438,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1415,
+      "thesis_number": 1416,
       "thesis_id": "IM-RADAR-12",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28709,7 +28728,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1416,
+      "thesis_number": 1417,
       "thesis_id": "IM-RADAR-11",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -28988,7 +29007,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1417,
+      "thesis_number": 1418,
       "thesis_id": "IM-RADAR-10",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29270,7 +29289,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1418,
+      "thesis_number": 1419,
       "thesis_id": "IM-RADAR-9",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29554,7 +29573,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1419,
+      "thesis_number": 1420,
       "thesis_id": "IM-RADAR-8",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29832,7 +29851,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1420,
+      "thesis_number": 1421,
       "thesis_id": "IM-RADAR-7",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -30116,7 +30135,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1421,
+      "thesis_number": 1422,
       "thesis_id": "IM-RADAR-6",
       "thesis_raised_at": "2026-05-04T13:40:51+00:00",
       "front": "imoveis",
@@ -30400,7 +30419,7 @@
     }
   ],
   "ops_health": {
-    "generated_at": "2026-05-08T19:45:26+00:00",
+    "generated_at": "2026-05-08T23:58:49+00:00",
     "user_id": 1,
     "status": "ok",
     "message": "Ciclo operacional saudavel. O laboratorio publicou dados atuais dentro do contrato.",
@@ -30439,7 +30458,7 @@
             {
               "task_name": "GraoInvest-B3-05",
               "ok": true,
-              "last_task_result": 267009
+              "last_task_result": 0
             },
             {
               "task_name": "GraoInvest-CaseStudy-Night",
@@ -30452,8 +30471,8 @@
       "b3_daily_job": {
         "status": "ok",
         "message": "Resumo do ultimo job B3 encontrado.",
-        "run_at": "2026-05-08T19:31:40+00:00",
-        "age_days": 0.01,
+        "run_at": "2026-05-08T23:46:54+00:00",
+        "age_days": 0.008,
         "build_executed": true,
         "load_executed": true,
         "case_study_executed": true,
@@ -30497,22 +30516,22 @@
                 "count": 18
               }
             ],
-            "age_days": 1.823,
+            "age_days": 1.999,
             "max_age_days": 4.0
           },
           "crypto": {
-            "count": 10878,
+            "count": 11031,
             "instrument_count": 3,
             "requested_instrument_count": 3,
-            "latest_event_time": "2026-05-08T19:29:59+00:00",
-            "latest_ingest_time": "2026-05-08T19:31:35+00:00",
+            "latest_event_time": "2026-05-08T23:44:59+00:00",
+            "latest_ingest_time": "2026-05-08T23:46:51+00:00",
             "providers": [
               {
                 "provider": "crypto-binance-5m",
-                "count": 10878
+                "count": 11031
               }
             ],
-            "age_days": 0.011,
+            "age_days": 0.01,
             "max_age_days": 1.0
           }
         }
@@ -30520,7 +30539,7 @@
       "current_thesis_generator": {
         "status": "ok",
         "message": "Gerador publicou teses atuais.",
-        "generated_at": "2026-05-08T19:45:22+00:00",
+        "generated_at": "2026-05-08T23:58:46+00:00",
         "thesis_count": 9,
         "summary": {
           "target_hits": 0,
@@ -30538,11 +30557,11 @@
       "dashboard_seed": {
         "status": "ok",
         "message": "Dashboard seed legivel.",
-        "generated_at": "2026-05-08T19:45:24+00:00",
+        "generated_at": "2026-05-08T23:58:48+00:00",
         "age_days": 0.0,
-        "thesis_open_operations": 1421,
+        "thesis_open_operations": 1422,
         "operations_by_front": {
-          "sem_frente": 1409,
+          "sem_frente": 1410,
           "imoveis": 12
         }
       },
