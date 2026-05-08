@@ -50,3 +50,38 @@ def test_blocked_ops_guard_recommends_not_forcing_publication() -> None:
         "Atualizar feed B3/Cripto antes de esperar novas teses atuais.",
         "Nao forcar publicacao: o bloqueio protege contra tese atual com dado velho.",
     ]
+
+
+def test_dashboard_safe_payload_removes_local_scheduler_paths() -> None:
+    payload = {
+        "status": "blocked",
+        "stages": {
+            "scheduler": {
+                "status": "ok",
+                "details": {
+                    "status": "ok",
+                    "repo_root": "C:/Users/Example/OneDrive/ProjectOne",
+                    "tasks": [
+                        {
+                            "task_name": "GraoInvest-B3-01",
+                            "ok": True,
+                            "arguments": '-File "C:/Users/Example/script.ps1"',
+                            "working_directory": "C:/Users/Example/ProjectOne",
+                            "last_task_result": 0,
+                        }
+                    ],
+                },
+            }
+        },
+    }
+
+    safe = guard.dashboard_safe_payload(payload)
+
+    details = safe["stages"]["scheduler"]["details"]
+    assert details["task_count"] == 1
+    assert details["tasks"] == [
+        {"task_name": "GraoInvest-B3-01", "ok": True, "last_task_result": 0}
+    ]
+    assert "repo_root" not in details
+    assert "arguments" not in details["tasks"][0]
+    assert "working_directory" not in details["tasks"][0]

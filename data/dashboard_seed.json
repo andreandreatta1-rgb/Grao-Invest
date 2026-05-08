@@ -30153,5 +30153,164 @@
       },
       "is_open": true
     }
-  ]
+  ],
+  "ops_health": {
+    "generated_at": "2026-05-08T11:41:20+00:00",
+    "user_id": 1,
+    "status": "blocked",
+    "message": "O ciclo executou verificacoes, mas os numeros podem nao mudar porque o feed nao esta fresco ou o gerador bloqueou teses atuais.",
+    "stages": {
+      "preflight": {
+        "status": "ok",
+        "message": "Preflight operacional: scripts, venv e banco encontrados."
+      },
+      "scheduler": {
+        "status": "ok",
+        "message": "Task Scheduler aponta para powershell.exe com paths protegidos.",
+        "details": {
+          "status": "ok",
+          "task_count": 6,
+          "tasks": [
+            {
+              "task_name": "GraoInvest-B3-01",
+              "ok": true,
+              "last_task_result": 0
+            },
+            {
+              "task_name": "GraoInvest-B3-02",
+              "ok": true,
+              "last_task_result": 2147946720
+            },
+            {
+              "task_name": "GraoInvest-B3-03",
+              "ok": true,
+              "last_task_result": 267009
+            },
+            {
+              "task_name": "GraoInvest-B3-04",
+              "ok": true,
+              "last_task_result": 2147942405
+            },
+            {
+              "task_name": "GraoInvest-B3-05",
+              "ok": true,
+              "last_task_result": 2147942405
+            },
+            {
+              "task_name": "GraoInvest-CaseStudy-Night",
+              "ok": true,
+              "last_task_result": 2147942405
+            }
+          ]
+        }
+      },
+      "b3_daily_job": {
+        "status": "ok",
+        "message": "Resumo do ultimo job B3 encontrado.",
+        "run_at": "2026-05-08T03:30:10+00:00",
+        "age_days": 0.341,
+        "build_executed": true,
+        "load_executed": true,
+        "case_study_executed": true,
+        "inserted": 0,
+        "duplicates_ignored": 4336552,
+        "parse_errors": 66
+      },
+      "market_feed": {
+        "status": "blocked",
+        "message": "Feed de mercado stale; o gerador nao deve publicar teses atuais com dado velho.",
+        "stale_fronts": [
+          "b3",
+          "crypto"
+        ],
+        "fronts": {
+          "b3": {
+            "count": 75649,
+            "instrument_count": 20,
+            "requested_instrument_count": 20,
+            "latest_event_time": "2026-04-22T20:46:19+00:00",
+            "latest_ingest_time": "2026-04-23T19:22:55+00:00",
+            "providers": [
+              {
+                "provider": "b3-cotahist",
+                "count": 69113
+              },
+              {
+                "provider": "b3-cotahist-lake",
+                "count": 6263
+              },
+              {
+                "provider": "demo-live",
+                "count": 2
+              },
+              {
+                "provider": "demo-primary",
+                "count": 251
+              },
+              {
+                "provider": "intraday-mock",
+                "count": 2
+              },
+              {
+                "provider": "refresh-local-b3",
+                "count": 18
+              }
+            ],
+            "age_days": 15.622,
+            "max_age_days": 4.0
+          },
+          "crypto": {
+            "count": 8019,
+            "instrument_count": 3,
+            "requested_instrument_count": 3,
+            "latest_event_time": "2026-05-02T20:14:59+00:00",
+            "latest_ingest_time": "2026-05-02T20:16:23+00:00",
+            "providers": [
+              {
+                "provider": "crypto-binance-5m",
+                "count": 8019
+              }
+            ],
+            "age_days": 5.643,
+            "max_age_days": 1.0
+          }
+        }
+      },
+      "current_thesis_generator": {
+        "status": "blocked",
+        "message": "Gerador rodou, mas bloqueou publicacao de teses atuais por falta de dados frescos.",
+        "generated_at": "2026-05-08T05:52:15+00:00",
+        "thesis_count": 0,
+        "data_quality": {
+          "status": "no_fresh_market_data",
+          "reason": "no_fresh_market_data",
+          "generated_at": "2026-05-08T05:52:15+00:00",
+          "message": "Nenhuma frente tem dados frescos para publicar teses atuais."
+        },
+        "front_errors": {
+          "acoes_b3": "Nao ha dados de mercado frescos para monitorar teses atuais.",
+          "cripto": "Nao ha dados de mercado frescos para monitorar teses atuais."
+        }
+      },
+      "dashboard_seed": {
+        "status": "ok",
+        "message": "Dashboard seed legivel.",
+        "generated_at": "2026-05-08T05:52:16+00:00",
+        "age_days": 0.242,
+        "thesis_open_operations": 1410,
+        "operations_by_front": {
+          "sem_frente": 1398,
+          "imoveis": 12
+        }
+      },
+      "api": {
+        "status": "skipped",
+        "message": "Comparacao com API viva nao configurada."
+      }
+    },
+    "recommended_actions": [
+      "Atualizar feed B3/Cripto antes de esperar novas teses atuais.",
+      "Nao forcar publicacao: o bloqueio protege contra tese atual com dado velho."
+    ]
+  }
 }

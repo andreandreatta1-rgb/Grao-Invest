@@ -417,8 +417,31 @@ def write_dashboard_seed(payload: dict[str, Any]) -> None:
     seed = load_json(path)
     if seed is None:
         return
-    seed["ops_health"] = payload
+    seed["ops_health"] = dashboard_safe_payload(payload)
     path.write_text(json.dumps(seed, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def dashboard_safe_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    safe = json.loads(json.dumps(payload))
+    stages = safe.get("stages") if isinstance(safe.get("stages"), dict) else {}
+    scheduler = stages.get("scheduler") if isinstance(stages.get("scheduler"), dict) else None
+    if isinstance(scheduler, dict):
+        details = scheduler.get("details") if isinstance(scheduler.get("details"), dict) else {}
+        tasks = details.get("tasks") if isinstance(details.get("tasks"), list) else []
+        scheduler["details"] = {
+            "status": details.get("status"),
+            "task_count": len(tasks),
+            "tasks": [
+                {
+                    "task_name": item.get("task_name"),
+                    "ok": item.get("ok"),
+                    "last_task_result": item.get("last_task_result"),
+                }
+                for item in tasks
+                if isinstance(item, dict)
+            ],
+        }
+    return safe
 
 
 def main() -> None:
