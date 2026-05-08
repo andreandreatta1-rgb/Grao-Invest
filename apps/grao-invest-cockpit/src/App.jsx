@@ -3,7 +3,6 @@ import { C, Sidebar } from "./components";
 import { useFonts } from "./hooks/useFonts.js";
 import { fetchCockpitPayloads } from "./data/cockpitHalleyApi.js";
 import { normalizeCockpitHalley } from "./data/cockpitHalleyAdapter.js";
-import { mockCockpitHalleyPayloads } from "./data/mockCockpitHalley.js";
 import { withCockpitDataTrust } from "./data/dataTrust.js";
 import Alertas from "./screens/Alertas.jsx";
 import Aprendizado from "./screens/Aprendizado.jsx";
@@ -17,6 +16,15 @@ import Teses from "./screens/Teses.jsx";
 
 const FEED_KEYS = ["dashboardSummary", "currentMonitor", "realEstateCandidates", "realEstateStrategyTerritoryCandidates"];
 const UI_REVISION = "UI rev soul-4";
+const BUILD_INFO_URL = "/api/frontend/version";
+const DEFAULT_BUILD_INFO = Object.freeze({
+  uiRevision: UI_REVISION,
+  sourceApp: "apps/grao-invest-cockpit",
+  gitCommit: "",
+  gitCommitShort: "",
+  entryAsset: "",
+  builtAt: "",
+});
 const HERO_IMAGE_URLS = [
   "/assets/metodo/01.webp",
   "/assets/metodo/02.webp",
@@ -75,9 +83,9 @@ function buildFeedHealth(payloads, thrownMessage) {
   });
 }
 
-function mergeWithFallback(payloads) {
+function mergeAvailablePayloads(payloads) {
   return FEED_KEYS.reduce((merged, key) => {
-    merged[key] = payloads?.[key] ?? mockCockpitHalleyPayloads[key];
+    if (payloads?.[key]) merged[key] = payloads[key];
     return merged;
   }, {});
 }
@@ -94,16 +102,30 @@ function preloadHeroImages() {
   });
 }
 
+function normalizeBuildInfo(payload) {
+  if (!payload || typeof payload !== "object") return DEFAULT_BUILD_INFO;
+
+  return {
+    uiRevision: payload.ui_revision || payload.uiRevision || DEFAULT_BUILD_INFO.uiRevision,
+    sourceApp: payload.source_app || payload.sourceApp || DEFAULT_BUILD_INFO.sourceApp,
+    gitCommit: payload.deployed_git_commit || payload.git_commit || payload.gitCommit || "",
+    gitCommitShort: payload.deployed_git_commit_short || payload.git_commit_short || payload.gitCommitShort || "",
+    entryAsset: payload.entry_asset || payload.entryAsset || "",
+    builtAt: payload.built_at || payload.builtAt || "",
+  };
+}
+
 export default function App() {
   useFonts();
 
   const [active, setActive] = useState("dashboard");
   const [tesesEntryMode, setTesesEntryMode] = useState(null);
+  const [buildInfo, setBuildInfo] = useState(DEFAULT_BUILD_INFO);
   const [cockpitData, setCockpitData] = useState(() =>
-    withCockpitDataTrust(normalizeCockpitHalley(mockCockpitHalleyPayloads)),
+    withCockpitDataTrust(normalizeCockpitHalley({})),
   );
   const [feedStatus, setFeedStatus] = useState("live");
-  const [feedHealth, setFeedHealth] = useState(() => buildFeedHealth(mockCockpitHalleyPayloads));
+  const [feedHealth, setFeedHealth] = useState(() => buildFeedHealth({}));
 
   const refreshCockpitData = useCallback(async (isStillMounted = () => true) => {
     try {
@@ -111,7 +133,7 @@ export default function App() {
       if (!isStillMounted()) return;
 
       const feedHasErrors = payloads.errors?.length > 0 || hasFeedGap(payloads);
-      const mergedPayloads = mergeWithFallback(payloads);
+      const mergedPayloads = mergeAvailablePayloads(payloads);
 
       const nextFeedStatus = feedHasErrors ? "fallback" : "live";
       setCockpitData(withCockpitDataTrust(normalizeCockpitHalley(mergedPayloads), nextFeedStatus));
@@ -120,7 +142,7 @@ export default function App() {
     } catch {
       if (!isStillMounted()) return;
 
-      setCockpitData(withCockpitDataTrust(normalizeCockpitHalley(mockCockpitHalleyPayloads), "fallback"));
+      setCockpitData(withCockpitDataTrust(normalizeCockpitHalley({}), "fallback"));
       setFeedStatus("fallback");
       setFeedHealth(buildFeedHealth({}, "Falha na camada de busca"));
     }
@@ -145,6 +167,23 @@ export default function App() {
       isMounted = false;
     };
   }, [refreshCockpitData]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch(BUILD_INFO_URL, { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload) => {
+        if (isMounted) setBuildInfo(normalizeBuildInfo(payload));
+      })
+      .catch(() => {
+        if (isMounted) setBuildInfo(DEFAULT_BUILD_INFO);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -186,6 +225,7 @@ export default function App() {
         feedStatus={feedStatus}
         lastUpdatedAt={cockpitData?.scientificSummary?.lastUpdatedAt}
         uiRevision={UI_REVISION}
+        buildInfo={buildInfo}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
         {screens[active] ?? screens.dashboard}

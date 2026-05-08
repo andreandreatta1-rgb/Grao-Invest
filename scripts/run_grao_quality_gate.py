@@ -57,9 +57,45 @@ def _frontend_entry_asset(frontend_dist: Path) -> Path:
     return asset
 
 
+def _inspect_build_info(frontend_dist: Path, entry_asset: Path) -> dict[str, Any]:
+    build_info_path = frontend_dist / "build-info.json"
+    if not build_info_path.exists():
+        raise QualityGateFailure("build-info.json ausente no frontend_dist")
+
+    try:
+        build_info = json.loads(_read_text(build_info_path))
+    except json.JSONDecodeError as exc:
+        raise QualityGateFailure("build-info.json invalido") from exc
+    if not isinstance(build_info, dict):
+        raise QualityGateFailure("build-info.json nao e objeto")
+
+    expected_entry = entry_asset.relative_to(frontend_dist).as_posix()
+    expected_fields = {
+        "ui_revision": "UI rev soul-4",
+        "source_app": "apps/grao-invest-cockpit",
+        "entry_asset": expected_entry,
+    }
+    mismatches = [
+        f"{key}={build_info.get(key)!r}"
+        for key, expected in expected_fields.items()
+        if build_info.get(key) != expected
+    ]
+    git_commit = str(build_info.get("git_commit") or "")
+    git_commit_short = str(build_info.get("git_commit_short") or "")
+    if not re.fullmatch(r"[0-9a-f]{7,40}", git_commit):
+        mismatches.append("git_commit invalido")
+    if not re.fullmatch(r"[0-9a-f]{7,12}", git_commit_short):
+        mismatches.append("git_commit_short invalido")
+    if mismatches:
+        raise QualityGateFailure("build-info inconsistente: " + ", ".join(mismatches))
+
+    return build_info
+
+
 def inspect_frontend_bundle(frontend_dist: Path | str = DEFAULT_FRONTEND_DIST) -> dict[str, Any]:
     dist = Path(frontend_dist)
     entry_asset = _frontend_entry_asset(dist)
+    build_info = _inspect_build_info(dist, entry_asset)
     bundle = _read_text(entry_asset)
     violations: list[str] = []
 
@@ -95,6 +131,13 @@ def inspect_frontend_bundle(frontend_dist: Path | str = DEFAULT_FRONTEND_DIST) -
         "entry_asset": entry_asset.relative_to(dist).as_posix(),
         "initial_dashboard_source": initial_source,
         "legacy_1727_literal_present": False,
+        "build": {
+            "ui_revision": build_info["ui_revision"],
+            "source_app": build_info["source_app"],
+            "git_commit": build_info["git_commit"],
+            "git_commit_short": build_info["git_commit_short"],
+            "built_at": build_info.get("built_at", ""),
+        },
     }
 
 

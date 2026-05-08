@@ -122,7 +122,10 @@ function NavButton({ item, active, onSelect }) {
   );
 }
 
-function SidebarLabStatus({ lastUpdatedAt, uiRevision }) {
+function SidebarLabStatus({ lastUpdatedAt, uiRevision, buildInfo }) {
+  const deployFingerprint = buildInfo?.gitCommitShort || buildInfo?.git_commit_short || "";
+  const sourceApp = buildInfo?.sourceApp || buildInfo?.source_app || "";
+
   return (
     <section
       aria-label="Status do laboratório"
@@ -153,6 +156,19 @@ function SidebarLabStatus({ lastUpdatedAt, uiRevision }) {
       <div style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 800, lineHeight: 1.6 }}>
         {uiRevision}
       </div>
+      {deployFingerprint && (
+        <div
+          data-testid="deploy-fingerprint"
+          style={{ color: C.text, fontFamily: mono, fontSize: 9, fontWeight: 800, lineHeight: 1.6 }}
+        >
+          Build {deployFingerprint}
+        </div>
+      )}
+      {sourceApp && (
+        <div style={{ color: C.dim, fontFamily: mono, fontSize: 8, lineHeight: 1.45, overflowWrap: "anywhere" }}>
+          {sourceApp}
+        </div>
+      )}
     </section>
   );
 }
@@ -193,7 +209,14 @@ function SidebarFeedStatus({ feedStatus }) {
   );
 }
 
-export function Sidebar({ active = "dashboard", onSelect, feedStatus = "live", lastUpdatedAt, uiRevision = "UI rev soul-4" }) {
+export function Sidebar({
+  active = "dashboard",
+  onSelect,
+  feedStatus = "live",
+  lastUpdatedAt,
+  uiRevision = "UI rev soul-4",
+  buildInfo,
+}) {
   return (
     <aside
       style={{
@@ -288,7 +311,7 @@ export function Sidebar({ active = "dashboard", onSelect, feedStatus = "live", l
           <NavButton key={item.id} item={item} active={active} onSelect={onSelect} />
         ))}
       </nav>
-      <SidebarLabStatus lastUpdatedAt={lastUpdatedAt} uiRevision={uiRevision} />
+      <SidebarLabStatus lastUpdatedAt={lastUpdatedAt} uiRevision={uiRevision} buildInfo={buildInfo} />
       <SidebarFeedStatus feedStatus={feedStatus} />
     </aside>
   );

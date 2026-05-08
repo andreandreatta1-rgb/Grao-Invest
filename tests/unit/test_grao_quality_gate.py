@@ -18,6 +18,18 @@ def _write_frontend_dist(tmp_path: Path, bundle: str) -> Path:
         encoding="utf-8",
     )
     (assets / "index-test.js").write_text(bundle, encoding="utf-8")
+    (dist / "build-info.json").write_text(
+        json.dumps(
+            {
+                "ui_revision": "UI rev soul-4",
+                "source_app": "apps/grao-invest-cockpit",
+                "git_commit": "1234567890abcdef",
+                "git_commit_short": "1234567",
+                "entry_asset": "assets/index-test.js",
+            },
+        ),
+        encoding="utf-8",
+    )
     return dist
 
 
@@ -44,6 +56,30 @@ def test_frontend_gate_accepts_loading_before_official_dashboard(tmp_path: Path)
 
     assert result["entry_asset"] == "assets/index-test.js"
     assert result["initial_dashboard_source"] == "empty"
+    assert result["build"]["git_commit_short"] == "1234567"
+    assert result["build"]["source_app"] == "apps/grao-invest-cockpit"
+
+
+def test_frontend_gate_rejects_missing_or_mismatched_build_fingerprint(tmp_path: Path) -> None:
+    dist = _write_frontend_dist(
+        tmp_path,
+        "function App(){let [state,setState]=(0,_.useState)(()=>Hn(_n({})));return state}",
+    )
+    (dist / "build-info.json").write_text(
+        json.dumps(
+            {
+                "ui_revision": "UI rev soul-4",
+                "source_app": "apps/thesis-lab-view",
+                "git_commit": "1234567890abcdef",
+                "git_commit_short": "1234567",
+                "entry_asset": "assets/index-other.js",
+            },
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(gate.QualityGateFailure, match="build-info"):
+        gate.inspect_frontend_bundle(dist)
 
 
 def test_frontend_gate_rejects_legacy_1727_dashboard_kpi_literal(tmp_path: Path) -> None:

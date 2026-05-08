@@ -59,6 +59,20 @@ describe("base cockpit components", () => {
     expect(screen.getByText("Observando")).toBeInTheDocument();
   });
 
+  it("renders the deploy fingerprint in the sidebar when build info is available", () => {
+    render(
+      <Sidebar
+        buildInfo={{
+          gitCommitShort: "8911548",
+          sourceApp: "apps/grao-invest-cockpit",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("deploy-fingerprint")).toHaveTextContent("Build 8911548");
+    expect(screen.getByText("apps/grao-invest-cockpit")).toBeInTheDocument();
+  });
+
   it("renders Patrick Jane with the method asset, state badge, size and supplied message", () => {
     render(
       <PatrickJane

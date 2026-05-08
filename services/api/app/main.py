@@ -324,6 +324,9 @@ def _frontend_index_response() -> FileResponse:
 
 def _frontend_asset_headers(asset: Path, request_path: str) -> dict[str, str]:
     normalized_path = request_path.strip().lstrip("/")
+    if normalized_path == "build-info.json":
+        return FRONTEND_INDEX_HEADERS
+
     root_dir = _frontend_shell_dir().resolve()
     requested_asset = (root_dir / normalized_path).resolve()
     is_exact_asset = requested_asset == asset.resolve() and requested_asset.is_file()
@@ -527,6 +530,28 @@ def asset_class_payload(instrument: str) -> dict[str, str]:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "phase": "simulation-only"}
+
+
+@app.get("/api/frontend/version")
+def frontend_version() -> dict[str, object]:
+    build_info = _load_json_dict_from_path(_frontend_shell_dir() / "build-info.json")
+    if build_info is None:
+        build_info = {
+            "ui_revision": "unknown",
+            "source_app": str(_frontend_shell_dir()),
+            "git_commit": "unknown",
+            "git_commit_short": "unknown",
+            "entry_asset": "",
+        }
+    deploy_commit = (
+        os.getenv("VERCEL_GIT_COMMIT_SHA")
+        or os.getenv("GIT_COMMIT")
+        or str(build_info.get("git_commit") or "")
+    ).strip()
+    if deploy_commit:
+        build_info["deployed_git_commit"] = deploy_commit
+        build_info["deployed_git_commit_short"] = deploy_commit[:12]
+    return build_info
 
 
 @app.post("/api/auth/signup")

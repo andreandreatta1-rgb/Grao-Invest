@@ -50,4 +50,33 @@ if ($LASTEXITCODE -ne 0) {
     throw "Failed to apply frontend shell patches."
 }
 
+$targetIndexPath = Join-Path $targetPath "index.html"
+$targetIndexHtml = Get-Content -Raw -LiteralPath $targetIndexPath
+$entryAssetMatch = [regex]::Match($targetIndexHtml, 'src="/(?<asset>assets/index-[^"]+\.js)"')
+if (-not $entryAssetMatch.Success) {
+    throw "Synced frontend index.html does not point to an assets/index-*.js bundle."
+}
+
+$gitCommit = (& git -C $repoRoot rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or -not $gitCommit) {
+    throw "Could not resolve git commit for frontend build-info."
+}
+$gitCommitShort = (& git -C $repoRoot rev-parse --short=12 HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or -not $gitCommitShort) {
+    throw "Could not resolve short git commit for frontend build-info."
+}
+
+$buildInfo = [ordered]@{
+    ui_revision = "UI rev soul-4"
+    source_app = $FrontendDir.Replace("\", "/")
+    git_commit = $gitCommit
+    git_commit_short = $gitCommitShort
+    built_at = (Get-Date).ToUniversalTime().ToString("o")
+    entry_asset = $entryAssetMatch.Groups["asset"].Value
+    required_markers = $requiredMarkers
+}
+$buildInfoPath = Join-Path $targetPath "build-info.json"
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($buildInfoPath, ($buildInfo | ConvertTo-Json -Depth 4), $utf8NoBom)
+
 Write-Host "Synced frontend bundle from $distDir to $targetPath"

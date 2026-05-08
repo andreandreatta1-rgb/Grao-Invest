@@ -15,6 +15,7 @@ def _read(path: Path) -> str:
 
 def test_frontend_bundle_contains_modern_shell_and_assets() -> None:
     html = _read(FRONTEND_DIST_DIR / "index.html")
+    build_info = json.loads(_read(FRONTEND_DIST_DIR / "build-info.json"))
 
     assert '<div id="root"></div>' in html
     assert 'href="/manifest.webmanifest"' in html
@@ -33,6 +34,12 @@ def test_frontend_bundle_contains_modern_shell_and_assets() -> None:
     assert (FRONTEND_DIST_DIR / "icon-192.png").exists()
     assert (FRONTEND_DIST_DIR / "icon-512.png").exists()
     assert (FRONTEND_DIST_DIR / "apple-touch-icon.png").exists()
+    assert build_info["ui_revision"] == "UI rev soul-4"
+    assert build_info["source_app"] == "apps/grao-invest-cockpit"
+    assert re.fullmatch(r"[0-9a-f]{7,40}", build_info["git_commit"])
+    assert re.fullmatch(r"[0-9a-f]{7,12}", build_info["git_commit_short"])
+    assert build_info["entry_asset"].startswith("assets/index-")
+    assert (FRONTEND_DIST_DIR / build_info["entry_asset"]).exists()
 
 
 def test_mobile_responsive_patch_is_present_and_sync_enforced() -> None:
@@ -64,8 +71,11 @@ def test_soul_cockpit_source_is_canonical_backend_bundle_source() -> None:
     alertas_source = _read(cockpit_root / "src" / "screens" / "Alertas.jsx")
     package_json = json.loads(_read(cockpit_root / "package.json"))
     sync_script = _read(REPO_ROOT / "scripts" / "sync_thesis_lab_frontend.ps1")
+    api_source = _read(REPO_ROOT / "services" / "api" / "app" / "main.py")
 
     assert 'UI_REVISION = "UI rev soul-4"' in app_source
+    assert "/api/frontend/version" in app_source
+    assert "deployFingerprint" in sidebar_source
     assert 'uiRevision = "UI rev soul-4"' in sidebar_source
     assert "A Grande Obra" in aprendizado_source
     assert "Evolução do método" in backtest_source
@@ -83,6 +93,9 @@ def test_soul_cockpit_source_is_canonical_backend_bundle_source() -> None:
     assert "A Grande Obra" in sync_script
     assert "Evolução do método" in sync_script
     assert "Partitura completa" in sync_script
+    assert "build-info.json" in sync_script
+    assert "/api/frontend/version" in api_source
+    assert 'normalized_path == "build-info.json"' in api_source
 
 
 def test_frontend_bundle_has_no_mojibake_in_visible_shell_text() -> None:

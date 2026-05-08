@@ -25,7 +25,7 @@ describe("App", () => {
     const dashboard = screen.getByRole("main");
 
     expect(within(sidebar).getByText("Status do laboratório")).toBeInTheDocument();
-    expect(within(sidebar).getByText("Atualizado em 03/05/2026")).toBeInTheDocument();
+    expect(within(sidebar).getByText("Atualizado em --/--/----")).toBeInTheDocument();
     expect(within(sidebar).getByText("UI rev soul-4")).toBeInTheDocument();
     expect(within(dashboard).queryByText("Atualizado em 03/05/2026")).not.toBeInTheDocument();
     expect(within(dashboard).queryByText("UI rev soul-4")).not.toBeInTheDocument();

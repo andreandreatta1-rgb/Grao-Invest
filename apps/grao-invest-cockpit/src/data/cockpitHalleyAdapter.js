@@ -1113,7 +1113,8 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
   const supplementalMarketTheses = marketTheses.filter((thesis) => !operationKeys.has(thesisKey(thesis)));
   const goLiveTheses = [...supplementalMarketTheses, ...operationActiveTheses];
   const learningLoops = learningNotesFrom(payloads).map(normalizeLearningLoop).filter((loop) => loop.pain && loop.remedy && loop.expectedImpact);
-  const lastUpdatedAt = toIsoDate(coalesce(dashboardSummary.updated_at, dashboardSummary.last_updated_at), now);
+  const explicitLastUpdatedAt = coalesce(dashboardSummary.updated_at, dashboardSummary.last_updated_at);
+  const lastUpdatedAt = explicitLastUpdatedAt ? toIsoDate(explicitLastUpdatedAt, now) : null;
   const appliedLearnings = coalesce(history.applied_learnings_count, history.appliedLearningsCount, dashboardSummary.applied_learnings_count);
   const scientificSummary = {
     testedTheses: toNumber(
