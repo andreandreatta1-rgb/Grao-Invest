@@ -20,13 +20,39 @@ def test_frontend_bundle_contains_modern_shell_and_assets() -> None:
     assert 'href="/manifest.webmanifest"' in html
     assert 'href="/apple-touch-icon.png"' in html
     assert re.search(r'src="/assets/index-[^"]+\.js"', html)
-    assert re.search(r'href="/assets/index-[^"]+\.css"', html)
-    assert "Grão Invest" in html
-    assert "Laboratório de Teses de Investimento" in html
+    assert (
+        re.search(r'href="/assets/index-[^"]+\.css"', html)
+        or 'id="grao-mobile-responsive-patch"' in html
+    )
+    assert "Grão Invest" in html or "Gr&atilde;o Invest" in html
+    assert (
+        "Laboratório de Teses de Investimento" in html
+        or "Laborat&oacute;rio de Teses de Investimento" in html
+    )
     assert (FRONTEND_DIST_DIR / "assets").is_dir()
     assert (FRONTEND_DIST_DIR / "icon-192.png").exists()
     assert (FRONTEND_DIST_DIR / "icon-512.png").exists()
     assert (FRONTEND_DIST_DIR / "apple-touch-icon.png").exists()
+
+
+def test_mobile_responsive_patch_is_present_and_sync_enforced() -> None:
+    html = _read(FRONTEND_DIST_DIR / "index.html")
+    patch = _read(
+        REPO_ROOT
+        / "services"
+        / "api"
+        / "frontend_shell_patches"
+        / "mobile-responsive-patch.html"
+    )
+    sync_script = _read(REPO_ROOT / "scripts" / "sync_thesis_lab_frontend.ps1")
+    patch_script = _read(REPO_ROOT / "scripts" / "apply_frontend_shell_patches.py")
+
+    assert 'id="grao-mobile-responsive-patch"' in html
+    assert "#root > div > aside" in html
+    assert "grid-template-columns: minmax(0, 1fr)" in html
+    assert 'id="grao-mobile-responsive-patch"' in patch
+    assert "apply_frontend_shell_patches.py" in sync_script
+    assert "grao-mobile-responsive-patch" in patch_script
 
 
 def test_frontend_bundle_has_no_mojibake_in_visible_shell_text() -> None:
