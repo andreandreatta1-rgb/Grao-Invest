@@ -1,0 +1,55 @@
+name: Quality gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "20 */6 * * *"
+
+concurrency:
+  group: quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-contracts:
+    name: Local contracts and frontend bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install test runner
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Run quality-gate unit tests
+        run: python -m pytest tests/unit/test_grao_quality_gate.py -q
+
+      - name: Inspect bundled frontend
+        run: python scripts/run_grao_quality_gate.py --frontend-dist services/api/frontend_dist --json
+
+  public-canary:
+    name: Public API canary
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Check public dashboard contract
+        run: >
+          python scripts/run_grao_quality_gate.py
+          --frontend-dist services/api/frontend_dist
+          --dashboard-url https://grao-invest.vercel.app/api/dashboard/summary/1
+          --attempts 3
+          --json
