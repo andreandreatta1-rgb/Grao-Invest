@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import re
 from collections import defaultdict
@@ -261,6 +262,25 @@ DEFAULT_ANON_PASSWORD = os.getenv("ANON_USER_PASSWORD", "anon-access-disabled")
 DEFAULT_DATA_CONTEXT_REFRESH_INSTRUMENTS = (
     "PETR4,VALE3,ITUB4,BBDC4,BBAS3,WEGE3,B3SA3,ABEV3,RENT3,SUZB3"
 )
+
+
+def _load_json_dict_from_path(path: Path) -> dict[str, object] | None:
+    if not path.exists():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return raw if isinstance(raw, dict) else None
+
+
+def _load_runtime_or_bundled_json_payload(filename: str) -> dict[str, object] | None:
+    runtime_payload = _load_json_dict_from_path(data_dir / filename)
+    if runtime_payload is not None:
+        return runtime_payload
+    if bundled_data_dir != data_dir:
+        return _load_json_dict_from_path(bundled_data_dir / filename)
+    return None
 
 
 def _frontend_shell_dir() -> Path:
@@ -1530,6 +1550,208 @@ def _current_monitor_payload_is_stale(
         return True
     generated_at = _parse_iso_datetime(payload.get("generated_at"))
     return _age_exceeds_limit(generated_at, reference_time=reference_time, limit=freshness_limit)
+
+
+def _dashboard_seed_current_monitor_fallback_enabled() -> bool:
+    return _env_bool(
+        "DASHBOARD_SEED_CURRENT_MONITOR_FALLBACK",
+        bool(os.getenv("VERCEL", "").strip()),
+    )
+
+
+def _seed_text(value: object, default: str = "") -> str:
+    text = str(value or "").strip()
+    return text or default
+
+
+def _seed_number(value: object, default: float = 0.0) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return default
+    return parsed if math.isfinite(parsed) else default
+
+
+def _seed_bool(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    text = _seed_text(value).lower()
+    if text in {"1", "true", "yes", "sim", "open", "aberta"}:
+        return True
+    if text in {"0", "false", "no", "nao", "fechada", "encerrada"}:
+        return False
+    return False
+
+
+def _seed_operation_direction(operation: dict[str, object]) -> str:
+    joined = " ".join(
+        _seed_text(operation.get(key)).lower()
+        for key in ("direction", "structured_operation", "operation_plan", "status")
+    )
+    if "iron condor" in joined or "neutra" in joined or "range" in joined:
+        return "range"
+    if "bear" in joined or "venda" in joined or "queda" in joined:
+        return "bearish"
+    return "bullish"
+
+
+def _seed_operation_front(operation: dict[str, object]) -> str:
+    raw_front = _seed_text(operation.get("front")).lower()
+    action = _seed_text(operation.get("action")).upper()
+    if "imove" in raw_front or action.startswith("REAL"):
+        return "imoveis"
+    if "cripto" in raw_front or action.endswith("USDT"):
+        return "cripto"
+    return "acoes_b3"
+
+
+def _seed_operation_monitor_status(operation: dict[str, object]) -> str:
+    status = f"{_seed_text(operation.get('status'))} {_seed_text(operation.get('outcome'))}".lower()
+    if "invalid" in status or "stop" in status:
+        return "stop_alert"
+    if "alvo" in status or "valid" in status:
+        return "target_hit"
+    return "monitoring"
+
+
+def _seed_current_monitor_thesis(operation: dict[str, object], index: int) -> dict[str, object]:
+    action = _seed_text(operation.get("action"), f"TH-{index + 1}")
+    opened_at = _seed_text(operation.get("thesis_raised_at"), isoformat(utc_now()))
+    latest_at = _seed_text(operation.get("latest_price_at"), opened_at)
+    expected_pct = _seed_number(operation.get("expected_result_pct"))
+    moment_pct = _seed_number(operation.get("moment_result_pct"))
+    entry_price = _seed_number(operation.get("entry_price_brl"))
+    current_price = _seed_number(operation.get("current_price_brl"), entry_price)
+    return {
+        "thesis_id": _seed_text(operation.get("thesis_id"), f"TH-SEED-{index + 1:04d}"),
+        "instrument": action,
+        "asset_front": _seed_operation_front(operation),
+        "front_label": _seed_text(operation.get("front")),
+        "direction": _seed_operation_direction(operation),
+        "why_thesis": [
+            _seed_text(
+                operation.get("thesis_reason"),
+                "Tese publicada pelo ciclo operacional.",
+            )
+        ],
+        "thesis_raised_at": opened_at,
+        "suggested_entry_time": opened_at,
+        "suggested_exit_time": _seed_text(operation.get("planned_exit_at"), latest_at),
+        "entry_price": entry_price,
+        "target_price": 0.0,
+        "stop_price": 0.0,
+        "latest_price": current_price,
+        "latest_event_time": latest_at,
+        "monitor_status": _seed_operation_monitor_status(operation),
+        "suggested_action": _seed_text(operation.get("exit_rule"), "seguir_plano"),
+        "expected_financial_pct": expected_pct,
+        "unrealized_financial_pct": moment_pct,
+        "confidence_tese_pct": 60.0,
+        "confidence_now_pct": 60.0,
+        "confidence_delta_pct": 0.0,
+        "support_rate_pct": 60.0,
+        "technical_support_pct": 60.0,
+        "fundamental_support_pct": 55.0,
+        "news_support_pct": 55.0,
+        "geo_oil_support_pct": 50.0,
+        "fundamental_available": True,
+        "news_available": True,
+        "geo_oil_available": False,
+        "progress_to_target_pct": 0.0,
+        "distance_to_stop_pct": 0.0,
+        "executive_status": _seed_text(operation.get("outcome"), "monitoring"),
+        "executive_status_label": _seed_text(operation.get("status"), "Aberta"),
+        "executive_action": _seed_text(operation.get("exit_rule"), "seguir_plano"),
+        "thesis_validity": _seed_text(operation.get("status"), "Aberta"),
+        "revaluation_reason": _seed_text(operation.get("operation_plan")),
+        "next_trigger": _seed_text(operation.get("exit_rule"), "Reavaliar no proximo ciclo."),
+        "learning_signal": _seed_text(operation.get("learning_note")),
+        "monitoring_events": [],
+    }
+
+
+def _build_current_monitor_payload_from_dashboard_seed(user_id: int) -> dict[str, object] | None:
+    if not _dashboard_seed_current_monitor_fallback_enabled():
+        return None
+
+    seed = _load_runtime_or_bundled_json_payload("dashboard_seed.json")
+    if not isinstance(seed, dict):
+        return None
+
+    raw_operations = seed.get("thesis_open_operations")
+    operations = (
+        [item for item in raw_operations if isinstance(item, dict)]
+        if isinstance(raw_operations, list)
+        else []
+    )
+    current_operations = [
+        operation
+        for operation in operations
+        if _seed_bool(operation.get("is_open"))
+        and _seed_text(operation.get("phase")) in {"pos_go_live", "go_live", "analysis"}
+    ]
+    if not current_operations:
+        return None
+
+    generated_at = _seed_text(seed.get("generated_at"), isoformat(utc_now()))
+    theses = [
+        _seed_current_monitor_thesis(operation, index)
+        for index, operation in enumerate(current_operations)
+    ]
+    instruments = sorted(
+        {
+            _seed_text(thesis.get("instrument")).upper()
+            for thesis in theses
+            if _seed_text(thesis.get("instrument"))
+        }
+    )
+    stop_alerts = sum(1 for thesis in theses if thesis.get("monitor_status") == "stop_alert")
+    target_hits = sum(1 for thesis in theses if thesis.get("monitor_status") == "target_hit")
+    monitoring_count = max(0, len(theses) - stop_alerts - target_hits)
+
+    return {
+        "generated_at": generated_at,
+        "user_id": user_id,
+        "horizon_bars": 8,
+        "recent_bars_window": 7,
+        "thesis_count": len(theses),
+        "scan_scope": {
+            "instruments": instruments,
+            "fresh_instruments": instruments,
+            "tick_count": len(theses),
+            "candidate_count": len(theses),
+            "current_candidate_count": len(theses),
+            "source": "dashboard_seed",
+        },
+        "summary": {
+            "target_hits": target_hits,
+            "stop_alerts": stop_alerts,
+            "monitoring_count": monitoring_count,
+            "avg_unrealized_financial_pct": round(
+                sum(_seed_number(thesis.get("unrealized_financial_pct")) for thesis in theses)
+                / len(theses),
+                4,
+            ),
+            "executive_status_counts": {},
+            "needs_attention_count": stop_alerts,
+            "notes": [
+                "Monitor alinhado ao dashboard summary e ao ultimo ciclo operacional saudavel.",
+            ],
+        },
+        "data_quality": {
+            "status": "fresh",
+            "reason": "dashboard_seed_current_operations",
+            "message": (
+                "Dashboard summary publicou operacoes atuais; "
+                "monitor sincronizado ao seed operacional."
+            ),
+            "generated_at": generated_at,
+            "source_generated_at": generated_at,
+            "reused": False,
+        },
+        "theses": theses,
+        "disclaimer": "simulado",
+    }
 
 
 def _microtrades_autopilot_payload_is_stale(payload: dict[str, object]) -> bool:
@@ -3036,6 +3258,10 @@ def thesis_current_monitor_latest(
     )
     payload_stale = isinstance(payload, dict) and _current_monitor_payload_is_stale(payload)
     if payload is None or payload_stale:
+        seed_monitor_payload = _build_current_monitor_payload_from_dashboard_seed(user.id)
+        if seed_monitor_payload is not None:
+            return seed_monitor_payload
+
         autopilot_payload = _execute_microtrades_autopilot(
             db,
             config=_build_default_microtrades_autopilot_config(

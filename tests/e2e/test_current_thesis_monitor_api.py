@@ -178,6 +178,96 @@ def test_current_monitor_latest_rebuilds_from_autopilot_when_runtime_snapshot_is
     assert captured["executed_config"]["publish_decisions"] is False
 
 
+def test_current_monitor_latest_uses_dashboard_seed_when_snapshot_is_stale(
+    client,
+    monkeypatch,
+) -> None:
+    user_id = _authenticate(client, email="current-monitor-seed-fallback@example.com")
+
+    stale_monitor_payload = {
+        "generated_at": "2026-05-07T00:50:13+00:00",
+        "user_id": user_id,
+        "thesis_count": 1,
+        "scan_scope": {
+            "instruments": ["BTCUSDT"],
+            "candidate_count": 1,
+            "current_candidate_count": 1,
+        },
+        "summary": {"monitoring_count": 1},
+        "theses": [
+            {
+                "thesis_id": "TH-BTCUSDT-STALE-0001",
+                "instrument": "BTCUSDT",
+                "latest_event_time": "2026-05-07T00:30:00+00:00",
+            }
+        ],
+    }
+
+    dashboard_seed = {
+        "generated_at": "2026-05-08T12:03:06+00:00",
+        "thesis_open_operations": [
+            {
+                "phase": "pos_go_live",
+                "thesis_id": "TH-PETR4-range-0007",
+                "thesis_raised_at": "2026-05-07T00:00:00+00:00",
+                "action": "PETR4",
+                "thesis_reason": "Tese atual publicada pelo seed operacional.",
+                "expected_result_pct": 0.8627,
+                "operation_plan": "Neutra ate 2026-05-17.",
+                "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
+                "entry_price_brl": 47.27,
+                "current_price_brl": 46.22,
+                "latest_price_at": "2026-05-07T00:00:00+00:00",
+                "planned_exit_at": "2026-05-17",
+                "exit_rule": "Reavaliar na proxima barra.",
+                "status": "Aberta - Atencao",
+                "outcome": "Atencao",
+                "moment_result_pct": -1.0672,
+                "learning_note": "Aprendizado registrado.",
+                "is_open": True,
+            },
+            {
+                "phase": "historico",
+                "thesis_id": "TH-OLD",
+                "action": "VALE3",
+                "is_open": False,
+            },
+        ],
+    }
+
+    def fake_load(_db, *, user_id, include_bundled_bootstrap=True):  # noqa: ANN001, ANN202
+        return stale_monitor_payload
+
+    def fake_seed_loader(filename: str):  # noqa: ANN202
+        assert filename == "dashboard_seed.json"
+        return dashboard_seed
+
+    def fail_execute(*_args, **_kwargs):  # noqa: ANN002, ANN003, ANN202
+        raise AssertionError(
+            "autopilot should not run when production dashboard seed has current operations"
+        )
+
+    monkeypatch.setenv("DASHBOARD_SEED_CURRENT_MONITOR_FALLBACK", "1")
+    monkeypatch.setattr(
+        "app.main.utc_now",
+        lambda: datetime.fromisoformat("2026-05-08T12:10:00+00:00"),
+    )
+    monkeypatch.setattr("app.main.load_latest_current_thesis_monitor", fake_load)
+    monkeypatch.setattr("app.main._load_runtime_or_bundled_json_payload", fake_seed_loader)
+    monkeypatch.setattr("app.main._execute_microtrades_autopilot", fail_execute)
+
+    response = client.get("/api/theses/current-monitor/latest")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["data_quality"]["status"] == "fresh"
+    assert payload["data_quality"]["reason"] == "dashboard_seed_current_operations"
+    assert payload["thesis_count"] == 1
+    assert payload["scan_scope"]["fresh_instruments"] == ["PETR4"]
+    assert payload["theses"][0]["instrument"] == "PETR4"
+    assert payload["theses"][0]["monitor_status"] == "monitoring"
+
+
 def test_current_monitor_latest_rebuilds_when_runtime_snapshot_is_stale(client, monkeypatch) -> None:
     user_id = _authenticate(client, email="current-monitor-stale@example.com")
     captured: dict[str, object] = {}
