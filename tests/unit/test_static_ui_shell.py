@@ -55,6 +55,36 @@ def test_mobile_responsive_patch_is_present_and_sync_enforced() -> None:
     assert "grao-mobile-responsive-patch" in patch_script
 
 
+def test_soul_cockpit_source_is_canonical_backend_bundle_source() -> None:
+    cockpit_root = REPO_ROOT / "apps" / "grao-invest-cockpit"
+    app_source = _read(cockpit_root / "src" / "App.jsx")
+    sidebar_source = _read(cockpit_root / "src" / "components" / "Sidebar.jsx")
+    aprendizado_source = _read(cockpit_root / "src" / "screens" / "Aprendizado.jsx")
+    backtest_source = _read(cockpit_root / "src" / "screens" / "Backtest.jsx")
+    alertas_source = _read(cockpit_root / "src" / "screens" / "Alertas.jsx")
+    package_json = json.loads(_read(cockpit_root / "package.json"))
+    sync_script = _read(REPO_ROOT / "scripts" / "sync_thesis_lab_frontend.ps1")
+
+    assert 'UI_REVISION = "UI rev soul-4"' in app_source
+    assert 'uiRevision = "UI rev soul-4"' in sidebar_source
+    assert "A Grande Obra" in aprendizado_source
+    assert "Evolução do método" in backtest_source
+    assert "Partitura completa" in alertas_source
+    assert package_json["scripts"]["build:backend-bundle"] == (
+        "npm run build && npm run sync:backend"
+    )
+    pinned_ranges = {
+        **package_json.get("dependencies", {}),
+        **package_json.get("devDependencies", {}),
+    }
+    assert "latest" not in set(pinned_ranges.values())
+    assert '"apps/grao-invest-cockpit"' in sync_script
+    assert "UI rev soul-4" in sync_script
+    assert "A Grande Obra" in sync_script
+    assert "Evolução do método" in sync_script
+    assert "Partitura completa" in sync_script
+
+
 def test_frontend_bundle_has_no_mojibake_in_visible_shell_text() -> None:
     bundle_paths = sorted((FRONTEND_DIST_DIR / "assets").glob("index-*.js"))
     assert bundle_paths, "Expected a built frontend JS bundle"

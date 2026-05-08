@@ -1,0 +1,31 @@
+{
+  "name": "grao-invest-cockpit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "vitest run",
+    "validate:daily": "node scripts/validate-daily.mjs",
+    "test:watch": "vitest",
+    "sync:backend": "powershell -ExecutionPolicy Bypass -File ../../scripts/sync_thesis_lab_frontend.ps1",
+    "build:backend-bundle": "npm run build && npm run sync:backend"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "6.0.1",
+    "vite": "8.0.10",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "recharts": "3.8.1",
+    "lucide-react": "1.14.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "jsdom": "29.1.1",
+    "vitest": "4.1.5"
+  }
+}

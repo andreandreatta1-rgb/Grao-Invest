@@ -25,8 +25,19 @@ jobs:
         with:
           python-version: "3.13"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Install test runner
         run: python -m pip install --upgrade pip pytest
+
+      - name: Build canonical soul cockpit source
+        run: |
+          npm ci --prefix apps/grao-invest-cockpit
+          npm --prefix apps/grao-invest-cockpit test
+          npm --prefix apps/grao-invest-cockpit run build
+          pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/sync_thesis_lab_frontend.ps1 -TargetDir .tmp_quality_gate_frontend_dist
 
       - name: Run quality-gate unit tests
         run: >

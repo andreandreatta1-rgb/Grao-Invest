@@ -75,6 +75,8 @@ apps/grao-invest-mobile-web/tailwind.config.js
 apps/grao-invest-mobile-web/tailwind.config.d.ts
 apps/grao-invest-mobile-web/vite.config.js
 apps/grao-invest-mobile-web/vite.config.d.ts
+apps/grao-invest-cockpit/node_modules/
+apps/grao-invest-cockpit/dist/
 backups/
 playwright_lab*.png
 playwright_lab*.txt
