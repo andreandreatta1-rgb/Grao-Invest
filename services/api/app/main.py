@@ -5040,6 +5040,7 @@ def dashboard_summary(
         seed_overview = dashboard_seed.get("thesis_history_overview")
         seed_historical = dashboard_seed.get("historical_analysis_summary")
         seed_exec_summary = dashboard_seed.get("thesis_executive_summary")
+        seed_open_operations = dashboard_seed.get("thesis_open_operations")
         if isinstance(seed_overview, dict):
             runtime_total_tested = _safe_int(thesis_history_overview.get("total_tested"))
             seed_total_tested = _safe_int(seed_overview.get("total_tested"))
@@ -5055,6 +5056,12 @@ def dashboard_summary(
                     historical_analysis_summary = cast(dict[str, object], dict(seed_historical))
                 if isinstance(seed_exec_summary, dict):
                     thesis_executive_summary = cast(dict[str, object], dict(seed_exec_summary))
+        if isinstance(seed_open_operations, list):
+            promoted_open_operations = [
+                item for item in seed_open_operations if isinstance(item, dict)
+            ]
+            if len(promoted_open_operations) > len(thesis_open_operations):
+                thesis_open_operations = promoted_open_operations
 
     def _append_real_estate_candidate_operations() -> None:
         existing_ids = {str(row.get("thesis_id") or "") for row in thesis_open_operations}
