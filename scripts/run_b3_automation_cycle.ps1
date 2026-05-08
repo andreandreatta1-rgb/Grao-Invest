@@ -3,6 +3,9 @@
   [int]$UserId = 1,
   [int]$FlushRetries = 120,
   [int]$CurrentRecentBarsWindow = 2000,
+  [int]$CryptoLookbackHours = 72,
+  [int]$B3RefreshMaxDaysPerInstrument = 10,
+  [switch]$SkipFeedRefresh,
   [switch]$SkipCurrentTheses,
   [switch]$SkipOpsGuard
 )
@@ -84,6 +87,13 @@ $skipBuildArgs = @(
   "--skip-dashboard-seed"
 )
 
+$feedRefreshArgs = @(
+  "scripts/refresh_market_feeds.py",
+  "--user-id", "$UserId",
+  "--b3-max-days-per-instrument", "$B3RefreshMaxDaysPerInstrument",
+  "--crypto-lookback-hours", "$CryptoLookbackHours"
+)
+
 $currentThesesArgs = @(
   "scripts/run_current_thesis_by_front_job.py",
   "--user-id", "$UserId",
@@ -97,6 +107,15 @@ $opsGuardArgs = @(
 )
 
 $publishArgs = @("scripts/publish_dashboard_seed.py")
+
+if (-not $SkipFeedRefresh) {
+  $feedCode = [int](Invoke-Step -Title "refresh_market_feeds" -ArgList $feedRefreshArgs -AllowFailure)
+  if ($feedCode -ne 0) {
+    Write-Log "[$(Get-Date -Format o)] WARN refresh de feeds falhou parcialmente; ops guard fara o bloqueio se necessario"
+  }
+} else {
+  Write-Log "[$(Get-Date -Format o)] SKIP refresh_market_feeds"
+}
 
 $runCode = 0
 try {
