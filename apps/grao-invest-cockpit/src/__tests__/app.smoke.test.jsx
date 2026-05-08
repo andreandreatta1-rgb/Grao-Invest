@@ -15,6 +15,16 @@ describe("App", () => {
     expect(screen.queryByText("Cockpit Halley")).not.toBeInTheDocument();
   });
 
+  it("does not render empty cockpit numbers while the official feed is still loading", () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => {})));
+
+    render(<App />);
+
+    const dashboard = screen.getByRole("main");
+    expect(within(dashboard).getByText(/Carregando laborat.rio cient.fico/i)).toBeInTheDocument();
+    expect(within(dashboard).queryByText("Teses testadas")).not.toBeInTheDocument();
+  });
+
   it("keeps laboratory update metadata in the sidebar instead of the dashboard header", async () => {
     vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("offline"))));
 

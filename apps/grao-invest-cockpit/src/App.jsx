@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { C, Sidebar } from "./components";
+import { C, mono, Sidebar } from "./components";
 import { useFonts } from "./hooks/useFonts.js";
 import { fetchCockpitPayloads } from "./data/cockpitHalleyApi.js";
 import { normalizeCockpitHalley } from "./data/cockpitHalleyAdapter.js";
@@ -115,12 +115,62 @@ function normalizeBuildInfo(payload) {
   };
 }
 
+function InitialCockpitLoading() {
+  return (
+    <main
+      style={{
+        background: C.bg,
+        color: C.text,
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "Sora, system-ui, sans-serif",
+        gap: 18,
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: "24px 28px 40px",
+      }}
+    >
+      <section
+        aria-label="Carregando laboratorio"
+        style={{
+          background: C.card,
+          border: `1px solid ${C.border}`,
+          borderRadius: 16,
+          maxWidth: 620,
+          padding: "22px 24px",
+        }}
+      >
+        <div
+          style={{
+            color: C.gold,
+            fontFamily: mono,
+            fontSize: 10,
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            marginBottom: 10,
+            textTransform: "uppercase",
+          }}
+        >
+          Motor Halley
+        </div>
+        <h1 style={{ color: C.text, fontSize: 22, margin: "0 0 10px" }}>
+          Carregando laboratório científico
+        </h1>
+        <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, margin: 0 }}>
+          O retrato oficial está sendo buscado na API. Nenhum placar é exibido antes da evidência chegar.
+        </p>
+      </section>
+    </main>
+  );
+}
+
 export default function App() {
   useFonts();
 
   const [active, setActive] = useState("dashboard");
   const [tesesEntryMode, setTesesEntryMode] = useState(null);
   const [buildInfo, setBuildInfo] = useState(DEFAULT_BUILD_INFO);
+  const [isInitialCockpitLoad, setIsInitialCockpitLoad] = useState(true);
   const [cockpitData, setCockpitData] = useState(() =>
     withCockpitDataTrust(normalizeCockpitHalley({})),
   );
@@ -145,6 +195,8 @@ export default function App() {
       setCockpitData(withCockpitDataTrust(normalizeCockpitHalley({}), "fallback"));
       setFeedStatus("fallback");
       setFeedHealth(buildFeedHealth({}, "Falha na camada de busca"));
+    } finally {
+      if (isStillMounted()) setIsInitialCockpitLoad(false);
     }
   }, []);
 
@@ -228,7 +280,7 @@ export default function App() {
         buildInfo={buildInfo}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
-        {screens[active] ?? screens.dashboard}
+        {isInitialCockpitLoad ? <InitialCockpitLoading /> : (screens[active] ?? screens.dashboard)}
       </div>
     </div>
   );
