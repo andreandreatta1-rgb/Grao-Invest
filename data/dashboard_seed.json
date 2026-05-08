@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-08T05:52:16+00:00",
+  "generated_at": "2026-05-08T11:51:15+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -207,8 +207,8 @@
         ]
       }
     ],
-    "event_count": 1643,
-    "global_event_count": 1646,
+    "event_count": 1644,
+    "global_event_count": 1647,
     "global_total_tested": 879,
     "user_total_tested": 878,
     "sources": {
@@ -217,8 +217,8 @@
     },
     "sample_quality": {
       "counting_policy": "unique_resolved_case_studies",
-      "raw_case_study_events": 1398,
-      "duplicate_case_study_events_excluded": 519,
+      "raw_case_study_events": 1399,
+      "duplicate_case_study_events_excluded": 520,
       "current_monitor_snapshots_excluded": 248,
       "current_monitor_policy": "excluded_until_resolved_and_deduplicated"
     },
@@ -26805,8 +26805,27 @@
       "is_open": false
     },
     {
-      "phase": "pos_go_live",
+      "phase": "historico",
       "thesis_number": 1399,
+      "thesis_id": "TH-PETR4-bullish-3514",
+      "thesis_raised_at": "2026-05-08T11:48:48+00:00",
+      "action": "PETR4",
+      "thesis_reason": "Tese historica compra para PETR4 no exercicio continuo. Registro legado com confianca 80.58% e retorno esperado 4.82%.",
+      "expected_result_pct": 4.8248,
+      "operation_plan": "Compra ate - (case study historico continuo; detalhes completos de prazo/preco nao persistidos no evento legado)",
+      "structured_operation": "Bull Call Spread | ganho max n/d | perda max n/d",
+      "entry_price_brl": null,
+      "exit_rule": "Sai por alvo/stop/tempo da estrategia (detalhe de preco indisponivel no legado)",
+      "status": "Fechada",
+      "outcome": "Alvo",
+      "moment_result_pct": 3.1405,
+      "duration_days": null,
+      "learning_note": "A direção estava correta, mas o ganho veio abaixo do esperado. Próxima: calibrar melhor alvo e prazo.",
+      "is_open": false
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 1400,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -27079,7 +27098,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1400,
+      "thesis_number": 1401,
       "thesis_id": "IM-RADAR-16",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -27353,7 +27372,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1401,
+      "thesis_number": 1402,
       "thesis_id": "IM-RADAR-15",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -27627,7 +27646,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1402,
+      "thesis_number": 1403,
       "thesis_id": "IM-RADAR-14",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -27901,7 +27920,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1403,
+      "thesis_number": 1404,
       "thesis_id": "IM-RADAR-13",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28174,7 +28193,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1404,
+      "thesis_number": 1405,
       "thesis_id": "IM-RADAR-12",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -28464,7 +28483,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1405,
+      "thesis_number": 1406,
       "thesis_id": "IM-RADAR-11",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -28743,7 +28762,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1406,
+      "thesis_number": 1407,
       "thesis_id": "IM-RADAR-10",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29025,7 +29044,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1407,
+      "thesis_number": 1408,
       "thesis_id": "IM-RADAR-9",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29309,7 +29328,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1408,
+      "thesis_number": 1409,
       "thesis_id": "IM-RADAR-8",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29587,7 +29606,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1409,
+      "thesis_number": 1410,
       "thesis_id": "IM-RADAR-7",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -29871,7 +29890,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1410,
+      "thesis_number": 1411,
       "thesis_id": "IM-RADAR-6",
       "thesis_raised_at": "2026-05-04T13:40:51+00:00",
       "front": "imoveis",
@@ -30155,7 +30174,7 @@
     }
   ],
   "ops_health": {
-    "generated_at": "2026-05-08T11:41:20+00:00",
+    "generated_at": "2026-05-08T11:51:17+00:00",
     "user_id": 1,
     "status": "blocked",
     "message": "O ciclo executou verificacoes, mas os numeros podem nao mudar porque o feed nao esta fresco ou o gerador bloqueou teses atuais.",
@@ -30207,8 +30226,8 @@
       "b3_daily_job": {
         "status": "ok",
         "message": "Resumo do ultimo job B3 encontrado.",
-        "run_at": "2026-05-08T03:30:10+00:00",
-        "age_days": 0.341,
+        "run_at": "2026-05-08T11:30:17+00:00",
+        "age_days": 0.015,
         "build_executed": true,
         "load_executed": true,
         "case_study_executed": true,
@@ -30256,7 +30275,7 @@
                 "count": 18
               }
             ],
-            "age_days": 15.622,
+            "age_days": 15.628,
             "max_age_days": 4.0
           },
           "crypto": {
@@ -30271,7 +30290,7 @@
                 "count": 8019
               }
             ],
-            "age_days": 5.643,
+            "age_days": 5.65,
             "max_age_days": 1.0
           }
         }
@@ -30279,12 +30298,12 @@
       "current_thesis_generator": {
         "status": "blocked",
         "message": "Gerador rodou, mas bloqueou publicacao de teses atuais por falta de dados frescos.",
-        "generated_at": "2026-05-08T05:52:15+00:00",
+        "generated_at": "2026-05-08T11:51:05+00:00",
         "thesis_count": 0,
         "data_quality": {
           "status": "no_fresh_market_data",
           "reason": "no_fresh_market_data",
-          "generated_at": "2026-05-08T05:52:15+00:00",
+          "generated_at": "2026-05-08T11:51:05+00:00",
           "message": "Nenhuma frente tem dados frescos para publicar teses atuais."
         },
         "front_errors": {
@@ -30295,11 +30314,11 @@
       "dashboard_seed": {
         "status": "ok",
         "message": "Dashboard seed legivel.",
-        "generated_at": "2026-05-08T05:52:16+00:00",
-        "age_days": 0.242,
-        "thesis_open_operations": 1410,
+        "generated_at": "2026-05-08T11:51:15+00:00",
+        "age_days": 0.0,
+        "thesis_open_operations": 1411,
         "operations_by_front": {
-          "sem_frente": 1398,
+          "sem_frente": 1399,
           "imoveis": 12
         }
       },
