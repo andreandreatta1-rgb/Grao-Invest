@@ -1,8 +1,10 @@
 import "@testing-library/jest-dom/vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "../App.jsx";
+import { normalizeCockpitHalley } from "../data/cockpitHalleyAdapter.js";
+import Saude from "../screens/Saude.jsx";
 
 const dashboardSummary = {
   updated_at: "2026-05-04T10:00:00.000Z",
@@ -79,6 +81,7 @@ function successFetch(url) {
 
 describe("laboratory health screen", () => {
   afterEach(() => {
+    cleanup();
     vi.unstubAllGlobals();
   });
 
@@ -102,7 +105,7 @@ describe("laboratory health screen", () => {
     expect(screen.getByText("Cobertura por fonte")).toBeInTheDocument();
     expect(screen.getByText("microtrades-data-refresh")).toBeInTheDocument();
     expect(screen.getByText("data-context-refresh")).toBeInTheDocument();
-    expect(screen.getByText("Noticias sem cobertura recente")).toBeInTheDocument();
+    expect(screen.getAllByText("Noticias sem cobertura recente").length).toBeGreaterThan(0);
   });
 
   it("uses canonical unique tested theses instead of raw thesis rows", async () => {
@@ -136,6 +139,83 @@ describe("laboratory health screen", () => {
     expect(await screen.findByText("Not\u00edcias recentes")).toBeInTheDocument();
     expect(screen.queryByText("Market fresh coverage")).not.toBeInTheDocument();
   });
+
+  it("shows the operational freshness traffic light before the technical rows", async () => {
+    const data = normalizeCockpitHalley({
+      dashboardSummary: {
+        ...dashboardSummary,
+        ops_health: {
+          status: "ok",
+          stages: {
+            market_feed: {
+              status: "ok",
+              fronts: {
+                b3: { age_days: 0.2, max_age_days: 4 },
+                crypto: { age_days: 0.01, max_age_days: 1 },
+              },
+            },
+          },
+        },
+      },
+      currentMonitor: {
+        scan_scope: { fresh_instruments: ["PETR4", "BTCUSDT"], tick_count: 200 },
+        theses: [
+          {
+            thesis_id: "TH-PETR4-bullish-0001",
+            instrument: "PETR4",
+            direction: "bullish",
+            thesis_raised_at: "2026-05-04T09:30:00Z",
+            monitor_status: "monitoring",
+            news_available: true,
+            fundamental_available: true,
+          },
+        ],
+      },
+      realEstateCandidates: { candidates: [] },
+      realEstateStrategyTerritoryCandidates: { matrix_briefs: [] },
+    });
+    render(<Saude data={data} feedStatus="live" feedHealth={[]} />);
+
+    const board = await screen.findByTestId("freshness-board");
+    expect(within(board).getByText("Sem\u00e1foro de frescor")).toBeInTheDocument();
+    expect(within(board).getByText("Frescor operacional")).toBeInTheDocument();
+    expect(screen.getAllByText("Parcial").length).toBeGreaterThan(0);
+    expect(screen.getByText("B3")).toBeInTheDocument();
+    expect(screen.getByText("Cripto")).toBeInTheDocument();
+    expect(screen.getByText("Im\u00f3veis")).toBeInTheDocument();
+  });
+
+  it("keeps the operational freshness board visible when the adapter has no freshness summary yet", async () => {
+    render(
+      <Saude
+        data={{
+          scientificSummary: { testedTheses: 879 },
+          coverage: {
+            market: { status: "fresh", label: "Mercado atualizado" },
+            history: { status: "fresh", label: "Historico disponivel" },
+          },
+        }}
+        feedStatus="live"
+        feedHealth={[
+          {
+            key: "dashboardSummary",
+            label: "Resumo cientifico",
+            status: "live",
+            labelStatus: "API real",
+            endpoint: "/api/dashboard/summary/1",
+            officialArray: "thesis_open_operations",
+            message: "Feed oficial respondendo.",
+          },
+        ]}
+      />,
+    );
+
+    const board = screen.getByTestId("freshness-board");
+    expect(within(board).getByText("Sem\u00e1foro de frescor")).toBeInTheDocument();
+    expect(within(board).getByText("Frescor operacional")).toBeInTheDocument();
+    expect(within(board).getByText(/Resumo cientifico/)).toBeInTheDocument();
+  });
+
   it("makes fallback explicit when feeds are unavailable", async () => {
     vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("offline"))));
     const user = userEvent.setup();

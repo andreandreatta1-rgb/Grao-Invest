@@ -352,10 +352,10 @@ describe("targeted visual and data corrections", () => {
               {
                 id: 1,
                 data: "histÃ³rico",
-                teses: 1727,
-                esperado: 4.43,
-                alcancado: 2.68,
-                aprovadas: 1768,
+                teses: 879,
+                esperado: 4.12,
+                alcancado: 3.01,
+                aprovadas: 869,
               },
             ],
           },
@@ -365,7 +365,7 @@ describe("targeted visual and data corrections", () => {
 
     const evidence = screen.getByTestId("audit-evidence-1");
     expect(within(evidence).getByText("histÃ³rico")).toBeInTheDocument();
-    expect(within(evidence).getByText(/1,02pp/)).toBeInTheDocument();
+    expect(within(evidence).getByText(/−1,11pp/)).toBeInTheDocument();
     expect(within(evidence).getAllByText(/regra ajustada/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("1.708")).not.toBeInTheDocument();
   });

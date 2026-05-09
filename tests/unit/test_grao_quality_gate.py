@@ -93,6 +93,17 @@ def test_frontend_gate_rejects_legacy_1727_dashboard_kpi_literal(tmp_path: Path)
         gate.inspect_frontend_bundle(dist)
 
 
+def test_frontend_gate_rejects_any_legacy_1727_frontend_literal(tmp_path: Path) -> None:
+    dist = _write_frontend_dist(
+        tmp_path,
+        "const historicalConsolidated={testedTheses:1727};"
+        "function App(){let [state,setState]=(0,_.useState)(()=>Hn(_n({})));return state}",
+    )
+
+    with pytest.raises(gate.QualityGateFailure, match="1727"):
+        gate.inspect_frontend_bundle(dist)
+
+
 def test_dashboard_payload_gate_rejects_inconsistent_tested_counts() -> None:
     payload = {
         "ops_health": {"status": "ok"},
@@ -107,7 +118,18 @@ def test_dashboard_payload_gate_rejects_inconsistent_tested_counts() -> None:
 
 def test_dashboard_payload_gate_accepts_current_public_contract() -> None:
     payload = {
-        "ops_health": {"status": "ok"},
+        "ops_health": {
+            "status": "ok",
+            "stages": {
+                "market_feed": {
+                    "status": "ok",
+                    "fronts": {
+                        "b3": {"age_days": 0.2, "max_age_days": 4},
+                        "crypto": {"age_days": 0.01, "max_age_days": 1},
+                    },
+                }
+            },
+        },
         "thesis_history_overview": {"total_tested": 879},
         "historical_analysis_summary": {"thesis_count": 879},
         "thesis_open_operations": [
@@ -125,6 +147,26 @@ def test_dashboard_payload_gate_accepts_current_public_contract() -> None:
     assert result["total_tested"] == 879
     assert result["historical_thesis_count"] == 879
     assert result["real_estate_operations"] == 1
+    assert result["freshness"]["status"] == "online"
+    assert result["freshness"]["sources"]["b3"] == "online"
+    assert result["freshness"]["sources"]["crypto"] == "online"
+    assert result["freshness"]["sources"]["imoveis"] == "online"
+
+
+def test_dashboard_payload_gate_reports_partial_freshness_without_ops_fronts() -> None:
+    payload = {
+        "ops_health": {"status": "ok"},
+        "thesis_history_overview": {"total_tested": 879},
+        "historical_analysis_summary": {"thesis_count": 879},
+        "thesis_open_operations": [],
+    }
+
+    result = gate.inspect_dashboard_payload(payload)
+
+    assert result["freshness"]["status"] == "partial"
+    assert result["freshness"]["sources"]["b3"] == "missing"
+    assert result["freshness"]["sources"]["crypto"] == "missing"
+    assert result["freshness"]["sources"]["imoveis"] == "missing"
 
 
 def test_dashboard_payload_gate_requires_real_estate_analysis_when_imoveis_exist() -> None:

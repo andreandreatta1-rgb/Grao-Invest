@@ -161,6 +161,96 @@ function coverageTone(status) {
   return { accent: C.amber, badge: "warning", label: "missing" };
 }
 
+function freshnessTone(status) {
+  if (status === "online") return { accent: C.teal, badge: "open", label: "online" };
+  if (status === "partial") return { accent: C.amber, badge: "warning", label: "parcial" };
+  if (status === "stale") return { accent: C.coral, badge: "warning", label: "stale" };
+  if (status === "not_applicable") return { accent: C.muted, badge: "neutral", label: "n/a" };
+  return { accent: C.coral, badge: "danger", label: "sem fonte" };
+}
+
+function FreshnessSourceCard({ source }) {
+  const tone = freshnessTone(source?.status);
+
+  return (
+    <div
+      style={{
+        background: C.panel,
+        border: `1px solid ${C.border}`,
+        borderTop: `2px solid ${tone.accent}`,
+        borderRadius: 12,
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        minWidth: 0,
+        padding: "12px 13px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <strong style={{ color: C.text, fontSize: 12 }}>{source?.label}</strong>
+        <Badge label={tone.label} type={tone.badge} />
+      </div>
+      <span style={{ color: C.muted, fontSize: 11, lineHeight: 1.45 }}>
+        {source?.detail || "Sem detalhe de frescor registrado."}
+      </span>
+    </div>
+  );
+}
+
+function FreshnessBoard({ freshness }) {
+  if (!freshness) return null;
+  const tone = freshnessTone(freshness.status);
+
+  return (
+    <section
+      data-testid="freshness-board"
+      aria-label="Semáforo de frescor"
+      style={{
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        borderLeft: `4px solid ${tone.accent}`,
+        borderRadius: 14,
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+        padding: 16,
+      }}
+    >
+      <div style={{ alignItems: "flex-start", display: "flex", justifyContent: "space-between", gap: 12 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ color: C.gold, fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", marginBottom: 5, textTransform: "uppercase" }}>
+            Semáforo de frescor
+          </div>
+          <h2 style={{ color: C.text, fontSize: 16, fontWeight: 800, margin: 0 }}>
+            Frescor operacional
+          </h2>
+          <p style={{ color: C.muted, fontSize: 12, lineHeight: 1.6, margin: "7px 0 0" }}>
+            {freshness.message}
+          </p>
+          {freshness.action && (
+            <p style={{ color: C.amber, fontSize: 11, fontWeight: 700, lineHeight: 1.5, margin: "8px 0 0" }}>
+              Próximo passo: {freshness.action}
+            </p>
+          )}
+        </div>
+        <div style={{ alignItems: "flex-end", display: "flex", flexDirection: "column", gap: 6 }}>
+          <Badge label={freshness.label} type={freshness.badge || tone.badge} />
+          {freshness.generatedAt && (
+            <span style={{ color: C.dim, fontFamily: mono, fontSize: 9 }}>
+              {fmtDate(freshness.generatedAt)}
+            </span>
+          )}
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+        {(freshness.sources ?? []).map((source) => (
+          <FreshnessSourceCard key={source.key} source={source} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function CoverageRow({ name, item }) {
   const tone = coverageTone(item?.status);
 
@@ -187,6 +277,45 @@ function CoverageRow({ name, item }) {
       <Badge label={tone.label} type={tone.badge} />
     </div>
   );
+}
+
+function freshnessStatusFromCoverage(status) {
+  if (status === "fresh") return "online";
+  if (status === "stale") return "stale";
+  if (status === "disabled" || status === "not_applicable") return "not_applicable";
+  return "missing";
+}
+
+function buildFallbackFreshness({ feeds, feedStatus, coverage }) {
+  const feedSources = feeds.map((feed) => ({
+    key: feed.key,
+    label: feed.label,
+    status: feed.status === "live" ? "online" : "partial",
+    detail: feed.message || feed.endpoint || "Feed oficial monitorado.",
+  }));
+  const coverageSources = Object.entries(coverage || {}).map(([key, item]) => ({
+    key,
+    label: key,
+    status: freshnessStatusFromCoverage(item?.status),
+    detail: item?.label || "Fonte monitorada pelo laboratorio.",
+  }));
+  const sources = feedSources.length > 0 ? feedSources : coverageSources;
+  const hasProblem = feedStatus !== "live" || sources.some((source) => !["online", "not_applicable"].includes(source.status));
+  const status = sources.length === 0 ? "missing" : hasProblem ? "partial" : "online";
+  const tone = freshnessTone(status);
+
+  return {
+    status,
+    label: tone.label,
+    badge: tone.badge,
+    message: hasProblem
+      ? "O semaforo foi reconstruido a partir dos feeds e da cobertura disponivel. Ha pontos que pedem conferencia antes de ampliar risco."
+      : "Feeds oficiais respondendo. O semaforo confirma que o laboratorio esta operando com dados reais.",
+    action: hasProblem
+      ? "Conferir os checks de qualidade e reexecutar o ciclo diario se algum feed estiver parcial."
+      : "Manter o monitoramento diario e registrar qualquer mudanca de frescor.",
+    sources,
+  };
 }
 
 function WorkflowRow({ name, status, detail }) {
@@ -231,6 +360,7 @@ export default function Saude({ data, feedStatus = "live", feedHealth = [] }) {
     ).size;
   const checks = data?.dataQualityGate?.checks ?? [];
   const coverage = data?.coverage ?? {};
+  const operationalFreshness = data?.operationalFreshness ?? buildFallbackFreshness({ feeds, feedStatus, coverage });
   const coverageRows = [
     ["Mercado", coverage.market],
     ["Historico", coverage.history],
@@ -294,10 +424,13 @@ export default function Saude({ data, feedStatus = "live", feedHealth = [] }) {
         message={"O laborat\u00f3rio revisou os feeds. Quando a API falha, o retrato anterior permanece vis\u00edvel e o motor registra o estado para confer\u00eancia."}
         insights={[
           { label: "Feeds", value: `${onlineFeeds}/${totalFeeds || 0} online`, color: hasFallback ? C.amber : C.teal },
+          { label: "Frescor", value: operationalFreshness?.label || "Sem leitura", color: operationalFreshness?.status === "online" ? C.teal : C.amber },
           { label: "Teses", value: `${fmtInteger(uniqueTestedTheses)} testadas únicas`, color: C.sky },
           { label: "Atenção", value: hasQualityAttention ? "Há checks para conferir." : "Sem bloqueio crítico.", color: hasQualityAttention ? C.amber : C.green },
         ]}
       />
+
+      <FreshnessBoard freshness={operationalFreshness} />
 
       <section
         style={{

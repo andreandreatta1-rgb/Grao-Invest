@@ -278,6 +278,7 @@ export default function App() {
         lastUpdatedAt={cockpitData?.scientificSummary?.lastUpdatedAt}
         uiRevision={UI_REVISION}
         buildInfo={buildInfo}
+        freshness={cockpitData?.operationalFreshness}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
         {isInitialCockpitLoad ? <InitialCockpitLoading /> : (screens[active] ?? screens.dashboard)}

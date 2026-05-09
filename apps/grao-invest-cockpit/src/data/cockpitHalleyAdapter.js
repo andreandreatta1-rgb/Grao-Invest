@@ -217,6 +217,159 @@ function normalizeCoverage(payloads, monitorTrust, activeTheses) {
   };
 }
 
+function sourceStatusFromCoverage(item) {
+  if (!item) return "missing";
+  if (item.status === "fresh") return "online";
+  if (item.status === "stale") return "stale";
+  if (item.status === "disabled" || item.status === "not_applicable") return "not_applicable";
+  return "missing";
+}
+
+function freshnessSource(key, label, status, detail = "", meta = {}) {
+  return {
+    key,
+    label,
+    status,
+    detail,
+    updatedAt: meta.updatedAt ?? null,
+    ageDays: meta.ageDays ?? null,
+    maxAgeDays: meta.maxAgeDays ?? null,
+  };
+}
+
+function freshnessFromFrontStage(key, label, frontStage, fallbackCoverage) {
+  if (frontStage && typeof frontStage === "object") {
+    const ageDays = toNumber(frontStage.age_days ?? frontStage.ageDays, null);
+    const maxAgeDays = toNumber(frontStage.max_age_days ?? frontStage.maxAgeDays, null);
+    const latestEvent = cleanText(coalesce(frontStage.latest_event_time, frontStage.latestEventTime));
+    const hasData = toNumber(frontStage.count, 0) > 0 || latestEvent || ageDays !== null;
+    const status = hasData && ageDays !== null && maxAgeDays !== null
+      ? (ageDays <= maxAgeDays ? "online" : "stale")
+      : hasData
+        ? "online"
+        : "missing";
+    const detail = latestEvent
+      ? `Último evento ${latestEvent}`
+      : ageDays !== null && maxAgeDays !== null
+        ? `${ageDays.toLocaleString("pt-BR")}d de ${maxAgeDays.toLocaleString("pt-BR")}d`
+        : "Sem leitura operacional recente";
+
+    return freshnessSource(key, label, status, detail, {
+      updatedAt: latestEvent || null,
+      ageDays,
+      maxAgeDays,
+    });
+  }
+
+  return freshnessSource(
+    key,
+    label,
+    sourceStatusFromCoverage(fallbackCoverage),
+    fallbackCoverage?.label || "Sem leitura operacional recente",
+  );
+}
+
+function realEstateFreshness(payloads) {
+  const operations = asArray(payloads?.dashboardSummary?.thesis_open_operations)
+    .filter((row) => normalizeFront(row?.front, row?.action) === "Imóveis");
+  const candidates = asArray(payloads?.realEstateCandidates?.candidates);
+  const strategyBriefs = asArray(
+    coalesce(
+      payloads?.realEstateStrategyTerritoryCandidates?.matrix_briefs,
+      payloads?.realEstateStrategyTerritoryCandidates?.matrixBriefs,
+    ),
+  );
+
+  if (operations.length > 0) {
+    const analysed = operations.filter((row) => row?.real_estate_analysis && typeof row.real_estate_analysis === "object").length;
+    return freshnessSource(
+      "imoveis",
+      "Imóveis",
+      analysed === operations.length ? "online" : "partial",
+      `${operations.length} ${operations.length === 1 ? "tese imobiliaria oficial" : "teses imobiliarias oficiais"}`,
+    );
+  }
+
+  if (candidates.length > 0 || strategyBriefs.length > 0) {
+    return freshnessSource(
+      "imoveis",
+      "Imóveis",
+      "partial",
+      `${candidates.length + strategyBriefs.length} candidatos/briefs sem tese registrada`,
+    );
+  }
+
+  return freshnessSource("imoveis", "Imóveis", "missing", "Sem tese ou candidato imobiliário no feed atual");
+}
+
+function summarizeFreshnessStatus({ sources, opsHealth, monitorTrust }) {
+  const opsStatus = cleanText(opsHealth?.status).toLowerCase();
+  const actionableSources = sources.filter((source) => source.status !== "not_applicable");
+  const sourceStatuses = actionableSources.map((source) => source.status);
+
+  if (opsStatus === "fail") {
+    return {
+      status: "missing",
+      label: "Sem fonte",
+      badge: "danger",
+      message: cleanText(opsHealth?.message) || "O ciclo operacional registrou falha. O plano é não confiar em números sem nova verificação.",
+    };
+  }
+
+  if (monitorTrust?.isFrozen || opsStatus === "blocked" || sourceStatuses.includes("stale")) {
+    return {
+      status: "stale",
+      label: "Desatualizado",
+      badge: "warning",
+      message: cleanText(opsHealth?.message) || "Há dado fora da janela de frescor. O último retrato fica visível, mas novas decisões exigem atualização do feed.",
+    };
+  }
+
+  if (sourceStatuses.includes("missing") || sourceStatuses.includes("partial")) {
+    return {
+      status: "partial",
+      label: "Parcial",
+      badge: "warning",
+      message: "Parte das fontes ainda precisa de confirmação. O laboratório mostra o retrato, mas separa evidência fresca de lacuna.",
+    };
+  }
+
+  return {
+    status: "online",
+    label: "Online",
+    badge: "open",
+    message: "Feeds principais dentro da janela de frescor. O laboratório pode ser conferido com dados atuais.",
+  };
+}
+
+function buildOperationalFreshness(payloads, coverage, monitorTrust) {
+  const dashboardSummary = payloads?.dashboardSummary ?? {};
+  const opsHealth = dashboardSummary?.ops_health ?? {};
+  const stages = opsHealth?.stages && typeof opsHealth.stages === "object" ? opsHealth.stages : {};
+  const marketFeed = stages.market_feed && typeof stages.market_feed === "object" ? stages.market_feed : {};
+  const marketFronts = marketFeed.fronts && typeof marketFeed.fronts === "object" ? marketFeed.fronts : {};
+  const sources = [
+    freshnessFromFrontStage("b3", "B3", marketFronts.b3, coverage.market),
+    freshnessFromFrontStage("crypto", "Cripto", marketFronts.crypto, coverage.market),
+    realEstateFreshness(payloads),
+    freshnessSource("historico", "Histórico", sourceStatusFromCoverage(coverage.history), coverage.history?.label || ""),
+    freshnessSource("noticias", "Notícias", sourceStatusFromCoverage(coverage.news), coverage.news?.label || ""),
+    freshnessSource("fundamentos", "Fundamentos", sourceStatusFromCoverage(coverage.fundamentals), coverage.fundamentals?.label || ""),
+    freshnessSource("macro", "Macro", sourceStatusFromCoverage(coverage.macro), coverage.macro?.label || ""),
+  ];
+  const summary = summarizeFreshnessStatus({ sources, opsHealth, monitorTrust });
+  const recommendedActions = asArray(opsHealth?.recommended_actions)
+    .map(cleanText)
+    .filter(Boolean);
+
+  return {
+    ...summary,
+    generatedAt: toOptionalIsoDate(coalesce(opsHealth?.generated_at, dashboardSummary?.updated_at, dashboardSummary?.generated_at)),
+    action: recommendedActions[0] || "",
+    sources,
+  };
+}
+
 function coverageNotesForThesis(thesis, coverage) {
   const notes = [];
   const sourceAvailability = thesis.sourceAvailability ?? {};
@@ -1152,6 +1305,7 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
     ? goLiveTheses
     : thesisRows.filter((row) => row.statusGroup === "Go-live" || row.statusGroup === "Em análise").map(activeThesisFromRow);
   const coverage = normalizeCoverage(payloads, monitorTrust, activeTheses);
+  const operationalFreshness = buildOperationalFreshness(payloads, coverage, monitorTrust);
   const coveredGoLiveTheses = goLiveTheses.map((thesis) => withCoverageNotes(thesis, coverage));
   const coveredActiveTheses = activeTheses.map((thesis) => withCoverageNotes(thesis, coverage));
   const calibrationRows = buildCalibrationRows(dashboardSummary, executiveSummary);
@@ -1161,6 +1315,7 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
   return {
     monitorTrust,
     coverage,
+    operationalFreshness,
     scientificSummary,
     executiveSummary,
     goLiveTheses: coveredGoLiveTheses,

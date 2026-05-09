@@ -605,6 +605,115 @@ describe("cockpitHalleyAdapter", () => {
     ]));
   });
 
+  it("summarizes operational freshness from ops health, coverage and official thesis arrays", () => {
+    const result = normalizeCockpitHalley(
+      {
+        dashboardSummary: {
+          ops_health: {
+            status: "ok",
+            generated_at: "2026-05-08T10:00:00Z",
+            stages: {
+              market_feed: {
+                status: "ok",
+                fronts: {
+                  b3: { age_days: 0.2, max_age_days: 4, latest_event_time: "2026-05-08T09:00:00Z" },
+                  crypto: { age_days: 0.01, max_age_days: 1, latest_event_time: "2026-05-08T09:45:00Z" },
+                },
+              },
+            },
+          },
+          thesis_history_overview: { total_tested: 879, success_rate_pct: 76.34 },
+          thesis_open_operations: [
+            {
+              thesis_id: "IM-100",
+              thesis_number: 100,
+              front: "imoveis",
+              action: "Apto Vila Mariana",
+              status: "Observando",
+              is_open: true,
+              expected_result_pct: 8.4,
+              real_estate_analysis: { score: 63, confidence: 51 },
+            },
+          ],
+        },
+        currentMonitor: {
+          scan_scope: { fresh_instruments: ["PETR4", "BTCUSDT"], tick_count: 200 },
+          theses: [
+            {
+              thesis_id: "TH-PETR4-bullish-0001",
+              instrument: "PETR4",
+              direction: "bullish",
+              thesis_raised_at: "2026-05-08T09:30:00Z",
+              monitor_status: "monitoring",
+              news_available: true,
+              fundamental_available: true,
+            },
+          ],
+        },
+      },
+      new Date("2026-05-08T10:00:00Z"),
+    );
+
+    expect(result.operationalFreshness).toMatchObject({
+      status: "online",
+      label: "Online",
+      badge: "open",
+    });
+    expect(result.operationalFreshness.sources.map((source) => source.key)).toEqual([
+      "b3",
+      "crypto",
+      "imoveis",
+      "historico",
+      "noticias",
+      "fundamentos",
+      "macro",
+    ]);
+    expect(result.operationalFreshness.sources.find((source) => source.key === "b3")).toMatchObject({
+      status: "online",
+      label: "B3",
+    });
+    expect(result.operationalFreshness.sources.find((source) => source.key === "imoveis")).toMatchObject({
+      status: "online",
+      detail: "1 tese imobiliaria oficial",
+    });
+  });
+
+  it("marks freshness as stale when ops health blocks the operational cycle", () => {
+    const result = normalizeCockpitHalley(
+      {
+        dashboardSummary: {
+          ops_health: {
+            status: "blocked",
+            message: "Feed de mercado stale.",
+            recommended_actions: ["Atualizar feed B3/Cripto."],
+            stages: {
+              market_feed: {
+                status: "blocked",
+                stale_fronts: ["b3", "crypto"],
+                fronts: {
+                  b3: { age_days: 8, max_age_days: 4 },
+                  crypto: { age_days: 2, max_age_days: 1 },
+                },
+              },
+            },
+          },
+          thesis_history_overview: { total_tested: 879 },
+        },
+      },
+      new Date("2026-05-08T10:00:00Z"),
+    );
+
+    expect(result.operationalFreshness).toMatchObject({
+      status: "stale",
+      label: "Desatualizado",
+      badge: "warning",
+      action: "Atualizar feed B3/Cripto.",
+    });
+    expect(result.operationalFreshness.sources.find((source) => source.key === "b3")).toMatchObject({
+      status: "stale",
+    });
+  });
+
   it("returns partial API payloads when one feed fails", async () => {
     const fetchMock = vi.fn((url) => {
       if (url === "/api/dashboard/summary/1") {

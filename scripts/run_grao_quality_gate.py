@@ -46,6 +46,57 @@ def _list(value: object) -> list[Any]:
     return value if isinstance(value, list) else []
 
 
+def _freshness_from_front_stage(stage: dict[str, Any] | None) -> str:
+    if not stage:
+        return "missing"
+    age_days = stage.get("age_days")
+    max_age_days = stage.get("max_age_days")
+    try:
+        age = float(age_days)
+        limit = float(max_age_days)
+    except (TypeError, ValueError):
+        has_activity = stage.get("latest_event_time") or _to_int(stage.get("count"))
+        return "online" if has_activity else "missing"
+    return "online" if age <= limit else "stale"
+
+
+def _inspect_freshness(payload: dict[str, Any]) -> dict[str, Any]:
+    ops_health = _dict(payload.get("ops_health"))
+    stages = _dict(ops_health.get("stages"))
+    market_feed = _dict(stages.get("market_feed"))
+    fronts = _dict(market_feed.get("fronts"))
+    operations = _list(payload.get("thesis_open_operations"))
+    real_estate_ops = [
+        row
+        for row in operations
+        if isinstance(row, dict) and str(row.get("front") or "").strip().lower() == "imoveis"
+    ]
+    real_estate_with_analysis = [
+        row for row in real_estate_ops if isinstance(row.get("real_estate_analysis"), dict)
+    ]
+    sources = {
+        "b3": _freshness_from_front_stage(_dict(fronts.get("b3"))),
+        "crypto": _freshness_from_front_stage(_dict(fronts.get("crypto"))),
+        "imoveis": (
+            "online"
+            if real_estate_ops and len(real_estate_with_analysis) == len(real_estate_ops)
+            else "missing"
+        ),
+    }
+    source_values = set(sources.values())
+    ops_status = str(ops_health.get("status") or "").strip().lower()
+    if ops_status in {"fail", "failed"}:
+        status = "missing"
+    elif ops_status == "blocked" or "stale" in source_values:
+        status = "stale"
+    elif "missing" in source_values:
+        status = "partial"
+    else:
+        status = "online"
+
+    return {"status": status, "sources": sources}
+
+
 def _frontend_entry_asset(frontend_dist: Path) -> Path:
     html = _read_text(frontend_dist / "index.html")
     match = re.search(r'src=["\']/(?P<asset>assets/index-[^"\']+\.js)["\']', html)
@@ -120,8 +171,13 @@ def inspect_frontend_bundle(frontend_dist: Path | str = DEFAULT_FRONTEND_DIST) -
             "Fallback parcial ainda usa dashboardSummary mock quando a API falha."
         )
 
-    if "total_tested:1727" in bundle or '"total_tested":1727' in bundle:
-        violations.append("Literal legado total_tested=1727 encontrado no bundle.")
+    if (
+        "total_tested:1727" in bundle
+        or '"total_tested":1727' in bundle
+        or "1.727" in bundle
+        or re.search(r"(?<![0-9])1727(?![0-9])", bundle)
+    ):
+        violations.append("Literal legado 1727 encontrado no bundle.")
 
     if violations:
         raise QualityGateFailure("mock dashboard inseguro: " + " ".join(violations))
@@ -186,6 +242,7 @@ def inspect_dashboard_payload(payload: dict[str, Any]) -> dict[str, Any]:
         "open_operations": len(operations),
         "real_estate_operations": len(real_estate_ops),
         "ops_health": health_status or "missing",
+        "freshness": _inspect_freshness(payload),
     }
 
 

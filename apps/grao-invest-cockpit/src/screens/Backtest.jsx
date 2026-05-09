@@ -28,7 +28,7 @@ const strataCalibrations = [
   { n: "15", ac: 62.9, esp: 4.8, alc: 3.1 },
   { n: "16", ac: 65.1, esp: 4.6, alc: 3.25 },
   { n: "17", ac: 66.8, esp: 4.5, alc: 3.35 },
-  { n: "18", ac: 67.52, esp: 4.43, alc: 3.41 },
+  { n: "18", ac: 67.52, esp: 4.12, alc: 3.01 },
 ];
 
 const fallbackCalibrations = [
@@ -40,10 +40,10 @@ const fallbackCalibrations = [
 ];
 
 const historicalConsolidated = {
-  testedTheses: 1727,
-  expectedPct: 4.43,
-  achievedPct: 2.68,
-  tableAchievedPct: 3.41,
+  testedTheses: 879,
+  expectedPct: 4.12,
+  achievedPct: 3.01,
+  tableAchievedPct: 3.01,
 };
 
 const validationCycleSteps = [
@@ -244,7 +244,7 @@ function normalizedCalibrationRow(row) {
   const label = String(row.data || "").toLowerCase();
   const teses = Number(row.teses || 0);
   const aprovadas = Number(row.aprovadas || 0);
-  const isHistorical = label.includes("hist") || teses >= 1700 || aprovadas >= 1700;
+  const isHistorical = label.includes("hist") || teses >= historicalConsolidated.testedTheses || aprovadas >= historicalConsolidated.testedTheses;
   if (!isHistorical) return row;
 
   return {

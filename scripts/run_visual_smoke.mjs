@@ -46,7 +46,8 @@ const screens = [
   {
     id: "teses",
     labels: ["Teses"],
-    expectedAny: ["Lista de teses", "Ficha completa", "thesis_open_operations", "Teses"],
+    expectedAny: ["Mapa de oportunidades", "Fila de atenção", "thesis_open_operations", "Teses"],
+    requiredAll: ["Mapa de oportunidades"],
   },
   {
     id: "mercado",
@@ -77,6 +78,12 @@ const screens = [
     id: "metodo",
     labels: ["Método", "Metodo"],
     expectedAny: ["Método", "Jornada", "Marca", "Grão"],
+  },
+  {
+    id: "saude",
+    labels: ["Saúde", "Saude"],
+    expectedAny: ["Semáforo de frescor", "Frescor operacional", "API real", "Saúde"],
+    requiredAll: ["Semáforo de frescor"],
   },
 ];
 

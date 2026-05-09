@@ -47,6 +47,13 @@ describe("Backtest", () => {
     expect(screen.getAllByText("67,52%").length).toBeGreaterThan(0);
   });
 
+  it("uses the canonical 879 historical thesis count instead of the old 1.727 fallback", () => {
+    render(<Backtest />);
+
+    expect(screen.getByText("879")).toBeInTheDocument();
+    expect(screen.queryByText("1.727")).not.toBeInTheDocument();
+  });
+
   it("shows realistic method metrics instead of a perfect approval rate", () => {
     render(<Backtest data={{ backtest: { calibrations: [{ id: 1, data: "go-live", teses: 1, esperado: 0, alcancado: 0, aprovadas: 0 }] } }} />);
 
@@ -55,7 +62,7 @@ describe("Backtest", () => {
     expect(screen.getByText("Variação desde Cal.08")).toBeInTheDocument();
     expect(screen.getByText("+12,52 p.p.")).toBeInTheDocument();
     expect(screen.getByText("Gap de expectativa")).toBeInTheDocument();
-    expect(screen.getAllByText(/−1,02pp|−1,02 p\.p\./).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/−1,11pp|−1,11 p\.p\./).length).toBeGreaterThan(0);
     expect(screen.getByText("Acerto mede direção. Gap mede precisão entre esperado e realizado.")).toBeInTheDocument();
     expect(screen.queryByText("Taxa de aprovação")).not.toBeInTheDocument();
     expect(screen.queryByText("98,9%")).not.toBeInTheDocument();

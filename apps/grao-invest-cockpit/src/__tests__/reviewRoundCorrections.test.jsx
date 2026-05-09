@@ -103,7 +103,7 @@ describe("review round corrections", () => {
         data={{
           backtest: {
             calibrations: [
-              { id: 1, data: "Cal.18", teses: 1727, esperado: 4.43, alcancado: 3.41, aprovadas: 1788 },
+              { id: 1, data: "Cal.18", teses: 879, esperado: 4.12, alcancado: 3.01, aprovadas: 869 },
             ],
           },
         }}
@@ -112,10 +112,10 @@ describe("review round corrections", () => {
 
     const evidence = screen.getByTestId("audit-evidence-1");
     expect(within(evidence).getByText("Cal.18")).toBeInTheDocument();
-    expect(within(evidence).getByText(/1\.727/)).toBeInTheDocument();
+    expect(within(evidence).getByText(/879 teses/)).toBeInTheDocument();
     expect(within(evidence).getAllByText(/regra ajustada/i).length).toBeGreaterThan(0);
     expect(screen.queryByText("1.708")).not.toBeInTheDocument();
-    expect(within(evidence).getByText(/1,02pp/)).toBeInTheDocument();
+    expect(within(evidence).getByText(/−1,11pp/)).toBeInTheDocument();
   });
 
   it("uses the correct risk exposure message and a subtle rounded PJ border", () => {

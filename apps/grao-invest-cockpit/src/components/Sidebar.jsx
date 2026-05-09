@@ -122,9 +122,17 @@ function NavButton({ item, active, onSelect }) {
   );
 }
 
-function SidebarLabStatus({ lastUpdatedAt, uiRevision, buildInfo }) {
+function freshnessTone(status) {
+  if (status === "online") return C.teal;
+  if (status === "stale") return C.coral;
+  if (status === "missing") return C.coral;
+  return C.amber;
+}
+
+function SidebarLabStatus({ lastUpdatedAt, uiRevision, buildInfo, freshness }) {
   const deployFingerprint = buildInfo?.gitCommitShort || buildInfo?.git_commit_short || "";
   const sourceApp = buildInfo?.sourceApp || buildInfo?.source_app || "";
+  const freshnessColor = freshnessTone(freshness?.status);
 
   return (
     <section
@@ -153,6 +161,34 @@ function SidebarLabStatus({ lastUpdatedAt, uiRevision, buildInfo }) {
       <div style={{ color: C.muted, fontSize: 10, lineHeight: 1.6 }}>
         Atualizado em {fmtDate(lastUpdatedAt)}
       </div>
+      {freshness?.label && (
+        <div
+          aria-label="Frescor dos dados"
+          style={{
+            alignItems: "center",
+            color: freshnessColor,
+            display: "flex",
+            fontFamily: mono,
+            fontSize: 9,
+            fontWeight: 800,
+            gap: 5,
+            lineHeight: 1.7,
+            textTransform: "uppercase",
+          }}
+        >
+          <span
+            style={{
+              background: freshnessColor,
+              borderRadius: "50%",
+              boxShadow: `0 0 8px ${freshnessColor}`,
+              display: "inline-block",
+              height: 6,
+              width: 6,
+            }}
+          />
+          Dados {freshness.label}
+        </div>
+      )}
       <div style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 800, lineHeight: 1.6 }}>
         {uiRevision}
       </div>
@@ -216,6 +252,7 @@ export function Sidebar({
   lastUpdatedAt,
   uiRevision = "UI rev soul-4",
   buildInfo,
+  freshness,
 }) {
   return (
     <aside
@@ -311,7 +348,7 @@ export function Sidebar({
           <NavButton key={item.id} item={item} active={active} onSelect={onSelect} />
         ))}
       </nav>
-      <SidebarLabStatus lastUpdatedAt={lastUpdatedAt} uiRevision={uiRevision} buildInfo={buildInfo} />
+      <SidebarLabStatus lastUpdatedAt={lastUpdatedAt} uiRevision={uiRevision} buildInfo={buildInfo} freshness={freshness} />
       <SidebarFeedStatus feedStatus={feedStatus} />
     </aside>
   );
