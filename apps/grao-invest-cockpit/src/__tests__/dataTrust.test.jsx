@@ -17,7 +17,11 @@ const trustedData = {
     lastUpdatedAt: "2026-05-03T10:00:00Z",
   },
   activeTheses: [],
-  fronts: [],
+  fronts: [
+    { id: "b3", label: "B3", tested: 900, validatedPct: 64.1, status: "atualizado" },
+    { id: "crypto", label: "Cripto", tested: 503, validatedPct: 70.4, status: "atualizado" },
+    { id: "real_estate", label: "Imóveis", tested: 324, validatedPct: 68.2, status: "atualizado" },
+  ],
   learningLoops: [],
   thesisRows: [
     {
@@ -27,6 +31,9 @@ const trustedData = {
       direction: "Alta",
       expectedPct: 4.82,
       resultPct: 3.14,
+      entryPrice: 40.12,
+      targetPrice: 43.5,
+      stopPrice: 38.9,
       statusGroup: "Go-live",
       outcome: "Observando",
     },
@@ -134,6 +141,68 @@ describe("data trust layer", () => {
 
     expect(trust.status).toBe("degraded");
     expect(trust.issues.map((issue) => issue.code)).toContain("teses.rows.0.target.same_as_entry");
+  });
+
+  it("degrades active directional teses without explicit target and stop prices", () => {
+    const trust = dataTrustForScreen("teses", {
+      thesisRows: [
+        {
+          id: "B3-002",
+          asset: "GGBR4",
+          front: "B3",
+          direction: "Alta",
+          statusGroup: "Go-live",
+          openedAt: "2026-05-06T12:00:00-03:00",
+          entryPrice: 23.77,
+        },
+      ],
+    });
+
+    expect(trust.status).toBe("degraded");
+    expect(trust.issues.map((issue) => issue.code)).toContain("teses.rows.0.price_plan.missing");
+  });
+
+  it("degrades front summaries that would render missing tested values or unsupported zero rates", () => {
+    const trust = dataTrustForScreen("dashboard", {
+      scientificSummary: trustedData.scientificSummary,
+      fronts: [
+        { id: "b3", label: "B3", tested: null, validatedPct: 0, status: "atualizado" },
+      ],
+    });
+
+    expect(trust.status).toBe("degraded");
+    expect(trust.issues.map((issue) => issue.code)).toContain("dashboard.fronts.0.tested.missing");
+  });
+
+  it("degrades a dashboard summary that would render fake zero KPI values", () => {
+    const trust = dataTrustForScreen("dashboard", {
+      scientificSummary: {
+        testedTheses: 0,
+        validatedPct: 0,
+        expectancyPct: 0,
+        goLiveCount: 0,
+        appliedLearningsCount: 0,
+      },
+      fronts: [
+        { id: "b3", label: "B3", tested: 879, validatedPct: 0, status: "atualizado" },
+        { id: "crypto", label: "Cripto", tested: 12, validatedPct: 0, status: "atualizado" },
+        { id: "real_estate", label: "Imóveis", tested: 7, validatedPct: 0, status: "atualizado" },
+      ],
+    });
+
+    expect(trust.status).toBe("degraded");
+    expect(trust.issues.map((issue) => issue.code)).toContain("dashboard.testedTheses.range");
+    expect(trust.issues.map((issue) => issue.code)).toContain("dashboard.fronts.0.validatedPct.zero_without_context");
+  });
+
+  it("degrades the dashboard when the three strategic fronts are not available", () => {
+    const trust = dataTrustForScreen("dashboard", {
+      scientificSummary: trustedData.scientificSummary,
+      fronts: [],
+    });
+
+    expect(trust.status).toBe("degraded");
+    expect(trust.issues.map((issue) => issue.code)).toContain("dashboard.fronts.missing");
   });
 
   it("degrades range teses without explicit lower and upper bounds", () => {

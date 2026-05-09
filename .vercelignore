@@ -28,6 +28,8 @@ data/**
 !data/current_thesis_monitor_latest.json
 !data/current_thesis_monitor_bootstrap.json
 !data/microtrades_autopilot_latest.json
+!data/ops_health_latest.json
+!data/data_quality_gate_latest.json
 
 # Local scratch assets and archives
 tmp_b3_*.html

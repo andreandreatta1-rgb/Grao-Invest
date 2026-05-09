@@ -1480,6 +1480,42 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw in {"1", "true", "yes", "on"}
 
 
+def _data_quality_gate_status(payload: object) -> str:
+    if not isinstance(payload, dict):
+        return ""
+    summary = payload.get("summary")
+    summary_dict = summary if isinstance(summary, dict) else {}
+    return str(
+        summary_dict.get("gate_status") or payload.get("gate_status") or "",
+    ).strip().lower()
+
+
+def _select_dashboard_data_quality_gate(
+    runtime_payload: dict[str, object] | None,
+    dashboard_seed: dict[str, object] | None,
+    latest_payload: dict[str, object] | None,
+) -> dict[str, object] | None:
+    seed_payload = (
+        cast(dict[str, object], dashboard_seed.get("data_quality_gate"))
+        if isinstance(dashboard_seed, dict)
+        and isinstance(dashboard_seed.get("data_quality_gate"), dict)
+        else None
+    )
+    candidates = [runtime_payload, seed_payload, latest_payload]
+    use_seed_quality = _env_bool(
+        "DASHBOARD_SEED_CANONICAL_HISTORY",
+        bool(os.getenv("VERCEL", "").strip()),
+    )
+    for candidate in candidates:
+        if _data_quality_gate_status(candidate) in {"ok", "pass", "passed"}:
+            if candidate is runtime_payload or runtime_payload is None or use_seed_quality:
+                return candidate
+    for candidate in candidates:
+        if isinstance(candidate, dict):
+            return candidate
+    return None
+
+
 def _env_csv(name: str, default: str) -> list[str]:
     raw = os.getenv(name, default).strip()
     if not raw:
@@ -4054,6 +4090,7 @@ def dashboard_summary(
     case_study_latest = _load_runtime_or_bundled_json("case_study_latest.json")
     dashboard_seed = _load_runtime_or_bundled_json("dashboard_seed.json")
     ops_health_latest = _load_runtime_or_bundled_json("ops_health_latest.json")
+    data_quality_gate_latest = _load_runtime_or_bundled_json("data_quality_gate_latest.json")
     ops_health: dict[str, object] | None = (
         cast(dict[str, object], ops_health_latest)
         if isinstance(ops_health_latest, dict)
@@ -4063,6 +4100,13 @@ def dashboard_summary(
         seed_ops_health = dashboard_seed.get("ops_health")
         if isinstance(seed_ops_health, dict):
             ops_health = cast(dict[str, object], seed_ops_health)
+    data_quality_gate_payload = _select_dashboard_data_quality_gate(
+        data_quality_gate_payload,
+        dashboard_seed,
+        cast(dict[str, object], data_quality_gate_latest)
+        if isinstance(data_quality_gate_latest, dict)
+        else None,
+    )
 
     if historical_empty and historical_case_study_events:
         expected_values: list[float] = []
@@ -5536,6 +5580,95 @@ def dashboard_summary(
             planned_exit_at=planned_exit_at,
         )
 
+    def _operation_front_key(row: dict[str, object]) -> str:
+        explicit_front = str(row.get("front") or "").strip().lower()
+        if explicit_front in {"imoveis", "imóveis", "real_estate", "real-estate", "real estate"}:
+            return "real_estate"
+        if explicit_front in {"crypto", "cripto"}:
+            return "crypto"
+        if explicit_front == "b3":
+            return "b3"
+
+        symbol = re.sub(
+            r"[^A-Z0-9-]",
+            "",
+            str(
+                row.get("action")
+                or row.get("instrument")
+                or row.get("asset")
+                or row.get("thesis_id")
+                or ""
+            )
+            .strip()
+            .upper()
+            .split(" ")[0],
+        )
+        if re.fullmatch(
+            r"(BTC|ETH|SOL|BNB|XRP|DOGE|MATIC|DOT|AVAX)(USDT|USD|BRL)?",
+            symbol,
+        ):
+            return "crypto"
+        if classify_instrument(symbol) in {"stock", "fii", "etf", "bdr"}:
+            return "b3"
+        return "b3"
+
+    def _operation_is_resolved(row: dict[str, object]) -> bool:
+        status_text = str(row.get("status") or "").strip().lower()
+        phase_text = str(row.get("phase") or "").strip().lower()
+        is_open_value = row.get("is_open")
+        return (
+            is_open_value is False
+            or "fech" in status_text
+            or "encerr" in status_text
+            or "descart" in status_text
+            or phase_text == "historico"
+        )
+
+    def _build_front_overview() -> dict[str, object]:
+        if isinstance(dashboard_seed, dict):
+            seed_front_overview = dashboard_seed.get("front_overview")
+            if isinstance(seed_front_overview, dict):
+                return cast(dict[str, object], seed_front_overview)
+
+        unique_rows: dict[str, dict[str, object]] = {}
+        for index, row in enumerate(thesis_open_operations):
+            key = str(row.get("thesis_id") or row.get("id") or f"row-{index}")
+            unique_rows.setdefault(key, row)
+
+        global_success_rate = _safe_number(thesis_history_overview.get("success_rate_pct"), 0.0)
+        result: dict[str, object] = {}
+        for front_key in ("b3", "crypto", "real_estate"):
+            rows = [
+                row
+                for row in unique_rows.values()
+                if _operation_front_key(row) == front_key
+            ]
+            resolved_rows = [row for row in rows if _operation_is_resolved(row)]
+            successful_rows = [
+                row
+                for row in resolved_rows
+                if _safe_number(row.get("moment_result_pct"), -1.0) >= 0.0
+            ]
+            success_rate = (
+                round((len(successful_rows) / len(resolved_rows)) * 100.0, 2)
+                if resolved_rows
+                else round(global_success_rate, 2)
+            )
+            result[front_key] = {
+                "total_tested": len(rows),
+                "success_rate_pct": success_rate,
+                "resolved_count": len(resolved_rows),
+                "success_count": len(successful_rows),
+                "updated_at": (
+                    str(dashboard_seed.get("generated_at"))
+                    if isinstance(dashboard_seed, dict) and dashboard_seed.get("generated_at")
+                    else now.replace(microsecond=0).isoformat()
+                ),
+            }
+        return result
+
+    front_overview = _build_front_overview()
+
     total_tested_for_numbering = _safe_int(
         thesis_history_overview.get("total_tested"),
         len(thesis_open_operations),
@@ -5664,6 +5797,7 @@ def dashboard_summary(
         thesis_history_overview=thesis_history_overview,
         thesis_executive_summary=thesis_executive_summary,
         thesis_open_operations=thesis_open_operations,
+        front_overview=front_overview,
         ops_health=ops_health,
         disclaimer=DISCLAIMER,
     )

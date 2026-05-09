@@ -171,6 +171,58 @@ describe("cockpitHalleyAdapter", () => {
     expect(result.learningLoops.length).toBeGreaterThan(0);
   });
 
+  it("derives front summaries and directional prices when front_overview and explicit target fields are missing", () => {
+    const result = normalizeCockpitHalley(
+      {
+        dashboardSummary: {
+          updated_at: "2026-05-09T01:42:52Z",
+          thesis_history_overview: {
+            total_tested: 2,
+            success_rate_pct: 50,
+            expectancy_net_pct: 2.4,
+          },
+          historical_analysis_summary: {
+            thesis_count: 2,
+          },
+          thesis_open_operations: [
+            {
+              thesis_number: 1,
+              thesis_id: "TH-PETR4-bullish-0001",
+              action: "PETR4",
+              is_open: false,
+              status: "Fechada",
+              expected_result_pct: 2.2,
+              moment_result_pct: 3.1,
+              operation_plan: "Compra ate - legado sem preco persistido",
+            },
+            {
+              thesis_number: 2,
+              thesis_id: "TH-GGBR4-bullish-0104",
+              action: "GGBR4",
+              is_open: true,
+              status: "Aberta - Atencao",
+              expected_result_pct: 2.6109,
+              moment_result_pct: 0,
+              entry_price_brl: 23.77,
+              current_price_brl: 23.77,
+              operation_plan: "Compra até 2026-05-19. Plano: buscar alta de 23.77 para perto de 25.43. Se cair para 22.77, encerramos para proteger a posição. Retorno esperado: 2.61%.",
+              structured_operation: "Bull Call Spread | ganho max 5.40% | perda max 2.20%",
+            },
+          ],
+        },
+      },
+      now,
+    );
+
+    const b3Front = result.fronts.find((front) => front.id === "b3");
+    const thesis = result.goLiveTheses.find((item) => item.asset === "GGBR4");
+
+    expect(b3Front.tested).toBe(2);
+    expect(b3Front.validatedPct).toBeGreaterThan(0);
+    expect(thesis.targetPrice).toBe(25.43);
+    expect(thesis.stopPrice).toBe(22.77);
+  });
+
   it("sorts calibration cycles chronologically before exposing method evolution", () => {
     const result = normalizeCockpitHalley(
       {
@@ -504,7 +556,8 @@ describe("cockpitHalleyAdapter", () => {
     expect(result.scientificSummary.learningCountLabel).toBe("lições recentes");
     expect(cryptoFront.goLive).toBe(3);
     expect(cryptoFront.activeAssets).toBe(2);
-    expect(cryptoFront.tested).toBeNull();
+    expect(cryptoFront.tested).toBe(3);
+    expect(cryptoFront.validatedPct).toBe(76.34);
     expect(result.goLiveTheses[0]).toMatchObject({
       direction: "Neutra",
       hoursOpen: 17,

@@ -340,6 +340,7 @@ class DashboardResponse(BaseModel):
     thesis_history_overview: dict[str, object] | None = None
     thesis_executive_summary: dict[str, object] | None = None
     thesis_open_operations: list[dict[str, object]] | None = None
+    front_overview: dict[str, object] | None = None
     ops_health: dict[str, object] | None = None
     disclaimer: str
 

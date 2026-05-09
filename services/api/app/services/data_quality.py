@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal, TypedDict
 
 from app.models import FundamentalSnapshot, MarketTick, NewsArticle
+from app.services.asset_classes import classify_instrument
 from app.services.feed_health import provider_feed_health
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -111,6 +112,20 @@ def _pct(value: int, total: int) -> float:
 
 def _sample(values: set[str], *, limit: int = 20) -> list[str]:
     return sorted(values)[:limit]
+
+
+def _fundamental_scope(scope: list[str]) -> list[str]:
+    return [
+        instrument
+        for instrument in scope
+        if classify_instrument(instrument) in {"stock", "fii", "etf", "bdr"}
+    ]
+
+
+def _market_fresh_limit_seconds(instrument: str, default_limit_seconds: int) -> int:
+    if classify_instrument(instrument) in {"stock", "fii", "etf", "bdr"}:
+        return max(default_limit_seconds, 4 * 24 * 60 * 60)
+    return default_limit_seconds
 
 
 def _as_scope(
@@ -223,6 +238,8 @@ def build_data_quality_gate_snapshot(
         max_default_scope_size=max_default_scope_size,
     )
     scope_set = set(scope)
+    fundamental_scope = _fundamental_scope(scope)
+    fundamental_scope_set = set(fundamental_scope)
     now = datetime.now(UTC)
     sample_limit = 20
 
@@ -238,9 +255,13 @@ def build_data_quality_gate_snapshot(
     missing_market_set = scope_set - covered_market_set
     max_lag_seconds = 0.0
     fresh_market_count = 0
-    for ingest_time in latest_market_rows.values():
+    for instrument, ingest_time in latest_market_rows.items():
         lag_seconds = max(0.0, (now - _parse_iso_datetime(ingest_time)).total_seconds())
-        if lag_seconds <= float(market_max_lag_seconds):
+        fresh_limit_seconds = _market_fresh_limit_seconds(
+            instrument,
+            market_max_lag_seconds,
+        )
+        if lag_seconds <= float(fresh_limit_seconds):
             fresh_market_count += 1
         if lag_seconds > max_lag_seconds:
             max_lag_seconds = lag_seconds
@@ -251,12 +272,12 @@ def build_data_quality_gate_snapshot(
         str(row[0]).upper(): str(row[1])
         for row in db.execute(
             select(FundamentalSnapshot.instrument, func.max(FundamentalSnapshot.availability_time))
-            .where(FundamentalSnapshot.instrument.in_(scope_set))
+            .where(FundamentalSnapshot.instrument.in_(fundamental_scope_set))
             .group_by(FundamentalSnapshot.instrument)
         ).all()
     }
     covered_fundamental_set = set(latest_fundamental_rows.keys())
-    missing_fundamental_set = scope_set - covered_fundamental_set
+    missing_fundamental_set = fundamental_scope_set - covered_fundamental_set
     stale_fundamental_set: set[str] = set()
     fresh_fundamental_count = 0
     for instrument, availability_time in latest_fundamental_rows.items():
@@ -265,8 +286,16 @@ def build_data_quality_gate_snapshot(
             fresh_fundamental_count += 1
         else:
             stale_fundamental_set.add(instrument)
-    fundamentals_coverage_pct = _pct(len(covered_fundamental_set), len(scope_set))
-    fundamentals_fresh_coverage_pct = _pct(fresh_fundamental_count, len(scope_set))
+    fundamentals_coverage_pct = (
+        _pct(len(covered_fundamental_set), len(fundamental_scope_set))
+        if fundamental_scope_set
+        else 100.0
+    )
+    fundamentals_fresh_coverage_pct = (
+        _pct(fresh_fundamental_count, len(fundamental_scope_set))
+        if fundamental_scope_set
+        else 100.0
+    )
 
     lookback_start = now - timedelta(days=news_lookback_days)
     lookback_start_iso = lookback_start.replace(microsecond=0).isoformat()
@@ -323,8 +352,8 @@ def build_data_quality_gate_snapshot(
             actual_value=market_fresh_coverage_pct,
             target_value=market_min_fresh_coverage_pct,
             details=(
-                f"fresh={fresh_market_count}/{len(scope_set)} com lag <= "
-                f"{market_max_lag_seconds}s"
+                f"fresh={fresh_market_count}/{len(scope_set)} "
+                "com janela por frente (B3 diario, cripto intraday)"
             ),
         ),
         _check(
@@ -350,8 +379,8 @@ def build_data_quality_gate_snapshot(
             actual_value=fundamentals_coverage_pct,
             target_value=fundamentals_min_coverage_pct,
             details=(
-                f"com_snapshot={len(covered_fundamental_set)}/{len(scope_set)} "
-                "no universo alvo"
+                f"com_snapshot={len(covered_fundamental_set)}/{len(fundamental_scope_set)} "
+                "no universo com fundamentos aplicaveis"
             ),
         ),
         _check(
@@ -361,8 +390,8 @@ def build_data_quality_gate_snapshot(
             actual_value=fundamentals_fresh_coverage_pct,
             target_value=fundamentals_min_fresh_coverage_pct,
             details=(
-                f"frescos={fresh_fundamental_count}/{len(scope_set)} com staleness <= "
-                f"{fundamentals_max_staleness_days} dia(s)"
+                f"frescos={fresh_fundamental_count}/{len(fundamental_scope_set)} "
+                f"com staleness <= {fundamentals_max_staleness_days} dia(s)"
             ),
         ),
         _check(

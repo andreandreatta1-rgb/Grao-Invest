@@ -196,3 +196,146 @@ def test_data_quality_gate_passes_with_fresh_full_scope() -> None:
         assert payload["recommended_actions"] == []
     finally:
         db.close()
+
+
+def test_data_quality_gate_does_not_require_fundamentals_for_crypto_assets() -> None:
+    db = _session()
+    try:
+        now = datetime.now(UTC)
+        for instrument, price in (("PETR4", 36.0), ("BTCUSDT", 65000.0)):
+            db.add(
+                MarketTick(
+                    instrument=instrument,
+                    provider="intraday-provider",
+                    event_time=(now - timedelta(minutes=2)).isoformat(),
+                    ingest_time=(now - timedelta(seconds=30)).isoformat(),
+                    price=price,
+                    volume=1200,
+                    currency="BRL" if instrument == "PETR4" else "USDT",
+                    source_payload_id=f"{instrument}-ok",
+                )
+            )
+            db.add(
+                NewsArticle(
+                    instrument=instrument,
+                    headline=f"Noticia recente de {instrument}",
+                    source_name="Agencia Y",
+                    source_type="financial_media",
+                    credibility_score=80.0,
+                    anti_hype_score=85.0,
+                    published_at=(now - timedelta(days=1)).isoformat(),
+                    captured_at=(now - timedelta(days=1)).isoformat(),
+                )
+            )
+        db.add(
+            FundamentalSnapshot(
+                instrument="PETR4",
+                source_name="Provider A",
+                source_type="market_data_api",
+                reference_time=(now - timedelta(days=1)).isoformat(),
+                availability_time=(now - timedelta(hours=5)).isoformat(),
+                pe_ratio=10.0,
+                pb_ratio=1.5,
+                ev_ebitda=6.0,
+                dividend_yield=6.0,
+                roe=15.0,
+                net_margin=11.0,
+                revenue_growth=4.0,
+                payout_ratio=45.0,
+                version_tag="PETR4-v1",
+            )
+        )
+        db.commit()
+
+        payload = build_data_quality_gate_snapshot(
+            db,
+            instruments=["PETR4", "BTCUSDT"],
+            market_max_lag_seconds=1800,
+            market_min_fresh_coverage_pct=95.0,
+            fundamentals_min_coverage_pct=90.0,
+            fundamentals_max_staleness_days=2,
+            fundamentals_min_fresh_coverage_pct=90.0,
+            news_lookback_days=7,
+            news_min_coverage_pct=90.0,
+            max_critical_providers=0,
+            max_no_data_providers=0,
+        )
+
+        assert payload["summary"]["gate_status"] == "pass"
+        assert payload["fundamentals"]["covered_instrument_count"] == 1
+        assert payload["fundamentals"]["missing_instrument_count"] == 0
+        assert payload["fundamentals"]["fresh_coverage_pct"] == 100.0
+    finally:
+        db.close()
+
+
+def test_data_quality_gate_allows_b3_daily_feed_window_with_fresh_crypto() -> None:
+    db = _session()
+    try:
+        now = datetime.now(UTC)
+        for instrument, price, ingest_delta in (
+            ("PETR4", 36.0, timedelta(hours=8)),
+            ("BTCUSDT", 65000.0, timedelta(seconds=30)),
+        ):
+            db.add(
+                MarketTick(
+                    instrument=instrument,
+                    provider="b3-cotahist" if instrument == "PETR4" else "crypto-binance-5m",
+                    event_time=(now - ingest_delta).isoformat(),
+                    ingest_time=(now - ingest_delta).isoformat(),
+                    price=price,
+                    volume=1200,
+                    currency="BRL" if instrument == "PETR4" else "USDT",
+                    source_payload_id=f"{instrument}-ok",
+                )
+            )
+            db.add(
+                NewsArticle(
+                    instrument=instrument,
+                    headline=f"Noticia recente de {instrument}",
+                    source_name="Agencia Y",
+                    source_type="financial_media",
+                    credibility_score=80.0,
+                    anti_hype_score=85.0,
+                    published_at=(now - timedelta(days=1)).isoformat(),
+                    captured_at=(now - timedelta(days=1)).isoformat(),
+                )
+            )
+        db.add(
+            FundamentalSnapshot(
+                instrument="PETR4",
+                source_name="Provider A",
+                source_type="market_data_api",
+                reference_time=(now - timedelta(days=1)).isoformat(),
+                availability_time=(now - timedelta(hours=5)).isoformat(),
+                pe_ratio=10.0,
+                pb_ratio=1.5,
+                ev_ebitda=6.0,
+                dividend_yield=6.0,
+                roe=15.0,
+                net_margin=11.0,
+                revenue_growth=4.0,
+                payout_ratio=45.0,
+                version_tag="PETR4-v1",
+            )
+        )
+        db.commit()
+
+        payload = build_data_quality_gate_snapshot(
+            db,
+            instruments=["PETR4", "BTCUSDT"],
+            market_max_lag_seconds=1800,
+            market_min_fresh_coverage_pct=95.0,
+            fundamentals_min_coverage_pct=90.0,
+            fundamentals_max_staleness_days=2,
+            fundamentals_min_fresh_coverage_pct=90.0,
+            news_lookback_days=7,
+            news_min_coverage_pct=90.0,
+            max_critical_providers=0,
+            max_no_data_providers=0,
+        )
+
+        assert payload["summary"]["gate_status"] == "pass"
+        assert payload["market"]["fresh_coverage_pct"] == 100.0
+    finally:
+        db.close()

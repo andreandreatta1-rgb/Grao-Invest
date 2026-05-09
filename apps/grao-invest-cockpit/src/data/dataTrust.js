@@ -15,6 +15,7 @@ function asArray(value) {
 }
 
 function finiteNumber(value) {
+  if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -80,6 +81,18 @@ function validateThesisPriceConsistency(issues, row, code) {
   const rangeLower = finiteNumber(row?.rangeLowerPrice ?? row?.range_lower_price);
   const rangeUpper = finiteNumber(row?.rangeUpperPrice ?? row?.range_upper_price);
   const rangeLike = isRangeLike(row);
+  const realEstate = row?.front === "Imóveis";
+
+  if (!rangeLike && !realEstate && isCurrentStatus(row)) {
+    if (entryPrice === null || targetPrice === null || stopPrice === null) {
+      addIssue(
+        issues,
+        "error",
+        `${code}.price_plan.missing`,
+        "Tese direcional ativa precisa exibir entrada, alvo e stop explícitos.",
+      );
+    }
+  }
 
   if (!rangeLike && entryPrice !== null && targetPrice !== null && nearlyEqual(entryPrice, targetPrice)) {
     addIssue(issues, "error", `${code}.target.same_as_entry`, "Tese direcional com entrada igual ao alvo.");
@@ -140,11 +153,34 @@ function addFeedIssue(issues, feedStatus) {
 function validateDashboard(data, issues) {
   const summary = data?.scientificSummary ?? {};
 
-  validateFinite(issues, "dashboard.testedTheses", summary.testedTheses, { min: 0 });
+  validateFinite(issues, "dashboard.testedTheses", summary.testedTheses, { min: 1 });
   validateFinite(issues, "dashboard.validatedPct", summary.validatedPct, { min: 0, max: 100 });
   validateFinite(issues, "dashboard.expectancyPct", summary.expectancyPct, { min: -100, max: 100 });
   validateFinite(issues, "dashboard.goLiveCount", summary.goLiveCount, { min: 0 });
   validateFinite(issues, "dashboard.appliedLearningsCount", summary.appliedLearningsCount, { min: 0 });
+
+  const fronts = asArray(data?.fronts);
+  if (fronts.length < 3) {
+    addIssue(
+      issues,
+      "error",
+      "dashboard.fronts.missing",
+      "Dashboard precisa exibir B3, Cripto e Imóveis com base histórica explícita.",
+    );
+  }
+
+  fronts.forEach((front, index) => {
+    validateFinite(issues, `dashboard.fronts.${index}.tested`, front?.tested, { min: 1 });
+    validateFinite(issues, `dashboard.fronts.${index}.validatedPct`, front?.validatedPct, { min: 0, max: 100 });
+    if (finiteNumber(front?.tested) > 0 && finiteNumber(front?.validatedPct) === 0) {
+      addIssue(
+        issues,
+        "error",
+        `dashboard.fronts.${index}.validatedPct.zero_without_context`,
+        "Frente com amostra histórica não deve aparecer como taxa 0 sem evidência.",
+      );
+    }
+  });
 }
 
 function validateTeses(data, issues) {

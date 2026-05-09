@@ -38,12 +38,126 @@ def _to_int(value: object) -> int | None:
     return None
 
 
+def _to_float(value: object) -> float | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, int | float):
+        return float(value)
+    if isinstance(value, str):
+        clean = value.strip().replace("R$", "").replace(" ", "")
+        if "," in clean and "." in clean:
+            clean = clean.replace(".", "").replace(",", ".")
+        else:
+            clean = clean.replace(",", ".")
+        try:
+            return float(clean)
+        except ValueError:
+            return None
+    return None
+
+
 def _dict(value: object) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
 def _list(value: object) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def _front_key(value: object) -> str:
+    front = str(value or "").strip().lower()
+    aliases = {
+        "imóveis": "imoveis",
+        "real_estate": "imoveis",
+        "real-estate": "imoveis",
+        "real estate": "imoveis",
+        "cripto": "crypto",
+        "cryptos": "crypto",
+    }
+    return aliases.get(front, front)
+
+
+def _operation_is_open(row: dict[str, Any]) -> bool:
+    if isinstance(row.get("is_open"), bool):
+        return bool(row["is_open"])
+    status = str(row.get("status") or row.get("phase") or "").strip().lower()
+    if any(token in status for token in ("fech", "encerr", "descart", "closed")):
+        return False
+    return True
+
+
+def _operation_is_range_like(row: dict[str, Any]) -> bool:
+    text = " ".join(
+        str(row.get(key) or "")
+        for key in ("direction", "operation_plan", "structured_operation", "thesis_id")
+    ).lower()
+    return any(token in text for token in ("neutra", "neutral", "range", "faixa", "iron condor"))
+
+
+def _number_after(patterns: list[str], text: str) -> float | None:
+    for pattern in patterns:
+        match = re.search(pattern, text, flags=re.IGNORECASE)
+        if match:
+            return _to_float(match.group(1))
+    return None
+
+
+def _operation_plan_prices(row: dict[str, Any]) -> dict[str, float | None]:
+    text = str(row.get("operation_plan") or "")
+    return {
+        "target": _number_after(
+            [
+                r"para\s+perto\s+de\s+R?\$?\s*([0-9]+(?:[.,][0-9]+)?)",
+                r"alvo\s*(?:em|de|r\$)?\s*R?\$?\s*([0-9]+(?:[.,][0-9]+)?)",
+                r"saida\s*(?:em|de|r\$)?\s*R?\$?\s*([0-9]+(?:[.,][0-9]+)?)",
+            ],
+            text,
+        ),
+        "stop": _number_after(
+            [
+                r"se\s+cair\s+para\s+R?\$?\s*([0-9]+(?:[.,][0-9]+)?)",
+                r"stop\s*(?:em|de|r\$)?\s*R?\$?\s*([0-9]+(?:[.,][0-9]+)?)",
+                r"proteger\s+a\s+posi[cç][aã]o.*?([0-9]+(?:[.,][0-9]+)?)",
+            ],
+            text,
+        ),
+    }
+
+
+def _inspect_open_operation_semantics(payload: dict[str, Any]) -> dict[str, Any]:
+    missing_price_plan: list[str] = []
+    checked_directional = 0
+
+    for index, raw_row in enumerate(_list(payload.get("thesis_open_operations"))):
+        if not isinstance(raw_row, dict):
+            continue
+        row = raw_row
+        front = _front_key(row.get("front"))
+        if front == "imoveis" or front not in {"b3", "crypto"}:
+            continue
+        if not _operation_is_open(row) or _operation_is_range_like(row):
+            continue
+
+        checked_directional += 1
+        plan_prices = _operation_plan_prices(row)
+        entry = _to_float(row.get("entry_price_brl") or row.get("entry_price"))
+        target = _to_float(row.get("target_price_brl") or row.get("target_price"))
+        stop = _to_float(row.get("stop_price_brl") or row.get("stop_price"))
+        target = target if target and target > 0 else plan_prices["target"]
+        stop = stop if stop and stop > 0 else plan_prices["stop"]
+
+        if not entry or entry <= 0 or not target or target <= 0 or not stop or stop <= 0:
+            missing_price_plan.append(
+                str(row.get("thesis_id") or row.get("thesis_number") or row.get("action") or index)
+            )
+
+    if missing_price_plan:
+        raise QualityGateFailure(
+            "plano operacional incompleto para tese direcional aberta: "
+            + ", ".join(missing_price_plan)
+        )
+
+    return {"directional_open_checked": checked_directional}
 
 
 def _freshness_from_front_stage(stage: dict[str, Any] | None) -> str:
@@ -95,6 +209,77 @@ def _inspect_freshness(payload: dict[str, Any]) -> dict[str, Any]:
         status = "online"
 
     return {"status": status, "sources": sources}
+
+
+def _inspect_data_quality(payload: dict[str, Any]) -> dict[str, Any]:
+    data_quality = _dict(payload.get("data_quality_gate"))
+    summary = _dict(data_quality.get("summary"))
+    gate_status = str(
+        summary.get("gate_status") or data_quality.get("gate_status") or "",
+    ).strip().lower()
+
+    if not gate_status:
+        raise QualityGateFailure("data_quality_gate.summary.gate_status ausente")
+
+    if gate_status not in {"ok", "pass", "passed"}:
+        failed_checks = _to_int(summary.get("failed_checks"))
+        quality_score = summary.get("quality_score_pct")
+        details = []
+        if failed_checks is not None:
+            details.append(f"failed_checks={failed_checks}")
+        if quality_score is not None:
+            details.append(f"quality_score_pct={quality_score}")
+        suffix = f" ({', '.join(details)})" if details else ""
+        raise QualityGateFailure(f"data_quality_gate nao passou: {gate_status}{suffix}")
+
+    return {
+        "gate_status": gate_status,
+        "failed_checks": _to_int(summary.get("failed_checks")) or 0,
+        "quality_score_pct": summary.get("quality_score_pct"),
+    }
+
+
+def _front_overview_item(payload: dict[str, Any], key: str) -> dict[str, Any]:
+    overview = _dict(payload.get("front_overview") or payload.get("frontOverview"))
+    return _dict(overview.get(key) or overview.get(key.replace("_", "")))
+
+
+def _inspect_front_overview(payload: dict[str, Any]) -> dict[str, Any]:
+    fronts: dict[str, dict[str, int | float]] = {}
+    missing: list[str] = []
+
+    for key in ("b3", "crypto", "real_estate"):
+        item = _front_overview_item(payload, key)
+        total_tested = _to_int(
+            item.get("total_tested") or item.get("tested") or item.get("totalTested")
+        )
+        success_rate = item.get("success_rate_pct") or item.get("validated_pct")
+        try:
+            success_rate_number = float(success_rate)
+        except (TypeError, ValueError):
+            success_rate_number = None
+
+        if (
+            total_tested is None
+            or total_tested <= 0
+            or success_rate_number is None
+            or success_rate_number <= 0
+        ):
+            missing.append(key)
+            continue
+
+        fronts[key] = {
+            "total_tested": total_tested,
+            "success_rate_pct": success_rate_number,
+        }
+
+    if missing:
+        raise QualityGateFailure(
+            "front_overview incompleto para evitar KPI '--' ou taxa 0 sem base: "
+            + ", ".join(missing)
+        )
+
+    return fronts
 
 
 def _frontend_entry_asset(frontend_dist: Path) -> Path:
@@ -216,8 +401,11 @@ def inspect_dashboard_payload(payload: dict[str, Any]) -> dict[str, Any]:
             f"historical_analysis_summary.thesis_count={historical_count}"
         )
 
+    if not ops_health:
+        raise QualityGateFailure("ops_health ausente no dashboard summary")
+
     health_status = str(ops_health.get("status") or "").strip().lower()
-    if health_status and health_status != "ok":
+    if health_status != "ok":
         raise QualityGateFailure(f"ops_health.status nao esta ok: {health_status}")
 
     real_estate_ops = [
@@ -236,14 +424,39 @@ def inspect_dashboard_payload(payload: dict[str, Any]) -> dict[str, Any]:
             + ", ".join(str(item) for item in missing_analysis)
         )
 
+    data_quality = _inspect_data_quality(payload)
+    freshness = _inspect_freshness(payload)
+    if freshness["status"] != "online":
+        sources = _dict(freshness.get("sources"))
+        source_summary = ", ".join(f"{key}={value}" for key, value in sorted(sources.items()))
+        raise QualityGateFailure(
+            f"freshness operacional nao esta online: {freshness['status']} ({source_summary})"
+        )
+    front_overview = _inspect_front_overview(payload)
+    operation_semantics = _inspect_open_operation_semantics(payload)
+
     return {
         "total_tested": total_tested,
         "historical_thesis_count": historical_count,
         "open_operations": len(operations),
         "real_estate_operations": len(real_estate_ops),
         "ops_health": health_status or "missing",
-        "freshness": _inspect_freshness(payload),
+        "freshness": freshness,
+        "data_quality": data_quality,
+        "front_overview": front_overview,
+        "operation_semantics": operation_semantics,
     }
+
+
+def inspect_dashboard_json(path: Path | str) -> dict[str, Any]:
+    source = Path(path)
+    try:
+        payload = json.loads(_read_text(source))
+    except json.JSONDecodeError as exc:
+        raise QualityGateFailure(f"Dashboard JSON invalido: {source}") from exc
+    if not isinstance(payload, dict):
+        raise QualityGateFailure(f"Dashboard JSON nao e objeto: {source}")
+    return inspect_dashboard_payload(payload)
 
 
 def _fetch_json(url: str, timeout_seconds: float) -> dict[str, Any]:
@@ -331,6 +544,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--frontend-dist", type=Path, default=DEFAULT_FRONTEND_DIST)
     parser.add_argument("--dashboard-url", default="")
+    parser.add_argument("--dashboard-json", type=Path, default=None)
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
     parser.add_argument("--json", action="store_true", help="Imprime relatorio em JSON.")
@@ -343,6 +557,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         report["frontend"] = inspect_frontend_bundle(args.frontend_dist)
+        if args.dashboard_json is not None:
+            report["dashboard_seed"] = inspect_dashboard_json(args.dashboard_json)
         if args.dashboard_url:
             report["dashboard"] = inspect_dashboard_url(
                 args.dashboard_url,

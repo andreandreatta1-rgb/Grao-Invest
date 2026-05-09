@@ -1,10 +1,10 @@
 {
     "ui_revision":  "UI rev soul-4",
     "source_app":  "apps/grao-invest-cockpit",
-    "git_commit":  "fcad91dd960be6b8533930b557dcb621f3062415",
-    "git_commit_short":  "fcad91dd960b",
-    "built_at":  "2026-05-09T00:03:03.9461920Z",
-    "entry_asset":  "assets/index-MOUR5HH4.js",
+    "git_commit":  "5812d150e2657b4a9fccf115a3f9d2614b863fef",
+    "git_commit_short":  "5812d150e265",
+    "built_at":  "2026-05-09T02:15:23.1485825Z",
+    "entry_asset":  "assets/index-B8_kNhAS.js",
     "required_markers":  [
                              "UI rev soul-4",
                              "A Grande Obra",

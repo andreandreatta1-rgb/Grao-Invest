@@ -217,6 +217,44 @@ describe("base cockpit components", () => {
     expect(trigger).toHaveTextContent("17 h");
   });
 
+  it("renders real estate thesis cards with property-specific metrics instead of target stop and zero momentum", () => {
+    render(
+      <ThesisCard
+        thesis={{
+          ...sampleThesis,
+          id: "IM-RADAR-17",
+          front: "Imóveis",
+          asset: "REAL - Parque do Estado Agua Funda",
+          direction: "Potencial positivo",
+          entryPrice: 120000,
+          currentPrice: 300000,
+          targetPrice: null,
+          stopPrice: null,
+          expectedPct: 54,
+          currentPct: 0,
+          realEstateAnalysis: {
+            score: 63,
+            confidence: 51,
+            max_purchase_price: 142000,
+          },
+        }}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: /Tese IM-RADAR-17/i });
+
+    expect(trigger).toHaveTextContent("Preço pedido");
+    expect(trigger).toHaveTextContent("Teto compra");
+    expect(trigger).toHaveTextContent("Valor ref.");
+    expect(trigger).toHaveTextContent("ROI base");
+    expect(trigger).toHaveTextContent("+54,00%");
+    expect(trigger).not.toHaveTextContent("Alvo");
+    expect(trigger).not.toHaveTextContent("Stop");
+    expect(trigger).not.toHaveTextContent("Momento");
+    expect(trigger).not.toHaveTextContent("R$ 0,00");
+    expect(trigger).not.toHaveTextContent("0,00%");
+  });
+
   it("shows the thesis reason, operation, entry date and exit rule before expansion", () => {
     render(<ThesisCard thesis={sampleThesis} />);
 

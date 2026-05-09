@@ -41,7 +41,15 @@ const screens = [
     labels: [],
     expectedAny: ["Teses testadas", "Placar científico", "879"],
     requiredAll: ["879"],
-    forbidden: ["1.727", "total_tested:1727"],
+    forbidden: [
+      "1.727",
+      "total_tested:1727",
+      "Testadas --",
+      "Alvo R$ --",
+      "Stop R$ --",
+      "Alvo R$ 0,00",
+      "Stop R$ 0,00",
+    ],
   },
   {
     id: "teses",

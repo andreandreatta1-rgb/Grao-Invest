@@ -163,6 +163,9 @@ def _refresh_dashboard_seed(repo_root: Path, user_id: int) -> dict[str, Any]:
     overview = payload.get("thesis_history_overview")
     executive = payload.get("thesis_executive_summary")
     open_operations = payload.get("thesis_open_operations")
+    front_overview = payload.get("front_overview")
+    data_quality_gate = payload.get("data_quality_gate")
+    ops_health = payload.get("ops_health")
 
     dashboard_seed = {
         "generated_at": utc_iso_now(),
@@ -174,6 +177,9 @@ def _refresh_dashboard_seed(repo_root: Path, user_id: int) -> dict[str, Any]:
         "thesis_history_overview": overview if isinstance(overview, dict) else {},
         "thesis_executive_summary": executive if isinstance(executive, dict) else {},
         "thesis_open_operations": open_operations if isinstance(open_operations, list) else [],
+        "front_overview": front_overview if isinstance(front_overview, dict) else {},
+        "data_quality_gate": data_quality_gate if isinstance(data_quality_gate, dict) else {},
+        "ops_health": ops_health if isinstance(ops_health, dict) else {},
     }
 
     output_path = repo_root / "data" / "dashboard_seed.json"

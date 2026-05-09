@@ -73,6 +73,32 @@ function pctBetween(base, value) {
   return ((valueNumber - baseNumber) / baseNumber) * 100;
 }
 
+function parsePlanNumber(value) {
+  const text = cleanText(value);
+  if (!text) return null;
+
+  const normalized = text.includes(",") && text.includes(".")
+    ? text.replace(/,/g, "")
+    : text.replace(",", ".");
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : null;
+}
+
+function parseOperationPlanPrices(plan) {
+  const text = cleanText(plan);
+  const numberPattern = "([0-9]+(?:[,.][0-9]+)?)";
+  const rangeMatch = text.match(new RegExp(`entre\\s+${numberPattern}\\s+e\\s+${numberPattern}`, "i"));
+  const targetMatch = text.match(new RegExp(`(?:para perto de|em dire(?:c|ç)[aã]o a)\\s+${numberPattern}`, "i"));
+  const stopMatch = text.match(new RegExp(`Se\\s+(?:cair|subir)\\s+para\\s+${numberPattern}`, "i"));
+
+  return {
+    targetPrice: parsePlanNumber(targetMatch?.[1]),
+    stopPrice: parsePlanNumber(stopMatch?.[1]),
+    rangeLowerPrice: parsePlanNumber(rangeMatch?.[1]),
+    rangeUpperPrice: parsePlanNumber(rangeMatch?.[2]),
+  };
+}
+
 function calibrationCycleOrder(label, fallback) {
   const text = cleanText(label);
   const match = text.match(/(?:cal\.?|calibra(?:c|ç)[aã]o)?\s*0?(\d{1,3})/i);
@@ -567,10 +593,11 @@ function normalizeOperationRow(row, index, now) {
   const baseDirection = normalizeDirection(coalesce(row.direction, inferDirectionFromOperation(row)));
   const operation = cleanText(coalesce(row.operation_plan, row.operation, "Operação estruturada conforme a hipótese."));
   const structure = cleanText(coalesce(row.structured_operation, row.structure, "Estrutura com risco definido."));
+  const parsedPlanPrices = parseOperationPlanPrices(operation);
   const entryPrice = toNumber(coalesce(row.entry_price_brl, row.entry_price, row.entryPrice), null);
   const currentPrice = toNumber(coalesce(row.current_price_brl, row.current_price, row.currentPrice, row.latest_price), entryPrice);
-  const targetPrice = toNumber(coalesce(row.target_price_brl, row.target_price, row.targetPrice), null);
-  const stopPrice = toNumber(coalesce(row.stop_price_brl, row.stop_price, row.stopPrice), null);
+  const targetPrice = toNumber(coalesce(row.target_price_brl, row.target_price, row.targetPrice, parsedPlanPrices.targetPrice), null);
+  const stopPrice = toNumber(coalesce(row.stop_price_brl, row.stop_price, row.stopPrice, parsedPlanPrices.stopPrice), null);
   const expectedPct = toNumber(coalesce(row.expected_result_pct, row.expected_pct, row.expectedPct), 0);
   const isOpen = normalizeOperationOpenState(row, status, phase);
   const resultIsEstimate = front === "Imóveis" && isOpen === false;
@@ -590,8 +617,8 @@ function normalizeOperationRow(row, index, now) {
         entryPrice,
         targetPrice,
         stopPrice,
-        rangeLowerPrice: coalesce(row.range_lower_price, row.rangeLowerPrice),
-        rangeUpperPrice: coalesce(row.range_upper_price, row.rangeUpperPrice),
+        rangeLowerPrice: coalesce(row.range_lower_price, row.rangeLowerPrice, parsedPlanPrices.rangeLowerPrice),
+        rangeUpperPrice: coalesce(row.range_upper_price, row.rangeUpperPrice, parsedPlanPrices.rangeUpperPrice),
       })
     : { rangeLowerPrice: null, rangeUpperPrice: null };
 
@@ -924,12 +951,36 @@ function frontOverviewFor(dashboardSummary, id) {
   return overview[id] ?? overview[id.replace("_", "")] ?? {};
 }
 
-function buildFronts(dashboardSummary, goLiveTheses, now) {
+function derivedFrontStats(front, thesisRows, dashboardSummary) {
+  const rows = asArray(thesisRows).filter((row) => row.front === front.label);
+  const resolvedRows = rows.filter((row) => row.statusGroup === "Histórica" && Number.isFinite(Number(row.resultPct)));
+  const successRows = resolvedRows.filter((row) => Number(row.resultPct) >= 0);
+  const globalHistory = dashboardSummary?.thesis_history_overview ?? {};
+  const globalValidated = toNumber(coalesce(globalHistory.success_rate_pct, globalHistory.successRatePct), null);
+
+  return {
+    tested: rows.length > 0 ? rows.length : null,
+    validatedPct: resolvedRows.length > 0
+      ? (successRows.length / resolvedRows.length) * 100
+      : rows.length > 0
+        ? globalValidated
+        : null,
+  };
+}
+
+function buildFronts(dashboardSummary, goLiveTheses, now, thesisRows = []) {
   return FRONT_DEFS.map((front) => {
     const overview = frontOverviewFor(dashboardSummary, front.id);
+    const derived = derivedFrontStats(front, thesisRows, dashboardSummary);
     const goLive = goLiveTheses.filter((thesis) => thesis.front === front.label).length;
     const activeAssets = uniqueAssetCount(goLiveTheses.filter((thesis) => thesis.front === front.label));
-    const tested = coalesce(overview.total_tested, overview.tested, overview.totalTested);
+    const tested = coalesce(overview.total_tested, overview.tested, overview.totalTested, derived.tested);
+    const validatedPct = coalesce(
+      overview.success_rate_pct,
+      overview.validated_pct,
+      overview.validatedPct,
+      derived.validatedPct,
+    );
 
     return {
       id: front.id,
@@ -937,7 +988,7 @@ function buildFronts(dashboardSummary, goLiveTheses, now) {
       tested: toNumber(tested, null),
       goLive,
       activeAssets,
-      validatedPct: toNumber(coalesce(overview.success_rate_pct, overview.validated_pct, overview.validatedPct), 0),
+      validatedPct: toNumber(validatedPct, null),
       status: goLive > 0 ? "atualizado" : "sem sinal",
       lastUpdatedAt: toIsoDate(coalesce(overview.updated_at, dashboardSummary?.updated_at, dashboardSummary?.last_updated_at), now),
     };
@@ -1335,6 +1386,6 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
     dataQualityGate: dashboardSummary.data_quality_gate ?? null,
     realEstateStrategyTerritoryCandidates: normalizeRealEstateStrategyTerritoryCandidates(payloads?.realEstateStrategyTerritoryCandidates),
     phaseKickoffDate: cleanText(dashboardSummary.phase_kickoff_date),
-    fronts: buildFronts(dashboardSummary, coveredActiveTheses, now),
+    fronts: buildFronts(dashboardSummary, coveredActiveTheses, now, thesisRows),
   };
 }

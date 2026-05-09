@@ -39,6 +39,20 @@ def test_daily_e2e_script_keeps_child_output_out_of_step_summary() -> None:
     assert "$exitCode = $LASTEXITCODE" in script
 
 
+def test_b3_automation_blocks_publish_when_semantic_gate_fails() -> None:
+    script = (ROOT / "scripts" / "run_b3_automation_cycle.ps1").read_text(encoding="utf-8")
+
+    quality_gate_pos = script.index("$qualityGateArgs = @(")
+    publish_pos = script.index("$publishCode = [int](Invoke-Step -Title \"publish_dashboard_seed\"")
+
+    assert quality_gate_pos < publish_pos
+    assert '"scripts/run_grao_quality_gate.py"' in script
+    assert '"--dashboard-json"' in script
+    assert '"data/dashboard_seed.json"' in script
+    assert 'Invoke-Step -Title "semantic_quality_gate" -ArgList $qualityGateArgs' in script
+    assert 'Invoke-Step -Title "semantic_quality_gate" -ArgList $qualityGateArgs -AllowFailure' not in script
+
+
 def test_visual_smoke_reuses_loaded_app_per_viewport() -> None:
     script = (ROOT / "scripts" / "run_visual_smoke.mjs").read_text(encoding="utf-8")
 

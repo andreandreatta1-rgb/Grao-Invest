@@ -8,6 +8,45 @@ import pytest
 from scripts import run_grao_quality_gate as gate
 
 
+def _valid_dashboard_payload() -> dict[str, object]:
+    return {
+        "ops_health": {
+            "status": "ok",
+            "stages": {
+                "market_feed": {
+                    "status": "ok",
+                    "fronts": {
+                        "b3": {"age_days": 0.2, "max_age_days": 4},
+                        "crypto": {"age_days": 0.01, "max_age_days": 1},
+                    },
+                }
+            },
+        },
+        "data_quality_gate": {
+            "summary": {
+                "gate_status": "pass",
+                "failed_checks": 0,
+                "quality_score_pct": 100.0,
+            }
+        },
+        "front_overview": {
+            "b3": {"total_tested": 700, "success_rate_pct": 64.1},
+            "crypto": {"total_tested": 100, "success_rate_pct": 70.4},
+            "real_estate": {"total_tested": 79, "success_rate_pct": 62.7},
+        },
+        "thesis_history_overview": {"total_tested": 879},
+        "historical_analysis_summary": {"thesis_count": 879},
+        "thesis_open_operations": [
+            {
+                "front": "imoveis",
+                "is_open": True,
+                "action": "Apto Sao Miguel",
+                "real_estate_analysis": {"score": 63, "confidence": 51},
+            }
+        ],
+    }
+
+
 def _write_frontend_dist(tmp_path: Path, bundle: str) -> Path:
     dist = tmp_path / "frontend_dist"
     assets = dist / "assets"
@@ -117,30 +156,7 @@ def test_dashboard_payload_gate_rejects_inconsistent_tested_counts() -> None:
 
 
 def test_dashboard_payload_gate_accepts_current_public_contract() -> None:
-    payload = {
-        "ops_health": {
-            "status": "ok",
-            "stages": {
-                "market_feed": {
-                    "status": "ok",
-                    "fronts": {
-                        "b3": {"age_days": 0.2, "max_age_days": 4},
-                        "crypto": {"age_days": 0.01, "max_age_days": 1},
-                    },
-                }
-            },
-        },
-        "thesis_history_overview": {"total_tested": 879},
-        "historical_analysis_summary": {"thesis_count": 879},
-        "thesis_open_operations": [
-            {
-                "front": "imoveis",
-                "is_open": True,
-                "action": "Apto Sao Miguel",
-                "real_estate_analysis": {"score": 63, "confidence": 51},
-            }
-        ],
-    }
+    payload = _valid_dashboard_payload()
 
     result = gate.inspect_dashboard_payload(payload)
 
@@ -151,22 +167,78 @@ def test_dashboard_payload_gate_accepts_current_public_contract() -> None:
     assert result["freshness"]["sources"]["b3"] == "online"
     assert result["freshness"]["sources"]["crypto"] == "online"
     assert result["freshness"]["sources"]["imoveis"] == "online"
+    assert result["data_quality"]["gate_status"] == "pass"
 
 
-def test_dashboard_payload_gate_reports_partial_freshness_without_ops_fronts() -> None:
+def test_dashboard_payload_gate_rejects_partial_freshness_without_ops_fronts() -> None:
     payload = {
         "ops_health": {"status": "ok"},
+        "data_quality_gate": {"summary": {"gate_status": "pass", "failed_checks": 0}},
         "thesis_history_overview": {"total_tested": 879},
         "historical_analysis_summary": {"thesis_count": 879},
         "thesis_open_operations": [],
     }
 
-    result = gate.inspect_dashboard_payload(payload)
+    with pytest.raises(gate.QualityGateFailure, match="freshness.*partial"):
+        gate.inspect_dashboard_payload(payload)
 
-    assert result["freshness"]["status"] == "partial"
-    assert result["freshness"]["sources"]["b3"] == "missing"
-    assert result["freshness"]["sources"]["crypto"] == "missing"
-    assert result["freshness"]["sources"]["imoveis"] == "missing"
+
+def test_dashboard_payload_gate_rejects_failed_data_quality_gate() -> None:
+    payload = _valid_dashboard_payload()
+    payload["data_quality_gate"] = {
+        "summary": {
+            "gate_status": "fail",
+            "failed_checks": 4,
+            "quality_score_pct": 33.3333,
+        }
+    }
+
+    with pytest.raises(gate.QualityGateFailure, match="data_quality_gate nao passou"):
+        gate.inspect_dashboard_payload(payload)
+
+
+def test_dashboard_payload_gate_rejects_missing_front_overview() -> None:
+    payload = _valid_dashboard_payload()
+    payload.pop("front_overview")
+
+    with pytest.raises(gate.QualityGateFailure, match="front_overview"):
+        gate.inspect_dashboard_payload(payload)
+
+
+def test_dashboard_payload_gate_rejects_front_overview_zero_rate_without_context() -> None:
+    payload = _valid_dashboard_payload()
+    payload["front_overview"] = {
+        "b3": {"total_tested": 700, "success_rate_pct": 0},
+        "crypto": {"total_tested": 100, "success_rate_pct": 70.4},
+        "real_estate": {"total_tested": 79, "success_rate_pct": 62.7},
+    }
+
+    with pytest.raises(gate.QualityGateFailure, match="front_overview"):
+        gate.inspect_dashboard_payload(payload)
+
+
+def test_dashboard_payload_gate_rejects_active_directional_operation_without_price_plan() -> None:
+    payload = _valid_dashboard_payload()
+    payload["thesis_open_operations"] = [
+        {
+            "front": "b3",
+            "is_open": True,
+            "action": "GGBR4",
+            "direction": "bullish",
+            "entry_price_brl": 23.77,
+            "operation_plan": "Compra ate - legado sem preco persistido",
+            "real_estate_analysis": None,
+        },
+        {
+            "front": "imoveis",
+            "is_open": True,
+            "action": "Apto Sao Miguel",
+            "real_estate_analysis": {"score": 63, "confidence": 51},
+        },
+    ]
+
+    with pytest.raises(gate.QualityGateFailure, match="plano operacional"):
+        gate.inspect_dashboard_payload(payload)
 
 
 def test_dashboard_payload_gate_requires_real_estate_analysis_when_imoveis_exist() -> None:
@@ -201,6 +273,68 @@ def test_cli_writes_json_report_for_local_checks(
     assert output["frontend"]["entry_asset"] == "assets/index-test.js"
 
 
+def test_cli_validates_dashboard_seed_json_before_publish(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    dist = _write_frontend_dist(
+        tmp_path,
+        "function App(){let [state,setState]=(0,_.useState)(()=>Hn(_n({})));return state}",
+    )
+    dashboard_json = tmp_path / "dashboard_seed.json"
+    dashboard_json.write_text(json.dumps(_valid_dashboard_payload()), encoding="utf-8")
+
+    exit_code = gate.main(
+        [
+            "--frontend-dist",
+            str(dist),
+            "--dashboard-json",
+            str(dashboard_json),
+            "--json",
+        ]
+    )
+
+    assert exit_code == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["status"] == "ok"
+    assert output["dashboard_seed"]["total_tested"] == 879
+
+
+def test_cli_blocks_dashboard_seed_with_failed_semantic_gate(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    dist = _write_frontend_dist(
+        tmp_path,
+        "function App(){let [state,setState]=(0,_.useState)(()=>Hn(_n({})));return state}",
+    )
+    payload = _valid_dashboard_payload()
+    payload["data_quality_gate"] = {
+        "summary": {
+            "gate_status": "fail",
+            "failed_checks": 3,
+            "quality_score_pct": 50,
+        }
+    }
+    dashboard_json = tmp_path / "dashboard_seed.json"
+    dashboard_json.write_text(json.dumps(payload), encoding="utf-8")
+
+    exit_code = gate.main(
+        [
+            "--frontend-dist",
+            str(dist),
+            "--dashboard-json",
+            str(dashboard_json),
+            "--json",
+        ]
+    )
+
+    assert exit_code == 1
+    output = json.loads(capsys.readouterr().out)
+    assert output["status"] == "fail"
+    assert "data_quality_gate nao passou" in output["error"]
+
+
 def test_dashboard_fetch_requests_identity_response_and_closed_connection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -231,12 +365,7 @@ def test_dashboard_fetch_requests_identity_response_and_closed_connection(
 def test_dashboard_url_gate_retries_transient_fetch_errors(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    payload = {
-        "ops_health": {"status": "ok"},
-        "thesis_history_overview": {"total_tested": 879},
-        "historical_analysis_summary": {"thesis_count": 879},
-        "thesis_open_operations": [],
-    }
+    payload = _valid_dashboard_payload()
     calls = {"count": 0}
 
     def fake_fetch_json(url: str, timeout_seconds: float) -> dict[str, object]:

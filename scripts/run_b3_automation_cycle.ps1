@@ -106,6 +106,11 @@ $opsGuardArgs = @(
   "--write-dashboard-seed"
 )
 
+$qualityGateArgs = @(
+  "scripts/run_grao_quality_gate.py",
+  "--dashboard-json", "data/dashboard_seed.json"
+)
+
 $publishArgs = @("scripts/publish_dashboard_seed.py")
 
 if (-not $SkipFeedRefresh) {
@@ -143,10 +148,16 @@ if (-not $SkipCurrentTheses) {
 if (-not $SkipOpsGuard) {
   $guardCode = [int](Invoke-Step -Title "run_grao_ops_guard" -ArgList $opsGuardArgs -AllowFailure)
   if ($guardCode -ne 0) {
-    Write-Log "[$(Get-Date -Format o)] WARN ops guard encontrou bloqueios; publicando seed com diagnostico"
+    Write-Log "[$(Get-Date -Format o)] WARN ops guard encontrou bloqueios; semantic_quality_gate decidira se pode publicar"
   }
 } else {
   Write-Log "[$(Get-Date -Format o)] SKIP run_grao_ops_guard"
+}
+
+$qualityCode = [int](Invoke-Step -Title "semantic_quality_gate" -ArgList $qualityGateArgs)
+if ($qualityCode -ne 0) {
+  Write-Log "[$(Get-Date -Format o)] ERROR gate semantico falhou; publish nao executado"
+  exit $qualityCode
 }
 
 $publishCode = [int](Invoke-Step -Title "publish_dashboard_seed" -ArgList $publishArgs -AllowFailure)

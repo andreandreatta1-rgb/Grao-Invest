@@ -122,6 +122,19 @@ function rangeText(thesis) {
 }
 
 function priceMetrics(thesis) {
+  if (thesis.front === "Imóveis") {
+    const analysis = thesis.realEstateAnalysis && typeof thesis.realEstateAnalysis === "object"
+      ? thesis.realEstateAnalysis
+      : {};
+    const ceiling = analysis.max_purchase_price ?? analysis.maxPurchasePrice ?? thesis.targetPrice;
+
+    return [
+      metric("Preço pedido", fmtMoney(thesis.entryPrice)),
+      metric("Teto compra", fmtMoney(ceiling), C.gold),
+      metric("Valor ref.", fmtMoney(thesis.currentPrice), C.sky),
+    ];
+  }
+
   if (isRangeThesis(thesis)) {
     return [
       metric("Entrada/Centro", fmtMoney(thesis.entryPrice)),
@@ -135,6 +148,15 @@ function priceMetrics(thesis) {
     metric(priceReferenceLabel(thesis), fmtMoney(thesis.targetPrice), C.green),
     metric("Stop", fmtMoney(thesis.stopPrice), C.coral),
   ];
+}
+
+function progressMetric(thesis) {
+  if (thesis.front === "Imóveis") {
+    return metric("ROI base", fmtPct(thesis.expectedPct), C.teal);
+  }
+
+  const color = thesis.currentPct >= 0 ? C.teal : C.coral;
+  return metric("Momento", fmtPct(thesis.currentPct), color);
 }
 
 function holdingPeriodLabel(thesis) {
@@ -238,7 +260,7 @@ export function ThesisCard({ thesis }) {
           }}
         >
           {priceMetrics(thesis)}
-          {metric("Momento", fmtPct(thesis.currentPct), momentumColor)}
+          {progressMetric(thesis)}
         </div>
         <div
           style={{
