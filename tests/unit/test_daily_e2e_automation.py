@@ -15,6 +15,7 @@ def test_daily_e2e_script_orchestrates_job_deploy_and_public_verification() -> N
     assert "/api/frontend/version" in script
     assert "Wait-FrontendDeploy" in script
     assert "git rev-parse HEAD" in script
+    assert "deployed_git_commit" in script
     assert "StrictMobile" in script
 
 

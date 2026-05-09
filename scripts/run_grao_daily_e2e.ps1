@@ -95,14 +95,25 @@ function Wait-FrontendDeploy {
       $lastPayload = $payload | ConvertTo-Json -Depth 8
       $commit = [string]($payload.git_commit)
       $short = [string]($payload.git_commit_short)
+      $deployedCommit = [string]($payload.deployed_git_commit)
+      $deployedShort = [string]($payload.deployed_git_commit_short)
 
-      if ($commit -eq $ExpectedCommit -or $short -eq $expectedShort -or $commit.StartsWith($expectedShort)) {
+      if (
+        $commit -eq $ExpectedCommit `
+          -or $short -eq $expectedShort `
+          -or $commit.StartsWith($expectedShort) `
+          -or $deployedCommit -eq $ExpectedCommit `
+          -or $deployedShort -eq $expectedShort `
+          -or $deployedCommit.StartsWith($expectedShort)
+      ) {
         Write-Host "Deploy confirmed for commit $expectedShort"
         return [ordered]@{
           version_url = $versionUrl
           expected_commit = $ExpectedCommit
           observed_commit = $commit
           observed_commit_short = $short
+          deployed_commit = $deployedCommit
+          deployed_commit_short = $deployedShort
         }
       }
     } catch {
