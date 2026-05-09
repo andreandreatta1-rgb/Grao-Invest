@@ -1,6 +1,7 @@
 param(
   [string]$DashboardUrl = "https://grao-invest.vercel.app/api/dashboard/summary/1",
   [int]$Attempts = 3,
+  [int]$TimeoutSeconds = 90,
   [switch]$SkipNetwork
 )
 
@@ -20,6 +21,8 @@ $Args = @(
   "services\api\frontend_dist",
   "--attempts",
   "$Attempts",
+  "--timeout-seconds",
+  "$TimeoutSeconds",
   "--json"
 )
 

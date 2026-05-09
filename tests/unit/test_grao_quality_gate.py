@@ -199,3 +199,59 @@ def test_cli_writes_json_report_for_local_checks(
     output = json.loads(capsys.readouterr().out)
     assert output["status"] == "ok"
     assert output["frontend"]["entry_asset"] == "assets/index-test.js"
+
+
+def test_dashboard_fetch_requests_identity_response_and_closed_connection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, str] = {}
+
+    class FakeResponse:
+        def __enter__(self) -> FakeResponse:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b'{"ok": true}'
+
+    def fake_urlopen(request: object, timeout: float) -> FakeResponse:
+        del timeout
+        captured.update(dict(request.header_items()))
+        return FakeResponse()
+
+    monkeypatch.setattr(gate, "urlopen", fake_urlopen)
+
+    assert gate._fetch_json("https://example.test/api", 1.0) == {"ok": True}
+    assert captured["Connection"] == "close"
+    assert captured["Accept-encoding"] == "identity"
+
+
+def test_dashboard_url_gate_retries_transient_fetch_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "ops_health": {"status": "ok"},
+        "thesis_history_overview": {"total_tested": 879},
+        "historical_analysis_summary": {"thesis_count": 879},
+        "thesis_open_operations": [],
+    }
+    calls = {"count": 0}
+
+    def fake_fetch_json(url: str, timeout_seconds: float) -> dict[str, object]:
+        del url, timeout_seconds
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise gate.QualityGateFailure("Falha ao buscar api: timeout")
+        return payload
+
+    monkeypatch.setattr(gate, "_fetch_json", fake_fetch_json)
+    monkeypatch.setattr(gate.time, "sleep", lambda _seconds: None)
+
+    result = gate.inspect_dashboard_url("https://example.test/api", attempts=3)
+
+    assert calls["count"] == 4
+    assert result["fetch_attempts"] == 4
+    assert result["stable_total_tested"] == 879
+    assert len(result["transient_errors"]) == 1

@@ -17,6 +17,8 @@ def test_daily_e2e_script_orchestrates_job_deploy_and_public_verification() -> N
     assert "git rev-parse HEAD" in script
     assert "deployed_git_commit" in script
     assert "StrictMobile" in script
+    assert '"-TimeoutSeconds"' in script
+    assert '"90"' in script
 
 
 def test_daily_e2e_script_keeps_skip_switches_for_safe_local_runs() -> None:
@@ -33,3 +35,16 @@ def test_daily_e2e_script_keeps_child_output_out_of_step_summary() -> None:
 
     assert "$stepOutput = & $Action 2>&1" in script
     assert "foreach ($line in $stepOutput)" in script
+    assert "$output = & powershell" in script
+    assert "$exitCode = $LASTEXITCODE" in script
+
+
+def test_visual_smoke_reuses_loaded_app_per_viewport() -> None:
+    script = (ROOT / "scripts" / "run_visual_smoke.mjs").read_text(encoding="utf-8")
+
+    assert "let viewportLoaded = false;" in script
+    assert "if (!viewportLoaded)" in script
+    assert "viewportLoaded = true;" in script
+    assert "VISUAL_SMOKE_READY_TIMEOUT_MS || 90_000" in script
+    assert "dashboardPayload" in script
+    assert 'page.route("**/api/dashboard/summary/1**"' in script

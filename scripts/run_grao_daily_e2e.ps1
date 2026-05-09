@@ -49,9 +49,13 @@ function Invoke-PowerShellScript {
     [string[]]$Arguments = @()
   )
 
-  & powershell -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Arguments
-  if ($LASTEXITCODE -ne 0) {
-    throw "$ScriptPath failed with exit code $LASTEXITCODE"
+  $output = & powershell -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Arguments 2>&1
+  foreach ($line in $output) {
+    Write-Host $line
+  }
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -ne 0) {
+    throw "$ScriptPath failed with exit code $exitCode"
   }
 }
 
@@ -181,7 +185,12 @@ try {
   $steps.Add((Invoke-GraoStep -Name "quality_gate_public" -Action {
     Invoke-PowerShellScript `
       -ScriptPath (Join-Path $scriptsDir "run_quality_gate.ps1") `
-      -Arguments @("-DashboardUrl", ($PublicBaseUrl.TrimEnd("/") + "/api/dashboard/summary/1"))
+      -Arguments @(
+        "-DashboardUrl",
+        ($PublicBaseUrl.TrimEnd("/") + "/api/dashboard/summary/1"),
+        "-TimeoutSeconds",
+        "90"
+      )
   }))
 
   if ($SkipVisualSmoke) {

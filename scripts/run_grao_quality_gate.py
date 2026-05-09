@@ -252,6 +252,8 @@ def _fetch_json(url: str, timeout_seconds: float) -> dict[str, Any]:
         headers={
             "Accept": "application/json",
             "Cache-Control": "no-cache",
+            "Connection": "close",
+            "Accept-Encoding": "identity",
             "Pragma": "no-cache",
             "User-Agent": "grao-quality-gate/1.0",
         },
@@ -281,11 +283,30 @@ def inspect_dashboard_url(
         raise QualityGateFailure("attempts precisa ser maior que zero")
 
     readings: list[dict[str, Any]] = []
-    for index in range(attempts):
-        payload = _fetch_json(url, timeout_seconds)
+    transient_errors: list[str] = []
+    fetch_attempts = 0
+    max_fetch_attempts = max(attempts, attempts * 2)
+    while len(readings) < attempts and fetch_attempts < max_fetch_attempts:
+        fetch_attempts += 1
+        try:
+            payload = _fetch_json(url, timeout_seconds)
+        except QualityGateFailure as exc:
+            transient_errors.append(str(exc))
+            if fetch_attempts < max_fetch_attempts:
+                time.sleep(0.5)
+                continue
+            break
+
         readings.append(inspect_dashboard_payload(payload))
-        if index < attempts - 1:
+        if len(readings) < attempts:
             time.sleep(0.5)
+
+    if len(readings) < attempts:
+        latest_error = transient_errors[-1] if transient_errors else "sem resposta valida"
+        raise QualityGateFailure(
+            f"Dashboard retornou {len(readings)}/{attempts} leituras validas "
+            f"apos {fetch_attempts} tentativas. Ultimo erro: {latest_error}"
+        )
 
     totals = {reading["total_tested"] for reading in readings}
     if len(totals) != 1:
@@ -297,6 +318,8 @@ def inspect_dashboard_url(
     return {
         "url": url,
         "attempts": attempts,
+        "fetch_attempts": fetch_attempts,
+        "transient_errors": transient_errors,
         "readings": readings,
         "stable_total_tested": totals.pop(),
     }

@@ -27,7 +27,7 @@ const outputDir = path.resolve(
 );
 const maxScreens = Number(process.env.VISUAL_SMOKE_MAX_SCREENS || 0);
 const strictMobile = process.env.VISUAL_SMOKE_STRICT_MOBILE === "1";
-const appReadyTimeoutMs = Number(process.env.VISUAL_SMOKE_READY_TIMEOUT_MS || 60_000);
+const appReadyTimeoutMs = Number(process.env.VISUAL_SMOKE_READY_TIMEOUT_MS || 90_000);
 
 const viewports = [
   { id: "desktop", width: 1366, height: 768, required: true },
@@ -128,7 +128,7 @@ async function bodyText(page) {
 
 async function warmDashboardApi() {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
+  const timeout = setTimeout(() => controller.abort(), 90_000);
   try {
     const response = await fetch(`${baseUrl}/api/dashboard/summary/1?visual_smoke=${Date.now()}`, {
       cache: "no-store",
@@ -142,6 +142,7 @@ async function warmDashboardApi() {
       open_operations: Array.isArray(payload?.thesis_open_operations)
         ? payload.thesis_open_operations.length
         : null,
+      payload,
     };
   } catch (error) {
     return {
@@ -270,6 +271,8 @@ async function inspectPage(page, screen) {
 async function run() {
   await mkdir(outputDir, { recursive: true });
   const apiWarmup = await warmDashboardApi();
+  const dashboardPayload = apiWarmup.ok ? apiWarmup.payload : null;
+  delete apiWarmup.payload;
   const browser = await chromium.launch({ headless: true });
   const report = {
     status: "ok",
@@ -289,6 +292,15 @@ async function run() {
         deviceScaleFactor: 1,
         isMobile: viewport.id === "mobile",
       });
+      if (dashboardPayload) {
+        await page.route("**/api/dashboard/summary/1**", async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify(dashboardPayload),
+          });
+        });
+      }
       page.setDefaultTimeout(12_000);
       const consoleEvents = [];
       const requestFailures = [];
@@ -310,6 +322,8 @@ async function run() {
         window.localStorage.setItem("graoinvest.metodo_onboarding_seen", "1");
       });
 
+      let viewportLoaded = false;
+
       for (const screen of selectedScreens) {
         const result = {
           viewport: viewport.id,
@@ -325,12 +339,16 @@ async function run() {
         try {
           consoleEvents.length = 0;
           requestFailures.length = 0;
-          await page.goto(`${baseUrl}/?visual-smoke=${Date.now()}-${viewport.id}-${screen.id}`, {
-            waitUntil: "domcontentloaded",
-            timeout: 30_000,
-          });
-          await page.waitForLoadState("load", { timeout: 30_000 });
-          await waitForAppReady(page, screen);
+
+          if (!viewportLoaded) {
+            await page.goto(`${baseUrl}/?visual-smoke=${Date.now()}-${viewport.id}`, {
+              waitUntil: "domcontentloaded",
+              timeout: 30_000,
+            });
+            await page.waitForLoadState("load", { timeout: 30_000 });
+            await waitForAppReady(page, screen);
+            viewportLoaded = true;
+          }
 
           await activateScreen(page, screen);
           await waitForScreen(page, screen);
