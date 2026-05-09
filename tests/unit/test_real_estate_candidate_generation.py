@@ -4,6 +4,7 @@ from app.services.real_estate_candidate_generation import (
     STRATEGY_BLUEPRINTS,
     TERRITORY_BLUEPRINTS,
     generate_condominium_requalification_watchlist,
+    generate_strategy_candidate_watchlist,
     generate_strategy_territory_candidate_briefs,
     strategy_territory_report,
 )
@@ -38,6 +39,20 @@ def test_condominium_requalification_watchlist_keeps_source_confirmed_signals_se
     }.issubset(set(watchlist[0]["diligence_checklist"]))
 
 
+def test_strategy_candidate_watchlist_has_sources_for_every_strategy() -> None:
+    watchlist = generate_strategy_candidate_watchlist()
+    strategy_ids = {item["strategy_id"] for item in STRATEGY_BLUEPRINTS}
+
+    assert len(TERRITORY_BLUEPRINTS) >= 12
+    assert len(watchlist) >= len(STRATEGY_BLUEPRINTS) * 2
+    assert {item["strategy_id"] for item in watchlist} == strategy_ids
+    assert all(item["brief_type"] == "strategy_source_candidate" for item in watchlist)
+    assert all(item["trust_level"] == "source_listed" for item in watchlist)
+    assert all(str(item["source_url"]).startswith("https://") for item in watchlist)
+    assert all("Nao vira tese de compra" in str(item["decision_rule"]) for item in watchlist)
+    assert all(item["diligence_checklist"] for item in watchlist)
+
+
 def test_strategy_territory_report_summarizes_matrix_and_watchlist() -> None:
     report = strategy_territory_report()
 
@@ -47,5 +62,7 @@ def test_strategy_territory_report_summarizes_matrix_and_watchlist() -> None:
         len(STRATEGY_BLUEPRINTS) * len(TERRITORY_BLUEPRINTS)
     )
     assert report["summary"]["source_confirmed_requalification_count"] >= 4
+    assert report["summary"]["source_candidate_count"] >= len(STRATEGY_BLUEPRINTS) * 2
     assert report["matrix_briefs"]
+    assert report["strategy_candidate_watchlist"]
     assert report["condominium_requalification_watchlist"]

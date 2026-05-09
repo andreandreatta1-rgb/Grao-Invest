@@ -877,6 +877,10 @@ function normalizeRealEstateSearchBrief(brief, index) {
 function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
   const summary = payload.summary ?? {};
   const matrixBriefs = asArray(coalesce(payload.matrixBriefs, payload.matrix_briefs)).map(normalizeRealEstateSearchBrief);
+  const strategyCandidateWatchlist = asArray(coalesce(
+    payload.strategyCandidateWatchlist,
+    payload.strategy_candidate_watchlist,
+  )).map(normalizeRealEstateSearchBrief);
   const condominiumRequalificationWatchlist = asArray(coalesce(
     payload.condominiumRequalificationWatchlist,
     payload.condominium_requalification_watchlist,
@@ -888,6 +892,10 @@ function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
       strategyCount: toNumber(coalesce(summary.strategyCount, summary.strategy_count), 0),
       territoryCount: toNumber(coalesce(summary.territoryCount, summary.territory_count), 0),
       matrixBriefCount: toNumber(coalesce(summary.matrixBriefCount, summary.matrix_brief_count), matrixBriefs.length),
+      sourceCandidateCount: toNumber(
+        coalesce(summary.sourceCandidateCount, summary.source_candidate_count),
+        strategyCandidateWatchlist.length,
+      ),
       sourceConfirmedRequalificationCount: toNumber(
         coalesce(summary.sourceConfirmedRequalificationCount, summary.source_confirmed_requalification_count),
         condominiumRequalificationWatchlist.length,
@@ -897,6 +905,7 @@ function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
     strategies: asArray(payload.strategies),
     territories: asArray(payload.territories),
     matrixBriefs,
+    strategyCandidateWatchlist,
     condominiumRequalificationWatchlist,
   };
 }

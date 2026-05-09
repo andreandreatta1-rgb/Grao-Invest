@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-09T19:39:22+00:00",
+  "generated_at": "2026-05-09T23:22:40+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -207,19 +207,19 @@
         ]
       }
     ],
-    "event_count": 2062,
-    "global_event_count": 2065,
+    "event_count": 2069,
+    "global_event_count": 2072,
     "global_total_tested": 1168,
     "user_total_tested": 1167,
     "sources": {
       "case_study_runs": 1168,
-      "current_monitor_runs": 298
+      "current_monitor_runs": 305
     },
     "sample_quality": {
       "counting_policy": "unique_resolved_case_studies",
       "raw_case_study_events": 1767,
       "duplicate_case_study_events_excluded": 599,
-      "current_monitor_snapshots_excluded": 298,
+      "current_monitor_snapshots_excluded": 305,
       "current_monitor_policy": "excluded_until_resolved_and_deduplicated"
     },
     "avg_resolution_days": 0.0,
@@ -33979,75 +33979,6 @@
     {
       "phase": "pos_go_live",
       "thesis_number": 1775,
-      "thesis_id": "TH-BTCUSDT-range-0008",
-      "thesis_raised_at": "2026-05-09T19:29:59+00:00",
-      "action": "BTCUSDT",
-      "thesis_reason": "Tese de estabilidade para BTCUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança alto e sustentação razoável.",
-      "expected_result_pct": 1.0732,
-      "operation_plan": "Neutra até 2026-05-09. Plano: operar em faixa, esperando preço entre 79613.50 e 80825.89. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 1.07%.",
-      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
-      "entry_price_brl": 80825.89,
-      "current_price_brl": 80825.89,
-      "latest_price_at": "2026-05-09T19:29:59+00:00",
-      "planned_exit_at": "2026-05-09",
-      "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
-      "status": "Aberta - Atencao",
-      "outcome": "Atencao",
-      "moment_result_pct": 2.4,
-      "duration_days": null,
-      "open_days": 0,
-      "learning_note": "Acompanhar se a deterioracao vira padrao recorrente.",
-      "is_open": true
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 1776,
-      "thesis_id": "TH-ETHUSDT-range-0016",
-      "thesis_raised_at": "2026-05-09T19:29:59+00:00",
-      "action": "ETHUSDT",
-      "thesis_reason": "Tese de estabilidade para ETHUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança alto e sustentação razoável.",
-      "expected_result_pct": 0.9558,
-      "operation_plan": "Neutra até 2026-05-09. Plano: operar em faixa, esperando preço entre 2293.61 e 2328.54. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.96%.",
-      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
-      "entry_price_brl": 2328.54,
-      "current_price_brl": 2328.54,
-      "latest_price_at": "2026-05-09T19:29:59+00:00",
-      "planned_exit_at": "2026-05-09",
-      "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
-      "status": "Aberta - Atencao",
-      "outcome": "Atencao",
-      "moment_result_pct": 2.4,
-      "duration_days": null,
-      "open_days": 0,
-      "learning_note": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
-      "is_open": true
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 1777,
-      "thesis_id": "TH-SOLUSDT-range-0024",
-      "thesis_raised_at": "2026-05-09T19:29:59+00:00",
-      "action": "SOLUSDT",
-      "thesis_reason": "Tese de estabilidade para SOLUSDT: o comportamento recente do preço indicou uma oportunidade. O que pesou na decisão: preço em faixa estável, oscilações em nível controlado, padrão parecido com casos anteriores. Nível de confiança médio e sustentação razoável.",
-      "expected_result_pct": 0.8112,
-      "operation_plan": "Neutra até 2026-05-09. Plano: operar em faixa, esperando preço entre 91.94 e 93.34. Se sair dessa faixa, encerramos para proteção. Retorno esperado: 0.81%.",
-      "structured_operation": "Iron Condor | ganho max 2.40% | perda max 3.80%",
-      "entry_price_brl": 93.34,
-      "current_price_brl": 93.34,
-      "latest_price_at": "2026-05-09T19:29:59+00:00",
-      "planned_exit_at": "2026-05-09",
-      "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
-      "status": "Aberta - Atencao",
-      "outcome": "Atencao",
-      "moment_result_pct": 2.4,
-      "duration_days": null,
-      "open_days": 0,
-      "learning_note": "Aplicar penalidade aprendida no pos-morte antes de repetir padrao.",
-      "is_open": true
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 1778,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -34320,7 +34251,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1779,
+      "thesis_number": 1776,
       "thesis_id": "IM-RADAR-16",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -34594,7 +34525,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1780,
+      "thesis_number": 1777,
       "thesis_id": "IM-RADAR-15",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -34868,7 +34799,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1781,
+      "thesis_number": 1778,
       "thesis_id": "IM-RADAR-14",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -35142,7 +35073,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1782,
+      "thesis_number": 1779,
       "thesis_id": "IM-RADAR-13",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -35415,7 +35346,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1783,
+      "thesis_number": 1780,
       "thesis_id": "IM-RADAR-12",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -35705,7 +35636,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1784,
+      "thesis_number": 1781,
       "thesis_id": "IM-RADAR-11",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -35984,7 +35915,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1785,
+      "thesis_number": 1782,
       "thesis_id": "IM-RADAR-10",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -36266,7 +36197,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1786,
+      "thesis_number": 1783,
       "thesis_id": "IM-RADAR-9",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -36550,7 +36481,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1787,
+      "thesis_number": 1784,
       "thesis_id": "IM-RADAR-8",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -36828,7 +36759,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1788,
+      "thesis_number": 1785,
       "thesis_id": "IM-RADAR-7",
       "thesis_raised_at": "2026-05-04T13:40:52+00:00",
       "front": "imoveis",
@@ -37112,7 +37043,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 1789,
+      "thesis_number": 1786,
       "thesis_id": "IM-RADAR-6",
       "thesis_raised_at": "2026-05-04T13:40:51+00:00",
       "front": "imoveis",
@@ -37422,12 +37353,12 @@
     }
   },
   "data_quality_gate": {
-    "generated_at": "2026-05-09T19:39:22+00:00",
+    "generated_at": "2026-05-09T12:23:42+00:00",
     "scope": {
       "target_instrument_count": 2,
       "target_instruments_sample": [
-        "BTCUSDT",
-        "PETR4"
+        "PETR4",
+        "BTCUSDT"
       ],
       "sample_truncated": false
     },
@@ -37435,7 +37366,7 @@
       "market_max_lag_seconds": 1800,
       "market_min_fresh_coverage_pct": 95.0,
       "fundamentals_min_coverage_pct": 90.0,
-      "fundamentals_max_staleness_days": 1,
+      "fundamentals_max_staleness_days": 2,
       "fundamentals_min_fresh_coverage_pct": 90.0,
       "news_lookback_days": 7,
       "news_min_coverage_pct": 60.0,
@@ -37493,7 +37424,7 @@
         "comparator": ">=",
         "actual_value": 100.0,
         "target_value": 90.0,
-        "details": "frescos=1/1 com staleness <= 1 dia(s)"
+        "details": "frescos=1/1 com staleness <= 2 dia(s)"
       },
       {
         "check_id": "news_recent_coverage_pct",
@@ -37512,7 +37443,7 @@
       "stale_instrument_count": 0,
       "coverage_pct": 100.0,
       "fresh_coverage_pct": 100.0,
-      "max_lag_seconds": 58134.2969,
+      "max_lag_seconds": 31994.3373,
       "missing_instruments_sample": []
     },
     "fundamentals": {
@@ -37534,9 +37465,9 @@
       "missing_instruments_sample": []
     },
     "provider_health": {
-      "provider_count": 0,
+      "provider_count": 7,
       "critical_count": 0,
-      "warning_count": 0,
+      "warning_count": 6,
       "no_data_count": 0
     },
     "recommended_actions": []
@@ -37556,37 +37487,74 @@
         "message": "Task Scheduler aponta para powershell.exe com paths protegidos.",
         "details": {
           "status": "ok",
-          "task_count": 6,
+          "repo_root": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
+          "checked_at": "2026-05-09T19:39:47.1016665Z",
           "tasks": [
             {
               "task_name": "GraoInvest-B3-01",
               "ok": true,
-              "last_task_result": 0
+              "issues": [],
+              "execute": "powershell.exe",
+              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
+              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
+              "last_run_time": "/Date(1778297401000)/",
+              "last_task_result": 0,
+              "next_run_time": "/Date(1778383800000)/"
             },
             {
               "task_name": "GraoInvest-B3-02",
               "ok": true,
-              "last_task_result": 0
+              "issues": [],
+              "execute": "powershell.exe",
+              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
+              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
+              "last_run_time": "/Date(1778328555000)/",
+              "last_task_result": 0,
+              "next_run_time": "/Date(1778398200000)/"
             },
             {
               "task_name": "GraoInvest-B3-03",
               "ok": true,
-              "last_task_result": 2147946720
+              "issues": [],
+              "execute": "powershell.exe",
+              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
+              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
+              "last_run_time": "/Date(1778328554000)/",
+              "last_task_result": 2147946720,
+              "next_run_time": "/Date(1778412600000)/"
             },
             {
               "task_name": "GraoInvest-B3-04",
               "ok": true,
-              "last_task_result": 0
+              "issues": [],
+              "execute": "powershell.exe",
+              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
+              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
+              "last_run_time": "/Date(1778340601000)/",
+              "last_task_result": 0,
+              "next_run_time": "/Date(1778427000000)/"
             },
             {
               "task_name": "GraoInvest-B3-05",
               "ok": true,
-              "last_task_result": 267009
+              "issues": [],
+              "execute": "powershell.exe",
+              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
+              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
+              "last_run_time": "/Date(1778355001000)/",
+              "last_task_result": 267009,
+              "next_run_time": "/Date(1778441400000)/"
             },
             {
               "task_name": "GraoInvest-CaseStudy-Night",
               "ok": true,
-              "last_task_result": 2147943467
+              "issues": [],
+              "execute": "powershell.exe",
+              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_case_study_overnight_loop.ps1\" -SleepSeconds 5 -PublishEveryMinutes 30 -EndHour 6",
+              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
+              "last_run_time": "/Date(1778288401000)/",
+              "last_task_result": 2147943467,
+              "next_run_time": "/Date(1778374800000)/"
             }
           ]
         }

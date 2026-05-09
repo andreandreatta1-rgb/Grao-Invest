@@ -176,9 +176,10 @@ const realEstateRows = [
 
 const strategyTerritoryReport = {
   summary: {
-    strategyCount: 7,
-    territoryCount: 7,
-    matrixBriefCount: 49,
+    strategyCount: 8,
+    territoryCount: 12,
+    matrixBriefCount: 96,
+    sourceCandidateCount: 16,
     sourceConfirmedRequalificationCount: 4,
   },
   matrixBriefs: [
@@ -202,6 +203,34 @@ const strategyTerritoryReport = {
       territoryLabel: "Pinheiros",
       title: "BUSCA - House flipping leve - Pinheiros",
       decisionRule: "Nao virar tese sem unidade e preco teto.",
+    },
+  ],
+  strategyCandidateWatchlist: [
+    {
+      id: "IM-FONTE-vivareal-wish-675",
+      type: "strategy_source_candidate",
+      trustLevel: "source_listed",
+      strategyId: "lancamentos_ciclo_entrega",
+      strategyLabel: "Lancamentos / ciclo de entrega",
+      territoryLabel: "Agua Funda / Jabaquara / Saude",
+      title: "VivaReal - WISH 675 / Vila Monte Alegre",
+      sourceName: "VivaReal Lancamentos",
+      sourceSummary: "Pagina de lancamento usada para acompanhar preco, entrega, estoque e risco de prazo.",
+      candidateAngle: "Validar prazo e preco contra usado reformado.",
+      decisionRule: "Nao vira tese de compra ate existir unidade, preco pedido, comparaveis e P0 fechados.",
+    },
+    {
+      id: "IM-FONTE-caixa-zona-leste",
+      type: "strategy_source_candidate",
+      trustLevel: "source_listed",
+      strategyId: "leilao_venda_online",
+      strategyLabel: "Leilao/venda online",
+      territoryLabel: "Zona Leste preco baixo",
+      title: "CAIXA - Residencial Nova Itaquera",
+      sourceName: "CAIXA Imoveis",
+      sourceSummary: "Fonte de leilao Caixa para triagem de apartamento compacto em Sao Paulo.",
+      candidateAngle: "Comparar lance minimo, avaliacao, ocupacao e custo juridico.",
+      decisionRule: "Nao vira tese de compra ate existir unidade, preco pedido, comparaveis e P0 fechados.",
     },
   ],
   condominiumRequalificationWatchlist: [
@@ -312,18 +341,26 @@ describe("real estate radar experience", () => {
     fireEvent.click(screen.getAllByText(/Briefs por estrat.gia e territ.rio/i)[0]);
 
     const briefsPanel = screen.getByTestId("real-estate-strategy-territory-briefs");
-    expect(within(briefsPanel).getByText("49")).toBeInTheDocument();
+    expect(within(briefsPanel).getByText("96")).toBeInTheDocument();
+    expect(within(briefsPanel).getByText("16")).toBeInTheDocument();
     expect(within(briefsPanel).getAllByText(/Hip.tese de busca/i).length).toBeGreaterThan(0);
+    expect(within(briefsPanel).getAllByText(/Fonte candidata/i).length).toBeGreaterThan(0);
     expect(within(briefsPanel).getAllByText(/Sinal confirmado/i).length).toBeGreaterThan(0);
     expect(within(briefsPanel).getAllByText(/Condom.nio antigo em requalifica..o/i).length).toBeGreaterThan(0);
     expect(within(briefsPanel).getByText(/Cond Edif Lotus/i)).toBeInTheDocument();
+    expect(within(briefsPanel).getByText(/VivaReal - WISH 675/i)).toBeInTheDocument();
     expect(within(briefsPanel).getByText(/N.o virar? tese de compra/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText(/Explorar estrat.gias/i));
     const requalificationCard = screen.getByTestId("real-estate-front-card-requalification");
     expect(within(requalificationCard).getByText(/Briefs busca/i)).toBeInTheDocument();
     expect(within(requalificationCard).getByText("1")).toBeInTheDocument();
+    const launchCard = screen.getByTestId("real-estate-front-card-launch");
+    const launchSourceCell = within(launchCard).getByText(/Fontes/i).parentElement;
+    expect(launchSourceCell).not.toBeNull();
+    expect(within(launchSourceCell).getByText("1")).toBeInTheDocument();
     expect(screen.queryByTestId("teses-row-IM-BUSCA-centro-condominio")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("teses-row-IM-FONTE-vivareal-wish-675")).not.toBeInTheDocument();
   });
 
   it("shows the house flipping building-fit principle in the candidate detail", () => {

@@ -26,7 +26,9 @@ export function FrontCard({
   const statusValue = frontData.status ?? status;
   const lastUpdatedAt = frontData.lastUpdatedAt;
   const style = frontStyles[frontLabel] || { accent: C.muted, type: "neutral" };
-  const isRealEstate = frontData.id === "real_estate" || frontLabel === "Imóveis";
+  const isRealEstate = ["real_estate", "real-estate"].includes(frontData.id) || frontLabel === "Imóveis";
+  const testedLabel = isRealEstate ? "Avaliadas" : "Testadas";
+  const testedSub = isRealEstate ? "radar imobiliário" : "amostra validada";
   const activeLabel = isRealEstate ? "No radar" : "Planos ativos";
   const activeSub = isRealEstate
     ? "candidatos imobiliários"
@@ -67,7 +69,7 @@ export function FrontCard({
           gap: 8,
         }}
       >
-        <KPICard label="Testadas" value={fmtInteger(testedValue)} sub="amostra validada" accent={C.sky} valueFontSize={13} />
+        <KPICard label={testedLabel} value={fmtInteger(testedValue)} sub={testedSub} accent={C.sky} valueFontSize={13} />
         <KPICard label={activeLabel} value={fmtInteger(goLiveValue)} sub={activeSub} accent={C.teal} valueFontSize={13} />
         <KPICard
           label="Validadas"

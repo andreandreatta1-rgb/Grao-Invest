@@ -175,6 +175,8 @@ describe("base cockpit components", () => {
     );
 
     expect(screen.getByText("Imóveis")).toBeInTheDocument();
+    expect(screen.getByText("Avaliadas")).toBeInTheDocument();
+    expect(screen.queryByText("Testadas")).not.toBeInTheDocument();
     expect(screen.getByText("24")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("+50,00%")).toBeInTheDocument();

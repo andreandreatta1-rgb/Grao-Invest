@@ -39,8 +39,8 @@ const screens = [
   {
     id: "dashboard",
     labels: [],
-    expectedAny: ["Teses testadas", "Placar científico", "879"],
-    requiredAll: ["879"],
+    expectedAny: ["Teses testadas", "Placar científico"],
+    requiredAll: [],
     forbidden: [
       "1.727",
       "total_tested:1727",
@@ -162,6 +162,42 @@ async function warmDashboardApi() {
   }
 }
 
+function formatPtInteger(value) {
+  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(Number(value || 0));
+}
+
+function dashboardSemanticChecks(payload) {
+  const overview = payload?.thesis_history_overview || {};
+  const fronts = payload?.front_overview || {};
+  const totalTested = Number(overview.total_tested || 0);
+  const b3Tested = Number(fronts?.b3?.total_tested || 0);
+  const cryptoTested = Number(fronts?.crypto?.total_tested || 0);
+  const realEstatePolicy = String(fronts?.real_estate?.counting_policy || "");
+  const failures = [];
+
+  if (!Number.isFinite(totalTested) || totalTested <= 0) {
+    failures.push("thesis_history_overview.total_tested ausente ou zerado");
+  }
+  if (b3Tested + cryptoTested !== totalTested) {
+    failures.push(`B3+Cripto (${b3Tested + cryptoTested}) nao bate com Teses testadas (${totalTested})`);
+  }
+  if (realEstatePolicy !== "radar_candidates") {
+    failures.push("Imoveis precisa declarar counting_policy=radar_candidates para nao parecer soma historica");
+  }
+  if (payload?.data_quality_gate?.summary?.gate_status !== "pass") {
+    failures.push("data_quality_gate nao esta pass");
+  }
+
+  return {
+    failures,
+    totalTested,
+    formattedTotalTested: formatPtInteger(totalTested),
+    b3Tested,
+    cryptoTested,
+    realEstateTested: Number(fronts?.real_estate?.total_tested || 0),
+  };
+}
+
 async function waitForAppReady(page, screen) {
   const startedAt = Date.now();
   let latestBody = "";
@@ -280,18 +316,26 @@ async function run() {
   await mkdir(outputDir, { recursive: true });
   const apiWarmup = await warmDashboardApi();
   const dashboardPayload = apiWarmup.ok ? apiWarmup.payload : null;
+  const semanticChecks = dashboardPayload
+    ? dashboardSemanticChecks(dashboardPayload)
+    : { failures: ["dashboard API warmup falhou"], totalTested: 0 };
   delete apiWarmup.payload;
   const browser = await chromium.launch({ headless: true });
   const report = {
-    status: "ok",
+    status: semanticChecks.failures.length ? "fail" : "ok",
     baseUrl,
     outputDir,
     generatedAt: new Date().toISOString(),
     apiWarmup,
+    semanticChecks,
     results: [],
   };
 
   const selectedScreens = maxScreens > 0 ? screens.slice(0, maxScreens) : screens;
+  const dashboardScreen = selectedScreens.find((screen) => screen.id === "dashboard");
+  if (dashboardScreen && semanticChecks.formattedTotalTested) {
+    dashboardScreen.requiredAll = [...(dashboardScreen.requiredAll || []), semanticChecks.formattedTotalTested];
+  }
 
   try {
     for (const viewport of viewports) {

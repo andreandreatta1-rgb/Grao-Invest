@@ -1506,10 +1506,14 @@ def _select_dashboard_data_quality_gate(
         "DASHBOARD_SEED_CANONICAL_HISTORY",
         bool(os.getenv("VERCEL", "").strip()),
     )
-    for candidate in candidates:
+    if _data_quality_gate_status(runtime_payload) in {"ok", "pass", "passed"}:
+        return runtime_payload
+
+    fallback_candidates = [seed_payload, latest_payload] if use_seed_quality else [latest_payload, seed_payload]
+    for candidate in fallback_candidates:
         if _data_quality_gate_status(candidate) in {"ok", "pass", "passed"}:
-            if candidate is runtime_payload or runtime_payload is None or use_seed_quality:
-                return candidate
+            return candidate
+
     for candidate in candidates:
         if isinstance(candidate, dict):
             return candidate
@@ -1616,7 +1620,7 @@ def _current_monitor_payload_is_stale(
 def _dashboard_seed_current_monitor_fallback_enabled() -> bool:
     return _env_bool(
         "DASHBOARD_SEED_CURRENT_MONITOR_FALLBACK",
-        bool(os.getenv("VERCEL", "").strip()),
+        True,
     )
 
 
@@ -5624,11 +5628,28 @@ def dashboard_summary(
             or phase_text == "historico"
         )
 
+    def _normalize_front_overview_counts(front_overview: dict[str, object]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for front_key in ("b3", "crypto", "real_estate"):
+            raw_item = front_overview.get(front_key) or front_overview.get(front_key.replace("_", ""))
+            if not isinstance(raw_item, dict):
+                continue
+            item = dict(raw_item)
+            if front_key in {"b3", "crypto"}:
+                resolved_count = _safe_int(item.get("resolved_count"))
+                if resolved_count > 0:
+                    item["total_tested"] = resolved_count
+                item.setdefault("counting_policy", "resolved_historical")
+            else:
+                item.setdefault("counting_policy", "radar_candidates")
+            result[front_key] = item
+        return result
+
     def _build_front_overview() -> dict[str, object]:
         if isinstance(dashboard_seed, dict):
             seed_front_overview = dashboard_seed.get("front_overview")
             if isinstance(seed_front_overview, dict):
-                return cast(dict[str, object], seed_front_overview)
+                return _normalize_front_overview_counts(cast(dict[str, object], seed_front_overview))
 
         unique_rows: dict[str, dict[str, object]] = {}
         for index, row in enumerate(thesis_open_operations):
@@ -5654,11 +5675,17 @@ def dashboard_summary(
                 if resolved_rows
                 else round(global_success_rate, 2)
             )
+            total_for_front = len(rows) if front_key == "real_estate" else len(resolved_rows)
             result[front_key] = {
-                "total_tested": len(rows),
+                "total_tested": total_for_front,
                 "success_rate_pct": success_rate,
                 "resolved_count": len(resolved_rows),
                 "success_count": len(successful_rows),
+                "counting_policy": (
+                    "radar_candidates"
+                    if front_key == "real_estate"
+                    else "resolved_historical"
+                ),
                 "updated_at": (
                     str(dashboard_seed.get("generated_at"))
                     if isinstance(dashboard_seed, dict) and dashboard_seed.get("generated_at")

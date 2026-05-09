@@ -267,7 +267,7 @@ const realEstateFrontDefinitions = [
     key: "launch",
     label: "Lançamentos",
     accent: C.purple,
-    strategyIds: [],
+    strategyIds: ["lancamentos_ciclo_entrega"],
     objective: "Monitorar ciclo longo, entrega, distrato e valorização real.",
     emptyAction: "Só estudar quando prazo e risco de entrega estiverem explícitos.",
   },
@@ -343,6 +343,10 @@ function realEstateRequalificationSignals(report) {
   return reportArray(report, "condominiumRequalificationWatchlist", "condominium_requalification_watchlist");
 }
 
+function realEstateStrategySourceCandidates(report) {
+  return reportArray(report, "strategyCandidateWatchlist", "strategy_candidate_watchlist");
+}
+
 function briefField(brief, camelKey, snakeKey, fallback = "") {
   return brief?.[camelKey] ?? brief?.[snakeKey] ?? fallback;
 }
@@ -354,22 +358,25 @@ function briefStrategyId(brief) {
 function realEstateReportSummary(report) {
   const summary = report?.summary ?? {};
   const matrixBriefs = realEstateMatrixBriefs(report);
+  const sourceCandidates = realEstateStrategySourceCandidates(report);
   const signals = realEstateRequalificationSignals(report);
   return {
     strategyCount: Number(summary.strategyCount ?? summary.strategy_count) || 0,
     territoryCount: Number(summary.territoryCount ?? summary.territory_count) || 0,
     matrixBriefCount: Number(summary.matrixBriefCount ?? summary.matrix_brief_count) || matrixBriefs.length,
+    sourceCandidateCount: Number(summary.sourceCandidateCount ?? summary.source_candidate_count) || sourceCandidates.length,
     sourceConfirmedRequalificationCount: Number(summary.sourceConfirmedRequalificationCount ?? summary.source_confirmed_requalification_count) || signals.length,
-    actionability: usefulText(summary.actionability, "Briefs são hipóteses de busca; unidade, preço, comparáveis e P0 ainda precisam ser confirmados."),
+    actionability: usefulText(summary.actionability, "Briefs e fontes são triagem; unidade, preço, comparáveis, disponibilidade e P0 ainda precisam ser confirmados."),
   };
 }
 
 function realEstateBriefsForDefinition(report, definition) {
   const strategyIds = new Set(definition.strategyIds || []);
-  if (!strategyIds.size) return { briefs: [], signals: [] };
+  if (!strategyIds.size) return { briefs: [], signals: [], sources: [] };
   const briefs = realEstateMatrixBriefs(report).filter((brief) => strategyIds.has(briefStrategyId(brief)));
+  const sources = realEstateStrategySourceCandidates(report).filter((brief) => strategyIds.has(briefStrategyId(brief)));
   const signals = realEstateRequalificationSignals(report).filter((brief) => strategyIds.has(briefStrategyId(brief)));
-  return { briefs, signals };
+  return { briefs, signals, sources };
 }
 
 function realEstateFrontSummaries(rows, strategyReport) {
@@ -377,7 +384,7 @@ function realEstateFrontSummaries(rows, strategyReport) {
     const groupRows = rows.filter((row) => realEstateFrontKey(row) === definition.key);
     const activeRows = groupRows.filter((row) => isOpenThesis(row.status));
     const best = bestRowByScore(groupRows);
-    const { briefs, signals } = realEstateBriefsForDefinition(strategyReport, definition);
+    const { briefs, signals, sources } = realEstateBriefsForDefinition(strategyReport, definition);
     const avgScore = groupRows.length
       ? Math.round(groupRows.reduce((sum, row) => sum + scoreOf(row), 0) / groupRows.length)
       : 0;
@@ -389,10 +396,11 @@ function realEstateFrontSummaries(rows, strategyReport) {
       active: activeRows.length,
       briefCount: briefs.length,
       signalCount: signals.length,
+      sourceCount: sources.length,
       avgScore,
       p0,
       best,
-      action: best?.realEstateAnalysis?.next_action || definition.emptyAction,
+      action: best?.realEstateAnalysis?.next_action || sources[0]?.candidateAngle || sources[0]?.candidate_angle || definition.emptyAction,
     };
   });
 }
@@ -559,7 +567,8 @@ function FrontSummaryCard({ front, rows, onClick }) {
 
 function RealEstateFrontCard({ summary, active, onClick }) {
   const total = summary.rows.length;
-  const hasBriefs = summary.briefCount > 0 || summary.signalCount > 0;
+  const sourceCount = Number(summary.sourceCount) || 0;
+  const hasBriefs = summary.briefCount > 0 || summary.signalCount > 0 || sourceCount > 0;
 
   return (
     <button
@@ -598,7 +607,7 @@ function RealEstateFrontCard({ summary, active, onClick }) {
           <DetailCell label="Candidatos" value={total} color={total ? C.teal : C.muted} numeric />
           <DetailCell label="Briefs busca" value={summary.briefCount} color={summary.briefCount ? summary.accent : C.muted} numeric />
           <DetailCell label="Abertos" value={summary.active} color={summary.active ? C.teal : C.muted} numeric />
-          <DetailCell label="Score médio" value={total ? `${summary.avgScore}/100` : "--"} color={summary.avgScore >= 70 ? C.teal : summary.avgScore >= 50 ? C.amber : C.muted} numeric />
+          <DetailCell label="Fontes" value={sourceCount} color={sourceCount ? C.sky : C.muted} numeric />
         </div>
         <div style={{ background: C.bg + "70", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 10px" }}>
           <div style={{ color: summary.accent, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", marginBottom: 5, textTransform: "uppercase" }}>
@@ -609,6 +618,7 @@ function RealEstateFrontCard({ summary, active, onClick }) {
         {hasBriefs && (
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             <Badge label="Hipótese de busca" type="warning" />
+            {sourceCount > 0 && <Badge label="Fonte candidata" type="info" />}
             {summary.signalCount > 0 && <Badge label="Sinal confirmado" type="success" />}
           </div>
         )}
@@ -637,8 +647,11 @@ function RealEstateFrontCards({ rows, strategyReport, activeKey, onSelect }) {
 
 function trustBadgeForBrief(brief) {
   const trust = String(briefField(brief, "trustLevel", "trust_level")).toLowerCase();
-  return trust === "source_confirmed"
-    ? { label: "Sinal confirmado", type: "success" }
+  if (trust === "source_confirmed") {
+    return { label: "Sinal confirmado", type: "success" };
+  }
+  return trust === "source_listed"
+    ? { label: "Fonte candidata", type: "info" }
     : { label: "Hipótese de busca", type: "warning" };
 }
 
@@ -665,15 +678,17 @@ function displayBriefRule(brief) {
 
 function RealEstateStrategyTerritoryBriefs({ report }) {
   const matrixBriefs = realEstateMatrixBriefs(report);
+  const sourceCandidates = realEstateStrategySourceCandidates(report);
   const signals = realEstateRequalificationSignals(report);
   const summary = realEstateReportSummary(report);
   const strategySummaries = realEstateFrontDefinitions
     .map((definition) => {
-      const { briefs, signals: definitionSignals } = realEstateBriefsForDefinition(report, definition);
-      return { ...definition, briefs, signals: definitionSignals };
+      const { briefs, signals: definitionSignals, sources } = realEstateBriefsForDefinition(report, definition);
+      return { ...definition, briefs, signals: definitionSignals, sources };
     })
-    .filter((definition) => definition.briefs.length || definition.signals.length);
+    .filter((definition) => definition.briefs.length || definition.signals.length || definition.sources.length);
   const previewBriefs = matrixBriefs.slice(0, 4);
+  const previewSources = sourceCandidates.slice(0, 4);
   const previewSignals = signals.slice(0, 4);
 
   return (
@@ -690,6 +705,7 @@ function RealEstateStrategyTerritoryBriefs({ report }) {
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <Badge label="Hipótese de busca" type="warning" />
+          {summary.sourceCandidateCount > 0 && <Badge label="Fonte candidata" type="info" />}
           {summary.sourceConfirmedRequalificationCount > 0 && <Badge label="Sinal confirmado" type="success" />}
         </div>
       </div>
@@ -698,6 +714,7 @@ function RealEstateStrategyTerritoryBriefs({ report }) {
         <DetailCell label="Briefs" value={summary.matrixBriefCount} color={summary.matrixBriefCount ? C.gold : C.muted} numeric />
         <DetailCell label="Estratégias" value={summary.strategyCount} color={C.sky} numeric />
         <DetailCell label="Territórios" value={summary.territoryCount} color={C.teal} numeric />
+        <DetailCell label="Fontes candidatas" value={summary.sourceCandidateCount} color={summary.sourceCandidateCount ? C.sky : C.muted} numeric />
         <DetailCell label="Sinais confirmados" value={summary.sourceConfirmedRequalificationCount} color={summary.sourceConfirmedRequalificationCount ? C.green : C.muted} numeric />
       </div>
 
@@ -709,17 +726,44 @@ function RealEstateStrategyTerritoryBriefs({ report }) {
         {strategySummaries.map((definition) => (
           <article key={`brief-summary-${definition.key}`} style={{ background: C.card, border: `1px solid ${definition.accent}35`, borderTop: `3px solid ${definition.accent}`, borderRadius: 12, padding: 12 }}>
             <div style={{ color: definition.accent, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", marginBottom: 6, textTransform: "uppercase" }}>
-              {definition.briefs.length} briefs busca
+              {definition.briefs.length} briefs · {definition.sources.length} fontes
             </div>
             <div style={{ color: C.text, fontSize: 13, fontWeight: 900, lineHeight: 1.3 }}>{definition.label}</div>
             <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.45, marginTop: 7 }}>
               {definition.signals.length > 0
                 ? `${definition.signals.length} sinal confirmado de prédio/território.`
-                : "Sem sinal confirmado ainda; é mapa de busca para triagem."}
+                : definition.sources.length > 0
+                  ? `${definition.sources.length} fonte candidata para triagem.`
+                  : "Sem sinal confirmado ainda; é mapa de busca para triagem."}
             </div>
           </article>
         ))}
       </div>
+
+      {previewSources.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ color: C.sky, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase" }}>Fontes candidatas</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+            {previewSources.map((brief) => {
+              const badge = trustBadgeForBrief(brief);
+              return (
+                <article key={briefField(brief, "id", "brief_id", displayBriefTitle(brief))} style={{ background: C.sky + "10", border: `1px solid ${C.sky}35`, borderRadius: 12, padding: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start", flexWrap: "wrap" }}>
+                    <div style={{ color: C.text, fontSize: 13, fontWeight: 900, lineHeight: 1.35 }}>{displayBriefTitle(brief)}</div>
+                    <Badge label={badge.label} type={badge.type} />
+                  </div>
+                  <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.45, marginTop: 7 }}>
+                    {displayBriefStrategy(brief)} · {displayBriefTerritory(brief)}
+                  </div>
+                  <div style={{ color: C.sky, fontSize: 11, fontWeight: 800, lineHeight: 1.45, marginTop: 7 }}>
+                    {usefulText(briefField(brief, "candidateAngle", "candidate_angle"), "Validar fonte, disponibilidade e pendências antes de virar tese.")}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {previewSignals.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

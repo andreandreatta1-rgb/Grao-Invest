@@ -30,7 +30,7 @@ def _valid_dashboard_payload() -> dict[str, object]:
             }
         },
         "front_overview": {
-            "b3": {"total_tested": 700, "success_rate_pct": 64.1},
+            "b3": {"total_tested": 779, "success_rate_pct": 64.1},
             "crypto": {"total_tested": 100, "success_rate_pct": 70.4},
             "real_estate": {"total_tested": 79, "success_rate_pct": 62.7},
         },
@@ -214,6 +214,35 @@ def test_dashboard_payload_gate_rejects_front_overview_zero_rate_without_context
     }
 
     with pytest.raises(gate.QualityGateFailure, match="front_overview"):
+        gate.inspect_dashboard_payload(payload)
+
+
+def test_dashboard_payload_gate_rejects_financial_front_total_mismatch() -> None:
+    payload = _valid_dashboard_payload()
+    payload["thesis_history_overview"] = {"total_tested": 1168}
+    payload["historical_analysis_summary"] = {"thesis_count": 1168}
+    payload["front_overview"] = {
+        "b3": {
+            "total_tested": 1173,
+            "resolved_count": 1166,
+            "success_rate_pct": 76.16,
+            "counting_policy": "resolved_historical",
+        },
+        "crypto": {
+            "total_tested": 2,
+            "resolved_count": 2,
+            "success_rate_pct": 100.0,
+            "counting_policy": "resolved_historical",
+        },
+        "real_estate": {
+            "total_tested": 12,
+            "resolved_count": 8,
+            "success_rate_pct": 12.5,
+            "counting_policy": "radar_candidates",
+        },
+    }
+
+    with pytest.raises(gate.QualityGateFailure, match="front_overview.*1168.*1175"):
         gate.inspect_dashboard_payload(payload)
 
 

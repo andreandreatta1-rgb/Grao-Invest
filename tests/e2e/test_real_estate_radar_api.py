@@ -80,11 +80,17 @@ def test_real_estate_strategy_territory_candidates_api(client) -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["summary"]["strategy_count"] == 7
-    assert payload["summary"]["territory_count"] == 7
-    assert payload["summary"]["matrix_brief_count"] == 49
+    assert payload["summary"]["strategy_count"] >= 8
+    assert payload["summary"]["territory_count"] >= 12
+    assert payload["summary"]["matrix_brief_count"] == (
+        payload["summary"]["strategy_count"] * payload["summary"]["territory_count"]
+    )
+    assert payload["summary"]["source_candidate_count"] >= (
+        payload["summary"]["strategy_count"] * 2
+    )
     assert payload["summary"]["source_confirmed_requalification_count"] >= 4
     assert payload["matrix_briefs"][0]["trust_level"] == "hypothesis"
+    assert payload["strategy_candidate_watchlist"][0]["trust_level"] == "source_listed"
     assert payload["condominium_requalification_watchlist"][0]["trust_level"] == (
         "source_confirmed"
     )

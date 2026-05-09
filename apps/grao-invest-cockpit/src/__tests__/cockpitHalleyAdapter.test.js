@@ -116,9 +116,10 @@ const fixturePayloads = {
   realEstateStrategyTerritoryCandidates: {
     generated_at: "2026-05-08T02:32:50Z",
     summary: {
-      strategy_count: 7,
-      territory_count: 7,
-      matrix_brief_count: 49,
+      strategy_count: 8,
+      territory_count: 12,
+      matrix_brief_count: 96,
+      source_candidate_count: 16,
       source_confirmed_requalification_count: 4,
     },
     matrix_briefs: [
@@ -130,6 +131,21 @@ const fixturePayloads = {
         territory_label: "Centro / Republica / Bela Vista",
         title: "BUSCA - Condominio antigo em requalificacao - Centro",
         decision_rule: "Nao virar tese de compra ate existir unidade, preco e comparaveis.",
+      },
+    ],
+    strategy_candidate_watchlist: [
+      {
+        brief_id: "IM-FONTE-vivareal-wish-675",
+        brief_type: "strategy_source_candidate",
+        trust_level: "source_listed",
+        strategy_id: "lancamentos_ciclo_entrega",
+        strategy_label: "Lancamentos / ciclo de entrega",
+        territory_label: "Agua Funda / Jabaquara / Saude",
+        title: "VivaReal - WISH 675 / Vila Monte Alegre",
+        source_name: "VivaReal Lancamentos",
+        source_url: "https://www.vivareal.com.br/imoveis-lancamentos/wish-675-id-2876400406/",
+        source_summary: "Pagina de lancamento usada para acompanhar preco, entrega, estoque e risco de prazo.",
+        candidate_angle: "Validar prazo e preco contra usado reformado.",
       },
     ],
     condominium_requalification_watchlist: [
@@ -797,9 +813,10 @@ describe("cockpitHalleyAdapter", () => {
 
     expect(result.realEstateStrategyTerritoryCandidates).toMatchObject({
       summary: {
-        strategyCount: 7,
-        territoryCount: 7,
-        matrixBriefCount: 49,
+        strategyCount: 8,
+        territoryCount: 12,
+        matrixBriefCount: 96,
+        sourceCandidateCount: 16,
         sourceConfirmedRequalificationCount: 4,
       },
       matrixBriefs: [
@@ -807,6 +824,14 @@ describe("cockpitHalleyAdapter", () => {
           id: "IM-BUSCA-centro-condominio",
           trustLevel: "hypothesis",
           strategyId: "condominio_antigo_requalificacao",
+        }),
+      ],
+      strategyCandidateWatchlist: [
+        expect.objectContaining({
+          id: "IM-FONTE-vivareal-wish-675",
+          trustLevel: "source_listed",
+          strategyId: "lancamentos_ciclo_entrega",
+          sourceName: "VivaReal Lancamentos",
         }),
       ],
       condominiumRequalificationWatchlist: [

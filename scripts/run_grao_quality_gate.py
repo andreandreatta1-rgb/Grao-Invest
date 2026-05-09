@@ -244,13 +244,13 @@ def _front_overview_item(payload: dict[str, Any], key: str) -> dict[str, Any]:
     return _dict(overview.get(key) or overview.get(key.replace("_", "")))
 
 
-def _inspect_front_overview(payload: dict[str, Any]) -> dict[str, Any]:
+def _inspect_front_overview(payload: dict[str, Any], *, total_tested: int) -> dict[str, Any]:
     fronts: dict[str, dict[str, int | float]] = {}
     missing: list[str] = []
 
     for key in ("b3", "crypto", "real_estate"):
         item = _front_overview_item(payload, key)
-        total_tested = _to_int(
+        front_total_tested = _to_int(
             item.get("total_tested") or item.get("tested") or item.get("totalTested")
         )
         success_rate = item.get("success_rate_pct") or item.get("validated_pct")
@@ -260,8 +260,8 @@ def _inspect_front_overview(payload: dict[str, Any]) -> dict[str, Any]:
             success_rate_number = None
 
         if (
-            total_tested is None
-            or total_tested <= 0
+            front_total_tested is None
+            or front_total_tested <= 0
             or success_rate_number is None
             or success_rate_number <= 0
         ):
@@ -269,7 +269,7 @@ def _inspect_front_overview(payload: dict[str, Any]) -> dict[str, Any]:
             continue
 
         fronts[key] = {
-            "total_tested": total_tested,
+            "total_tested": front_total_tested,
             "success_rate_pct": success_rate_number,
         }
 
@@ -277,6 +277,15 @@ def _inspect_front_overview(payload: dict[str, Any]) -> dict[str, Any]:
         raise QualityGateFailure(
             "front_overview incompleto para evitar KPI '--' ou taxa 0 sem base: "
             + ", ".join(missing)
+        )
+
+    financial_total = int(fronts["b3"]["total_tested"]) + int(fronts["crypto"]["total_tested"])
+    if financial_total != total_tested:
+        raise QualityGateFailure(
+            "front_overview inconsistente com o placar historico: "
+            f"thesis_history_overview.total_tested={total_tested} "
+            f"b3+crypto={financial_total}. "
+            "Imoveis devem ficar como radar/candidatos, fora da soma historica B3+Cripto."
         )
 
     return fronts
@@ -432,7 +441,7 @@ def inspect_dashboard_payload(payload: dict[str, Any]) -> dict[str, Any]:
         raise QualityGateFailure(
             f"freshness operacional nao esta online: {freshness['status']} ({source_summary})"
         )
-    front_overview = _inspect_front_overview(payload)
+    front_overview = _inspect_front_overview(payload, total_tested=total_tested)
     operation_semantics = _inspect_open_operation_semantics(payload)
 
     return {

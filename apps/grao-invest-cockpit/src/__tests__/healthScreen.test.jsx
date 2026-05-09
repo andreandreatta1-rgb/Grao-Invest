@@ -66,12 +66,14 @@ function successFetch(url) {
       ok: true,
       json: () => Promise.resolve({
         summary: {
-          strategy_count: 7,
-          territory_count: 7,
-          matrix_brief_count: 49,
+          strategy_count: 8,
+          territory_count: 12,
+          matrix_brief_count: 96,
+          source_candidate_count: 16,
           source_confirmed_requalification_count: 4,
         },
         matrix_briefs: [],
+        strategy_candidate_watchlist: [],
         condominium_requalification_watchlist: [],
       }),
     });
