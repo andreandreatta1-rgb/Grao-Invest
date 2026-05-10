@@ -41,6 +41,7 @@ describe("Jornada da Tese investor demo", () => {
     expect(within(portfolio).getByText(/Rua Turiassú, 362/i)).toBeInTheDocument();
     expect(within(portfolio).getByText(/Av\. Francisco Matarazzo, 43/i)).toBeInTheDocument();
     expect(within(portfolio).getByText(/Rua Caiubí, 91/i)).toBeInTheDocument();
+    expect(within(portfolio).getByText(/Edifício Saquarema/i)).toBeInTheDocument();
     expect(within(portfolio).getByText(/Perdizes Best Place/i)).toBeInTheDocument();
     expect(within(portfolio).getAllByText(/Tocha \/ farol/i).length).toBeGreaterThan(0);
     expect(within(portfolio).getAllByText(/Indústria/i).length).toBeGreaterThan(0);
@@ -48,7 +49,7 @@ describe("Jornada da Tese investor demo", () => {
     expect(within(portfolio).getAllByText(/2ª praça futura/i).length).toBeGreaterThan(0);
     expect(within(portfolio).getAllByText(/2ª praça já passou/i).length).toBeGreaterThan(0);
     expect(within(portfolio).getByText(/arrematado\/vendido/i)).toBeInTheDocument();
-    expect(within(portfolio).getAllByRole("button", { name: /Abrir/i })).toHaveLength(7);
+    expect(within(portfolio).getAllByRole("button", { name: /Abrir/i })).toHaveLength(8);
     expect(within(portfolio).queryByText(/O tamanho impressiona/i)).not.toBeInTheDocument();
     expect(within(portfolio).queryByText(/Resultado simulado vs renda fixa/i)).not.toBeInTheDocument();
   });
@@ -87,6 +88,12 @@ describe("Jornada da Tese investor demo", () => {
     await user.click(within(portfolio).getByRole("button", { name: /Abrir Av\. Francisco Matarazzo, 43/i }));
     expect(within(portfolio).queryByText(/O tamanho impressiona/i)).not.toBeInTheDocument();
     expect(within(portfolio).getByText(/Hoje é só calendário/i)).toBeInTheDocument();
+
+    await user.click(within(portfolio).getByRole("button", { name: /Abrir Edifício Saquarema/i }));
+    expect(within(portfolio).getAllByText(/compra direta/i).length).toBeGreaterThan(0);
+    expect(within(portfolio).getAllByText(/renda urbana/i).length).toBeGreaterThan(0);
+    expect(within(portfolio).getAllByText(/aluguel real/i).length).toBeGreaterThan(0);
+    expect(within(portfolio).getByText(/localização não paga conta sozinha/i)).toBeInTheDocument();
   });
 
   it("lets the Turiassú card collapse and reopen like every other candidate", async () => {

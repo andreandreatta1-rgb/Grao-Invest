@@ -244,6 +244,71 @@ const REAL_ESTATE_DEMO_CASES = Object.freeze([
     p0: ["débito alto", "ocupação", "sem visita", "à vista"],
     quote: "Quando o passivo é maior que a oportunidade, o desconto é só maquiagem.",
   },
+  {
+    id: "#CPQ-01",
+    title: "Edifício Saquarema · Campinas",
+    role: "Compra direta · renda urbana",
+    strategy: "Compra direta para renda urbana",
+    sourceUrl: "https://www.vivareal.com.br/imovel/apartamento-1-quartos-centro-bairros-campinas-60m2-venda-RS298000-id-2837393455/",
+    area: "60 m² · sem vaga informada",
+    floor: "andar alto informado",
+    bedrooms: "1 quarto",
+    bathrooms: "2 banheiros",
+    parking: "sem vaga a confirmar",
+    building: "Edifício Saquarema",
+    firstAuctionDate: "anúncio ativo",
+    secondAuctionDate: "negociação direta",
+    temporalStatus: "em validação",
+    temporalType: "warning",
+    firstAuction: 298000,
+    secondAuction: 270000,
+    comparator: 330000,
+    saleBase: 315000,
+    auctioneerFee: 0,
+    acquisitionCosts: 18000,
+    renovationCosts: 12000,
+    carryingCosts: 7000,
+    sellingCosts: 18900,
+    totalCost: 325900,
+    netProfit: -10900,
+    roiPct: -3.3,
+    fixedIncomeGain: 21184,
+    fixedIncomePct: 6.5,
+    thesisPremium: -32084,
+    score: 61,
+    confidence: 55,
+    color: C.teal,
+    icon: "SAQ",
+    iconLabel: "Saquarema / renda",
+    iconBasis: "Saquarema entra como compra direta: o ícone lembra uma pequena unidade de renda urbana, não leilão.",
+    decision: "Negociar antes de avançar",
+    whyRadar: "Preço abaixo de alguns anúncios do condomínio, localização líquida em Campinas e tese de aluguel; mas a renda precisa provar o preço.",
+    photos: [
+      {
+        label: "Anúncio VivaReal",
+        src: null,
+        source: "link público",
+        placeholderTitle: "Foto do anúncio a abrir",
+        note: "A fonte existe, mas a imagem não foi copiada para a app. Para demo, abrir o link público e validar se a foto representa a unidade.",
+      },
+      {
+        label: "Interior e estado real",
+        src: null,
+        source: "visita pendente",
+        placeholderTitle: "Estado interno pendente",
+        note: "Armários e reforma precisam ser validados. Sem isso, o aluguel estimado não pode virar prova.",
+      },
+    ],
+    p0: ["aluguel real", "vaga", "condomínio", "comparável vendido", "estado interno"],
+    p0Actions: [
+      { title: "Aluguel real", action: "Confirmar aluguel fechado ou anúncio ativo realmente comparável: 60 m², 1 quarto, sem vaga, mesmo prédio ou raio curto." },
+      { title: "Vaga", action: "Checar matrícula, convenção e anúncio para confirmar se a unidade não tem vaga; vaga muda liquidez, preço e aluguel." },
+      { title: "Condomínio", action: "Solicitar boleto, fundo de obras, chamada extra, inadimplência e previsão de manutenção do prédio." },
+      { title: "Comparável vendido", action: "Buscar venda realizada ou proposta aceita no Edifício Saquarema ou em prédios equivalentes; anúncio sozinho não prova saída." },
+      { title: "Estado interno", action: "Validar fotos, visita, elétrica, hidráulica, piso, armários e custo real para deixar o imóvel alugável." },
+    ],
+    quote: "O imóvel está bem localizado. Mas localização não paga conta sozinha. Antes de chamar isso de tese, vamos provar aluguel, desconto e saída.",
+  },
 ]);
 
 const SOURCE_RADAR_ITEMS = Object.freeze([
@@ -1138,9 +1203,9 @@ function PerdizesCasePortfolio() {
   const [openCaseId, setOpenCaseId] = useState(null);
 
   return (
-    <Section data-testid="perdizes-case-portfolio" eyebrow="Radar Perdizes" title="Sete histórias para mostrar que o método não depende de um único imóvel" color={C.purple}>
+    <Section data-testid="perdizes-case-portfolio" eyebrow="Radar imobiliário" title="Oito histórias para mostrar que o método não depende de um único imóvel" color={C.purple}>
       <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.65, margin: 0 }}>
-        Cada card nasce contraído para preservar foco. Abra um por vez para ver a ficha, números, P0, comentário do laboratório e fonte.
+        Cada card nasce contraído para preservar foco. Há leilão, compra direta e renda urbana: abra um por vez para ver ficha, números, P0, comentário do laboratório e fonte.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
         {REAL_ESTATE_DEMO_CASES.map((item) => (
