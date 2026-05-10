@@ -12,6 +12,7 @@ const primaryNavItems = [
 
 const learningNavItems = [
   { id: "aprendizado", label: "Aprendizado", icon: "spark" },
+  { id: "jornada", label: "Jornada da Tese", icon: "story" },
   { id: "metodo", label: "M\u00e9todo", icon: "method" },
   { id: "saude", label: "Sa\u00fade", icon: "health" },
 ];
@@ -57,6 +58,15 @@ function NavIcon({ type }) {
           <path d="M2.5 9h13" {...common} />
           <path d="m4.5 4.5 9 9" {...common} />
           <path d="m13.5 4.5-9 9" {...common} />
+        </>
+      )}
+      {type === "story" && (
+        <>
+          <path d="M4.2 3.2h7.9l1.7 1.7v9.9H4.2V3.2Z" {...common} />
+          <path d="M12.1 3.2v2h2" {...common} />
+          <path d="M6.5 7.2h5" {...common} />
+          <path d="M6.5 10h5" {...common} />
+          <path d="M6.5 12.8h3.2" {...common} />
         </>
       )}
       {type === "method" && (

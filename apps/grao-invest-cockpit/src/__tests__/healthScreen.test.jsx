@@ -83,6 +83,7 @@ function successFetch(url) {
 
 describe("laboratory health screen", () => {
   afterEach(() => {
+    window.history.replaceState(null, "", "/");
     cleanup();
     vi.unstubAllGlobals();
   });

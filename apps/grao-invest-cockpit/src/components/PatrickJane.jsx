@@ -33,6 +33,7 @@ function PatrickJaneImage({
 }) {
   const src = IMG_MAP[screen] || IMG_MAP.dashboard;
   const { visualMaxWidth = 520, ...cleanImageStyle } = imageStyle;
+  const isPriorityImage = hero || Number(imageHeight) >= 140;
   const resolvedImageStyle = hero
       ? {
         ...cleanImageStyle,
@@ -55,8 +56,8 @@ function PatrickJaneImage({
       src={src}
       alt="Patrick Jane"
       decoding="async"
-      fetchPriority={hero ? "high" : "auto"}
-      loading={hero ? "eager" : "lazy"}
+      fetchpriority={isPriorityImage ? "high" : "auto"}
+      loading={isPriorityImage ? "eager" : "lazy"}
       style={{
         width: resolvedImageStyle.width,
         height: resolvedImageStyle.height,

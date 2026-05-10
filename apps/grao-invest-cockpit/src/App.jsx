@@ -8,6 +8,7 @@ import Alertas from "./screens/Alertas.jsx";
 import Aprendizado from "./screens/Aprendizado.jsx";
 import Backtest from "./screens/Backtest.jsx";
 import CockpitHalley from "./screens/CockpitHalley.jsx";
+import JornadaTese from "./screens/JornadaTese.jsx";
 import Metodo from "./screens/Metodo.jsx";
 import Mercado from "./screens/Mercado.jsx";
 import Risco from "./screens/Risco.jsx";
@@ -17,6 +18,18 @@ import Teses from "./screens/Teses.jsx";
 const FEED_KEYS = ["dashboardSummary", "currentMonitor", "realEstateCandidates", "realEstateStrategyTerritoryCandidates"];
 const UI_REVISION = "UI rev soul-4";
 const BUILD_INFO_URL = "/api/frontend/version";
+const SCREEN_IDS = new Set([
+  "dashboard",
+  "teses",
+  "mercado",
+  "backtest",
+  "risco",
+  "alertas",
+  "aprendizado",
+  "jornada",
+  "metodo",
+  "saude",
+]);
 const DEFAULT_BUILD_INFO = Object.freeze({
   uiRevision: UI_REVISION,
   sourceApp: "apps/grao-invest-cockpit",
@@ -102,6 +115,19 @@ function preloadHeroImages() {
   });
 }
 
+function activeScreenFromHash() {
+  if (typeof window === "undefined") return "dashboard";
+  const candidate = window.location.hash.replace(/^#/, "").trim();
+  return SCREEN_IDS.has(candidate) ? candidate : "dashboard";
+}
+
+function replaceScreenHash(screen) {
+  if (typeof window === "undefined" || !SCREEN_IDS.has(screen)) return;
+  const nextHash = `#${screen}`;
+  if (window.location.hash === nextHash) return;
+  window.history.replaceState(null, "", nextHash);
+}
+
 function normalizeBuildInfo(payload) {
   if (!payload || typeof payload !== "object") return DEFAULT_BUILD_INFO;
 
@@ -167,7 +193,7 @@ function InitialCockpitLoading() {
 export default function App() {
   useFonts();
 
-  const [active, setActive] = useState("dashboard");
+  const [active, setActive] = useState(activeScreenFromHash);
   const [tesesEntryMode, setTesesEntryMode] = useState(null);
   const [buildInfo, setBuildInfo] = useState(DEFAULT_BUILD_INFO);
   const [isInitialCockpitLoad, setIsInitialCockpitLoad] = useState(true);
@@ -202,11 +228,13 @@ export default function App() {
 
   function handleNavSelect(nextScreen) {
     setTesesEntryMode(null);
+    replaceScreenHash(nextScreen);
     setActive(nextScreen);
   }
 
   function openMethodExample() {
     setTesesEntryMode("method-demo");
+    replaceScreenHash("teses");
     setActive("teses");
   }
 
@@ -240,13 +268,26 @@ export default function App() {
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
 
+    const syncHashRoute = () => {
+      setTesesEntryMode(null);
+      setActive(activeScreenFromHash());
+    };
+
+    window.addEventListener("hashchange", syncHashRoute);
+
     if ("requestIdleCallback" in window) {
       const idleId = window.requestIdleCallback(preloadHeroImages, { timeout: 2500 });
-      return () => window.cancelIdleCallback?.(idleId);
+      return () => {
+        window.removeEventListener("hashchange", syncHashRoute);
+        window.cancelIdleCallback?.(idleId);
+      };
     }
 
     const timeoutId = window.setTimeout(preloadHeroImages, 1200);
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.removeEventListener("hashchange", syncHashRoute);
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const screens = {
@@ -257,6 +298,7 @@ export default function App() {
     risco: <Risco data={cockpitData} />,
     alertas: <Alertas data={cockpitData} />,
     aprendizado: <Aprendizado data={cockpitData} />,
+    jornada: <JornadaTese data={cockpitData} />,
     metodo: <Metodo onOpenMethodExample={openMethodExample} />,
     saude: <Saude data={cockpitData} feedStatus={feedStatus} feedHealth={feedHealth} />,
   };
