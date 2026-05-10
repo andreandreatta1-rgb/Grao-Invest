@@ -7,6 +7,7 @@ from typing import TypedDict
 from app.db import BASE_DIR, DATA_DIR
 from app.models import AuditEvent, MarketTick, SuitabilityProfile
 from app.services.audit import record_audit_event
+from app.services.crypto_universe import default_crypto_instruments
 from app.services.notifications import notify_current_thesis_monitor
 from app.services.thesis_case_study import (
     RawCandidate,
@@ -50,9 +51,7 @@ DEFAULT_CURRENT_MONITOR_INSTRUMENTS = (
     "BPAC11",
     "RAIL3",
     "CMIG4",
-    "BTCUSDT",
-    "ETHUSDT",
-    "SOLUSDT",
+    *default_crypto_instruments(limit=10),
 )
 DEFAULT_LATEST_TICK_FRESHNESS_MULTIPLIER = 3.0
 DEFAULT_LATEST_TICK_MIN_AGE_SECONDS = 30 * 60
@@ -617,6 +616,101 @@ def _planned_exit_time(
     return str(ticks[exit_index].event_time)
 
 
+def _thesis_signature(thesis: ThesisSummary) -> str:
+    return ":".join(
+        [
+            str(thesis.get("instrument") or "").upper(),
+            str(thesis.get("direction") or "").lower(),
+            str(int(thesis.get("entry_index", -1))),
+            str(thesis.get("entry_time") or ""),
+        ]
+    )
+
+
+def _build_current_thesis_card(
+    thesis: ThesisSummary,
+    *,
+    ticks: list[MarketTick],
+    latest_index: int,
+    investor_profile: str,
+) -> CurrentThesisCard:
+    latest_tick = ticks[-1]
+    latest_price = round(float(latest_tick.price), 4)
+    open_monitoring_window = (
+        int(thesis.get("entry_index", -1)) + int(thesis.get("horizon_bars", 0)) > latest_index
+    )
+    operation = _strategy_for_thesis(thesis, investor_profile)
+    unrealized_financial_pct = _realized_financial_pct(operation, thesis, latest_price)
+    progress_to_target_pct, distance_to_stop_pct = _progress_metrics(thesis, latest_price)
+    monitor_status, suggested_action = _monitor_status_and_action(thesis, latest_price)
+    revaluation = build_operation_revaluation(
+        thesis,
+        latest_price=latest_price,
+        monitor_status=monitor_status,
+        unrealized_financial_pct=unrealized_financial_pct,
+        progress_to_target_pct=progress_to_target_pct,
+        distance_to_stop_pct=distance_to_stop_pct,
+    )
+    monitoring_events = _monitoring_timeline(
+        ticks,
+        thesis,
+        operation,
+        thesis["entry_index"],
+        latest_index,
+    )
+    if open_monitoring_window:
+        monitoring_events = [
+            event
+            for event in monitoring_events
+            if str(event.get("event_type") or "") != "exit_snapshot"
+        ]
+
+    return {
+        "thesis_id": thesis["thesis_id"],
+        "instrument": thesis["instrument"],
+        "direction": thesis["direction"],
+        "why_thesis": thesis["supporting_signals"][:6],
+        "reason_category": _reason_category(thesis["supporting_signals"]),
+        "thesis_raised_at": thesis["entry_time"],
+        "suggested_entry_time": thesis["entry_time"],
+        "suggested_exit_time": _planned_exit_time(ticks, thesis),
+        "entry_price": thesis["entry_price"],
+        "target_price": thesis["target_price"],
+        "stop_price": thesis["stop_price"],
+        "range_lower_price": thesis.get("range_lower_price"),
+        "range_upper_price": thesis.get("range_upper_price"),
+        "suggested_operation": operation,
+        "latest_price": latest_price,
+        "latest_event_time": latest_tick.event_time,
+        "monitor_status": monitor_status,
+        "suggested_action": suggested_action,
+        "expected_financial_pct": thesis["expected_financial_pct"],
+        "unrealized_financial_pct": unrealized_financial_pct,
+        "confidence_tese_pct": thesis["confidence_tese_pct"],
+        "confidence_now_pct": revaluation["confidence_now_pct"],
+        "confidence_delta_pct": revaluation["confidence_delta_pct"],
+        "support_rate_pct": thesis["support_rate_pct"],
+        "technical_support_pct": thesis["technical_support_pct"],
+        "fundamental_support_pct": thesis["fundamental_support_pct"],
+        "news_support_pct": thesis["news_support_pct"],
+        "geo_oil_support_pct": thesis["geo_oil_support_pct"],
+        "fundamental_available": thesis["fundamental_available"],
+        "news_available": thesis["news_available"],
+        "geo_oil_available": thesis["geo_oil_available"],
+        "progress_to_target_pct": progress_to_target_pct,
+        "distance_to_stop_pct": distance_to_stop_pct,
+        "executive_status": revaluation["executive_status"],
+        "executive_status_label": revaluation["executive_status_label"],
+        "executive_action": revaluation["suggested_action"],
+        "thesis_validity": revaluation["thesis_validity"],
+        "revaluation_reason": revaluation["revaluation_reason"],
+        "next_trigger": revaluation["next_trigger"],
+        "learning_signal": revaluation["learning_signal"],
+        "operation_revaluation": revaluation,
+        "monitoring_events": monitoring_events[-6:],
+    }
+
+
 def _resolve_monitor_instruments(
     db: Session,
     instruments: list[str] | None,
@@ -780,87 +874,37 @@ def run_current_thesis_monitor(
         distinct_instruments=distinct_instruments,
         prefer_recent=prefer_recent,
     )
+    selected_signatures = {_thesis_signature(thesis) for thesis in selected}
+    scanner_seeds = _select_current_candidates(
+        current_candidates,
+        thesis_count=max(6, thesis_count * 2),
+        distinct_instruments=True,
+        prefer_recent=True,
+    )
+    scanner_candidates = [
+        thesis
+        for thesis in scanner_seeds
+        if _thesis_signature(thesis) not in selected_signatures
+    ]
 
-    cards: list[CurrentThesisCard] = []
-    for thesis in selected:
-        ticks = ticks_by_instrument[thesis["instrument"]]
-        latest_tick = ticks[-1]
-        latest_price = round(float(latest_tick.price), 4)
-        latest_index = len(ticks) - 1
-        open_monitoring_window = (
-            int(thesis.get("entry_index", -1)) + int(thesis.get("horizon_bars", 0)) > latest_index
-        )
-        operation = _strategy_for_thesis(thesis, profile.investor_profile)
-        unrealized_financial_pct = _realized_financial_pct(operation, thesis, latest_price)
-        progress_to_target_pct, distance_to_stop_pct = _progress_metrics(thesis, latest_price)
-        monitor_status, suggested_action = _monitor_status_and_action(thesis, latest_price)
-        revaluation = build_operation_revaluation(
+    cards = [
+        _build_current_thesis_card(
             thesis,
-            latest_price=latest_price,
-            monitor_status=monitor_status,
-            unrealized_financial_pct=unrealized_financial_pct,
-            progress_to_target_pct=progress_to_target_pct,
-            distance_to_stop_pct=distance_to_stop_pct,
+            ticks=ticks_by_instrument[thesis["instrument"]],
+            latest_index=latest_index_by_instrument[thesis["instrument"]],
+            investor_profile=profile.investor_profile,
         )
-        monitoring_events = _monitoring_timeline(
-            ticks,
+        for thesis in selected
+    ]
+    scanner_cards = [
+        _build_current_thesis_card(
             thesis,
-            operation,
-            thesis["entry_index"],
-            latest_index,
+            ticks=ticks_by_instrument[thesis["instrument"]],
+            latest_index=latest_index_by_instrument[thesis["instrument"]],
+            investor_profile=profile.investor_profile,
         )
-        if open_monitoring_window:
-            monitoring_events = [
-                event
-                for event in monitoring_events
-                if str(event.get("event_type") or "") != "exit_snapshot"
-            ]
-        cards.append(
-            {
-                "thesis_id": thesis["thesis_id"],
-                "instrument": thesis["instrument"],
-                "direction": thesis["direction"],
-                "why_thesis": thesis["supporting_signals"][:6],
-                "reason_category": _reason_category(thesis["supporting_signals"]),
-                "thesis_raised_at": thesis["entry_time"],
-                "suggested_entry_time": thesis["entry_time"],
-                "suggested_exit_time": _planned_exit_time(ticks, thesis),
-                "entry_price": thesis["entry_price"],
-                "target_price": thesis["target_price"],
-                "stop_price": thesis["stop_price"],
-                "range_lower_price": thesis.get("range_lower_price"),
-                "range_upper_price": thesis.get("range_upper_price"),
-                "suggested_operation": operation,
-                "latest_price": latest_price,
-                "latest_event_time": latest_tick.event_time,
-                "monitor_status": monitor_status,
-                "suggested_action": suggested_action,
-                "expected_financial_pct": thesis["expected_financial_pct"],
-                "unrealized_financial_pct": unrealized_financial_pct,
-                "confidence_tese_pct": thesis["confidence_tese_pct"],
-                "confidence_now_pct": revaluation["confidence_now_pct"],
-                "confidence_delta_pct": revaluation["confidence_delta_pct"],
-                "support_rate_pct": thesis["support_rate_pct"],
-                "technical_support_pct": thesis["technical_support_pct"],
-                "fundamental_support_pct": thesis["fundamental_support_pct"],
-                "news_support_pct": thesis["news_support_pct"],
-                "geo_oil_support_pct": thesis["geo_oil_support_pct"],
-                "fundamental_available": thesis["fundamental_available"],
-                "news_available": thesis["news_available"],
-                "geo_oil_available": thesis["geo_oil_available"],
-                "progress_to_target_pct": progress_to_target_pct,
-                "distance_to_stop_pct": distance_to_stop_pct,
-                "executive_status": revaluation["executive_status"],
-                "executive_status_label": revaluation["executive_status_label"],
-                "executive_action": revaluation["suggested_action"],
-                "thesis_validity": revaluation["thesis_validity"],
-                "revaluation_reason": revaluation["revaluation_reason"],
-                "next_trigger": revaluation["next_trigger"],
-                "learning_signal": revaluation["learning_signal"],
-                "operation_revaluation": revaluation,
-                "monitoring_events": monitoring_events[-6:],
-            }
-        )
+        for thesis in scanner_candidates
+    ]
 
     target_hits = sum(1 for card in cards if card["monitor_status"] == "target_hit")
     stop_alerts = sum(1 for card in cards if card["monitor_status"] == "stop_alert")
@@ -888,6 +932,8 @@ def run_current_thesis_monitor(
             "candidate_count": len(enriched),
             "policy_candidate_count": len(policy_candidates),
             "current_candidate_count": len(current_candidates),
+            "scanner_candidate_count": len(scanner_cards),
+            "scanner_candidates": scanner_cards,
             "policy": policy_metadata,
         },
         "summary": {

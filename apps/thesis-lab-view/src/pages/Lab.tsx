@@ -31,6 +31,7 @@ import {
   type SpecificMicrotrade,
 } from "@/types/domain";
 import type { MicrotradesAutopilotLatest } from "@/lib/backend-adapters";
+import { formatCryptoScope } from "@/lib/crypto-display";
 import { buildLabSections, isLiveLabMicrotrade, type LabSections } from "@/lib/lab-groups";
 import { buildLabCandidateSuggestions, type LabCandidateSuggestion } from "@/lib/lab-candidates";
 
@@ -47,7 +48,7 @@ export default function Lab() {
   });
 
   const sections = buildLabSections(data);
-  const candidateSuggestions = buildLabCandidateSuggestions(data);
+  const candidateSuggestions = buildLabCandidateSuggestions(data, Date.now(), cycle?.radarCandidates ?? []);
   const liveCount = sections.activeNow.length;
   const queuedCount = sections.queued.length;
   const historicalCount = sections.recentClosed.length;
@@ -226,7 +227,7 @@ function AutopilotOverview({ cycle }: { cycle?: MicrotradesAutopilotLatest }) {
 
   const visual = autopilotVisual(cycle);
   const scope = cycle.instruments.length
-    ? cycle.instruments.map(formatMicrotradeInstrument).join(" · ")
+    ? formatCryptoScope(cycle.instruments, { separator: ", " })
     : "escopo nao informado";
   const lastCycleAt = cycle.lastActivityAt || cycle.runFinishedAt || cycle.lastRunAt;
   const nextValue = cycle.isRunning ? "agora" : cycle.nextRunAt ? fmtTime(cycle.nextRunAt) : cycle.agentRunning ? "aguardando" : "--";
@@ -305,6 +306,7 @@ function CollectionStrip({ sections }: { sections: LabSections }) {
 }
 
 function CandidateRadar({ suggestions }: { suggestions: LabCandidateSuggestion[] }) {
+  const usingScanner = suggestions.length > 0 && suggestions[0]?.source === "scanner";
   const usingActiveFallback = suggestions.length > 0 && suggestions[0]?.source === "active";
 
   return (
@@ -317,7 +319,9 @@ function CandidateRadar({ suggestions }: { suggestions: LabCandidateSuggestion[]
           </span>
         </div>
         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-          {usingActiveFallback
+          {usingScanner
+            ? "O radar esta destacando oportunidades do scanner amplo, separadas dos cards executivos ja abertos."
+            : usingActiveFallback
             ? "Nao ha candidatas puras em observacao agora. O radar esta destacando os setups vivos mais acionaveis."
             : "Teses que ainda nao viraram operacao viva, mas merecem preparacao agora."}
         </p>
@@ -355,7 +359,11 @@ function CandidateCard({ suggestion }: { suggestion: LabCandidateSuggestion }) {
             <span className="font-display text-sm font-semibold text-foreground">{thesis.asset_label}</span>
             <FrenteBadge frente={apiFrenteToFrente(thesis.front)} className="text-[10px] py-0.5" />
             <span className="pill bg-surface-2 text-foreground/75 text-[10px]">
-              {suggestion.source === "queued" ? "em observacao" : "ao vivo"}
+              {suggestion.source === "scanner"
+                ? "scanner amplo"
+                : suggestion.source === "queued"
+                  ? "em observacao"
+                  : "ao vivo"}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{suggestion.triggerReason}</p>
@@ -483,16 +491,6 @@ function decisionStatusClass(status: string) {
   return "bg-surface-2 text-foreground/80";
 }
 
-function formatMicrotradeInstrument(value: string) {
-  const upper = value.toUpperCase();
-  for (const suffix of ["USDT", "USDC", "BUSD", "FDUSD", "BTC", "ETH"]) {
-    if (upper.endsWith(suffix) && upper.length > suffix.length) {
-      return `${upper.slice(0, upper.length - suffix.length)}/${suffix}`;
-    }
-  }
-  return upper;
-}
-
 function statusVisual(status: StatusTese) {
   switch (status) {
     case "preparando":
@@ -590,7 +588,7 @@ function MicrotradeBlock({
                 <Timer className="w-3.5 h-3.5" /> Janela ativa
               </span>
               <span className="text-[10px] text-muted-foreground tabular">
-                {spec.window_min} min · {fmtTime(m.opened_at)}
+                {spec.window_min} min, {fmtTime(m.opened_at)}
               </span>
             </div>
             <div className="flex items-end justify-between">

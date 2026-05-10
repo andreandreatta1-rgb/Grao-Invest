@@ -3,7 +3,7 @@ import { buildLabSections } from "./lab-groups";
 
 export type LabCandidateSuggestion = {
   thesis: TheseEnvelope;
-  source: "queued" | "active";
+  source: "scanner" | "queued" | "active";
   score: number;
   priority: "alta" | "media" | "baixa";
   expectedTimeLabel: string;
@@ -12,7 +12,18 @@ export type LabCandidateSuggestion = {
   triggerPressurePct: number;
 };
 
-export function buildLabCandidateSuggestions(items: TheseEnvelope[], now = Date.now()): LabCandidateSuggestion[] {
+export function buildLabCandidateSuggestions(
+  items: TheseEnvelope[],
+  now = Date.now(),
+  scannerCandidates: TheseEnvelope[] = [],
+): LabCandidateSuggestion[] {
+  if (scannerCandidates.length > 0) {
+    return scannerCandidates
+      .map((thesis) => buildCandidateSuggestion(thesis, "scanner", now))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }
+
   const sections = buildLabSections(items, now);
   const source: LabCandidateSuggestion["source"] = sections.queued.length > 0 ? "queued" : "active";
   const pool = source === "queued" ? sections.queued : sections.activeNow;

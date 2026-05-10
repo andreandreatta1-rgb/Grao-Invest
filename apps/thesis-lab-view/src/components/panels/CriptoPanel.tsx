@@ -30,7 +30,7 @@ export function CriptoPanel({ t }: { t: TheseEnvelope }) {
 
         <div className="flex items-end justify-between">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Par � {t.asset_label}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Moeda | {t.asset_label}</div>
             <div className="font-display text-3xl font-semibold tabular">{fmtNumber(t.current_value, 2)}</div>
             <div className={cn("text-sm font-mono tabular", t.current_result_pct >= 0 ? "text-validated" : "text-refuted")}>
               {fmtPct(t.current_result_pct)} desde abertura
@@ -45,7 +45,7 @@ export function CriptoPanel({ t }: { t: TheseEnvelope }) {
               <Timer className="w-4 h-4 text-accent" />
               <div className="leading-tight">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Janela esperada</div>
-                <div className="text-xs text-muted-foreground tabular">{s.window_min} min � abertura {fmtTime(t.opened_at)}</div>
+                <div className="text-xs text-muted-foreground tabular">{s.window_min} min | abertura {fmtTime(t.opened_at)}</div>
               </div>
             </div>
             <div className="text-right leading-tight">

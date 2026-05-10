@@ -4,6 +4,7 @@ from app.services.thesis_current_by_front_job import (
     FrontConfig,
     FrontRunResult,
     build_current_by_front_job_markdown,
+    default_front_configs,
     merge_front_monitor_payloads,
     run_current_thesis_by_front_job,
     trim_payload_theses_for_front,
@@ -202,6 +203,191 @@ def test_trim_payload_theses_for_front_prioritizes_one_thesis_per_instrument() -
         "invalidada": 1,
     }
     assert trimmed["summary"]["needs_attention_count"] == 2
+
+
+def test_trim_payload_theses_for_front_promotes_overflow_into_scanner_candidates() -> None:
+    payload = _payload(
+        thesis_count=4,
+        candidate_count=20,
+        current_candidate_count=10,
+        theses=[
+            {
+                "thesis_id": "BTC-1",
+                "instrument": "BTCUSDT",
+                "monitor_status": "monitoring",
+                "unrealized_financial_pct": 1.6,
+                "executive_status": "mantida",
+            },
+            {
+                "thesis_id": "ETH-1",
+                "instrument": "ETHUSDT",
+                "monitor_status": "monitoring",
+                "unrealized_financial_pct": 1.1,
+                "executive_status": "mantida",
+            },
+            {
+                "thesis_id": "SOL-1",
+                "instrument": "SOLUSDT",
+                "monitor_status": "confirming",
+                "unrealized_financial_pct": 0.7,
+                "executive_status": "atencao",
+            },
+            {
+                "thesis_id": "BNB-1",
+                "instrument": "BNBUSDT",
+                "monitor_status": "confirming",
+                "unrealized_financial_pct": 0.3,
+                "executive_status": "mantida",
+            },
+        ],
+    )
+
+    trimmed = trim_payload_theses_for_front(payload, max_theses=2)
+
+    assert [item["thesis_id"] for item in trimmed["theses"]] == ["BTC-1", "ETH-1"]
+    assert [item["thesis_id"] for item in trimmed["scan_scope"]["scanner_candidates"]] == [
+        "SOL-1",
+        "BNB-1",
+    ]
+    assert trimmed["scan_scope"]["scanner_candidate_count"] == 2
+
+
+def test_default_front_configs_expand_crypto_coverage() -> None:
+    crypto_front = next(front for front in default_front_configs() if front.front_id == "cripto")
+
+    assert len(crypto_front.instruments) == 10
+    assert crypto_front.instruments[:3] == ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+    assert {
+        "BNBUSDT",
+        "XRPUSDT",
+        "ADAUSDT",
+        "DOGEUSDT",
+        "AVAXUSDT",
+        "LINKUSDT",
+        "LTCUSDT",
+    }.issubset(set(crypto_front.instruments))
+
+
+def test_current_by_front_job_reuses_previous_crypto_front_when_feed_is_stale(monkeypatch) -> None:
+    persisted: list[dict[str, object]] = []
+    db_stub = type("DbStub", (), {"scalars": lambda self, *args, **kwargs: None})()
+
+    latest_b3_payload = _payload(
+        thesis_count=1,
+        candidate_count=4,
+        current_candidate_count=1,
+        theses=[
+            {
+                "thesis_id": "B3-NEW",
+                "instrument": "PETR4",
+                "monitor_status": "monitoring",
+                "unrealized_financial_pct": 0.9,
+                "executive_status": "mantida",
+            }
+        ],
+    )
+    previous_payload = {
+        "generated_at": "2026-05-02T20:00:00+00:00",
+        "user_id": 1,
+        "horizon_bars": 8,
+        "recent_bars_window": 30,
+        "thesis_count": 1,
+        "scan_scope": {
+            "fronts": {
+                "cripto": {
+                    "label": "Cripto",
+                    "instruments": ["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+                    "thesis_count": 1,
+                    "tick_count": 120,
+                    "candidate_count": 8,
+                    "policy_candidate_count": 6,
+                    "current_candidate_count": 3,
+                    "scanner_candidate_count": 1,
+                    "scanner_candidates": [
+                        {
+                            "thesis_id": "CR-SCAN-1",
+                            "instrument": "ETHUSDT",
+                            "monitor_status": "monitoring",
+                            "unrealized_financial_pct": 0.4,
+                            "asset_front": "cripto",
+                            "front_label": "Cripto",
+                        }
+                    ],
+                    "data_quality": {
+                        "status": "fresh",
+                    },
+                }
+            }
+        },
+        "summary": {
+            "target_hits": 0,
+            "stop_alerts": 0,
+            "monitoring_count": 1,
+            "avg_unrealized_financial_pct": 0.6,
+            "executive_status_counts": {"mantida": 1},
+            "needs_attention_count": 0,
+            "front_errors": {},
+        },
+        "theses": [
+            {
+                "thesis_id": "CR-OLD",
+                "instrument": "BTCUSDT",
+                "monitor_status": "monitoring",
+                "unrealized_financial_pct": 0.6,
+                "asset_front": "cripto",
+                "front_label": "Cripto",
+                "executive_status": "mantida",
+            }
+        ],
+        "disclaimer": "simulado",
+    }
+
+    def fake_run_current_thesis_monitor(*args, **kwargs) -> dict[str, object]:
+        instruments = kwargs.get("instruments") or []
+        if any(str(item).endswith("USDT") for item in instruments):
+            raise ValueError("Nao ha dados de mercado frescos para monitorar teses atuais.")
+        return latest_b3_payload
+
+    monkeypatch.setattr(
+        "app.services.thesis_current_by_front_job.run_current_thesis_monitor",
+        fake_run_current_thesis_monitor,
+    )
+    monkeypatch.setattr(
+        "app.services.thesis_current_by_front_job.load_latest_current_thesis_monitor",
+        lambda db, user_id, include_bundled_bootstrap=False: previous_payload,
+    )
+    monkeypatch.setattr(
+        "app.services.thesis_current_by_front_job.persist_current_thesis_monitor_snapshot",
+        lambda db, payload, *, user_id: persisted.append(payload),
+    )
+
+    merged = run_current_thesis_by_front_job(
+        db_stub,  # type: ignore[arg-type]
+        user_id=1,
+        fronts=[
+            FrontConfig(
+                front_id="acoes_b3",
+                label="Acoes B3",
+                instruments=["PETR4"],
+            ),
+            FrontConfig(
+                front_id="cripto",
+                label="Cripto",
+                instruments=["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+            ),
+        ],
+    )
+
+    assert merged["data_quality"]["status"] == "partial"
+    assert merged["scan_scope"]["fronts"]["cripto"]["data_quality"]["status"] == "stale_reused"
+    assert merged["scan_scope"]["fronts"]["cripto"]["scanner_candidate_count"] == 1
+    assert [item["thesis_id"] for item in merged["theses"] if item["asset_front"] == "cripto"] == [
+        "CR-OLD"
+    ]
+    assert [item["thesis_id"] for item in merged["scan_scope"]["scanner_candidates"]] == [
+        "CR-SCAN-1"
+    ]
+    assert persisted[-1]["scan_scope"]["fronts"]["cripto"]["data_quality"]["status"] == "stale_reused"
 
 
 def test_build_current_by_front_job_markdown_renders_front_summary() -> None:

@@ -183,4 +183,55 @@ describe("lab candidates", () => {
     expect(suggestions.map((item) => item.thesis.id)).toEqual(["live-strong", "live-second"]);
     expect(suggestions[0]?.source).toBe("active");
   });
+
+  it("prioritizes dedicated scanner candidates over queued or active cards", () => {
+    const now = new Date("2026-05-04T19:30:00Z").getTime();
+    const items = [
+      makeMicrotrade({
+        id: "queued-card",
+        asset_label: "Bitcoin (BTC)",
+        status: "confirmando",
+        updated_at: "2026-05-04T19:28:00Z",
+        specific: {
+          trigger_pressure_pct: 60,
+          last_tick_at: "2026-05-04T19:20:00Z",
+          expires_at: "2026-05-04T19:44:00Z",
+        },
+      }),
+    ];
+    const scanner = [
+      makeMicrotrade({
+        id: "scanner-eth",
+        asset_label: "Ethereum (ETH)",
+        status: "preparando",
+        updated_at: "2026-05-04T19:29:00Z",
+        confidence_pct: 83,
+        specific: {
+          trigger_pressure_pct: 88,
+          last_tick_at: "2026-05-04T19:27:00Z",
+          expires_at: "2026-05-04T19:43:00Z",
+          short_thesis_summary: "Fluxo comprador acelerando no scanner amplo.",
+        },
+      }),
+      makeMicrotrade({
+        id: "scanner-sol",
+        asset_label: "Solana (SOL)",
+        status: "confirmando",
+        updated_at: "2026-05-04T19:28:30Z",
+        confidence_pct: 79,
+        specific: {
+          trigger_pressure_pct: 80,
+          last_tick_at: "2026-05-04T19:26:00Z",
+          expires_at: "2026-05-04T19:41:00Z",
+          short_thesis_summary: "Rompimento curto com continuidade acima da media.",
+        },
+      }),
+    ];
+
+    const suggestions = buildLabCandidateSuggestions(items, now, scanner);
+
+    expect(suggestions.map((item) => item.thesis.id)).toEqual(["scanner-sol", "scanner-eth"]);
+    expect(suggestions.every((item) => item.source === "scanner")).toBe(true);
+    expect(suggestions.map((item) => item.triggerReason)).toContain("Fluxo comprador acelerando no scanner amplo.");
+  });
 });

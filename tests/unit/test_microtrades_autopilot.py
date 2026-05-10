@@ -59,6 +59,22 @@ def test_build_microtrades_autopilot_config_normalizes_inputs() -> None:
     assert config["allow_external_fetches"] is True
 
 
+def test_build_microtrades_autopilot_config_uses_broader_crypto_universe_by_default() -> None:
+    config = build_microtrades_autopilot_config(user_id=7, instruments=None)
+
+    assert config["instruments"][:3] == ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+    assert len(config["instruments"]) == 10
+    assert {
+        "BNBUSDT",
+        "XRPUSDT",
+        "ADAUSDT",
+        "DOGEUSDT",
+        "AVAXUSDT",
+        "LINKUSDT",
+        "LTCUSDT",
+    }.issubset(set(config["instruments"]))
+
+
 def test_create_decision_with_cooldown_reuses_pending_decision(db_session: Session) -> None:
     first = create_decision_with_cooldown(
         db_session,

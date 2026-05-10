@@ -121,6 +121,7 @@ from app.services.crypto_history_provider import (
     CryptoHistoryProviderError,
     fetch_historical_crypto_candles,
 )
+from app.services.crypto_universe import default_crypto_instruments_csv
 from app.services.data_quality import build_data_quality_gate_snapshot
 from app.services.feed_health import provider_feed_health, universe_coverage_snapshot
 from app.services.fundamentals import fundamentals_to_response, ingest_fundamentals
@@ -1865,7 +1866,10 @@ def _build_microtrades_autopilot_payload_from_current_monitor(
         if isinstance(config_instruments, list):
             instruments = [str(item).strip().upper() for item in config_instruments if str(item).strip()]
     if not instruments:
-        instruments = _env_csv("MICROTRADES_AUTOPILOT_INSTRUMENTS", "BTCUSDT,ETHUSDT,SOLUSDT")
+        instruments = _env_csv(
+            "MICROTRADES_AUTOPILOT_INSTRUMENTS",
+            default_crypto_instruments_csv(limit=10),
+        )
 
     interval = str(base_config_dict.get("interval") or os.getenv("MICROTRADES_AUTOPILOT_INTERVAL", "5m")).strip() or "5m"
     generated_at = str(monitor_payload.get("generated_at") or isoformat(utc_now()))
@@ -1930,7 +1934,10 @@ def _build_default_microtrades_autopilot_config(
 ) -> MicrotradesAutopilotConfig:
     return build_microtrades_autopilot_config(
         user_id=user_id,
-        instruments=_env_csv("MICROTRADES_AUTOPILOT_INSTRUMENTS", "BTCUSDT,ETHUSDT,SOLUSDT"),
+        instruments=_env_csv(
+            "MICROTRADES_AUTOPILOT_INSTRUMENTS",
+            default_crypto_instruments_csv(limit=10),
+        ),
         provider_name=os.getenv("MICROTRADES_AUTOPILOT_PROVIDER", "finnhub"),
         history_provider_name=os.getenv("MICROTRADES_AUTOPILOT_HISTORY_PROVIDER", "binance"),
         interval=os.getenv("MICROTRADES_AUTOPILOT_INTERVAL", "5m"),

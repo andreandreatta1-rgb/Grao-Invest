@@ -14,6 +14,7 @@ from app.services.crypto_history_provider import (
     CryptoHistoryProviderError,
     fetch_historical_crypto_candles,
 )
+from app.services.crypto_universe import default_crypto_instruments
 from app.services.data_quality import build_data_quality_gate_snapshot
 from app.services.intraday_provider import IntradayProviderError, fetch_intraday_quotes
 from app.services.market import ingest_tick, ingest_tick_live, recompute_indicators, resolve_active_provider
@@ -186,7 +187,7 @@ def build_microtrades_autopilot_config(
 ) -> MicrotradesAutopilotConfig:
     normalized_instruments = _normalize_instruments(instruments)
     if not normalized_instruments:
-        normalized_instruments = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+        normalized_instruments = default_crypto_instruments(limit=10)
     return {
         "user_id": int(user_id),
         "instruments": normalized_instruments[:10],

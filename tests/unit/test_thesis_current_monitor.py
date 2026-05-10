@@ -474,6 +474,13 @@ def test_run_current_monitor_uses_bounded_default_scope_when_instruments_are_mis
         "BTCUSDT",
         "ETHUSDT",
         "SOLUSDT",
+        "BNBUSDT",
+        "XRPUSDT",
+        "ADAUSDT",
+        "DOGEUSDT",
+        "AVAXUSDT",
+        "LINKUSDT",
+        "LTCUSDT",
     ]
 
 

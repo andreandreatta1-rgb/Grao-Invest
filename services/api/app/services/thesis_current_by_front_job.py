@@ -4,7 +4,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from app.db import DATA_DIR
+from app.services.crypto_universe import default_crypto_instruments
 from app.services.thesis_current_monitor import (
+    load_latest_current_thesis_monitor,
     persist_current_thesis_monitor_snapshot,
     run_current_thesis_monitor,
 )
@@ -34,11 +36,9 @@ DEFAULT_B3_INSTRUMENTS = [
     "CMIG4",
 ]
 
-DEFAULT_CRYPTO_INSTRUMENTS = [
-    "BTCUSDT",
-    "ETHUSDT",
-    "SOLUSDT",
-]
+DEFAULT_CRYPTO_INSTRUMENTS = default_crypto_instruments(limit=10)
+_NO_FRESH_MARKET_DATA_TOKEN = "nao ha dados de mercado frescos"
+_STALE_FRONT_REUSED_NOTE = "Dados de mercado sem frescor; mantendo ultimo monitor valido desta frente."
 
 
 @dataclass(frozen=True)
@@ -97,6 +97,13 @@ def _summary_dict(payload: dict[str, object] | None) -> dict[str, object]:
     return summary if isinstance(summary, dict) else {}
 
 
+def _data_quality_dict(payload: dict[str, object] | None) -> dict[str, object]:
+    if not isinstance(payload, dict):
+        return {}
+    quality = payload.get("data_quality")
+    return quality if isinstance(quality, dict) else {}
+
+
 def _scan_scope_dict(payload: dict[str, object] | None) -> dict[str, object]:
     if not isinstance(payload, dict):
         return {}
@@ -111,6 +118,24 @@ def _thesis_list(payload: dict[str, object] | None) -> list[dict[str, object]]:
     if not isinstance(theses, list):
         return []
     return [item for item in theses if isinstance(item, dict)]
+
+
+def _candidate_list(value: object) -> list[dict[str, object]]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, dict)]
+
+
+def _scan_fronts(payload: dict[str, object] | None) -> dict[str, dict[str, object]]:
+    scope = _scan_scope_dict(payload)
+    fronts = scope.get("fronts")
+    if not isinstance(fronts, dict):
+        return {}
+    return {
+        str(front_id): front_info
+        for front_id, front_info in fronts.items()
+        if isinstance(front_info, dict)
+    }
 
 
 def _summary_from_theses(theses: list[dict[str, object]]) -> dict[str, object]:
@@ -162,6 +187,7 @@ def _data_quality_summary(
     generated_at: str,
     thesis_count: int,
     front_errors: dict[str, str],
+    reused_fronts: list[str],
 ) -> dict[str, object]:
     if thesis_count == 0 and front_errors:
         return {
@@ -169,6 +195,14 @@ def _data_quality_summary(
             "reason": "no_fresh_market_data",
             "generated_at": generated_at,
             "message": "Nenhuma frente tem dados frescos para publicar teses atuais.",
+        }
+    if reused_fronts:
+        return {
+            "status": "partial",
+            "reason": "stale_front_reused",
+            "generated_at": generated_at,
+            "message": "Uma ou mais frentes foram preservadas do ultimo snapshot valido.",
+            "reused_fronts": reused_fronts,
         }
     if front_errors:
         return {
@@ -191,8 +225,10 @@ def trim_payload_theses_for_front(
     max_theses: int,
 ) -> dict[str, object]:
     theses = _thesis_list(payload)
+    scope = dict(_scan_scope_dict(payload))
     if max_theses <= 0:
         selected: list[dict[str, object]] = []
+        selected_ids: set[int] = set()
     else:
         selected = []
         seen_instruments: set[str] = set()
@@ -220,7 +256,93 @@ def trim_payload_theses_for_front(
     trimmed["theses"] = selected
     trimmed["thesis_count"] = len(selected)
     trimmed["summary"] = _summary_from_theses(selected)
+    overflow_candidates = [item for item in theses if id(item) not in selected_ids]
+    existing_scanner = _candidate_list(scope.get("scanner_candidates"))
+    combined_scanner: list[dict[str, object]] = []
+    seen_scanner_ids: set[str] = set()
+    for item in [*overflow_candidates, *existing_scanner]:
+        thesis_id = str(item.get("thesis_id") or "")
+        signature = thesis_id or f"{item.get('instrument')}:{item.get('latest_event_time')}"
+        if signature in seen_scanner_ids:
+            continue
+        seen_scanner_ids.add(signature)
+        combined_scanner.append(item)
+    scope["scanner_candidates"] = combined_scanner
+    scope["scanner_candidate_count"] = len(combined_scanner)
+    trimmed["scan_scope"] = scope
     return trimmed
+
+
+def _is_no_fresh_market_data_error(message: str) -> bool:
+    return _NO_FRESH_MARKET_DATA_TOKEN in message.strip().lower()
+
+
+def _infer_front_id(item: dict[str, object]) -> str:
+    front_id = str(item.get("asset_front") or "").strip().lower()
+    if front_id in {"acoes_b3", "cripto", "imoveis"}:
+        return front_id
+    instrument = str(item.get("instrument") or "").strip().upper()
+    if instrument.endswith("USDT"):
+        return "cripto"
+    return "acoes_b3"
+
+
+def _build_reused_front_payload(
+    previous_payload: dict[str, object] | None,
+    *,
+    front: FrontConfig,
+    generated_at: str,
+) -> dict[str, object] | None:
+    if not isinstance(previous_payload, dict):
+        return None
+
+    previous_front_scope = _scan_fronts(previous_payload).get(front.front_id, {})
+    previous_theses = [
+        dict(item)
+        for item in _thesis_list(previous_payload)
+        if _infer_front_id(item) == front.front_id
+    ]
+    if not previous_theses:
+        return None
+
+    scanner_candidates = _candidate_list(previous_front_scope.get("scanner_candidates"))
+    if not scanner_candidates:
+        top_level_scanner = _candidate_list(_scan_scope_dict(previous_payload).get("scanner_candidates"))
+        scanner_candidates = [
+            dict(item)
+            for item in top_level_scanner
+            if _infer_front_id(item) == front.front_id
+        ]
+
+    summary = _summary_from_theses(previous_theses)
+    summary["notes"] = [_STALE_FRONT_REUSED_NOTE]
+    return {
+        "generated_at": generated_at,
+        "user_id": _safe_int(previous_payload.get("user_id")) or 0,
+        "horizon_bars": _safe_int(previous_payload.get("horizon_bars")) or 8,
+        "recent_bars_window": _safe_int(previous_payload.get("recent_bars_window")) or 7,
+        "thesis_count": len(previous_theses),
+        "scan_scope": {
+            "instruments": previous_front_scope.get("instruments") or front.instruments,
+            "tick_count": _safe_int(previous_front_scope.get("tick_count")),
+            "candidate_count": _safe_int(previous_front_scope.get("candidate_count")),
+            "policy_candidate_count": _safe_int(previous_front_scope.get("policy_candidate_count")),
+            "current_candidate_count": _safe_int(previous_front_scope.get("current_candidate_count")),
+            "scanner_candidate_count": len(scanner_candidates),
+            "scanner_candidates": scanner_candidates,
+        },
+        "summary": summary,
+        "data_quality": {
+            "status": "stale_reused",
+            "reason": "no_fresh_market_data",
+            "generated_at": generated_at,
+            "source_generated_at": previous_payload.get("generated_at"),
+            "message": f"{front.label} sem tick fresco; mantendo ultimo monitor valido.",
+            "reused": True,
+        },
+        "theses": previous_theses,
+        "disclaimer": previous_payload.get("disclaimer", DISCLAIMER),
+    }
 
 
 def merge_front_monitor_payloads(
@@ -232,8 +354,10 @@ def merge_front_monitor_payloads(
     front_results: list[FrontRunResult],
 ) -> dict[str, object]:
     merged_theses: list[dict[str, object]] = []
+    scanner_candidates: list[dict[str, object]] = []
     front_scope: dict[str, dict[str, object]] = {}
     front_errors: dict[str, str] = {}
+    reused_fronts: list[str] = []
     instruments: list[str] = []
     tick_count = 0
     candidate_count = 0
@@ -246,10 +370,14 @@ def merge_front_monitor_payloads(
         payload = result.payload
         scope = _scan_scope_dict(payload)
         summary = _summary_dict(payload)
+        data_quality = _data_quality_dict(payload)
         theses = _thesis_list(payload)
+        front_scanner_candidates = _candidate_list(scope.get("scanner_candidates"))
 
         if result.error:
             front_errors[result.front_id] = result.error
+        if str(data_quality.get("status") or "").lower() == "stale_reused":
+            reused_fronts.append(result.front_id)
 
         front_scope[result.front_id] = {
             "label": result.label,
@@ -259,6 +387,9 @@ def merge_front_monitor_payloads(
             "candidate_count": _safe_int(scope.get("candidate_count")),
             "policy_candidate_count": _safe_int(scope.get("policy_candidate_count")),
             "current_candidate_count": _safe_int(scope.get("current_candidate_count")),
+            "scanner_candidate_count": len(front_scanner_candidates),
+            "scanner_candidates": front_scanner_candidates,
+            "data_quality": data_quality,
             "error": result.error,
         }
 
@@ -279,6 +410,11 @@ def merge_front_monitor_payloads(
             enriched["asset_front"] = result.front_id
             enriched["front_label"] = result.label
             merged_theses.append(enriched)
+        for item in front_scanner_candidates:
+            enriched = dict(item)
+            enriched["asset_front"] = result.front_id
+            enriched["front_label"] = result.label
+            scanner_candidates.append(enriched)
 
     target_hits = sum(
         1 for item in merged_theses if str(item.get("monitor_status") or "").lower() == "target_hit"
@@ -317,6 +453,8 @@ def merge_front_monitor_payloads(
             "candidate_count": candidate_count,
             "policy_candidate_count": policy_candidate_count,
             "current_candidate_count": current_candidate_count,
+            "scanner_candidate_count": len(scanner_candidates),
+            "scanner_candidates": scanner_candidates,
         },
         "summary": {
             "target_hits": target_hits,
@@ -331,6 +469,7 @@ def merge_front_monitor_payloads(
             generated_at=generated_at,
             thesis_count=len(merged_theses),
             front_errors=front_errors,
+            reused_fronts=reused_fronts,
         ),
         "theses": merged_theses,
         "disclaimer": DISCLAIMER,
@@ -412,6 +551,16 @@ def run_current_thesis_by_front_job(
 ) -> dict[str, object]:
     selected_fronts = fronts or default_front_configs()
     results: list[FrontRunResult] = []
+    generated_at_value = generated_at or utc_iso_now()
+    previous_payload = (
+        load_latest_current_thesis_monitor(
+            db,
+            user_id=user_id,
+            include_bundled_bootstrap=False,
+        )
+        if hasattr(db, "scalars")
+        else None
+    )
     internal_thesis_count = max(
         thesis_count_per_front,
         thesis_count_per_front * max(1, oversample_factor),
@@ -444,6 +593,24 @@ def run_current_thesis_by_front_job(
                 )
             )
         except ValueError as exc:
+            reused_payload = None
+            if _is_no_fresh_market_data_error(str(exc)):
+                reused_payload = _build_reused_front_payload(
+                    previous_payload,
+                    front=front,
+                    generated_at=generated_at_value,
+                )
+            if reused_payload is not None:
+                results.append(
+                    FrontRunResult(
+                        front_id=front.front_id,
+                        label=front.label,
+                        instruments=front.instruments,
+                        payload=reused_payload,
+                        error="",
+                    )
+                )
+                continue
             results.append(
                 FrontRunResult(
                     front_id=front.front_id,
@@ -458,7 +625,7 @@ def run_current_thesis_by_front_job(
         user_id=user_id,
         horizon_bars=horizon_bars,
         recent_bars_window=recent_bars_window,
-        generated_at=generated_at or utc_iso_now(),
+        generated_at=generated_at_value,
         front_results=results,
     )
     persist_current_thesis_monitor_snapshot(db, merged, user_id=user_id)

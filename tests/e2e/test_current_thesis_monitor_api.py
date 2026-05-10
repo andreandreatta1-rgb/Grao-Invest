@@ -34,6 +34,7 @@ def _authenticate(client: TestClient, *, email: str) -> int:
 def test_current_monitor_latest_rebuilds_from_autopilot_when_runtime_snapshot_is_missing(client, monkeypatch) -> None:
     user_id = _authenticate(client, email="current-monitor-refresh@example.com")
     captured: dict[str, object] = {}
+    monkeypatch.setenv("DASHBOARD_SEED_CURRENT_MONITOR_FALLBACK", "0")
 
     def fake_load(_db, *, user_id, include_bundled_bootstrap=True):  # noqa: ANN001, ANN202
         captured["load_user_id"] = user_id
@@ -342,6 +343,7 @@ def test_current_monitor_latest_uses_dashboard_seed_by_default_when_snapshot_is_
 def test_current_monitor_latest_rebuilds_when_runtime_snapshot_is_stale(client, monkeypatch) -> None:
     user_id = _authenticate(client, email="current-monitor-stale@example.com")
     captured: dict[str, object] = {}
+    monkeypatch.setenv("DASHBOARD_SEED_CURRENT_MONITOR_FALLBACK", "0")
 
     stale_monitor_payload = {
         "generated_at": "2026-05-04T19:40:00+00:00",

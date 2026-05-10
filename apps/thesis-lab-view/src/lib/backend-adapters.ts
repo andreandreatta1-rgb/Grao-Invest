@@ -15,6 +15,12 @@ import type {
   TheseEnvelope,
 } from "@/types/domain";
 import { isOpenThesis } from "@/types/domain";
+import {
+  cryptoAssetLabel,
+  cryptoInstrumentFromText,
+  cryptoSymbolFromText,
+  formatCryptoScope,
+} from "./crypto-display";
 
 type BackendMonitorEvent = {
   event_time?: string;
@@ -66,11 +72,21 @@ export type BackendCurrentMonitorThesis = {
   front_label?: string;
 };
 
+type BackendMonitorScanFront = {
+  scanner_candidates?: BackendCurrentMonitorThesis[];
+};
+
+type BackendMonitorScanScope = {
+  scanner_candidates?: BackendCurrentMonitorThesis[];
+  fronts?: Record<string, BackendMonitorScanFront | undefined>;
+};
+
 export type BackendCurrentMonitorPayload = {
   generated_at?: string;
   user_id?: number;
   thesis_count?: number;
   theses?: BackendCurrentMonitorThesis[];
+  scan_scope?: BackendMonitorScanScope;
   summary?: {
     target_hits?: number;
     stop_alerts?: number;
@@ -298,6 +314,7 @@ export type BackendMicrotradesAutopilotLatestPayload = {
   steps?: BackendAutopilotStep[];
   monitor?: {
     thesis_count?: number;
+    scan_scope?: BackendMonitorScanScope;
     summary?: {
       monitoring_count?: number;
       needs_attention_count?: number;
@@ -342,6 +359,7 @@ export type MicrotradesAutopilotLatest = {
     warning: number;
     error: number;
   };
+  radarCandidates: TheseEnvelope[];
 };
 
 const DEFAULT_USER_ID = 1;
@@ -556,6 +574,24 @@ export function adaptFontesFromTeses(teses: TheseEnvelope[]): FonteDados[] {
   });
 }
 
+function adaptMonitorThesisList(items?: BackendCurrentMonitorThesis[]): TheseEnvelope[] {
+  return (items ?? [])
+    .map(mapCurrentMonitorThesis)
+    .filter((item): item is TheseEnvelope => item !== null)
+    .sort((a, b) => sortByUpdatedDesc(a.updated_at, b.updated_at));
+}
+
+function extractMicrotradeRadarCandidates(
+  scope?: BackendMonitorScanScope,
+): TheseEnvelope[] {
+  const cryptoFrontCandidates = adaptMonitorThesisList(scope?.fronts?.cripto?.scanner_candidates)
+    .filter((item) => item.front === "cripto");
+  if (cryptoFrontCandidates.length) return cryptoFrontCandidates;
+
+  return adaptMonitorThesisList(scope?.scanner_candidates)
+    .filter((item) => item.front === "cripto");
+}
+
 export function adaptMicrotradesAutopilotLatest(
   payload?: BackendMicrotradesAutopilotLatestPayload,
 ): MicrotradesAutopilotLatest | undefined {
@@ -597,6 +633,7 @@ export function adaptMicrotradesAutopilotLatest(
   const monitoringCount = safeNumber(payload.monitor?.summary?.monitoring_count, safeNumber(payload.monitor?.thesis_count));
   const needsAttentionCount = safeNumber(payload.monitor?.summary?.needs_attention_count);
   const thesisCount = safeNumber(payload.monitor?.thesis_count, monitoringCount);
+  const radarCandidates = extractMicrotradeRadarCandidates(payload.monitor?.scan_scope);
   const decisionStatus = cleanText(payload.decision?.status).toLowerCase() || "skipped";
   const lastError =
     cleanText(payload.error) ||
@@ -636,6 +673,7 @@ export function adaptMicrotradesAutopilotLatest(
       stepCounts,
     }),
     stepCounts,
+    radarCandidates,
   };
 }
 
@@ -1278,7 +1316,7 @@ function marketTicker(item: TheseEnvelope): string {
     const specific = item.specific as Partial<SpecificB3>;
     return specific.ticker || item.asset_label;
   }
-  if (item.front === "cripto") return item.asset_label;
+  if (item.front === "cripto") return cryptoSymbolFromText(item.asset_label) || item.asset_label;
   const specific = item.specific as Partial<SpecificImovel>;
   const neighborhood = cleanText(specific.neighborhood);
   if (neighborhood) return neighborhood.toUpperCase().slice(0, 10);
@@ -1293,11 +1331,7 @@ function sourceName(front: FrenteApi): string {
 
 function instrumentLabel(instrument: string): string {
   const clean = cleanText(instrument).toUpperCase();
-  for (const suffix of ["USDT", "USDC", "BUSD", "FDUSD", "BTC", "ETH"]) {
-    if (clean.endsWith(suffix) && clean.length > suffix.length) {
-      return `${clean.slice(0, clean.length - suffix.length)}/${suffix}`;
-    }
-  }
+  if (/(USDT|USDC|BUSD|FDUSD|BTC|ETH)$/.test(clean)) return cryptoAssetLabel(clean);
   return clean;
 }
 
@@ -1346,7 +1380,7 @@ function buildAutopilotDetail(input: {
   stepCounts: MicrotradesAutopilotLatest["stepCounts"];
 }): string {
   const scope = input.instruments.length
-    ? `${input.instruments.map(instrumentLabel).join(", ")} em ${input.intervalLabel}`
+    ? `${formatCryptoScope(input.instruments)} em ${input.intervalLabel}`
     : `escopo configurado em ${input.intervalLabel}`;
   if (input.isRunning) {
     const warning =
@@ -1402,7 +1436,9 @@ function inferAutopilotAgentRunning(input: {
 }
 
 function inferInstrument(text: string): string {
-  const match = cleanText(text).toUpperCase().match(/\b([A-Z]{4}\d{1,2}|BTCUSDT|ETHUSDT|SOLUSDT|BNBUSDT|XRPUSDT|ADAUSDT)\b/);
+  const cryptoInstrument = cryptoInstrumentFromText(text);
+  if (cryptoInstrument) return cryptoInstrument;
+  const match = cleanText(text).toUpperCase().match(/\b([A-Z]{4}\d{1,2}|[A-Z]{2,10}USDT)\b/);
   return match?.[1] ?? "";
 }
 

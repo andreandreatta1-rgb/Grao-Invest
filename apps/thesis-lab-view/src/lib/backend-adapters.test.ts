@@ -46,7 +46,7 @@ describe("backend adapters", () => {
     expect(thesis.front).toBe("cripto");
     expect(thesis.status).toBe("encerrada_tempo");
     expect(thesis.closed_at).toBeTruthy();
-    expect(thesis.asset_label).toBe("BTC/USDT");
+    expect(thesis.asset_label).toBe("Bitcoin (BTC)");
     expect(specific.kind).toBe("microtrade");
     expect(specific.window_min).toBe(40);
   });
@@ -267,6 +267,77 @@ describe("backend adapters", () => {
     expect(cycle?.lastActivityAt).toBe("2026-05-04T19:22:44.000Z");
     expect(cycle?.cycleLabel).toBe("Parcial");
     expect(cycle?.statusHeadline).toBe("Ultimo ciclo concluido com ressalvas");
+  });
+
+  it("extracts dedicated crypto radar candidates without mixing them into executive cards", () => {
+    const payload: BackendMicrotradesAutopilotLatestPayload = {
+      status: "success",
+      run_finished_at: "2026-05-04T10:00:12Z",
+      config: {
+        interval: "5m",
+        instruments: ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT"],
+      },
+      monitor: {
+        thesis_count: 2,
+        summary: {
+          monitoring_count: 2,
+          needs_attention_count: 0,
+        },
+        scan_scope: {
+          fronts: {
+            cripto: {
+              scanner_candidates: [
+                {
+                  thesis_id: "TH-ETHUSDT-RADAR-1",
+                  instrument: "ETHUSDT",
+                  direction: "bullish",
+                  thesis_raised_at: "2026-05-04T09:55:00Z",
+                  suggested_entry_time: "2026-05-04T09:55:00Z",
+                  suggested_exit_time: "2026-05-04T10:25:00Z",
+                  entry_price: 3200,
+                  target_price: 3264,
+                  stop_price: 3174,
+                  latest_price: 3211,
+                  latest_event_time: "2026-05-04T10:00:00Z",
+                  monitor_status: "monitoring",
+                  suggested_action: "confirmar_entrada",
+                  expected_financial_pct: 2,
+                  unrealized_financial_pct: 0.3,
+                  confidence_tese_pct: 76,
+                  confidence_now_pct: 74,
+                  support_rate_pct: 71,
+                  technical_support_pct: 73,
+                  fundamental_support_pct: 58,
+                  news_support_pct: 54,
+                  geo_oil_support_pct: 50,
+                  fundamental_available: true,
+                  news_available: true,
+                  geo_oil_available: false,
+                  progress_to_target_pct: 18,
+                  distance_to_stop_pct: 0.8,
+                  executive_status: "mantida",
+                  executive_status_label: "Radar amplo",
+                  executive_action: "confirmar_entrada",
+                  thesis_validity: "valida",
+                  revaluation_reason: "Radar amplo separado dos cards executivos",
+                  next_trigger: "Rearmar entrada na confirmacao",
+                  monitoring_events: [],
+                  asset_front: "cripto",
+                  front_label: "Cripto",
+                },
+              ],
+            },
+          },
+        },
+      },
+    };
+
+    const cycle = adaptMicrotradesAutopilotLatest(payload);
+
+    expect(cycle?.statusDetail).toContain("Bitcoin (BTC)");
+    expect(cycle?.radarCandidates).toHaveLength(1);
+    expect(cycle?.radarCandidates[0]?.asset_label).toBe("Ethereum (ETH)");
+    expect(cycle?.radarCandidates[0]?.id).toBe("TH-ETHUSDT-RADAR-1");
   });
 
   it("counts only lifecycle-open theses as active even when closed_at is missing", () => {

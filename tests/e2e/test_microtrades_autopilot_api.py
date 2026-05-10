@@ -315,6 +315,10 @@ def test_microtrades_autopilot_latest_runs_cycle_when_runtime_snapshot_is_missin
         }
 
     monkeypatch.setattr("app.main.load_latest_microtrades_autopilot_snapshot", fake_load)
+    monkeypatch.setattr(
+        "app.main.load_latest_current_thesis_monitor",
+        lambda *args, **kwargs: None,
+    )
     monkeypatch.setattr("app.main._build_default_microtrades_autopilot_config", fake_build)
     monkeypatch.setattr("app.main._execute_microtrades_autopilot", fake_execute)
 
@@ -411,6 +415,10 @@ def test_microtrades_autopilot_latest_rebuilds_when_runtime_snapshot_is_stale(cl
         }
 
     monkeypatch.setattr("app.main.load_latest_microtrades_autopilot_snapshot", fake_load)
+    monkeypatch.setattr(
+        "app.main.load_latest_current_thesis_monitor",
+        lambda *args, **kwargs: None,
+    )
     monkeypatch.setattr("app.main._build_default_microtrades_autopilot_config", fake_build)
     monkeypatch.setattr("app.main._execute_microtrades_autopilot", fake_execute)
     monkeypatch.setattr(
@@ -507,6 +515,10 @@ def test_microtrades_autopilot_latest_reuses_fast_snapshot_after_first_rebuild(
     call_count = {"run": 0}
 
     monkeypatch.setattr("app.services.microtrades_autopilot.DATA_DIR", tmp_path)
+    monkeypatch.setattr(
+        "app.main.load_latest_current_thesis_monitor",
+        lambda *args, **kwargs: None,
+    )
     monkeypatch.setattr(
         "app.main.utc_now",
         lambda: datetime.fromisoformat("2026-05-04T21:15:00+00:00"),
