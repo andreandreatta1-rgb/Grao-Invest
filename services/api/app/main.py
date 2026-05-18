@@ -184,6 +184,10 @@ from app.services.portfolio_optimizer import (
 )
 from app.services.real_estate_candidate_generation import strategy_territory_report
 from app.services.real_estate_radar import build_candidate_analysis
+from app.services.real_estate_source_validation import (
+    SourceValidationResult,
+    validate_real_estate_source_url,
+)
 from app.services.reports import build_user_report
 from app.services.risk import evaluate_circuit_breaker, set_kill_switch
 from app.services.signals import generate_signal
@@ -2696,6 +2700,56 @@ REAL_ESTATE_CANDIDATE_FIELDS = [
 
 
 VISIT_EVIDENCE_PREFIX = "[VISITA_HF] "
+SOURCE_VALIDATION_PREFIX = "[SOURCE_VALIDATION] "
+
+
+def _parse_real_estate_source_validation(notes: str | None) -> dict[str, object]:
+    latest: dict[str, object] = {}
+    for line in str(notes or "").splitlines():
+        if not line.startswith(SOURCE_VALIDATION_PREFIX):
+            continue
+        try:
+            raw_entry = json.loads(line[len(SOURCE_VALIDATION_PREFIX) :])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(raw_entry, dict):
+            latest = raw_entry
+    return latest
+
+
+def _append_real_estate_source_validation(
+    notes: str | None,
+    validation: SourceValidationResult,
+) -> str:
+    visible_lines = [
+        line
+        for line in str(notes or "").splitlines()
+        if not line.startswith(SOURCE_VALIDATION_PREFIX)
+    ]
+    serialized = json.dumps(validation.as_payload(), ensure_ascii=False, separators=(",", ":"))
+    parts = ["\n".join(line for line in visible_lines if line).strip(), f"{SOURCE_VALIDATION_PREFIX}{serialized}"]
+    return "\n".join(part for part in parts if part).strip()
+
+
+def _apply_real_estate_source_validation(
+    candidate: RealEstateCandidate,
+    validation: SourceValidationResult | None = None,
+) -> SourceValidationResult:
+    validation = validation or validate_real_estate_source_url(candidate.source_url)
+    candidate.notes = _append_real_estate_source_validation(candidate.notes, validation)
+    if validation.status in {"expired", "unavailable"}:
+        candidate.status_override = "Fonte indisponivel"
+        candidate.discard_reason = validation.reason
+    elif validation.status == "ambiguous":
+        candidate.status_override = "Manual necessario"
+        candidate.discard_reason = validation.reason
+    elif validation.status == "valid" and str(candidate.status_override or "") in {
+        "Fonte indisponivel",
+        "Manual necessario",
+    }:
+        candidate.status_override = None
+        candidate.discard_reason = ""
+    return validation
 
 
 def _parse_real_estate_visit_evidence(notes: str | None) -> list[dict[str, str]]:
@@ -2722,6 +2776,7 @@ def _strip_real_estate_visit_evidence(notes: str | None) -> str:
         line
         for line in str(notes or "").splitlines()
         if not line.startswith(VISIT_EVIDENCE_PREFIX)
+        and not line.startswith(SOURCE_VALIDATION_PREFIX)
     ).strip()
 
 
@@ -2730,6 +2785,7 @@ def _merge_real_estate_notes_preserving_visit_evidence(current_notes: str | None
         line
         for line in str(current_notes or "").splitlines()
         if line.startswith(VISIT_EVIDENCE_PREFIX)
+        or line.startswith(SOURCE_VALIDATION_PREFIX)
     ]
     parts = [str(visible_notes or "").strip(), *evidence_lines]
     return "\n".join(part for part in parts if part).strip()
@@ -2756,6 +2812,18 @@ def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, 
     base = {field: getattr(candidate, field) for field in REAL_ESTATE_CANDIDATE_FIELDS}
     base["notes"] = _strip_real_estate_visit_evidence(candidate.notes)
     visit_evidence = _parse_real_estate_visit_evidence(candidate.notes)
+    source_validation = _parse_real_estate_source_validation(candidate.notes)
+    if not source_validation:
+        source_validation = {
+            "url": candidate.source_url,
+            "status": "unchecked" if candidate.source_url else "",
+            "reason": "Fonte ainda nao validada pela app." if candidate.source_url else "",
+            "checked_at": "",
+            "http_status": None,
+        }
+    base["source_validation_status"] = str(source_validation.get("status") or "")
+    base["source_validation_reason"] = str(source_validation.get("reason") or "")
+    base["source_checked_at"] = str(source_validation.get("checked_at") or "")
     analysis = build_candidate_analysis(base)
     status_value = candidate.status_override or str(analysis["suggested_status"])
     if "descart" in str(status_value or "").lower():
@@ -2764,11 +2832,22 @@ def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, 
             "suggested_status": "Descartado",
             "next_action": candidate.discard_reason or str(analysis.get("next_action") or ""),
         }
+    if str(status_value or "") == "Fonte indisponivel":
+        analysis = {
+            **analysis,
+            "suggested_status": "Descartado",
+            "next_action": candidate.discard_reason
+            or str(source_validation.get("reason") or analysis.get("next_action") or ""),
+        }
     return {
         "id": candidate.id,
         "user_id": candidate.user_id,
         **base,
         "visit_evidence": visit_evidence,
+        "source_validation": source_validation,
+        "source_validation_status": base["source_validation_status"],
+        "source_validation_reason": base["source_validation_reason"],
+        "source_checked_at": base["source_checked_at"],
         "status": status_value,
         "discard_reason": candidate.discard_reason,
         "created_at": candidate.created_at,
@@ -2840,6 +2919,7 @@ def real_estate_candidate_create(
         created_at=now,
         updated_at=now,
     )
+    _apply_real_estate_source_validation(candidate)
     db.add(candidate)
     db.commit()
     db.refresh(candidate)
@@ -2862,6 +2942,27 @@ def real_estate_candidate_update(
         if field == "notes":
             value = _merge_real_estate_notes_preserving_visit_evidence(candidate.notes, str(value))
         setattr(candidate, field, value)
+    if payload.source_url is not None:
+        _apply_real_estate_source_validation(candidate)
+    candidate.updated_at = isoformat(utc_now())
+    db.add(candidate)
+    db.commit()
+    db.refresh(candidate)
+    return _real_estate_candidate_payload(candidate)
+
+
+@app.post("/api/real-estate/candidates/{candidate_id}/validate-source")
+def real_estate_candidate_validate_source(
+    candidate_id: int,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    candidate = _get_real_estate_candidate_or_404(
+        db,
+        user_id=user.id,
+        candidate_id=candidate_id,
+    )
+    _apply_real_estate_source_validation(candidate)
     candidate.updated_at = isoformat(utc_now())
     db.add(candidate)
     db.commit()
@@ -5380,6 +5481,30 @@ def dashboard_summary(
             if len(promoted_open_operations) > len(thesis_open_operations):
                 thesis_open_operations = promoted_open_operations
 
+    def _append_seed_real_estate_discovery_operations() -> None:
+        if not isinstance(dashboard_seed, dict):
+            return
+        seed_open_operations = dashboard_seed.get("thesis_open_operations")
+        if not isinstance(seed_open_operations, list):
+            return
+        existing_ids = {
+            str(row.get("thesis_id") or "")
+            for row in thesis_open_operations
+            if isinstance(row, dict)
+        }
+        for row in seed_open_operations:
+            if not isinstance(row, dict):
+                continue
+            thesis_id_value = str(row.get("thesis_id") or "")
+            if not thesis_id_value.startswith("IM-FOLHA-FRAZAO-"):
+                continue
+            if thesis_id_value in existing_ids:
+                continue
+            thesis_open_operations.append(dict(row))
+            existing_ids.add(thesis_id_value)
+
+    _append_seed_real_estate_discovery_operations()
+
     def _append_real_estate_candidate_operations() -> None:
         existing_index_by_id = {
             str(row.get("thesis_id") or ""): index
@@ -5425,13 +5550,18 @@ def dashboard_summary(
                     "estimated_sale_conservative",
                     "estimated_sale_optimistic",
                     "notes",
+                    "source_validation_status",
+                    "source_validation_reason",
+                    "source_checked_at",
                 ]
             }
             candidate_snapshot["visit_evidence"] = candidate_payload.get("visit_evidence") or []
+            candidate_snapshot["source_validation"] = candidate_payload.get("source_validation") or {}
             real_estate_analysis = {
                 **analysis_dict,
                 "candidate": candidate_snapshot,
                 "visit_evidence": candidate_payload.get("visit_evidence") or [],
+                "source_validation": candidate_payload.get("source_validation") or {},
             }
             scenarios = analysis_dict.get("scenarios")
             scenarios_dict = scenarios if isinstance(scenarios, dict) else {}
@@ -5447,7 +5577,21 @@ def dashboard_summary(
             status_value = str(candidate_payload.get("status") or "").strip()
             status_lower = status_value.lower()
             is_discarded = "descart" in status_lower
-            if is_discarded:
+            source_validation = candidate_payload.get("source_validation")
+            source_validation_dict = source_validation if isinstance(source_validation, dict) else {}
+            source_status = str(source_validation_dict.get("status") or "").strip().lower()
+            is_source_unavailable = (
+                source_status in {"expired", "unavailable"}
+                or "fonte indispon" in status_lower
+            )
+            is_source_manual = source_status == "ambiguous" or "manual" in status_lower
+            if is_source_unavailable:
+                status_label = "Fechada"
+                outcome_label = "Fonte indisponivel"
+            elif is_source_manual:
+                status_label = "Fechada"
+                outcome_label = "Fonte exige validacao manual"
+            elif is_discarded:
                 status_label = "Fechada"
                 outcome_label = "Descartado pelo radar"
             elif "pend" in status_lower:
@@ -5511,12 +5655,21 @@ def dashboard_summary(
                 f"{candidate_payload.get('origin') or 'Origem n/d'} | "
                 f"{candidate_payload.get('property_type') or 'Imovel'} | {price_ceiling_status}"
             )
-            if is_discarded:
+            is_closed_by_source = is_source_unavailable or is_source_manual
+            if is_closed_by_source or is_discarded:
                 learning_note = (
-                    "Aprendizado: candidato descartado pelo radar. Revisar preco teto, "
+                    "Aprendizado: candidato fora do radar ativo. Revisar fonte, preco teto, "
                     "margem conservadora e pendencias antes de reabrir."
                 )
-                exit_rule = str(candidate_payload.get("discard_reason") or next_action)
+                exit_rule = str(
+                    (
+                        source_validation_dict.get("reason")
+                        if is_closed_by_source
+                        else candidate_payload.get("discard_reason")
+                    )
+                    or candidate_payload.get("discard_reason")
+                    or next_action
+                )
                 planned_exit_at_value = ""
                 duration_days = _duration_days(candidate.created_at, candidate.updated_at)
                 open_days = None
@@ -5548,6 +5701,10 @@ def dashboard_summary(
                 "thesis_raised_at": candidate.created_at,
                 "front": "imoveis",
                 "source_url": candidate.source_url,
+                "source_validation": source_validation_dict,
+                "source_validation_status": source_status,
+                "source_validation_reason": str(source_validation_dict.get("reason") or ""),
+                "source_checked_at": str(source_validation_dict.get("checked_at") or ""),
                 "action": candidate.title,
                 "thesis_reason": thesis_reason,
                 "expected_result_pct": expected_result_pct,

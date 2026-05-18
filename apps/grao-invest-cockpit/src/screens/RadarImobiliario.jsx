@@ -2,8 +2,6 @@ import { useMemo, useState } from "react";
 import { Badge, C, KPICard, PatrickJane, alpha, mono, withAlpha } from "../components";
 import { PerdizesCasePortfolio, REAL_ESTATE_DEMO_CASES } from "./JornadaTese.jsx";
 
-const LIVE_STORY_LIMIT = 14;
-
 function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
@@ -131,6 +129,30 @@ function analysisFor(row) {
 function candidateFor(row) {
   const analysis = analysisFor(row);
   return analysis.candidate || analysis.candidate_snapshot || analysis.candidateSnapshot || row?.candidate || {};
+}
+
+function sourceValidationFor(row) {
+  const analysis = analysisFor(row);
+  const candidate = candidateFor(row);
+  const validation = analysis.source_validation || analysis.sourceValidation || row?.source_validation || row?.sourceValidation || candidate.source_validation || candidate.sourceValidation || {};
+  const status = firstText(
+    validation.status,
+    row?.source_validation_status,
+    row?.sourceValidationStatus,
+    candidate.source_validation_status,
+    candidate.sourceValidationStatus,
+  ).toLowerCase();
+  const reason = firstText(
+    validation.reason,
+    row?.source_validation_reason,
+    row?.sourceValidationReason,
+    candidate.source_validation_reason,
+    candidate.sourceValidationReason,
+  );
+  if (status === "valid") return { status, reason, label: "Fonte validada", type: "success" };
+  if (status === "expired" || status === "unavailable") return { status, reason, label: "Fonte indisponível", type: "danger" };
+  if (status === "ambiguous") return { status, reason, label: "Fonte manual", type: "warning" };
+  return { status, reason, label: "Fonte a validar", type: "warning" };
 }
 
 function sourceTextFor(row) {
@@ -336,6 +358,7 @@ function liveStoryFromRow(row, index) {
   const strategy = strategyFor(row);
   const strategyIcon = iconForStrategy(strategy);
   const identifier = String(row?.thesisId || row?.id || `IM-ABERTO-${index + 1}`);
+  const sourceValidation = sourceValidationFor(row);
 
   return {
     id: identifier.startsWith("#") ? identifier : `#${identifier}`,
@@ -356,6 +379,7 @@ function liveStoryFromRow(row, index) {
     secondBadgeLabel: "Próx.",
     temporalStatus: isOpen ? (p0Count > 0 ? `${p0Count} P0 aberto${p0Count > 1 ? "s" : ""}` : "Sem P0 aberto") : shortText(firstText(row?.outcome, decision, "Encerrado"), 34),
     temporalType: temporalTypeFor(score, isOpen ? p0Count : 0, decision),
+    sourceValidation,
     firstAuction: entry,
     secondAuction: ceiling || entry,
     comparator: saleBase || row?.targetPrice || row?.currentPrice || entry,
@@ -401,7 +425,6 @@ function liveStoryFromRow(row, index) {
 
 function radarStoriesForData(data) {
   const realStories = canonicalRealEstateRows(data)
-    .slice(0, LIVE_STORY_LIMIT)
     .map(liveStoryFromRow);
   const liveStories = realStories.filter((item) => item.isLiveCandidate);
   const closedStories = realStories.filter((item) => !item.isLiveCandidate);

@@ -204,6 +204,70 @@ describe("Radar Imobiliário screen", () => {
     expect(within(closedPortfolio).getByText(/-18,9%/i)).toBeInTheDocument();
   });
 
+  it("does not truncate late real candidates from the dashboard summary", () => {
+    const fillerRows = Array.from({ length: 15 }, (_, index) => ({
+      thesisId: `IM-SEED-${String(index + 1).padStart(2, "0")}`,
+      front: "Imoveis",
+      status: "Aberta - Atencao",
+      statusGroup: "Go-live",
+      isOpen: true,
+      asset: `REAL - Seed base ${index + 1}`,
+      entryPrice: 100000 + index,
+      currentPrice: 150000 + index,
+      targetPrice: 180000 + index,
+      expectedPct: 20,
+      realEstateAnalysis: {
+        score: 61,
+        confidence: 40,
+        max_purchase_price: 120000 + index,
+        suggested_status: "Aberto com pendencias",
+        next_action: "Confirmar fonte individual",
+        scenarios: { base: { sale_price: 180000 + index, net_profit: 20000, roi_pct: 20 } },
+        pending_items: [{ priority: "P0", title: "Confirmar fonte", action: "Validar link individual." }],
+      },
+    }));
+    const data = {
+      thesisRows: [
+        ...fillerRows,
+        {
+          thesisId: "IM-FOLHA-FRAZAO-SAUDE-37528",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL - Folha Frazao Itau Saude Rua Abagiba 74m2",
+          sourceUrl: "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
+          entryPrice: 285000,
+          currentPrice: 285000,
+          targetPrice: 430000,
+          expectedPct: 24,
+          realEstateAnalysis: {
+            score: 64,
+            confidence: 42,
+            source_validation: {
+              status: "valid",
+              reason: "Fonte individual validada.",
+            },
+            max_purchase_price: 310000,
+            suggested_status: "Aberto com pendencias",
+            next_action: "Validar edital, ocupacao e debitos",
+            scenarios: { base: { sale_price: 430000, net_profit: 62000, roi_pct: 24 } },
+            pending_items: [{ priority: "P0", title: "Validar edital", action: "Conferir datas e ocupacao." }],
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} />);
+
+    const portfolio = screen.getByTestId("radar-imobiliario-portfolio");
+    const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
+    expect(within(portfolio).getByText(/16 casos reais no radar/i)).toBeInTheDocument();
+    expect(within(openPortfolio).getByText(/Folha Frazao Itau Saude Rua Abagiba/i)).toBeInTheDocument();
+    expect(within(openPortfolio).getByText(/Fonte validada/i)).toBeInTheDocument();
+    expect(within(openPortfolio).getAllByRole("button", { name: /Abrir/i })).toHaveLength(16);
+  });
+
   it("recovers from fallback and replaces demo stories when the real feed comes back", async () => {
     window.history.replaceState(null, "", "/#radar-imobiliario");
     let feedRequests = 0;
@@ -367,6 +431,10 @@ describe("Radar Imobiliário screen", () => {
           realEstateAnalysis: {
             score: 72,
             confidence: 30,
+            source_validation: {
+              status: "valid",
+              reason: "Fonte individual validada.",
+            },
             max_purchase_price: 423377.9,
             suggested_status: "Aberto com pendencias",
             next_action: "Confirmar ocupacao",
@@ -386,6 +454,7 @@ describe("Radar Imobiliário screen", () => {
     );
     expect(within(openPortfolio).queryByRole("link", { name: /Ver leilão Jardim das Colinas/i })).not.toBeInTheDocument();
     expect(within(openPortfolio).getByText(/Compra para revenda · score 72\/100/i)).toBeInTheDocument();
+    expect(within(openPortfolio).getByText(/Fonte validada/i)).toBeInTheDocument();
     expect(within(openPortfolio).queryByText(/Leilão \+ HF · score 72\/100/i)).not.toBeInTheDocument();
   });
 

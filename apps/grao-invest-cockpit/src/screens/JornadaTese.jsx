@@ -1265,6 +1265,7 @@ function CaseStoryCard({ item, isOpen, onToggle }) {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
             <Badge label={item.temporalStatus} type={statusBadgeType(item.temporalType)} />
+            {item.sourceValidation?.label && <Badge label={item.sourceValidation.label} type={item.sourceValidation.type || "warning"} />}
             <Badge label={item.decision} type={item.color === C.coral ? "danger" : "info"} />
             <span style={{ color: item.color, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
               {isOpen ? "Fechar" : "Abrir"}

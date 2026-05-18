@@ -2,6 +2,21 @@ from __future__ import annotations
 
 import pytest
 from app.main import AUTH_DISABLED
+from app.services.real_estate_source_validation import SourceValidationResult
+
+
+def _stub_valid_source_validation(monkeypatch: pytest.MonkeyPatch, main_module) -> None:
+    monkeypatch.setattr(
+        main_module,
+        "validate_real_estate_source_url",
+        lambda url: SourceValidationResult(
+            url=url,
+            status="valid",
+            reason="Fonte individual validada.",
+            checked_at="2026-05-18T12:00:00+00:00",
+            http_status=200,
+        ),
+    )
 
 
 def test_dashboard_summary_turns_real_estate_candidates_into_thesis_rows(
@@ -13,6 +28,8 @@ def test_dashboard_summary_turns_real_estate_candidates_into_thesis_rows(
 
     if not AUTH_DISABLED:
         pytest.skip("Modo anonimo desativado no ambiente de teste.")
+
+    _stub_valid_source_validation(monkeypatch, main_module)
 
     active_response = client.post(
         "/api/real-estate/candidates",
@@ -145,6 +162,8 @@ def test_dashboard_summary_replaces_stale_seed_real_estate_candidate_with_databa
 
     if not AUTH_DISABLED:
         pytest.skip("Modo anonimo desativado no ambiente de teste.")
+
+    _stub_valid_source_validation(monkeypatch, main_module)
 
     create_response = client.post(
         "/api/real-estate/candidates",

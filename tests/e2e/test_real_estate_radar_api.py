@@ -1,7 +1,23 @@
 from __future__ import annotations
 
+from app.services.real_estate_source_validation import SourceValidationResult
 
-def test_real_estate_candidate_api_roundtrip(client) -> None:
+
+def test_real_estate_candidate_api_roundtrip(client, monkeypatch) -> None:
+    from app import main as main_module
+
+    monkeypatch.setattr(
+        main_module,
+        "validate_real_estate_source_url",
+        lambda url: SourceValidationResult(
+            url=url,
+            status="valid",
+            reason="Fonte individual validada.",
+            checked_at="2026-05-18T12:00:00+00:00",
+            http_status=200,
+        ),
+    )
+
     empty_response = client.get("/api/real-estate/candidates")
     assert empty_response.status_code == 200
     assert empty_response.json()["summary"]["total"] == 0

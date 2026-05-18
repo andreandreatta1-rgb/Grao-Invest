@@ -262,6 +262,9 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     occupancy = _text(payload, "occupancy_status", "desconhecido").lower()
     sale_comparables_count = _int(payload, "sale_comparables_count")
     rent_comparables_count = _int(payload, "rent_comparables_count")
+    source_url = _text(payload, "source_url")
+    source_validation_status = _text(payload, "source_validation_status").lower()
+    source_validation_reason = _text(payload, "source_validation_reason")
 
     location_score = _float(payload, "location_liquidity_score", 60.0)
     location_points = round(max(0.0, min(location_score, 100.0)) * 0.20)
@@ -429,6 +432,23 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     confidence = int(max(0, min(sum(item["points"] for item in confidence_breakdown), 100)))
 
     pending_items: list[dict[str, str]] = []
+    if source_url and source_validation_status not in {"valid"}:
+        if source_validation_status in {"expired", "unavailable"}:
+            source_title = "Fonte indisponivel"
+            source_action = source_validation_reason or "Remover do radar ativo ate existir nova fonte individual."
+        elif source_validation_status == "ambiguous":
+            source_title = "Validar fonte manualmente"
+            source_action = source_validation_reason or "Confirmar se o link e um lote/anuncio individual ainda publicado."
+        else:
+            source_title = "Validar fonte do candidato"
+            source_action = "A app ainda nao confirmou se o link individual esta vivo."
+        _add_pending(
+            pending_items,
+            key="source_validation",
+            title=source_title,
+            priority="P0",
+            action=source_action,
+        )
     if occupancy == "desconhecido":
         _add_pending(
             pending_items,
@@ -487,6 +507,14 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         )
 
     clarified_items: list[dict[str, str]] = []
+    if source_url and source_validation_status == "valid":
+        clarified_items.append(
+            _clarified_item(
+                key="source_validation",
+                title="Fonte individual validada",
+                detail=source_validation_reason or "A app confirmou que o link aponta para anuncio/lote individual.",
+            )
+        )
     if occupancy in {"desocupado", "ocupado"}:
         clarified_items.append(
             _clarified_item(
@@ -570,7 +598,13 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
 
     has_p0 = any(item["priority"] == "P0" for item in pending_items)
     conservative_profit = scenarios["conservative"]["net_profit"]
-    if occupancy == "ocupado" and _bool(payload, "first_operation", True):
+    if source_validation_status in {"expired", "unavailable"}:
+        suggested_status = "Descartado"
+        next_action = source_validation_reason or "Fonte indisponivel"
+    elif source_validation_status == "ambiguous":
+        suggested_status = "Aberto com pendencias"
+        next_action = "Validar fonte manualmente"
+    elif occupancy == "ocupado" and _bool(payload, "first_operation", True):
         suggested_status = "Descartado"
         next_action = "Descartar ou travar decisao"
     elif conservative_profit < 0 and score < 70:
@@ -636,5 +670,11 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         "target_roi_pct": round(target_roi_pct, 2),
         "cash_needed": round(cash_needed, 2),
         "base_profit_pct": round(base_profit_pct, 2),
+        "source_validation": {
+            "status": source_validation_status or ("unchecked" if source_url else ""),
+            "reason": source_validation_reason,
+            "checked_at": _text(payload, "source_checked_at"),
+            "url": source_url,
+        },
     }
 

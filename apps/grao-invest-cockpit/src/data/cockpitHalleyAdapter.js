@@ -831,18 +831,31 @@ function normalizeRealEstateCandidate(candidate, index, now) {
   const strategy = cleanText(coalesce(candidate.strategy, analysisCandidate.strategy));
   const propertyType = cleanText(coalesce(candidate.property_type, candidate.propertyType, analysisCandidate.property_type, analysisCandidate.propertyType));
   const sourceUrl = cleanText(coalesce(candidate.source_url, candidate.sourceUrl, analysisCandidate.source_url, analysisCandidate.sourceUrl));
+  const sourceValidation = coalesce(
+    candidate.source_validation,
+    candidate.sourceValidation,
+    rawAnalysis?.source_validation,
+    rawAnalysis?.sourceValidation,
+    analysisCandidate.source_validation,
+    analysisCandidate.sourceValidation,
+    {},
+  );
   const candidateSnapshot = {
     ...(analysisCandidate && typeof analysisCandidate === "object" ? analysisCandidate : {}),
     origin,
     strategy,
     source_url: sourceUrl,
+    source_validation: sourceValidation,
+    source_validation_status: cleanText(coalesce(candidate.source_validation_status, candidate.sourceValidationStatus, analysisCandidate.source_validation_status, analysisCandidate.sourceValidationStatus)),
+    source_validation_reason: cleanText(coalesce(candidate.source_validation_reason, candidate.sourceValidationReason, analysisCandidate.source_validation_reason, analysisCandidate.sourceValidationReason)),
+    source_checked_at: cleanText(coalesce(candidate.source_checked_at, candidate.sourceCheckedAt, analysisCandidate.source_checked_at, analysisCandidate.sourceCheckedAt)),
     property_type: propertyType,
     private_area_m2: toNumber(coalesce(candidate.private_area_m2, candidate.privateAreaM2, analysisCandidate.private_area_m2, analysisCandidate.privateAreaM2), null),
     bedrooms: toNumber(coalesce(candidate.bedrooms, analysisCandidate.bedrooms), null),
     parking_spaces: toNumber(coalesce(candidate.parking_spaces, candidate.parkingSpaces, analysisCandidate.parking_spaces, analysisCandidate.parkingSpaces), null),
   };
   const realEstateAnalysis = rawAnalysis && typeof rawAnalysis === "object"
-    ? { ...rawAnalysis, candidate: candidateSnapshot }
+    ? { ...rawAnalysis, source_validation: sourceValidation, candidate: candidateSnapshot }
     : rawAnalysis;
 
   return {
