@@ -817,15 +817,37 @@ function normalizeMarketThesis(thesis, index, now) {
 }
 
 function normalizeRealEstateCandidate(candidate, index, now) {
-  const asset = cleanText(coalesce(candidate.name, candidate.instrument, candidate.asset, `Imóvel ${index + 1}`));
+  const asset = cleanText(coalesce(candidate.title, candidate.name, candidate.instrument, candidate.asset, `Imóvel ${index + 1}`));
   const entryPrice = toNumber(coalesce(candidate.entry_price, candidate.entryPrice, candidate.ask_price, candidate.price), 0);
   const currentPrice = toNumber(coalesce(candidate.current_price, candidate.currentPrice, entryPrice), entryPrice);
-  const targetPrice = toNumber(coalesce(candidate.target_price, candidate.targetPrice, candidate.target_value), 0);
+  const targetPrice = toNumber(coalesce(candidate.target_price, candidate.targetPrice, candidate.target_value, candidate.estimated_sale_base), 0);
   const openedAt = toIsoDate(coalesce(candidate.candidate_date, candidate.date, candidate.created_at, candidate.thesis_raised_at), now);
   const expectedPct = toNumber(coalesce(candidate.expected_pct, candidate.expectedPct), pctBetween(entryPrice, targetPrice));
+  const rawAnalysis = candidate.real_estate_analysis ?? candidate.realEstateAnalysis ?? candidate.analysis ?? null;
+  const analysisCandidate = rawAnalysis && typeof rawAnalysis === "object"
+    ? coalesce(rawAnalysis.candidate, rawAnalysis.candidate_snapshot, rawAnalysis.candidateSnapshot, {})
+    : {};
+  const origin = cleanText(coalesce(candidate.origin, candidate.source_origin, candidate.sourceOrigin, analysisCandidate.origin));
+  const strategy = cleanText(coalesce(candidate.strategy, analysisCandidate.strategy));
+  const propertyType = cleanText(coalesce(candidate.property_type, candidate.propertyType, analysisCandidate.property_type, analysisCandidate.propertyType));
+  const sourceUrl = cleanText(coalesce(candidate.source_url, candidate.sourceUrl, analysisCandidate.source_url, analysisCandidate.sourceUrl));
+  const candidateSnapshot = {
+    ...(analysisCandidate && typeof analysisCandidate === "object" ? analysisCandidate : {}),
+    origin,
+    strategy,
+    source_url: sourceUrl,
+    property_type: propertyType,
+    private_area_m2: toNumber(coalesce(candidate.private_area_m2, candidate.privateAreaM2, analysisCandidate.private_area_m2, analysisCandidate.privateAreaM2), null),
+    bedrooms: toNumber(coalesce(candidate.bedrooms, analysisCandidate.bedrooms), null),
+    parking_spaces: toNumber(coalesce(candidate.parking_spaces, candidate.parkingSpaces, analysisCandidate.parking_spaces, analysisCandidate.parkingSpaces), null),
+  };
+  const realEstateAnalysis = rawAnalysis && typeof rawAnalysis === "object"
+    ? { ...rawAnalysis, candidate: candidateSnapshot }
+    : rawAnalysis;
 
   return {
     id: cleanText(coalesce(candidate.id, candidate.candidate_id, `IM-${index + 1}`)),
+    thesisId: cleanText(coalesce(candidate.thesis_id, candidate.thesisId, candidate.id ? `IM-RADAR-${candidate.id}` : `IM-${index + 1}`)),
     front: "Imóveis",
     asset,
     direction: expectedPct > 0 ? "Potencial positivo" : "Revisar",
@@ -843,8 +865,13 @@ function normalizeRealEstateCandidate(candidate, index, now) {
     learning: cleanText(coalesce(candidate.learning, candidate.learning_note, "Registrar aprendizado da diligência imobiliária.")),
     janeState: cleanText(coalesce(candidate.jane_state, candidate.janeState, "analysis")),
     janeMessage: cleanText(coalesce(candidate.jane_message, candidate.janeMessage, "Patrick Jane compara premissas, preço e risco de execução.")),
-    operation: cleanText(coalesce(candidate.operation, candidate.plan, "Análise imobiliária com preço, margem de segurança e gatilhos definidos.")),
-    invalidation: cleanText(coalesce(candidate.invalidation, candidate.invalidation_rule, "Invalidar se diligência ou liquidez quebrarem a tese.")),
+    operation: cleanText(coalesce(candidate.operation, candidate.plan, strategy, "Análise imobiliária com preço, margem de segurança e gatilhos definidos.")),
+    structure: [strategy, origin, propertyType].filter(Boolean).join(" | "),
+    invalidation: cleanText(coalesce(candidate.discard_reason, candidate.invalidation, candidate.invalidation_rule, "Invalidar se diligência ou liquidez quebrarem a tese.")),
+    sourceUrl,
+    sourceOrigin: origin,
+    strategy,
+    realEstateAnalysis,
   };
 }
 
@@ -911,7 +938,12 @@ function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
 }
 
 function learningNotesFrom(payloads) {
+  const activityNotes = [
+    ...learningActivityNotesFrom(payloads?.currentMonitor),
+    ...learningActivityNotesFrom(payloads?.dashboardSummary),
+  ];
   const explicitNotes = [
+    ...activityNotes,
     ...asArray(payloads?.dashboardSummary?.learning_notes),
     ...asArray(payloads?.dashboardSummary?.learningNotes),
     ...asArray(payloads?.currentMonitor?.learning_notes),
@@ -943,6 +975,40 @@ function learningNotesFrom(payloads) {
         evidence_count: 1,
       };
     });
+}
+
+function learningActivityNotesFrom(payload) {
+  const activity = payload?.learning_activity ?? payload?.learningActivity;
+  if (!activity || typeof activity !== "object") return [];
+
+  const lessons = asArray(activity.lessons);
+  const rules = asArray(activity.candidate_rules ?? activity.candidateRules);
+  const kpis = activity.kpis && typeof activity.kpis === "object" ? activity.kpis : {};
+
+  return lessons.map((lesson, index) => {
+    const area = cleanText(lesson.area || `Área ${index + 1}`);
+    const ruleId = cleanText(lesson.candidate_rule ?? lesson.candidateRule);
+    const rule = rules.find((candidate) => cleanText(candidate.rule_id ?? candidate.ruleId) === ruleId) ?? {};
+    const impacted = asArray(lesson.impacted_instruments ?? lesson.impactedInstruments).map(cleanText).filter(Boolean);
+    const evidence = asArray(lesson.evidence).map(cleanText).filter(Boolean);
+    const evidenceCount = Math.max(
+      evidence.length,
+      toNumber(kpis.unique_news_events_count, 0),
+      impacted.length > 0 ? 1 : 0,
+    );
+
+    return {
+      pain: cleanText(`Aprendizado semanal (${area}): ${lesson.lesson || "notícia relevante mudou a leitura da tese."}`),
+      remedy: cleanText(rule.action || ruleId || "Registrar a lição como regra candidata antes da próxima tese."),
+      expected_impact: cleanText(
+        rule.trigger
+          ? `Quando ${rule.trigger}, aplicar a regra em shadow e medir acerto nas próximas teses.`
+          : "Aumentar qualidade das próximas teses ao transformar notícia em critério mensurável.",
+      ),
+      applied_to: impacted,
+      evidence_count: evidenceCount,
+    };
+  });
 }
 
 function normalizeLearningLoop(note, index) {
@@ -984,6 +1050,9 @@ function buildFronts(dashboardSummary, goLiveTheses, now, thesisRows = []) {
     const goLive = goLiveTheses.filter((thesis) => thesis.front === front.label).length;
     const activeAssets = uniqueAssetCount(goLiveTheses.filter((thesis) => thesis.front === front.label));
     const tested = coalesce(overview.total_tested, overview.tested, overview.totalTested, derived.tested);
+    const resolvedCount = coalesce(overview.resolved_count, overview.resolvedCount, tested);
+    const mappedCount = coalesce(overview.mapped_count, overview.mappedCount, resolvedCount);
+    const countingPolicy = cleanText(coalesce(overview.counting_policy, overview.countingPolicy));
     const validatedPct = coalesce(
       overview.success_rate_pct,
       overview.validated_pct,
@@ -995,6 +1064,9 @@ function buildFronts(dashboardSummary, goLiveTheses, now, thesisRows = []) {
       id: front.id,
       label: front.label,
       tested: toNumber(tested, null),
+      resolvedCount: toNumber(resolvedCount, null),
+      mappedCount: toNumber(mappedCount, null),
+      countingPolicy,
       goLive,
       activeAssets,
       validatedPct: toNumber(validatedPct, null),
@@ -1371,6 +1443,8 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
   const calibrationRows = buildCalibrationRows(dashboardSummary, executiveSummary);
   const risk = buildRisk(dashboardSummary, coveredActiveTheses, thesisRows);
   const hasCalibrationCycleHistory = asArray(dashboardSummary?.calibration_cycles ?? dashboardSummary?.calibrationCycles).length > 0;
+  const realEstateCandidates = asArray(coalesce(payloads?.realEstateCandidates?.candidates, payloads?.realEstateCandidates?.items))
+    .map((candidate, index) => normalizeRealEstateCandidate(candidate, index, now));
 
   return {
     monitorTrust,
@@ -1393,6 +1467,7 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
     alertFeed: buildAlertFeed(dashboardSummary, coveredActiveTheses, risk),
     learningStats: buildLearningStats(scientificSummary, calibrationRows),
     dataQualityGate: dashboardSummary.data_quality_gate ?? null,
+    realEstateCandidates,
     realEstateStrategyTerritoryCandidates: normalizeRealEstateStrategyTerritoryCandidates(payloads?.realEstateStrategyTerritoryCandidates),
     phaseKickoffDate: cleanText(dashboardSummary.phase_kickoff_date),
     fronts: buildFronts(dashboardSummary, coveredActiveTheses, now, thesisRows),

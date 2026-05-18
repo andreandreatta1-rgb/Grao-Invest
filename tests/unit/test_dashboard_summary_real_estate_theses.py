@@ -134,3 +134,95 @@ def test_dashboard_summary_turns_real_estate_candidates_into_thesis_rows(
     assert closed_row["outcome"] == "Descartado pelo radar"
     assert closed_row["is_open"] is False
     assert closed_row["real_estate_analysis"]["suggested_status"] == "Descartado"
+
+
+def test_dashboard_summary_replaces_stale_seed_real_estate_candidate_with_database_state(
+    client,
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app import main as main_module
+
+    if not AUTH_DISABLED:
+        pytest.skip("Modo anonimo desativado no ambiente de teste.")
+
+    create_response = client.post(
+        "/api/real-estate/candidates",
+        json={
+            "title": "REAL - Jardim das Colinas SJC 65m2 regiao Shopping",
+            "source_url": "https://www.imovelweb.com.br/propriedades/apartamento-finalizado.html",
+            "origin": "Imovelweb",
+            "strategy": "Arbitragem sem reforma + venda direta",
+            "city": "Sao Jose dos Campos",
+            "neighborhood": "Jardim das Colinas",
+            "property_type": "Apartamento",
+            "asking_price": 460000.0,
+            "market_value_estimate": 598650.0,
+            "estimated_sale_base": 598650.0,
+            "renovation_type": "maquiagem",
+            "renovation_budget": 26000.0,
+            "carrying_months": 7,
+            "monthly_carrying_cost": 700.0,
+            "acquisition_costs": 23000.0,
+            "selling_commission_pct": 6.0,
+            "occupancy_status": "desconhecido",
+            "has_registration": False,
+            "condo_debt_known": False,
+            "iptu_debt_known": False,
+            "sale_comparables_count": 1,
+            "rent_comparables_count": 0,
+            "plan_b": "Arbitragem sem obra pesada, com maquiagem e revenda abaixo do m2 do ranking.",
+        },
+    )
+    assert create_response.status_code == 200
+    created = create_response.json()
+    thesis_id = f"IM-RADAR-{created['id']}"
+
+    discard_response = client.post(
+        f"/api/real-estate/candidates/{created['id']}/discard",
+        json={"reason": "Anuncio Imovelweb finalizado pelo anunciante."},
+    )
+    assert discard_response.status_code == 200
+
+    runtime_dir = tmp_path / "runtime"
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    (runtime_dir / "dashboard_seed.json").write_text(
+        main_module.json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_id": thesis_id,
+                        "front": "imoveis",
+                        "action": "REAL - Jardim das Colinas SJC 65m2 regiao Shopping",
+                        "phase": "pos_go_live",
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "is_open": True,
+                        "source_url": "https://www.imovelweb.com.br/propriedades/apartamento-finalizado.html",
+                        "structured_operation": "Arbitragem sem reforma + venda direta | Imovelweb",
+                        "operation_plan": "Preco pedido R$ 460,000.00 | Caixa necessario R$ 145,900.00",
+                        "real_estate_analysis": {"score": 72, "confidence": 30},
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    original_data_dir = main_module.data_dir
+    original_bundled_data_dir = main_module.bundled_data_dir
+    main_module.data_dir = runtime_dir
+    main_module.bundled_data_dir = runtime_dir
+    try:
+        response = client.get("/api/dashboard/summary/1")
+        assert response.status_code == 200
+        payload = response.json()
+    finally:
+        main_module.data_dir = original_data_dir
+        main_module.bundled_data_dir = original_bundled_data_dir
+
+    row = next(item for item in payload["thesis_open_operations"] if item["thesis_id"] == thesis_id)
+    assert row["status"] == "Fechada"
+    assert row["outcome"] == "Descartado pelo radar"
+    assert row["is_open"] is False
+    assert row["exit_rule"] == "Anuncio Imovelweb finalizado pelo anunciante."

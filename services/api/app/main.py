@@ -121,7 +121,10 @@ from app.services.crypto_history_provider import (
     CryptoHistoryProviderError,
     fetch_historical_crypto_candles,
 )
-from app.services.crypto_universe import default_crypto_instruments_csv
+from app.services.crypto_universe import (
+    default_crypto_instruments,
+    default_crypto_instruments_csv,
+)
 from app.services.data_quality import build_data_quality_gate_snapshot
 from app.services.feed_health import provider_feed_health, universe_coverage_snapshot
 from app.services.fundamentals import fundamentals_to_response, ingest_fundamentals
@@ -225,6 +228,7 @@ DEFAULT_CORS_ALLOW_ORIGINS = (
     "http://localhost:5173,http://127.0.0.1:5173,"
     "http://localhost:4173,http://127.0.0.1:4173,"
     "http://localhost:4174,http://127.0.0.1:4174,"
+    "http://localhost:4177,http://127.0.0.1:4177,"
     "https://thesis-lab-view.vercel.app,"
     "https://thesis-lab-view.lovable.app"
 )
@@ -2754,6 +2758,12 @@ def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, 
     visit_evidence = _parse_real_estate_visit_evidence(candidate.notes)
     analysis = build_candidate_analysis(base)
     status_value = candidate.status_override or str(analysis["suggested_status"])
+    if "descart" in str(status_value or "").lower():
+        analysis = {
+            **analysis,
+            "suggested_status": "Descartado",
+            "next_action": candidate.discard_reason or str(analysis.get("next_action") or ""),
+        }
     return {
         "id": candidate.id,
         "user_id": candidate.user_id,
@@ -2806,6 +2816,7 @@ def real_estate_candidates_list(
             "status_counts": dict(sorted(status_counts.items())),
         },
         "items": items,
+        "candidates": items,
     }
 
 
@@ -5370,7 +5381,11 @@ def dashboard_summary(
                 thesis_open_operations = promoted_open_operations
 
     def _append_real_estate_candidate_operations() -> None:
-        existing_ids = {str(row.get("thesis_id") or "") for row in thesis_open_operations}
+        existing_index_by_id = {
+            str(row.get("thesis_id") or ""): index
+            for index, row in enumerate(thesis_open_operations)
+            if str(row.get("thesis_id") or "")
+        }
         real_estate_candidates = list(
             db.scalars(
                 select(RealEstateCandidate)
@@ -5381,8 +5396,7 @@ def dashboard_summary(
         )
         for candidate in real_estate_candidates:
             thesis_id_value = f"IM-RADAR-{candidate.id}"
-            if thesis_id_value in existing_ids:
-                continue
+            existing_index = existing_index_by_id.get(thesis_id_value)
 
             candidate_payload = _real_estate_candidate_payload(candidate)
             analysis = candidate_payload.get("analysis")
@@ -5391,9 +5405,13 @@ def dashboard_summary(
                 field: candidate_payload.get(field)
                 for field in [
                     "strategy",
+                    "source_url",
+                    "origin",
                     "city",
                     "neighborhood",
                     "property_type",
+                    "asking_price",
+                    "market_value_estimate",
                     "private_area_m2",
                     "bedrooms",
                     "parking_spaces",
@@ -5517,34 +5535,42 @@ def dashboard_summary(
                 open_days = _duration_days(candidate.created_at, utc_now())
                 moment_result_pct = 0.0
 
-            thesis_open_operations.append(
-                {
-                    "phase": "pos_go_live",
-                    "thesis_number": len(thesis_open_operations) + 1,
-                    "thesis_id": thesis_id_value,
-                    "thesis_raised_at": candidate.created_at,
-                    "front": "imoveis",
-                    "source_url": candidate.source_url,
-                    "action": candidate.title,
-                    "thesis_reason": thesis_reason,
-                    "expected_result_pct": expected_result_pct,
-                    "operation_plan": operation_plan,
-                    "structured_operation": structured_operation,
-                    "entry_price_brl": asking_price,
-                    "current_price_brl": market_value,
-                    "latest_price_at": candidate.updated_at,
-                    "planned_exit_at": planned_exit_at_value,
-                    "exit_rule": exit_rule,
-                    "status": status_label,
-                    "outcome": outcome_label,
-                    "moment_result_pct": moment_result_pct,
-                    "duration_days": duration_days,
-                    "open_days": open_days,
-                    "learning_note": learning_note,
-                    "real_estate_analysis": real_estate_analysis,
-                }
-            )
-            existing_ids.add(thesis_id_value)
+            thesis_number = len(thesis_open_operations) + 1
+            if existing_index is not None:
+                thesis_number = _safe_int(
+                    thesis_open_operations[existing_index].get("thesis_number"),
+                    existing_index + 1,
+                )
+            operation_row = {
+                "phase": "pos_go_live",
+                "thesis_number": thesis_number,
+                "thesis_id": thesis_id_value,
+                "thesis_raised_at": candidate.created_at,
+                "front": "imoveis",
+                "source_url": candidate.source_url,
+                "action": candidate.title,
+                "thesis_reason": thesis_reason,
+                "expected_result_pct": expected_result_pct,
+                "operation_plan": operation_plan,
+                "structured_operation": structured_operation,
+                "entry_price_brl": asking_price,
+                "current_price_brl": market_value,
+                "latest_price_at": candidate.updated_at,
+                "planned_exit_at": planned_exit_at_value,
+                "exit_rule": exit_rule,
+                "status": status_label,
+                "outcome": outcome_label,
+                "moment_result_pct": moment_result_pct,
+                "duration_days": duration_days,
+                "open_days": open_days,
+                "learning_note": learning_note,
+                "real_estate_analysis": real_estate_analysis,
+            }
+            if existing_index is None:
+                thesis_open_operations.append(operation_row)
+                existing_index_by_id[thesis_id_value] = len(thesis_open_operations) - 1
+            else:
+                thesis_open_operations[existing_index] = operation_row
 
     _append_real_estate_candidate_operations()
 
@@ -5591,6 +5617,11 @@ def dashboard_summary(
             planned_exit_at=planned_exit_at,
         )
 
+    crypto_universe_instruments = {
+        instrument.upper()
+        for instrument in default_crypto_instruments(limit=None)
+    }
+
     def _operation_front_key(row: dict[str, object]) -> str:
         explicit_front = str(row.get("front") or "").strip().lower()
         if explicit_front in {"imoveis", "imóveis", "real_estate", "real-estate", "real estate"}:
@@ -5614,10 +5645,7 @@ def dashboard_summary(
             .upper()
             .split(" ")[0],
         )
-        if re.fullmatch(
-            r"(BTC|ETH|SOL|BNB|XRP|DOGE|MATIC|DOT|AVAX)(USDT|USD|BRL)?",
-            symbol,
-        ):
+        if symbol in crypto_universe_instruments or symbol.endswith("USDT"):
             return "crypto"
         if classify_instrument(symbol) in {"stock", "fii", "etf", "bdr"}:
             return "b3"
@@ -5635,17 +5663,59 @@ def dashboard_summary(
             or phase_text == "historico"
         )
 
-    def _normalize_front_overview_counts(front_overview: dict[str, object]) -> dict[str, object]:
+    def _front_row_stats(rows: list[dict[str, object]]) -> dict[str, dict[str, int]]:
+        stats: dict[str, dict[str, int]] = {}
+        for front_key in ("b3", "crypto", "real_estate"):
+            front_rows = [
+                row
+                for row in rows
+                if _operation_front_key(row) == front_key
+            ]
+            resolved_rows = [row for row in front_rows if _operation_is_resolved(row)]
+            successful_rows = [
+                row
+                for row in resolved_rows
+                if _safe_number(row.get("moment_result_pct"), -1.0) >= 0.0
+            ]
+            stats[front_key] = {
+                "mapped_count": len(front_rows),
+                "resolved_count": len(resolved_rows),
+                "success_count": len(successful_rows),
+            }
+        return stats
+
+    def _normalize_front_overview_counts(
+        front_overview: dict[str, object],
+        row_stats: dict[str, dict[str, int]] | None = None,
+    ) -> dict[str, object]:
         result: dict[str, object] = {}
         for front_key in ("b3", "crypto", "real_estate"):
             raw_item = front_overview.get(front_key) or front_overview.get(front_key.replace("_", ""))
             if not isinstance(raw_item, dict):
                 continue
             item = dict(raw_item)
+            stats = row_stats.get(front_key, {}) if isinstance(row_stats, dict) else {}
+            mapped_count = max(
+                _safe_int(item.get("mapped_count")),
+                _safe_int(item.get("tracked_count")),
+                _safe_int(stats.get("mapped_count")),
+            )
+            if mapped_count > 0:
+                item["mapped_count"] = mapped_count
             if front_key in {"b3", "crypto"}:
-                resolved_count = _safe_int(item.get("resolved_count"))
+                resolved_count = max(
+                    _safe_int(item.get("resolved_count")),
+                    _safe_int(stats.get("resolved_count")),
+                )
                 if resolved_count > 0:
+                    item["resolved_count"] = resolved_count
                     item["total_tested"] = resolved_count
+                success_count = max(
+                    _safe_int(item.get("success_count")),
+                    _safe_int(stats.get("success_count")),
+                )
+                if success_count > 0:
+                    item["success_count"] = success_count
                 item.setdefault("counting_policy", "resolved_historical")
             else:
                 item.setdefault("counting_policy", "radar_candidates")
@@ -5653,15 +5723,19 @@ def dashboard_summary(
         return result
 
     def _build_front_overview() -> dict[str, object]:
-        if isinstance(dashboard_seed, dict):
-            seed_front_overview = dashboard_seed.get("front_overview")
-            if isinstance(seed_front_overview, dict):
-                return _normalize_front_overview_counts(cast(dict[str, object], seed_front_overview))
-
         unique_rows: dict[str, dict[str, object]] = {}
         for index, row in enumerate(thesis_open_operations):
             key = str(row.get("thesis_id") or row.get("id") or f"row-{index}")
             unique_rows.setdefault(key, row)
+        row_stats = _front_row_stats(list(unique_rows.values()))
+
+        if isinstance(dashboard_seed, dict):
+            seed_front_overview = dashboard_seed.get("front_overview")
+            if isinstance(seed_front_overview, dict):
+                return _normalize_front_overview_counts(
+                    cast(dict[str, object], seed_front_overview),
+                    row_stats,
+                )
 
         global_success_rate = _safe_number(thesis_history_overview.get("success_rate_pct"), 0.0)
         result: dict[str, object] = {}
@@ -5671,23 +5745,21 @@ def dashboard_summary(
                 for row in unique_rows.values()
                 if _operation_front_key(row) == front_key
             ]
-            resolved_rows = [row for row in rows if _operation_is_resolved(row)]
-            successful_rows = [
-                row
-                for row in resolved_rows
-                if _safe_number(row.get("moment_result_pct"), -1.0) >= 0.0
-            ]
+            stats = row_stats.get(front_key, {})
+            resolved_count = _safe_int(stats.get("resolved_count"))
+            success_count = _safe_int(stats.get("success_count"))
             success_rate = (
-                round((len(successful_rows) / len(resolved_rows)) * 100.0, 2)
-                if resolved_rows
+                round((success_count / resolved_count) * 100.0, 2)
+                if resolved_count
                 else round(global_success_rate, 2)
             )
-            total_for_front = len(rows) if front_key == "real_estate" else len(resolved_rows)
+            total_for_front = len(rows) if front_key == "real_estate" else resolved_count
             result[front_key] = {
                 "total_tested": total_for_front,
                 "success_rate_pct": success_rate,
-                "resolved_count": len(resolved_rows),
-                "success_count": len(successful_rows),
+                "resolved_count": resolved_count,
+                "success_count": success_count,
+                "mapped_count": _safe_int(stats.get("mapped_count")),
                 "counting_policy": (
                     "radar_candidates"
                     if front_key == "real_estate"

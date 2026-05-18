@@ -11,16 +11,19 @@ import CockpitHalley from "./screens/CockpitHalley.jsx";
 import JornadaTese from "./screens/JornadaTese.jsx";
 import Metodo from "./screens/Metodo.jsx";
 import Mercado from "./screens/Mercado.jsx";
+import RadarImobiliario from "./screens/RadarImobiliario.jsx";
 import Risco from "./screens/Risco.jsx";
 import Saude from "./screens/Saude.jsx";
 import Teses from "./screens/Teses.jsx";
 
 const FEED_KEYS = ["dashboardSummary", "currentMonitor", "realEstateCandidates", "realEstateStrategyTerritoryCandidates"];
+const FALLBACK_RETRY_MS = 5000;
 const UI_REVISION = "UI rev soul-4";
 const BUILD_INFO_URL = "/api/frontend/version";
 const SCREEN_IDS = new Set([
   "dashboard",
   "teses",
+  "radar-imobiliario",
   "mercado",
   "backtest",
   "risco",
@@ -249,6 +252,18 @@ export default function App() {
   }, [refreshCockpitData]);
 
   useEffect(() => {
+    if (isInitialCockpitLoad || feedStatus !== "fallback") return undefined;
+
+    const retryId = window.setInterval(() => {
+      refreshCockpitData();
+    }, FALLBACK_RETRY_MS);
+
+    return () => {
+      window.clearInterval(retryId);
+    };
+  }, [feedStatus, isInitialCockpitLoad, refreshCockpitData]);
+
+  useEffect(() => {
     let isMounted = true;
 
     fetch(BUILD_INFO_URL, { cache: "no-store" })
@@ -293,6 +308,7 @@ export default function App() {
   const screens = {
     dashboard: <CockpitHalley data={cockpitData} />,
     teses: <Teses data={cockpitData} feedStatus={feedStatus} onRefresh={() => refreshCockpitData()} entryMode={tesesEntryMode} />,
+    "radar-imobiliario": <RadarImobiliario data={cockpitData} onRefresh={() => refreshCockpitData()} />,
     mercado: <Mercado data={cockpitData} />,
     backtest: <Backtest data={cockpitData} />,
     risco: <Risco data={cockpitData} />,

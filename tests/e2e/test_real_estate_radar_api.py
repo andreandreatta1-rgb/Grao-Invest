@@ -64,6 +64,7 @@ def test_real_estate_candidate_api_roundtrip(client) -> None:
     payload = list_response.json()
     assert payload["summary"]["total"] == 1
     assert payload["items"][0]["title"] == "Apto Sao Miguel Caixa"
+    assert payload["candidates"][0]["title"] == "Apto Sao Miguel Caixa"
 
     discard_response = client.post(
         f"/api/real-estate/candidates/{created['id']}/discard",

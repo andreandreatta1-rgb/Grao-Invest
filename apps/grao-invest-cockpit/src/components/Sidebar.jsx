@@ -4,6 +4,7 @@ import { fmtDate } from "../utils/formatters.js";
 const primaryNavItems = [
   { id: "dashboard", label: "Dashboard", icon: "target" },
   { id: "teses", label: "Teses", icon: "diamond" },
+  { id: "radar-imobiliario", label: "Radar Imobiliário", icon: "building" },
   { id: "mercado", label: "Mercado", icon: "wave" },
   { id: "backtest", label: "Validação", icon: "cycle" },
   { id: "risco", label: "Risco", icon: "risk" },
@@ -35,6 +36,17 @@ function NavIcon({ type }) {
         </>
       )}
       {type === "diamond" && <path d="M9 2.5 15 9l-6 6.5L3 9l6-6.5Z" {...common} />}
+      {type === "building" && (
+        <>
+          <path d="M4 15V3.5h7v3h3V15" {...common} />
+          <path d="M2.8 15h12.4" {...common} />
+          <path d="M6.2 6h2.1" {...common} />
+          <path d="M6.2 8.7h2.1" {...common} />
+          <path d="M6.2 11.4h2.1" {...common} />
+          <path d="M11 9h1.4" {...common} />
+          <path d="M11 11.4h1.4" {...common} />
+        </>
+      )}
       {type === "wave" && <path d="M2 10c2.2-3.6 4.5-3.6 6.8 0s4.6 3.6 7 0" {...common} />}
       {type === "cycle" && (
         <>

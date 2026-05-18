@@ -30,7 +30,7 @@ const PORTAL_FALLBACK = Object.freeze({
   ],
 });
 
-const REAL_ESTATE_DEMO_CASES = Object.freeze([
+export const REAL_ESTATE_DEMO_CASES = Object.freeze([
   {
     id: "#PER-01",
     title: "Rua Turiassú, 362 · Perdizes",
@@ -536,6 +536,9 @@ function EvidencePill({ label, value, note, color }) {
 }
 
 function ThesisIcon({ item, isOpen, size = 44 }) {
+  const iconText = String(item.icon || "•");
+  const compactIcon = iconText.length > 2;
+
   return (
     <span
       aria-hidden="true"
@@ -549,14 +552,15 @@ function ThesisIcon({ item, isOpen, size = 44 }) {
         color: item.color,
         display: "inline-flex",
         flexShrink: 0,
-        fontSize: Math.round(size * 0.43),
+        fontSize: Math.round(size * (compactIcon ? 0.29 : 0.43)),
         height: size,
         justifyContent: "center",
+        letterSpacing: 0,
         lineHeight: 1,
         width: size,
       }}
     >
-      {item.icon || "•"}
+      {iconText}
     </span>
   );
 }
@@ -764,7 +768,7 @@ function CompetitorMap({ item }) {
   const economics = caseEconomics(item);
   const reference = economics.saleBase || item.comparator || item.secondAuction || item.firstAuction;
   const competitors = [
-    { label: "Candidato", price: economics.purchase, x: 49, y: 52, color: C.gold, note: item.secondAuctionDate ? "2ª praça" : "entrada" },
+    { label: "Candidato", price: economics.purchase, x: 49, y: 52, color: C.gold, note: item.secondPriceLabel || (item.secondAuctionDate ? "2ª praça" : "entrada") },
     { label: "Ref. venda 01", price: reference, x: 68, y: 36, color: C.teal, note: "comparável base" },
     { label: "Ref. venda 02", price: Math.round(reference * 1.05), x: 30, y: 42, color: C.sky, note: "faixa alta" },
     { label: "Ref. venda 03", price: Math.round(reference * 0.94), x: 58, y: 70, color: C.purple, note: "faixa baixa" },
@@ -1003,7 +1007,7 @@ function FinancialOutcome({ item }) {
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 12 }}>
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 13 }}>
           <div style={{ color: C.gold, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.09em", marginBottom: 8, textTransform: "uppercase" }}>Custo final estimado</div>
-          <CostLine label="Lance 2ª praça" value={economics.purchase} color={C.gold} />
+          <CostLine label={item.purchaseCostLabel || `Lance ${item.secondPriceLabel || "2ª praça"}`} value={economics.purchase} color={C.gold} />
           <CostLine label="Comissão leiloeiro" value={economics.auctioneerFee} />
           <CostLine label="ITBI, registro e documentação" value={economics.acquisitionCosts} />
           <CostLine label="Reforma / regularização" value={economics.renovationCosts} />
@@ -1038,9 +1042,9 @@ function CandidateScreeningNumbers({ item }) {
         <div style={{ color: C.text, fontSize: 15, fontWeight: 900 }}>O que já dá para medir antes da diligência pesada</div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }}>
-        <KPICard label="1ª praça" value={money(item.firstAuction)} sub={item.firstAuctionDate} accent={C.sky} valueColor={C.sky} valueFontSize={18} />
-        <KPICard label="2ª praça" value={money(item.secondAuction)} sub={item.secondAuctionDate} accent={item.color} valueColor={item.color} valueFontSize={18} />
-        <KPICard label="Referência venda" value={money(item.comparator)} sub="saída a validar" accent={C.teal} valueColor={C.teal} valueFontSize={18} />
+        <KPICard label={item.firstPriceLabel || "1ª praça"} value={money(item.firstAuction)} sub={item.firstAuctionDate} accent={C.sky} valueColor={C.sky} valueFontSize={18} />
+        <KPICard label={item.secondPriceLabel || "2ª praça"} value={money(item.secondAuction)} sub={item.secondAuctionDate} accent={item.color} valueColor={item.color} valueFontSize={18} />
+        <KPICard label={item.salePriceLabel || "Referência venda"} value={money(item.comparator)} sub={item.salePriceNote || "saída a validar"} accent={C.teal} valueColor={C.teal} valueFontSize={18} />
         <KPICard label="Score / confiança" value={`${item.score}/${item.confidence}`} sub="potencial vs prova" accent={C.gold} valueColor={C.gold} valueFontSize={18} />
       </div>
       <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.55, margin: 0 }}>
@@ -1087,14 +1091,14 @@ function CaseNarrative({ item }) {
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           <Badge label={item.temporalStatus} type={statusBadgeType(item.temporalType)} />
-          <Badge label={`1ª: ${item.firstAuctionDate}`} type="neutral" />
-          <Badge label={`2ª: ${item.secondAuctionDate}`} type="info" />
+          <Badge label={`${item.firstBadgeLabel || "1ª"}: ${item.firstAuctionDate}`} type="neutral" />
+          <Badge label={`${item.secondBadgeLabel || "2ª"}: ${item.secondAuctionDate}`} type="info" />
           {economics.isModeled && <Badge label="financeiro preliminar" type="warning" />}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-          <StoryMetric label="1ª praça" value={money(item.firstAuction)} note="observa, não decide" color={C.sky} />
-          <StoryMetric label="2ª praça" value={money(item.secondAuction)} note="gatilho de investigação" color={item.color} />
-          <StoryMetric label="Referência de venda" value={money(economics.saleBase)} note="saída a validar" color={C.teal} />
+          <StoryMetric label={item.firstPriceLabel || "1ª praça"} value={money(item.firstAuction)} note={item.firstPriceNote || "observa, não decide"} color={C.sky} />
+          <StoryMetric label={item.secondPriceLabel || "2ª praça"} value={money(item.secondAuction)} note={item.secondPriceNote || "gatilho de investigação"} color={item.color} />
+          <StoryMetric label={item.salePriceLabel || "Referência de venda"} value={money(economics.saleBase)} note={item.salePriceNote || "saída a validar"} color={C.teal} />
           <StoryMetric label="Score" value={`${item.score}/100`} note={`confiança ${item.confidence}/100`} color={C.amber} />
         </div>
         <div style={{ background: withAlpha(C.coral, "10"), border: `1px solid ${withAlpha(C.coral, alpha.border)}`, borderRadius: 12, padding: 12 }}>
@@ -1108,8 +1112,8 @@ function CaseNarrative({ item }) {
 
       <div style={{ display: "grid", gap: 12 }}>
         <FlowStep step="1" color={C.sky} title="Território antes da unidade" text="O bairro e o entorno entram primeiro: liquidez, renda, metragem vendável, vaga, tipologia e demanda de usuário final." />
-        <FlowStep step="2" color={C.amber} title="1ª praça observa, não compra" text={`A ${money(item.firstAuction)}, o radar registra o sinal e evita gastar diligência pesada antes de existir margem.`} />
-        <FlowStep step="3" color={item.color} title="2ª praça cria a pergunta" text={`A ${money(item.secondAuction)}, contra referência de ${money(economics.saleBase)}, o caso merece investigação. Ainda não é compra: é tese candidata.`} />
+        <FlowStep step="2" color={C.amber} title={item.firstStepTitle || "1ª praça observa, não compra"} text={item.firstStepText || `A ${money(item.firstAuction)}, o radar registra o sinal e evita gastar diligência pesada antes de existir margem.`} />
+        <FlowStep step="3" color={item.color} title={item.secondStepTitle || "2ª praça cria a pergunta"} text={item.secondStepText || `A ${money(item.secondAuction)}, contra referência de ${money(economics.saleBase)}, o caso merece investigação. Ainda não é compra: é tese candidata.`} />
         <FlowStep step="4" color={C.coral} title="A diligência ainda manda" text="Ocupação, matrícula, débitos, forma de pagamento e comparável real decidem se a tese sobe, espera, simula ou morre cedo." />
         <div style={{ background: withAlpha(C.green, "10"), border: `1px solid ${withAlpha(C.green, alpha.border)}`, borderRadius: 12, color: C.text, fontSize: 13, fontWeight: 800, lineHeight: 1.5, padding: 14 }}>
           Patrick Jane: “{item.quote}”
@@ -1142,6 +1146,84 @@ function CaseDetailPackage({ item }) {
         Abrir fonte
       </a>
     </>
+  );
+}
+
+function hasSourceUrl(item) {
+  const sourceUrl = String(item?.sourceUrl || "").trim();
+  return Boolean(sourceUrl && sourceUrl !== "#");
+}
+
+function normalizeSourceText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function hasAnySourceMarker(text, markers) {
+  return markers.some((marker) => text.includes(marker));
+}
+
+const AUCTION_SOURCE_MARKERS = [
+  "arremat",
+  "caixa",
+  "leilao",
+  "leiloes",
+  "leeilon",
+  "portalzuk",
+  "projud",
+  "siteleiloes",
+  "venda-imoveis.caixa",
+  "zuk",
+];
+
+const DIRECT_SOURCE_MARKERS = [
+  "chaves na mao",
+  "chavesnamao",
+  "direcional",
+  "floraimoveis",
+  "imovelweb",
+  "lelloimoveis",
+  "olx",
+  "quintoandar",
+  "vivareal",
+  "zapimoveis",
+];
+
+function isAuctionListingSource(item) {
+  const sourceText = normalizeSourceText(`${item?.sourceUrl || ""} ${item?.sourceOrigin || ""} ${item?.sourceName || ""}`);
+  if (hasAnySourceMarker(sourceText, AUCTION_SOURCE_MARKERS)) return true;
+  if (hasAnySourceMarker(sourceText, DIRECT_SOURCE_MARKERS)) return false;
+
+  const strategyText = normalizeSourceText(`${item?.strategy || ""} ${item?.iconLabel || ""}`);
+  return hasAnySourceMarker(strategyText, AUCTION_SOURCE_MARKERS);
+}
+
+function SourceListingLink({ item }) {
+  if (!hasSourceUrl(item)) return null;
+  const label = isAuctionListingSource(item) ? "Ver leilão" : "Ver anúncio";
+
+  return (
+    <a
+      aria-label={`${label} ${item.title}`}
+      href={item.sourceUrl}
+      rel="noreferrer"
+      style={{
+        alignSelf: "flex-start",
+        color: C.gold,
+        display: "inline-flex",
+        fontFamily: mono,
+        fontSize: 9,
+        fontWeight: 900,
+        letterSpacing: "0.07em",
+        textDecoration: "none",
+        textTransform: "uppercase",
+      }}
+      target="_blank"
+    >
+      {label}
+    </a>
   );
 }
 
@@ -1190,6 +1272,9 @@ function CaseStoryCard({ item, isOpen, onToggle }) {
           </div>
         </button>
         <p style={{ color: C.muted, fontSize: 12, lineHeight: 1.6, margin: "10px 0 0" }}>{item.whyRadar}</p>
+        <div style={{ marginTop: 10 }}>
+          <SourceListingLink item={item} />
+        </div>
       </div>
 
       {isOpen && (
@@ -1199,16 +1284,23 @@ function CaseStoryCard({ item, isOpen, onToggle }) {
   );
 }
 
-function PerdizesCasePortfolio() {
+export function PerdizesCasePortfolio({
+  color = C.purple,
+  dataTestId = "perdizes-case-portfolio",
+  eyebrow = "Radar imobiliário",
+  intro = "Cada card nasce contraído para preservar foco. Há leilão, compra direta e renda urbana: abra um por vez para ver ficha, números, P0, comentário do laboratório e fonte.",
+  items = REAL_ESTATE_DEMO_CASES,
+  title = "Oito histórias para mostrar que o método não depende de um único imóvel",
+} = {}) {
   const [openCaseId, setOpenCaseId] = useState(null);
 
   return (
-    <Section data-testid="perdizes-case-portfolio" eyebrow="Radar imobiliário" title="Oito histórias para mostrar que o método não depende de um único imóvel" color={C.purple}>
+    <Section data-testid={dataTestId} eyebrow={eyebrow} title={title} color={color}>
       <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.65, margin: 0 }}>
-        Cada card nasce contraído para preservar foco. Há leilão, compra direta e renda urbana: abra um por vez para ver ficha, números, P0, comentário do laboratório e fonte.
+        {intro}
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-        {REAL_ESTATE_DEMO_CASES.map((item) => (
+        {items.map((item) => (
           <CaseStoryCard
             key={item.id}
             item={item}
