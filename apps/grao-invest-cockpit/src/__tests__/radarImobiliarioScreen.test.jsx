@@ -282,6 +282,7 @@ describe("Radar Imobiliário screen", () => {
           status: "Aberta - Atencao",
           statusGroup: "Go-live",
           isOpen: true,
+          canDiscard: true,
           asset: "REAL - Parque do Estado Agua Funda reforma pesada 50m2",
           entryPrice: 120000,
           targetPrice: 300000,

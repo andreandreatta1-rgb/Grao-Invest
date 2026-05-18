@@ -1228,7 +1228,7 @@ function SourceListingLink({ item }) {
 }
 
 function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle }) {
-  const canDiscard = item.isLiveCandidate && typeof onDiscard === "function" && /^#?IM-RADAR-\d+$/i.test(String(item.id || ""));
+  const canDiscard = item.canDiscard && item.isLiveCandidate && typeof onDiscard === "function" && /^#?IM-RADAR-\d+$/i.test(String(item.id || ""));
 
   return (
     <article style={{ background: C.panel, borderBottom: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderLeft: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderRight: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderTop: `2px solid ${item.color}`, borderRadius: 14, display: "grid", gap: 12, gridColumn: isOpen ? "1 / -1" : "auto", padding: 15, position: "relative", overflow: "hidden" }}>

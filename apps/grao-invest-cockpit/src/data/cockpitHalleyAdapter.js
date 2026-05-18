@@ -885,6 +885,7 @@ function normalizeRealEstateCandidate(candidate, index, now) {
     sourceOrigin: origin,
     strategy,
     realEstateAnalysis,
+    canDiscard: true,
   };
 }
 

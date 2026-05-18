@@ -421,6 +421,7 @@ function liveStoryFromRow(row, index) {
     secondStepText: `O teto disciplinado está em ${money(ceiling || entry)} e a saída base em ${money(saleBase)}. A decisão agora depende das provas abertas.`,
     isLiveCandidate: isOpen,
     isRealCandidate: true,
+    canDiscard: Boolean(row?.canDiscard || row?.canDiscardRealEstateCandidate || candidate.canDiscard || candidate.can_discard),
   };
 }
 
