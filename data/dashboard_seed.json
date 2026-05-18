@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-18T12:00:00+00:00",
+  "generated_at": "2026-05-18T17:55:59+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -12,7 +12,7 @@
     "avg_win_rate_pct": 75.94,
     "avg_return_pct": 2.9314,
     "approved_count": 1938,
-    "avg_drawdown_pct": 0,
+    "avg_drawdown_pct": 0.0,
     "window_start": "2026-04-20",
     "window_end": "2026-05-18"
   },
@@ -27,8 +27,8 @@
     "estimated_tax_brl": 0,
     "backtest_runs": 1,
     "backtest_trades": 5,
-    "avg_expected_pct": 0,
-    "avg_backtest_return_pct": 0,
+    "avg_expected_pct": 0.0,
+    "avg_backtest_return_pct": 0.0,
     "approved_count": 1,
     "monitoring_days": 1,
     "last_order_at": null
@@ -39,12 +39,12 @@
       "paper_orders": 0,
       "accepted_orders": 0,
       "rejected_orders": 0,
-      "gross_amount_brl": 0,
-      "estimated_cost_brl": 0,
-      "estimated_tax_brl": 0,
+      "gross_amount_brl": 0.0,
+      "estimated_cost_brl": 0.0,
+      "estimated_tax_brl": 0.0,
       "backtest_runs": 1,
       "backtest_trades": 5,
-      "avg_backtest_return_pct": 0
+      "avg_backtest_return_pct": 0.0
     }
   ],
   "thesis_history_overview": {
@@ -55,13 +55,13 @@
     "expectancy_net_pct": 2.9313,
     "target_rate_pct": 75.94,
     "stop_rate_pct": 24.06,
-    "time_exit_rate_pct": 0,
-    "open_rate_pct": 0,
+    "time_exit_rate_pct": 0.0,
+    "open_rate_pct": 0.0,
     "resolved_count": 2552,
     "open_count": 0,
     "avg_target_return_pct": 4.341,
     "avg_stop_return_pct": -1.5179,
-    "avg_time_return_pct": 0,
+    "avg_time_return_pct": 0.0,
     "window_start": "2026-04-20",
     "window_end": "2026-05-18",
     "last_3_weeks": [
@@ -236,8 +236,8 @@
     "current": {
       "period_label": "desde 2026-04-27 (simulacao atual)",
       "thesis_count": 0,
-      "expected_pct": 0,
-      "achieved_pct": 0,
+      "expected_pct": 0.0,
+      "achieved_pct": 0.0,
       "approved_count": 1
     }
   },
@@ -73755,7 +73755,7 @@
       "exit_rule": "Preco/confirmacoes romperam o limite de risco; nao aumentar exposicao.",
       "status": "Aberta - Invalidada",
       "outcome": "Tese invalidada",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 4,
       "learning_note": "Choque macro/politico/global entrou como penalidade; revisar se o padrao deve virar regra fixa.",
@@ -73824,7 +73824,7 @@
       "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
       "status": "Aberta - Atencao",
       "outcome": "Atencao",
-      "moment_result_pct": 0,
+      "moment_result_pct": -0.0,
       "duration_days": null,
       "open_days": 4,
       "learning_note": "Choque macro/politico/global entrou como penalidade; revisar se o padrao deve virar regra fixa.",
@@ -73847,7 +73847,7 @@
       "exit_rule": "Reavaliar na proxima barra; se piorar, reduzir risco.",
       "status": "Aberta - Atencao",
       "outcome": "Atencao",
-      "moment_result_pct": 0,
+      "moment_result_pct": -0.0,
       "duration_days": null,
       "open_days": 4,
       "learning_note": "Choque macro/politico/global entrou como penalidade; revisar se o padrao deve virar regra fixa.",
@@ -74063,17 +74063,762 @@
     {
       "phase": "pos_go_live",
       "thesis_number": 3883,
+      "thesis_id": "IM-FOLHA-FRAZAO-SAUDE-37528",
+      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
+      "front": "imoveis",
+      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
+      "source_validation": {
+        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
+        "status": "valid",
+        "reason": "Fonte individual validada.",
+        "checked_at": "2026-05-18T12:00:00+00:00",
+        "http_status": 200
+      },
+      "source_validation_status": "valid",
+      "source_validation_reason": "Fonte individual validada.",
+      "source_checked_at": "2026-05-18T12:00:00+00:00",
+      "action": "REAL - Frazão Itaú Saúde Rua Abagiba 74m2",
+      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Saude / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
+      "expected_result_pct": 7.45,
+      "operation_plan": "Preco pedido R$ 388,700.00 | Teto de compra R$ 334,958.60 | Caixa necessario R$ 166,097.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
+      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Apartamento | Acima do teto",
+      "entry_price_brl": 388700,
+      "current_price_brl": 500000,
+      "latest_price_at": "2026-05-18T12:00:00+00:00",
+      "planned_exit_at": "2026-05-25",
+      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
+      "moment_result_pct": 0,
+      "duration_days": null,
+      "open_days": 1,
+      "is_open": true,
+      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
+      "real_estate_analysis": {
+        "score": 66,
+        "confidence": 39,
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
+        "score_breakdown": [],
+        "confidence_breakdown": [],
+        "pending_items": [
+          {
+            "key": "occupied_auction",
+            "title": "Avaliar risco de imovel ocupado",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
+          },
+          {
+            "key": "registration",
+            "title": "Buscar matricula atualizada",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
+          },
+          {
+            "key": "debts",
+            "title": "Confirmar dividas e responsabilidades",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
+          },
+          {
+            "key": "sale_comparables",
+            "title": "Buscar 3 comparaveis de venda",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
+          }
+        ],
+        "clarified_items": [
+          {
+            "key": "source_validation",
+            "title": "Fonte individual validada",
+            "status": "esclarecido",
+            "detail": "A app confirmou link individual do lote na Frazão Leilões."
+          }
+        ],
+        "scenarios": {
+          "conservative": {
+            "sale_price": 465000,
+            "net_profit": -20522,
+            "roi_pct": -12.36
+          },
+          "base": {
+            "sale_price": 500000,
+            "net_profit": 12378,
+            "roi_pct": 7.45
+          },
+          "optimistic": {
+            "sale_price": 525000,
+            "net_profit": 35878,
+            "roi_pct": 21.6
+          }
+        },
+        "breakeven_sale_price": 486831.91,
+        "max_purchase_price": 334958.6,
+        "price_gap_to_ceiling": 53741.4,
+        "price_ceiling_status": "Acima do teto",
+        "target_roi_pct": 20,
+        "cash_needed": 166097,
+        "base_profit_pct": 3.18,
+        "source_validation": {
+          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
+          "status": "valid",
+          "reason": "Fonte individual validada.",
+          "checked_at": "2026-05-18T12:00:00+00:00",
+          "http_status": 200
+        },
+        "candidate": {
+          "strategy": "Leilao + HF",
+          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
+          "origin": "Frazao Leiloes / Itau",
+          "city": "Sao Paulo",
+          "neighborhood": "Saude",
+          "property_type": "Apartamento",
+          "asking_price": 388700,
+          "market_value_estimate": 500000,
+          "private_area_m2": 74.14,
+          "bedrooms": 0,
+          "parking_spaces": 1,
+          "renovation_type": "leve",
+          "renovation_budget": 28000,
+          "sale_comparables_count": 0,
+          "rent_comparables_count": 0,
+          "carrying_months": 8,
+          "monthly_carrying_cost": 2200,
+          "estimated_sale_base": 500000,
+          "estimated_sale_conservative": 465000,
+          "estimated_sale_optimistic": 525000,
+          "notes": "Lote 044 do leilao Itau/Frazao 3609. Imovel ocupado; sem visita; condominio/IPTU segundo edital devem ser lidos antes de qualquer lance.",
+          "source_validation_status": "valid",
+          "source_validation_reason": "Fonte individual validada.",
+          "source_checked_at": "2026-05-18T12:00:00+00:00",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
+            "status": "valid",
+            "reason": "Fonte individual validada.",
+            "checked_at": "2026-05-18T12:00:00+00:00",
+            "http_status": 200
+          }
+        },
+        "visit_evidence": []
+      }
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 3884,
+      "thesis_id": "IM-FOLHA-FRAZAO-PARADA-INGLESA-37570",
+      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
+      "front": "imoveis",
+      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
+      "source_validation": {
+        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
+        "status": "valid",
+        "reason": "Fonte individual validada.",
+        "checked_at": "2026-05-18T12:00:00+00:00",
+        "http_status": 200
+      },
+      "source_validation_status": "valid",
+      "source_validation_reason": "Fonte individual validada.",
+      "source_checked_at": "2026-05-18T12:00:00+00:00",
+      "action": "REAL - Frazão Itaú Parada Inglesa casa vila 105m2",
+      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Parada Inglesa / Tucuruvi / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
+      "expected_result_pct": 35.31,
+      "operation_plan": "Preco pedido R$ 399,400.00 | Teto de compra R$ 390,133.20 | Caixa necessario R$ 185,014.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
+      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Casa de vila | Acima do teto",
+      "entry_price_brl": 399400,
+      "current_price_brl": 585000,
+      "latest_price_at": "2026-05-18T12:00:00+00:00",
+      "planned_exit_at": "2026-05-25",
+      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
+      "moment_result_pct": 0,
+      "duration_days": null,
+      "open_days": 1,
+      "is_open": true,
+      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
+      "real_estate_analysis": {
+        "score": 71,
+        "confidence": 40,
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
+        "score_breakdown": [],
+        "confidence_breakdown": [],
+        "pending_items": [
+          {
+            "key": "occupied_auction",
+            "title": "Avaliar risco de imovel ocupado",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
+          },
+          {
+            "key": "registration",
+            "title": "Buscar matricula atualizada",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
+          },
+          {
+            "key": "debts",
+            "title": "Confirmar dividas e responsabilidades",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
+          },
+          {
+            "key": "sale_comparables",
+            "title": "Buscar 3 comparaveis de venda",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
+          }
+        ],
+        "clarified_items": [
+          {
+            "key": "source_validation",
+            "title": "Fonte individual validada",
+            "status": "esclarecido",
+            "detail": "A app confirmou link individual do lote na Frazão Leilões."
+          }
+        ],
+        "scenarios": {
+          "conservative": {
+            "sale_price": 545000,
+            "net_profit": 27736,
+            "roi_pct": 14.99
+          },
+          "base": {
+            "sale_price": 585000,
+            "net_profit": 65336,
+            "roi_pct": 35.31
+          },
+          "optimistic": {
+            "sale_price": 620000,
+            "net_profit": 98236,
+            "roi_pct": 53.1
+          }
+        },
+        "breakeven_sale_price": 515493.62,
+        "max_purchase_price": 390133.2,
+        "price_gap_to_ceiling": 9266.8,
+        "price_ceiling_status": "Acima do teto",
+        "target_roi_pct": 20,
+        "cash_needed": 185014,
+        "base_profit_pct": 16.36,
+        "source_validation": {
+          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
+          "status": "valid",
+          "reason": "Fonte individual validada.",
+          "checked_at": "2026-05-18T12:00:00+00:00",
+          "http_status": 200
+        },
+        "candidate": {
+          "strategy": "Leilao + HF",
+          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
+          "origin": "Frazao Leiloes / Itau",
+          "city": "Sao Paulo",
+          "neighborhood": "Parada Inglesa / Tucuruvi",
+          "property_type": "Casa de vila",
+          "asking_price": 399400,
+          "market_value_estimate": 585000,
+          "private_area_m2": 105.38,
+          "bedrooms": 0,
+          "parking_spaces": 2,
+          "renovation_type": "leve",
+          "renovation_budget": 42000,
+          "sale_comparables_count": 0,
+          "rent_comparables_count": 0,
+          "carrying_months": 8,
+          "monthly_carrying_cost": 2400,
+          "estimated_sale_base": 585000,
+          "estimated_sale_conservative": 545000,
+          "estimated_sale_optimistic": 620000,
+          "notes": "Lote 084 do leilao Itau/Frazao 3609. Casa em vila/condominio ocupada; tese depende de leitura de desocupacao e liquidez local.",
+          "source_validation_status": "valid",
+          "source_validation_reason": "Fonte individual validada.",
+          "source_checked_at": "2026-05-18T12:00:00+00:00",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
+            "status": "valid",
+            "reason": "Fonte individual validada.",
+            "checked_at": "2026-05-18T12:00:00+00:00",
+            "http_status": 200
+          }
+        },
+        "visit_evidence": []
+      }
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 3885,
+      "thesis_id": "IM-FOLHA-FRAZAO-CAMPINAS-37386",
+      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
+      "front": "imoveis",
+      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
+      "source_validation": {
+        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
+        "status": "valid",
+        "reason": "Fonte individual validada.",
+        "checked_at": "2026-05-18T12:00:00+00:00",
+        "http_status": 200
+      },
+      "source_validation_status": "valid",
+      "source_validation_reason": "Fonte individual validada.",
+      "source_checked_at": "2026-05-18T12:00:00+00:00",
+      "action": "REAL - Frazão Itaú Campinas Jardim Garcia casa 270m2",
+      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Jardim Garcia / Campinas. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
+      "expected_result_pct": 28.69,
+      "operation_plan": "Preco pedido R$ 433,400.00 | Teto de compra R$ 401,965.20 | Caixa necessario R$ 233,154.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
+      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Casa | Acima do teto",
+      "entry_price_brl": 433400,
+      "current_price_brl": 665000,
+      "latest_price_at": "2026-05-18T12:00:00+00:00",
+      "planned_exit_at": "2026-05-25",
+      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
+      "moment_result_pct": 0,
+      "duration_days": null,
+      "open_days": 1,
+      "is_open": true,
+      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
+      "real_estate_analysis": {
+        "score": 68,
+        "confidence": 38,
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
+        "score_breakdown": [],
+        "confidence_breakdown": [],
+        "pending_items": [
+          {
+            "key": "occupied_auction",
+            "title": "Avaliar risco de imovel ocupado",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
+          },
+          {
+            "key": "registration",
+            "title": "Buscar matricula atualizada",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
+          },
+          {
+            "key": "debts",
+            "title": "Confirmar dividas e responsabilidades",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
+          },
+          {
+            "key": "sale_comparables",
+            "title": "Buscar 3 comparaveis de venda",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
+          }
+        ],
+        "clarified_items": [
+          {
+            "key": "source_validation",
+            "title": "Fonte individual validada",
+            "status": "esclarecido",
+            "detail": "A app confirmou link individual do lote na Frazão Leilões."
+          }
+        ],
+        "scenarios": {
+          "conservative": {
+            "sale_price": 610000,
+            "net_profit": 15196,
+            "roi_pct": 6.52
+          },
+          "base": {
+            "sale_price": 665000,
+            "net_profit": 66896,
+            "roi_pct": 28.69
+          },
+          "optimistic": {
+            "sale_price": 710000,
+            "net_profit": 109196,
+            "roi_pct": 46.83
+          }
+        },
+        "breakeven_sale_price": 593834.04,
+        "max_purchase_price": 401965.2,
+        "price_gap_to_ceiling": 31434.8,
+        "price_ceiling_status": "Acima do teto",
+        "target_roi_pct": 20,
+        "cash_needed": 233154,
+        "base_profit_pct": 15.44,
+        "source_validation": {
+          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
+          "status": "valid",
+          "reason": "Fonte individual validada.",
+          "checked_at": "2026-05-18T12:00:00+00:00",
+          "http_status": 200
+        },
+        "candidate": {
+          "strategy": "Leilao + HF",
+          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
+          "origin": "Frazao Leiloes / Itau",
+          "city": "Campinas",
+          "neighborhood": "Jardim Garcia",
+          "property_type": "Casa",
+          "asking_price": 433400,
+          "market_value_estimate": 665000,
+          "private_area_m2": 270.91,
+          "bedrooms": 0,
+          "parking_spaces": 0,
+          "renovation_type": "retrofit controlado",
+          "renovation_budget": 78000,
+          "sale_comparables_count": 0,
+          "rent_comparables_count": 0,
+          "carrying_months": 8,
+          "monthly_carrying_cost": 2600,
+          "estimated_sale_base": 665000,
+          "estimated_sale_conservative": 610000,
+          "estimated_sale_optimistic": 710000,
+          "notes": "Lote 124 do leilao Itau/Frazao 3609. Casa ocupada em Campinas; candidato entra por metragem, mas reforma e posse sao P0.",
+          "source_validation_status": "valid",
+          "source_validation_reason": "Fonte individual validada.",
+          "source_checked_at": "2026-05-18T12:00:00+00:00",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
+            "status": "valid",
+            "reason": "Fonte individual validada.",
+            "checked_at": "2026-05-18T12:00:00+00:00",
+            "http_status": 200
+          }
+        },
+        "visit_evidence": []
+      }
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 3886,
+      "thesis_id": "IM-FOLHA-FRAZAO-BUTANTA-37467",
+      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
+      "front": "imoveis",
+      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
+      "source_validation": {
+        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
+        "status": "valid",
+        "reason": "Fonte individual validada.",
+        "checked_at": "2026-05-18T12:00:00+00:00",
+        "http_status": 200
+      },
+      "source_validation_status": "valid",
+      "source_validation_reason": "Fonte individual validada.",
+      "source_checked_at": "2026-05-18T12:00:00+00:00",
+      "action": "REAL - Frazão Itaú Butantã Piazza Morumbi 232m2",
+      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Butanta / Morumbi / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
+      "expected_result_pct": 7.62,
+      "operation_plan": "Preco pedido R$ 749,600.00 | Teto de compra R$ 617,228.80 | Caixa necessario R$ 385,976.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
+      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Apartamento | Acima do teto",
+      "entry_price_brl": 749600,
+      "current_price_brl": 1040000,
+      "latest_price_at": "2026-05-18T12:00:00+00:00",
+      "planned_exit_at": "2026-05-25",
+      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
+      "moment_result_pct": 0,
+      "duration_days": null,
+      "open_days": 1,
+      "is_open": true,
+      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
+      "real_estate_analysis": {
+        "score": 62,
+        "confidence": 37,
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
+        "score_breakdown": [],
+        "confidence_breakdown": [],
+        "pending_items": [
+          {
+            "key": "occupied_auction",
+            "title": "Avaliar risco de imovel ocupado",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
+          },
+          {
+            "key": "registration",
+            "title": "Buscar matricula atualizada",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
+          },
+          {
+            "key": "debts",
+            "title": "Confirmar dividas e responsabilidades",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
+          },
+          {
+            "key": "sale_comparables",
+            "title": "Buscar 3 comparaveis de venda",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
+          }
+        ],
+        "clarified_items": [
+          {
+            "key": "source_validation",
+            "title": "Fonte individual validada",
+            "status": "esclarecido",
+            "detail": "A app confirmou link individual do lote na Frazão Leilões."
+          }
+        ],
+        "scenarios": {
+          "conservative": {
+            "sale_price": 950000,
+            "net_profit": -55176,
+            "roi_pct": -14.3
+          },
+          "base": {
+            "sale_price": 1040000,
+            "net_profit": 29424,
+            "roi_pct": 7.62
+          },
+          "optimistic": {
+            "sale_price": 1110000,
+            "net_profit": 95224,
+            "roi_pct": 24.67
+          }
+        },
+        "breakeven_sale_price": 1008697.87,
+        "max_purchase_price": 617228.8,
+        "price_gap_to_ceiling": 132371.2,
+        "price_ceiling_status": "Acima do teto",
+        "target_roi_pct": 20,
+        "cash_needed": 385976,
+        "base_profit_pct": 3.93,
+        "source_validation": {
+          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
+          "status": "valid",
+          "reason": "Fonte individual validada.",
+          "checked_at": "2026-05-18T12:00:00+00:00",
+          "http_status": 200
+        },
+        "candidate": {
+          "strategy": "Leilao + HF",
+          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
+          "origin": "Frazao Leiloes / Itau",
+          "city": "Sao Paulo",
+          "neighborhood": "Butanta / Morumbi",
+          "property_type": "Apartamento",
+          "asking_price": 749600,
+          "market_value_estimate": 1040000,
+          "private_area_m2": 232.23,
+          "bedrooms": 0,
+          "parking_spaces": 3,
+          "renovation_type": "retrofit controlado",
+          "renovation_budget": 120000,
+          "sale_comparables_count": 0,
+          "rent_comparables_count": 0,
+          "carrying_months": 8,
+          "monthly_carrying_cost": 4200,
+          "estimated_sale_base": 1040000,
+          "estimated_sale_conservative": 950000,
+          "estimated_sale_optimistic": 1110000,
+          "notes": "Lote 121 do leilao Itau/Frazao 3609. Apartamento grande ocupado; caixa alto e retrofit exigem margem conservadora robusta.",
+          "source_validation_status": "valid",
+          "source_validation_reason": "Fonte individual validada.",
+          "source_checked_at": "2026-05-18T12:00:00+00:00",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
+            "status": "valid",
+            "reason": "Fonte individual validada.",
+            "checked_at": "2026-05-18T12:00:00+00:00",
+            "http_status": 200
+          }
+        },
+        "visit_evidence": []
+      }
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 3887,
+      "thesis_id": "IM-FOLHA-FRAZAO-BELENZINHO-37539",
+      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
+      "front": "imoveis",
+      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
+      "source_validation": {
+        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
+        "status": "valid",
+        "reason": "Fonte individual validada.",
+        "checked_at": "2026-05-18T12:00:00+00:00",
+        "http_status": 200
+      },
+      "source_validation_status": "valid",
+      "source_validation_reason": "Fonte individual validada.",
+      "source_checked_at": "2026-05-18T12:00:00+00:00",
+      "action": "REAL - Frazão Itaú Belenzinho In Parque Belém 74m2",
+      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Belenzinho / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
+      "expected_result_pct": -1.67,
+      "operation_plan": "Preco pedido R$ 677,700.00 | Teto de compra R$ 567,660.60 | Caixa necessario R$ 290,887.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
+      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Apartamento | Acima do teto",
+      "entry_price_brl": 677700,
+      "current_price_brl": 845000,
+      "latest_price_at": "2026-05-18T12:00:00+00:00",
+      "planned_exit_at": "2026-05-25",
+      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
+      "moment_result_pct": 0,
+      "duration_days": null,
+      "open_days": 1,
+      "is_open": true,
+      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
+      "real_estate_analysis": {
+        "score": 58,
+        "confidence": 36,
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
+        "score_breakdown": [],
+        "confidence_breakdown": [],
+        "pending_items": [
+          {
+            "key": "occupied_auction",
+            "title": "Avaliar risco de imovel ocupado",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
+          },
+          {
+            "key": "registration",
+            "title": "Buscar matricula atualizada",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
+          },
+          {
+            "key": "debts",
+            "title": "Confirmar dividas e responsabilidades",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
+          },
+          {
+            "key": "sale_comparables",
+            "title": "Buscar 3 comparaveis de venda",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
+          }
+        ],
+        "clarified_items": [
+          {
+            "key": "source_validation",
+            "title": "Fonte individual validada",
+            "status": "esclarecido",
+            "detail": "A app confirmou link individual do lote na Frazão Leilões."
+          }
+        ],
+        "scenarios": {
+          "conservative": {
+            "sale_price": 795000,
+            "net_profit": -51862,
+            "roi_pct": -17.83
+          },
+          "base": {
+            "sale_price": 845000,
+            "net_profit": -4862,
+            "roi_pct": -1.67
+          },
+          "optimistic": {
+            "sale_price": 890000,
+            "net_profit": 37438,
+            "roi_pct": 12.87
+          }
+        },
+        "breakeven_sale_price": 850172.34,
+        "max_purchase_price": 567660.6,
+        "price_gap_to_ceiling": 110039.4,
+        "price_ceiling_status": "Acima do teto",
+        "target_roi_pct": 20,
+        "cash_needed": 290887,
+        "base_profit_pct": -0.72,
+        "source_validation": {
+          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
+          "status": "valid",
+          "reason": "Fonte individual validada.",
+          "checked_at": "2026-05-18T12:00:00+00:00",
+          "http_status": 200
+        },
+        "candidate": {
+          "strategy": "Leilao + HF",
+          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
+          "origin": "Frazao Leiloes / Itau",
+          "city": "Sao Paulo",
+          "neighborhood": "Belenzinho",
+          "property_type": "Apartamento",
+          "asking_price": 677700,
+          "market_value_estimate": 845000,
+          "private_area_m2": 74.63,
+          "bedrooms": 0,
+          "parking_spaces": 2,
+          "renovation_type": "leve",
+          "renovation_budget": 52000,
+          "sale_comparables_count": 0,
+          "rent_comparables_count": 0,
+          "carrying_months": 8,
+          "monthly_carrying_cost": 3600,
+          "estimated_sale_base": 845000,
+          "estimated_sale_conservative": 795000,
+          "estimated_sale_optimistic": 890000,
+          "notes": "Lote 055 do leilao Itau/Frazao 3609. Preco alto para primeiro filtro; segue no radar para comparar m2, liquidez e risco de ocupacao.",
+          "source_validation_status": "valid",
+          "source_validation_reason": "Fonte individual validada.",
+          "source_checked_at": "2026-05-18T12:00:00+00:00",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
+            "status": "valid",
+            "reason": "Fonte individual validada.",
+            "checked_at": "2026-05-18T12:00:00+00:00",
+            "http_status": 200
+          }
+        },
+        "visit_evidence": []
+      }
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 3888,
       "thesis_id": "IM-RADAR-20",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.imovelweb.com.br/propriedades/apartamento-para-venda-regiao-do-jardim-colinas%21%21%21-3015492306.html",
+      "source_validation": {
+        "url": "https://www.imovelweb.com.br/propriedades/apartamento-para-venda-regiao-do-jardim-colinas%21%21%21-3015492306.html",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Jardim das Colinas SJC 65m2 regiao Shopping",
       "thesis_reason": "Radar imobiliario: Imovelweb em Jardim das Colinas / Sao Jose dos Campos. Score 72/100, confianca 30/100, status Descartado.",
       "expected_result_pct": 33.47,
       "operation_plan": "Preco pedido R$ 460,000.00 | Teto de compra R$ 423,377.90 | Caixa necessario R$ 145,900.00 | Proximo passo: Anuncio Imovelweb finalizado pelo anunciante; fonte publica nao esta mais publicada. Encerrar este candidato e, se fizer sentido, abrir novo caso apenas com link individual de anuncio semelhante ainda ativo.",
       "structured_operation": "Arbitragem sem reforma + venda direta | Imovelweb | Apartamento | Acima do teto",
-      "entry_price_brl": 460000,
-      "current_price_brl": 598650,
+      "entry_price_brl": 460000.0,
+      "current_price_brl": 598650.0,
       "latest_price_at": "2026-05-18T02:16:39+00:00",
       "planned_exit_at": "",
       "exit_rule": "Anuncio Imovelweb finalizado pelo anunciante; fonte publica nao esta mais publicada. Encerrar este candidato e, se fizer sentido, abrir novo caso apenas com link individual de anuncio semelhante ainda ativo.",
@@ -74082,7 +74827,7 @@
       "moment_result_pct": 33.47,
       "duration_days": 0,
       "open_days": null,
-      "learning_note": "Aprendizado: candidato descartado pelo radar. Revisar preco teto, margem conservadora e pendencias antes de reabrir.",
+      "learning_note": "Aprendizado: candidato fora do radar ativo. Revisar fonte, preco teto, margem conservadora e pendencias antes de reabrir.",
       "real_estate_analysis": {
         "score": 72,
         "confidence": 30,
@@ -74230,6 +74975,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -74287,17 +75039,17 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 538785,
+            "sale_price": 538785.0,
             "net_profit": -7442.1,
             "roi_pct": -5.1
           },
           "base": {
-            "sale_price": 598650,
-            "net_profit": 48831,
+            "sale_price": 598650.0,
+            "net_profit": 48831.0,
             "roi_pct": 33.47
           },
           "optimistic": {
-            "sale_price": 628583,
+            "sale_price": 628583.0,
             "net_profit": 76968.02,
             "roi_pct": 52.75
           }
@@ -74306,9 +75058,16 @@
         "max_purchase_price": 423377.9,
         "price_gap_to_ceiling": 36622.1,
         "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 145900,
+        "target_roi_pct": 20.0,
+        "cash_needed": 145900.0,
         "base_profit_pct": 10.62,
+        "source_validation": {
+          "url": "https://www.imovelweb.com.br/propriedades/apartamento-para-venda-regiao-do-jardim-colinas%21%21%21-3015492306.html",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "Arbitragem sem reforma + venda direta",
           "source_url": "https://www.imovelweb.com.br/propriedades/apartamento-para-venda-regiao-do-jardim-colinas%21%21%21-3015492306.html",
@@ -74316,22 +75075,32 @@
           "city": "Sao Jose dos Campos",
           "neighborhood": "Jardim das Colinas",
           "property_type": "Apartamento",
-          "asking_price": 460000,
-          "market_value_estimate": 598650,
-          "private_area_m2": 65,
+          "asking_price": 460000.0,
+          "market_value_estimate": 598650.0,
+          "private_area_m2": 65.0,
           "bedrooms": 2,
           "parking_spaces": 1,
           "renovation_type": "maquiagem",
-          "renovation_budget": 26000,
+          "renovation_budget": 26000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 0,
           "carrying_months": 7,
-          "monthly_carrying_cost": 700,
-          "estimated_sale_base": 598650,
-          "estimated_sale_conservative": 538785,
-          "estimated_sale_optimistic": 628583,
+          "monthly_carrying_cost": 700.0,
+          "estimated_sale_base": 598650.0,
+          "estimated_sale_conservative": 538785.0,
+          "estimated_sale_optimistic": 628583.0,
           "notes": "Lead veio do Reel @saopaulointerior: Jardim das Colinas aparece como 3o bairro a R$ 9.210/m2. Listagem indica 65m2 por R$460 mil; precisa confirmar endereco, predio e liquidez real.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.imovelweb.com.br/propriedades/apartamento-para-venda-regiao-do-jardim-colinas%21%21%21-3015492306.html",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -74339,32 +75108,42 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3884,
+      "thesis_number": 3889,
       "thesis_id": "IM-RADAR-25",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+      "source_validation": {
+        "url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Alphaville Campinas flat Ibis Styles 32m2",
       "thesis_reason": "Radar imobiliario: Chaves na Mao em Alphaville Campinas / Campinas. Score 82/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 96.88,
-      "operation_plan": "Preco pedido R$ 152,000.00 | Teto de compra R$ 168,080.00 | Caixa necessario R$ 57,600.00 | Proximo passo: Confirmar ocupacao",
+      "operation_plan": "Preco pedido R$ 152,000.00 | Teto de compra R$ 168,080.00 | Caixa necessario R$ 57,600.00 | Proximo passo: Validar fonte do candidato",
       "structured_operation": "Renda / Plano B | Chaves na Mao | Flat | Dentro do teto",
-      "entry_price_brl": 152000,
-      "current_price_brl": 250000,
+      "entry_price_brl": 152000.0,
+      "current_price_brl": 250000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-01",
-      "exit_rule": "Confirmar ocupacao",
+      "exit_rule": "Validar fonte do candidato",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 1,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
         "score": 82,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "next_action": "Validar fonte do candidato",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -74507,6 +75286,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -74570,28 +75356,35 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 220000,
-            "net_profit": 27600,
+            "sale_price": 220000.0,
+            "net_profit": 27600.0,
             "roi_pct": 47.92
           },
           "base": {
-            "sale_price": 250000,
-            "net_profit": 55800,
+            "sale_price": 250000.0,
+            "net_profit": 55800.0,
             "roi_pct": 96.88
           },
           "optimistic": {
-            "sale_price": 265000,
-            "net_profit": 69900,
+            "sale_price": 265000.0,
+            "net_profit": 69900.0,
             "roi_pct": 121.35
           }
         },
         "breakeven_sale_price": 190638.3,
-        "max_purchase_price": 168080,
-        "price_gap_to_ceiling": -16080,
+        "max_purchase_price": 168080.0,
+        "price_gap_to_ceiling": -16080.0,
         "price_ceiling_status": "Dentro do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 57600,
+        "target_roi_pct": 20.0,
+        "cash_needed": 57600.0,
         "base_profit_pct": 36.71,
+        "source_validation": {
+          "url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "Renda / Plano B",
           "source_url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
@@ -74599,22 +75392,32 @@
           "city": "Campinas",
           "neighborhood": "Alphaville Campinas",
           "property_type": "Flat",
-          "asking_price": 152000,
-          "market_value_estimate": 250000,
-          "private_area_m2": 32,
+          "asking_price": 152000.0,
+          "market_value_estimate": 250000.0,
+          "private_area_m2": 32.0,
           "bedrooms": 1,
           "parking_spaces": 0,
           "renovation_type": "maquiagem",
-          "renovation_budget": 12000,
+          "renovation_budget": 12000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 1,
           "carrying_months": 8,
-          "monthly_carrying_cost": 950,
-          "estimated_sale_base": 250000,
-          "estimated_sale_conservative": 220000,
-          "estimated_sale_optimistic": 265000,
+          "monthly_carrying_cost": 950.0,
+          "estimated_sale_base": 250000.0,
+          "estimated_sale_conservative": 220000.0,
+          "estimated_sale_optimistic": 265000.0,
           "notes": "Lead veio do Reel @saopaulointerior: Alphaville Campinas aparece como 4o bairro a R$ 9.150/m2. Como e flat/condotel, nao comparar diretamente com apartamento residencial; tratar como renda e validar contrato de pool.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -74622,32 +75425,42 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3885,
+      "thesis_number": 3890,
       "thesis_id": "IM-RADAR-24",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+      "source_validation": {
+        "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Mansoes Santo Antonio Campinas 75m2 sem financiamento",
       "thesis_reason": "Radar imobiliario: Chaves na Mao em Mansoes Santo Antonio / Campinas. Score 78/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 93.71,
-      "operation_plan": "Preco pedido R$ 360,000.00 | Teto de compra R$ 414,555.00 | Caixa necessario R$ 153,400.00 | Proximo passo: Confirmar ocupacao",
+      "operation_plan": "Preco pedido R$ 360,000.00 | Teto de compra R$ 414,555.00 | Caixa necessario R$ 153,400.00 | Proximo passo: Validar fonte do candidato",
       "structured_operation": "Compra direta com negociacao + house flipping leve | Chaves na Mao | Apartamento | Dentro do teto",
-      "entry_price_brl": 360000,
-      "current_price_brl": 622500,
+      "entry_price_brl": 360000.0,
+      "current_price_brl": 622500.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-01",
-      "exit_rule": "Confirmar ocupacao",
+      "exit_rule": "Validar fonte do candidato",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 1,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
         "score": 78,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "next_action": "Validar fonte do candidato",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -74790,6 +75603,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -74853,28 +75673,35 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 560250,
-            "net_profit": 85235,
+            "sale_price": 560250.0,
+            "net_profit": 85235.0,
             "roi_pct": 55.56
           },
           "base": {
-            "sale_price": 622500,
-            "net_profit": 143750,
+            "sale_price": 622500.0,
+            "net_profit": 143750.0,
             "roi_pct": 93.71
           },
           "optimistic": {
-            "sale_price": 653625,
+            "sale_price": 653625.0,
             "net_profit": 173007.5,
             "roi_pct": 112.78
           }
         },
         "breakeven_sale_price": 469574.47,
-        "max_purchase_price": 414555,
-        "price_gap_to_ceiling": -54555,
+        "max_purchase_price": 414555.0,
+        "price_gap_to_ceiling": -54555.0,
         "price_ceiling_status": "Dentro do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 153400,
+        "target_roi_pct": 20.0,
+        "cash_needed": 153400.0,
         "base_profit_pct": 39.93,
+        "source_validation": {
+          "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "Compra direta com negociacao + house flipping leve",
           "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
@@ -74882,22 +75709,32 @@
           "city": "Campinas",
           "neighborhood": "Mansoes Santo Antonio",
           "property_type": "Apartamento",
-          "asking_price": 360000,
-          "market_value_estimate": 622500,
-          "private_area_m2": 75,
+          "asking_price": 360000.0,
+          "market_value_estimate": 622500.0,
+          "private_area_m2": 75.0,
           "bedrooms": 3,
           "parking_spaces": 1,
           "renovation_type": "leve",
-          "renovation_budget": 55000,
+          "renovation_budget": 55000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 1,
           "carrying_months": 8,
-          "monthly_carrying_cost": 1050,
-          "estimated_sale_base": 622500,
-          "estimated_sale_conservative": 560250,
-          "estimated_sale_optimistic": 653625,
+          "monthly_carrying_cost": 1050.0,
+          "estimated_sale_base": 622500.0,
+          "estimated_sale_conservative": 560250.0,
+          "estimated_sale_optimistic": 653625.0,
           "notes": "Lead veio do Reel @saopaulointerior: Mansoes Santo Antonio aparece como 8o bairro a R$ 8.300/m2. Listagem indica 75m2 por R$360 mil e informa que nao aceita financiamento; e candidato forte para diligencia, nao para proposta ainda.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -74905,18 +75742,28 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3886,
+      "thesis_number": 3891,
       "thesis_id": "IM-RADAR-23",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.imovelweb.com.br/propriedades/apartamento-a-venda-no-bairro-parque-faber-castell-i-2993577729.html",
+      "source_validation": {
+        "url": "https://www.imovelweb.com.br/propriedades/apartamento-a-venda-no-bairro-parque-faber-castell-i-2993577729.html",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Parque Faber Castell Sao Carlos 59m2",
       "thesis_reason": "Radar imobiliario: Imovelweb em Parque Faber Castell I / Sao Carlos. Score 63/100, confianca 30/100, status Descartado.",
       "expected_result_pct": 12.37,
       "operation_plan": "Preco pedido R$ 370,000.00 | Teto de compra R$ 317,937.50 | Caixa necessario R$ 119,080.00 | Proximo passo: Rever preco maximo ou descartar",
       "structured_operation": "House flipping leve + venda direta | Imovelweb | Apartamento | Acima do teto",
-      "entry_price_brl": 370000,
-      "current_price_brl": 457250,
+      "entry_price_brl": 370000.0,
+      "current_price_brl": 457250.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "",
       "exit_rule": "Rever preco maximo ou descartar",
@@ -74925,7 +75772,7 @@
       "moment_result_pct": 12.37,
       "duration_days": 0,
       "open_days": null,
-      "learning_note": "Aprendizado: candidato descartado pelo radar. Revisar preco teto, margem conservadora e pendencias antes de reabrir.",
+      "learning_note": "Aprendizado: candidato fora do radar ativo. Revisar fonte, preco teto, margem conservadora e pendencias antes de reabrir.",
       "real_estate_analysis": {
         "score": 63,
         "confidence": 30,
@@ -75073,6 +75920,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -75130,17 +75984,17 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 411525,
+            "sale_price": 411525.0,
             "net_profit": -28246.5,
             "roi_pct": -23.72
           },
           "base": {
-            "sale_price": 457250,
-            "net_profit": 14735,
+            "sale_price": 457250.0,
+            "net_profit": 14735.0,
             "roi_pct": 12.37
           },
           "optimistic": {
-            "sale_price": 480113,
+            "sale_price": 480113.0,
             "net_profit": 36226.22,
             "roi_pct": 30.42
           }
@@ -75149,9 +76003,16 @@
         "max_purchase_price": 317937.5,
         "price_gap_to_ceiling": 52062.5,
         "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 119080,
+        "target_roi_pct": 20.0,
+        "cash_needed": 119080.0,
         "base_profit_pct": 3.98,
+        "source_validation": {
+          "url": "https://www.imovelweb.com.br/propriedades/apartamento-a-venda-no-bairro-parque-faber-castell-i-2993577729.html",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "House flipping leve + venda direta",
           "source_url": "https://www.imovelweb.com.br/propriedades/apartamento-a-venda-no-bairro-parque-faber-castell-i-2993577729.html",
@@ -75159,22 +76020,32 @@
           "city": "Sao Carlos",
           "neighborhood": "Parque Faber Castell I",
           "property_type": "Apartamento",
-          "asking_price": 370000,
-          "market_value_estimate": 457250,
-          "private_area_m2": 59,
+          "asking_price": 370000.0,
+          "market_value_estimate": 457250.0,
+          "private_area_m2": 59.0,
           "bedrooms": 2,
           "parking_spaces": 1,
           "renovation_type": "maquiagem",
-          "renovation_budget": 24000,
+          "renovation_budget": 24000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 0,
           "carrying_months": 6,
-          "monthly_carrying_cost": 430,
-          "estimated_sale_base": 457250,
-          "estimated_sale_conservative": 411525,
-          "estimated_sale_optimistic": 480113,
+          "monthly_carrying_cost": 430.0,
+          "estimated_sale_base": 457250.0,
+          "estimated_sale_conservative": 411525.0,
+          "estimated_sale_optimistic": 480113.0,
           "notes": "Lead veio do Reel @saopaulointerior: Parque Faber Castell aparece como 10o bairro a R$ 7.750/m2. Listagem indica 59m2 por R$370 mil; precisa confirmacao de disponibilidade e predio.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.imovelweb.com.br/propriedades/apartamento-a-venda-no-bairro-parque-faber-castell-i-2993577729.html",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -75182,32 +76053,42 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3887,
+      "thesis_number": 3892,
       "thesis_id": "IM-RADAR-22",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
+      "source_validation": {
+        "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Parque Campolim Sorocaba Augusto Lippel 48m2",
       "thesis_reason": "Radar imobiliario: Chaves na Mao em Parque Campolim / Sorocaba. Score 74/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 41.19,
-      "operation_plan": "Preco pedido R$ 320,000.00 | Teto de compra R$ 301,801.60 | Caixa necessario R$ 104,700.00 | Proximo passo: Confirmar ocupacao",
+      "operation_plan": "Preco pedido R$ 320,000.00 | Teto de compra R$ 301,801.60 | Caixa necessario R$ 104,700.00 | Proximo passo: Validar fonte do candidato",
       "structured_operation": "House flipping leve + renda plano B | Chaves na Mao | Apartamento | Acima do teto",
-      "entry_price_brl": 320000,
-      "current_price_brl": 429600,
+      "entry_price_brl": 320000.0,
+      "current_price_brl": 429600.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-01",
-      "exit_rule": "Confirmar ocupacao",
+      "exit_rule": "Validar fonte do candidato",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 1,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
         "score": 74,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "next_action": "Validar fonte do candidato",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -75350,6 +76231,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -75413,17 +76301,17 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 386640,
+            "sale_price": 386640.0,
             "net_profit": 2741.6,
             "roi_pct": 2.62
           },
           "base": {
-            "sale_price": 429600,
-            "net_profit": 43124,
+            "sale_price": 429600.0,
+            "net_profit": 43124.0,
             "roi_pct": 41.19
           },
           "optimistic": {
-            "sale_price": 451080,
+            "sale_price": 451080.0,
             "net_profit": 63315.2,
             "roi_pct": 60.47
           }
@@ -75432,9 +76320,16 @@
         "max_purchase_price": 301801.6,
         "price_gap_to_ceiling": 18198.4,
         "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 104700,
+        "target_roi_pct": 20.0,
+        "cash_needed": 104700.0,
         "base_profit_pct": 13.48,
+        "source_validation": {
+          "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "House flipping leve + renda plano B",
           "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
@@ -75442,22 +76337,32 @@
           "city": "Sorocaba",
           "neighborhood": "Parque Campolim",
           "property_type": "Apartamento",
-          "asking_price": 320000,
-          "market_value_estimate": 429600,
-          "private_area_m2": 48,
+          "asking_price": 320000.0,
+          "market_value_estimate": 429600.0,
+          "private_area_m2": 48.0,
           "bedrooms": 2,
           "parking_spaces": 1,
           "renovation_type": "maquiagem",
-          "renovation_budget": 22000,
+          "renovation_budget": 22000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 1,
           "carrying_months": 6,
-          "monthly_carrying_cost": 450,
-          "estimated_sale_base": 429600,
-          "estimated_sale_conservative": 386640,
-          "estimated_sale_optimistic": 451080,
+          "monthly_carrying_cost": 450.0,
+          "estimated_sale_base": 429600.0,
+          "estimated_sale_conservative": 386640.0,
+          "estimated_sale_optimistic": 451080.0,
           "notes": "Lead veio do Reel @saopaulointerior: Parque Campolim aparece como 5o bairro a R$ 8.950/m2. Listagem indica 48m2 por R$320 mil; falta checar visita e comparaveis no mesmo condominio.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -75465,32 +76370,42 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3888,
+      "thesis_number": 3893,
       "thesis_id": "IM-RADAR-21",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+      "source_validation": {
+        "url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Vila Aviacao Bauru leilao Olavo Moura 50m2",
       "thesis_reason": "Radar imobiliario: Leilao Caixa via Imovelweb em Vila Aviacao / Bauru. Score 77/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 147.07,
-      "operation_plan": "Preco pedido R$ 180,000.00 | Teto de compra R$ 259,770.00 | Caixa necessario R$ 92,000.00 | Proximo passo: Confirmar ocupacao",
+      "operation_plan": "Preco pedido R$ 180,000.00 | Teto de compra R$ 259,770.00 | Caixa necessario R$ 92,000.00 | Proximo passo: Validar fonte do candidato",
       "structured_operation": "Leilao/venda online + venda | Leilao Caixa via Imovelweb | Apartamento | Dentro do teto",
-      "entry_price_brl": 180000,
-      "current_price_brl": 395000,
+      "entry_price_brl": 180000.0,
+      "current_price_brl": 395000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-01",
-      "exit_rule": "Confirmar ocupacao",
+      "exit_rule": "Validar fonte do candidato",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 1,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
         "score": 77,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "next_action": "Validar fonte do candidato",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -75633,6 +76548,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -75696,28 +76618,35 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 355500,
-            "net_profit": 98170,
+            "sale_price": 355500.0,
+            "net_profit": 98170.0,
             "roi_pct": 106.71
           },
           "base": {
-            "sale_price": 395000,
-            "net_profit": 135300,
+            "sale_price": 395000.0,
+            "net_profit": 135300.0,
             "roi_pct": 147.07
           },
           "optimistic": {
-            "sale_price": 414750,
-            "net_profit": 153865,
+            "sale_price": 414750.0,
+            "net_profit": 153865.0,
             "roi_pct": 167.24
           }
         },
         "breakeven_sale_price": 251063.83,
-        "max_purchase_price": 259770,
-        "price_gap_to_ceiling": -79770,
+        "max_purchase_price": 259770.0,
+        "price_gap_to_ceiling": -79770.0,
         "price_ceiling_status": "Dentro do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 92000,
+        "target_roi_pct": 20.0,
+        "cash_needed": 92000.0,
         "base_profit_pct": 75.17,
+        "source_validation": {
+          "url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "Leilao/venda online + venda",
           "source_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
@@ -75725,22 +76654,32 @@
           "city": "Bauru",
           "neighborhood": "Vila Aviacao",
           "property_type": "Apartamento",
-          "asking_price": 180000,
-          "market_value_estimate": 395000,
-          "private_area_m2": 50,
+          "asking_price": 180000.0,
+          "market_value_estimate": 395000.0,
+          "private_area_m2": 50.0,
           "bedrooms": 2,
           "parking_spaces": 1,
           "renovation_type": "leve",
-          "renovation_budget": 38000,
+          "renovation_budget": 38000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 1,
           "carrying_months": 10,
-          "monthly_carrying_cost": 600,
-          "estimated_sale_base": 395000,
-          "estimated_sale_conservative": 355500,
-          "estimated_sale_optimistic": 414750,
+          "monthly_carrying_cost": 600.0,
+          "estimated_sale_base": 395000.0,
+          "estimated_sale_conservative": 355500.0,
+          "estimated_sale_optimistic": 414750.0,
           "notes": "Lead veio do Reel @saopaulointerior: Vila Aviacao aparece como 9o bairro a R$ 7.900/m2. Listagem de leilao indica apto 303, 50m2, R$180 mil; exige edital oficial, ocupacao e debitos.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -75748,32 +76687,42 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3889,
+      "thesis_number": 3894,
       "thesis_id": "IM-RADAR-19",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
+      "source_validation": {
+        "url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Jardim Olhos D Agua RP Monterey 56m2",
       "thesis_reason": "Radar imobiliario: Imovelweb em Jardim Olhos D Agua / Ribeirao Preto. Score 78/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 77.3,
-      "operation_plan": "Preco pedido R$ 370,000.00 | Teto de compra R$ 392,287.04 | Caixa necessario R$ 131,140.00 | Proximo passo: Confirmar ocupacao",
+      "operation_plan": "Preco pedido R$ 370,000.00 | Teto de compra R$ 392,287.04 | Caixa necessario R$ 131,140.00 | Proximo passo: Validar fonte do candidato",
       "structured_operation": "House flipping leve + renda plano B | Imovelweb | Apartamento | Dentro do teto",
-      "entry_price_brl": 370000,
-      "current_price_brl": 562240,
+      "entry_price_brl": 370000.0,
+      "current_price_brl": 562240.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-01",
-      "exit_rule": "Confirmar ocupacao",
+      "exit_rule": "Validar fonte do candidato",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 1,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
         "score": 78,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "next_action": "Validar fonte do candidato",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -75916,6 +76865,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -75979,17 +76935,17 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 506016,
+            "sale_price": 506016.0,
             "net_profit": 48515.04,
             "roi_pct": 36.99
           },
           "base": {
-            "sale_price": 562240,
+            "sale_price": 562240.0,
             "net_profit": 101365.6,
             "roi_pct": 77.3
           },
           "optimistic": {
-            "sale_price": 590352,
+            "sale_price": 590352.0,
             "net_profit": 127790.88,
             "roi_pct": 97.45
           }
@@ -75998,9 +76954,16 @@
         "max_purchase_price": 392287.04,
         "price_gap_to_ceiling": -22287.04,
         "price_ceiling_status": "Dentro do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 131140,
+        "target_roi_pct": 20.0,
+        "cash_needed": 131140.0,
         "base_profit_pct": 27.4,
+        "source_validation": {
+          "url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "House flipping leve + renda plano B",
           "source_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
@@ -76008,22 +76971,32 @@
           "city": "Ribeirao Preto",
           "neighborhood": "Jardim Olhos D Agua",
           "property_type": "Apartamento",
-          "asking_price": 370000,
-          "market_value_estimate": 562240,
-          "private_area_m2": 56,
+          "asking_price": 370000.0,
+          "market_value_estimate": 562240.0,
+          "private_area_m2": 56.0,
           "bedrooms": 2,
           "parking_spaces": 1,
           "renovation_type": "leve",
-          "renovation_budget": 35000,
+          "renovation_budget": 35000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 1,
           "carrying_months": 7,
-          "monthly_carrying_cost": 520,
-          "estimated_sale_base": 562240,
-          "estimated_sale_conservative": 506016,
-          "estimated_sale_optimistic": 590352,
+          "monthly_carrying_cost": 520.0,
+          "estimated_sale_base": 562240.0,
+          "estimated_sale_conservative": 506016.0,
+          "estimated_sale_optimistic": 590352.0,
           "notes": "Lead veio do Reel @saopaulointerior: Jardim Olhos d Agua aparece como 2o bairro do ranking a R$ 10.040/m2. Listagem agregada mostra 56m2 por R$370 mil; ainda precisa link direto/unidade e checagem de disponibilidade.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -76031,32 +77004,42 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3890,
+      "thesis_number": 3895,
       "thesis_id": "IM-RADAR-18",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
       "source_url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+      "source_validation": {
+        "url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Cambui Campinas Rua Coronel Quirino 45m2",
       "thesis_reason": "Radar imobiliario: Flora Imoveis em Cambui / Campinas. Score 78/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 137.62,
-      "operation_plan": "Preco pedido R$ 328,000.00 | Teto de compra R$ 424,526.10 | Caixa necessario R$ 130,800.00 | Proximo passo: Confirmar ocupacao",
+      "operation_plan": "Preco pedido R$ 328,000.00 | Teto de compra R$ 424,526.10 | Caixa necessario R$ 130,800.00 | Proximo passo: Validar fonte do candidato",
       "structured_operation": "House flipping leve + venda direta | Flora Imoveis | Apartamento | Dentro do teto",
-      "entry_price_brl": 328000,
-      "current_price_brl": 609795,
+      "entry_price_brl": 328000.0,
+      "current_price_brl": 609795.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-01",
-      "exit_rule": "Confirmar ocupacao",
+      "exit_rule": "Validar fonte do candidato",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 1,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
         "score": 78,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "next_action": "Validar fonte do candidato",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -76199,6 +77182,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -76262,17 +77252,17 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 548815,
+            "sale_price": 548815.0,
             "net_profit": 122686.1,
             "roi_pct": 93.8
           },
           "base": {
-            "sale_price": 609795,
+            "sale_price": 609795.0,
             "net_profit": 180007.3,
             "roi_pct": 137.62
           },
           "optimistic": {
-            "sale_price": 640285,
+            "sale_price": 640285.0,
             "net_profit": 208667.9,
             "roi_pct": 159.53
           }
@@ -76281,9 +77271,16 @@
         "max_purchase_price": 424526.1,
         "price_gap_to_ceiling": -96526.1,
         "price_ceiling_status": "Dentro do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 130800,
+        "target_roi_pct": 20.0,
+        "cash_needed": 130800.0,
         "base_profit_pct": 54.88,
+        "source_validation": {
+          "url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "House flipping leve + venda direta",
           "source_url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
@@ -76291,22 +77288,32 @@
           "city": "Campinas",
           "neighborhood": "Cambui",
           "property_type": "Apartamento",
-          "asking_price": 328000,
-          "market_value_estimate": 609795,
+          "asking_price": 328000.0,
+          "market_value_estimate": 609795.0,
           "private_area_m2": 45.17,
           "bedrooms": 1,
           "parking_spaces": 0,
           "renovation_type": "leve",
-          "renovation_budget": 42000,
+          "renovation_budget": 42000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 1,
           "carrying_months": 8,
-          "monthly_carrying_cost": 850,
-          "estimated_sale_base": 609795,
-          "estimated_sale_conservative": 548815,
-          "estimated_sale_optimistic": 640285,
+          "monthly_carrying_cost": 850.0,
+          "estimated_sale_base": 609795.0,
+          "estimated_sale_conservative": 548815.0,
+          "estimated_sale_optimistic": 640285.0,
           "notes": "Lead veio do Reel @saopaulointerior: Cambui aparece como 1o bairro do ranking FipeZAP+ 2026 a R$ 13.500/m2. Listagem indica 45,17m2 por R$328 mil; precisa confirmar disponibilidade vigente, estado interno e comparaveis do mesmo predio.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -76314,32 +77321,42 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3891,
+      "thesis_number": 3896,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
       "source_url": "",
+      "source_validation": {
+        "url": "",
+        "status": "",
+        "reason": "",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "",
+      "source_validation_reason": "",
+      "source_checked_at": "",
       "action": "REAL - Parque do Estado Agua Funda reforma pesada 50m2",
-      "thesis_reason": "Radar imobiliario: Venda direta particular em Agua Funda / Sao Paulo. Score 70/100, confianca 30/100, status Aberto com pendencias.",
-      "expected_result_pct": 54,
+      "thesis_reason": "Radar imobiliario: Venda direta particular em Agua Funda / Sao Paulo. Score 70/100, confianca 30/100, descartado do radar aberto por falta de fonte individual e P0 demais.",
+      "expected_result_pct": 54.0,
       "operation_plan": "Preco pedido R$ 120,000.00 | Teto de compra R$ 142,000.00 | Caixa necessario R$ 120,000.00 | Proximo passo: Confirmar ocupacao",
       "structured_operation": "House flipping reforma pesada | Venda direta particular | Apartamento | Dentro do teto",
-      "entry_price_brl": 120000,
-      "current_price_brl": 300000,
+      "entry_price_brl": 120000.0,
+      "current_price_brl": 300000.0,
       "latest_price_at": "2026-05-05T17:11:00+00:00",
       "planned_exit_at": "2026-06-01",
-      "exit_rule": "Confirmar ocupacao",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "exit_rule": "Descartado manualmente pelo investidor: candidato #17 sem fonte individual, baixa confianca e P0 demais para manter no radar aberto.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 13,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Aprendizado: score aparente sem fonte individual e com baixa confianca nao deve ficar como aberto. Este caso vira memoria de descarte para exigir fonte, ocupacao, matricula e debitos antes de gastar diligencia.",
       "real_estate_analysis": {
         "score": 70,
         "confidence": 30,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "suggested_status": "Descartado",
+        "next_action": "Manter apenas como aprendizado; reabrir somente com fonte individual, ocupacao, matricula e debitos validados.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -76539,28 +77556,35 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 280000,
-            "net_profit": 46000,
+            "sale_price": 280000.0,
+            "net_profit": 46000.0,
             "roi_pct": 38.33
           },
           "base": {
-            "sale_price": 300000,
-            "net_profit": 64800,
-            "roi_pct": 54
+            "sale_price": 300000.0,
+            "net_profit": 64800.0,
+            "roi_pct": 54.0
           },
           "optimistic": {
-            "sale_price": 330000,
-            "net_profit": 93000,
+            "sale_price": 330000.0,
+            "net_profit": 93000.0,
             "roi_pct": 77.5
           }
         },
         "breakeven_sale_price": 231063.83,
-        "max_purchase_price": 142000,
-        "price_gap_to_ceiling": -22000,
+        "max_purchase_price": 142000.0,
+        "price_gap_to_ceiling": -22000.0,
         "price_ceiling_status": "Dentro do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 120000,
-        "base_profit_pct": 54,
+        "target_roi_pct": 20.0,
+        "cash_needed": 120000.0,
+        "base_profit_pct": 54.0,
+        "source_validation": {
+          "url": "",
+          "status": "",
+          "reason": "",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "House flipping reforma pesada",
           "source_url": "",
@@ -76568,47 +77592,67 @@
           "city": "Sao Paulo",
           "neighborhood": "Agua Funda",
           "property_type": "Apartamento",
-          "asking_price": 120000,
-          "market_value_estimate": 300000,
-          "private_area_m2": 50,
+          "asking_price": 120000.0,
+          "market_value_estimate": 300000.0,
+          "private_area_m2": 50.0,
           "bedrooms": 2,
           "parking_spaces": 1,
           "renovation_type": "pesada",
-          "renovation_budget": 80000,
+          "renovation_budget": 80000.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 0,
           "carrying_months": 6,
-          "monthly_carrying_cost": 1200,
-          "estimated_sale_base": 300000,
-          "estimated_sale_conservative": 280000,
-          "estimated_sale_optimistic": 330000,
+          "monthly_carrying_cost": 1200.0,
+          "estimated_sale_base": 300000.0,
+          "estimated_sale_conservative": 280000.0,
+          "estimated_sale_optimistic": 330000.0,
           "notes": "Cenario irmao do mesmo caso real. Premissa de reforma pesada estimada em R para 50m2, ainda sem orcamento formal. Venda base em R considera apartamentos similares anunciados em padrao superior; precisa validar comparaveis vendidos, nao apenas anuncios.",
-          "visit_evidence": []
+          "source_validation_status": "",
+          "source_validation_reason": "",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "",
+            "status": "",
+            "reason": "",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3892,
+      "thesis_number": 3897,
       "thesis_id": "IM-RADAR-16",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
       "source_url": "",
+      "source_validation": {
+        "url": "",
+        "status": "",
+        "reason": "",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "",
+      "source_validation_reason": "",
+      "source_checked_at": "",
       "action": "REAL - Parque do Estado Agua Funda arbitragem 50m2",
       "thesis_reason": "Radar imobiliario: Venda direta particular em Agua Funda / Sao Paulo. Score 75/100, confianca 15/100, status Aberto com pendencias.",
       "expected_result_pct": 200.89,
       "operation_plan": "Preco pedido R$ 120,000.00 | Teto de compra R$ 191,400.00 | Caixa necessario R$ 45,000.00 | Proximo passo: Confirmar ocupacao",
       "structured_operation": "Arbitragem sem reforma | Venda direta particular | Apartamento | Dentro do teto",
-      "entry_price_brl": 120000,
-      "current_price_brl": 300000,
+      "entry_price_brl": 120000.0,
+      "current_price_brl": 300000.0,
       "latest_price_at": "2026-05-05T17:11:00+00:00",
       "planned_exit_at": "2026-06-01",
       "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
+      "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 13,
       "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
@@ -76817,28 +77861,35 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 210000,
-            "net_profit": 80400,
+            "sale_price": 210000.0,
+            "net_profit": 80400.0,
             "roi_pct": 178.67
           },
           "base": {
-            "sale_price": 220000,
-            "net_profit": 90400,
+            "sale_price": 220000.0,
+            "net_profit": 90400.0,
             "roi_pct": 200.89
           },
           "optimistic": {
-            "sale_price": 230000,
-            "net_profit": 100400,
+            "sale_price": 230000.0,
+            "net_profit": 100400.0,
             "roi_pct": 223.11
           }
         },
-        "breakeven_sale_price": 129600,
-        "max_purchase_price": 191400,
-        "price_gap_to_ceiling": -71400,
+        "breakeven_sale_price": 129600.0,
+        "max_purchase_price": 191400.0,
+        "price_gap_to_ceiling": -71400.0,
         "price_ceiling_status": "Dentro do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 45000,
+        "target_roi_pct": 20.0,
+        "cash_needed": 45000.0,
         "base_profit_pct": 75.33,
+        "source_validation": {
+          "url": "",
+          "status": "",
+          "reason": "",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "Arbitragem sem reforma",
           "source_url": "",
@@ -76846,22 +77897,32 @@
           "city": "Sao Paulo",
           "neighborhood": "Agua Funda",
           "property_type": "Apartamento",
-          "asking_price": 120000,
-          "market_value_estimate": 300000,
-          "private_area_m2": 50,
+          "asking_price": 120000.0,
+          "market_value_estimate": 300000.0,
+          "private_area_m2": 50.0,
           "bedrooms": 2,
           "parking_spaces": 1,
           "renovation_type": "sem reforma",
-          "renovation_budget": 0,
+          "renovation_budget": 0.0,
           "sale_comparables_count": 1,
           "rent_comparables_count": 0,
           "carrying_months": 2,
-          "monthly_carrying_cost": 800,
-          "estimated_sale_base": 220000,
-          "estimated_sale_conservative": 210000,
-          "estimated_sale_optimistic": 230000,
+          "monthly_carrying_cost": 800.0,
+          "estimated_sale_base": 220000.0,
+          "estimated_sale_conservative": 210000.0,
+          "estimated_sale_optimistic": 230000.0,
           "notes": "Caso real informado pelo Andre em 05/05/2026. Residencial Parque do Estado, Agua Funda, 50m2, 2 quartos, 1 vaga. Vendedor pede R em 18 meses. Comprador ja visitou e sinalizou R no estado atual. Premissas de custo: R aquisicao/cartorio/reserva inicial, R/mes por 2 meses, sem corretagem. Caixa necessario estimado em R e precisa ser substituido pelo sinal real/fluxo de parcelas.",
-          "visit_evidence": []
+          "source_validation_status": "",
+          "source_validation_reason": "",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "",
+            "status": "",
+            "reason": "",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -76869,18 +77930,28 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3893,
+      "thesis_number": 3898,
       "thesis_id": "IM-RADAR-15",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
       "source_url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+      "source_validation": {
+        "url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Lancamento Plano Estacao Belem UND204",
       "thesis_reason": "Radar imobiliario: Plano&Plano em Belem / Sao Paulo. Score 41/100, confianca 13/100, status Descartado.",
       "expected_result_pct": -16.8,
       "operation_plan": "Preco pedido R$ 204,986.00 | Teto de compra R$ 167,680.60 | Caixa necessario R$ 60,497.00 | Proximo passo: Rever preco maximo ou descartar",
       "structured_operation": "Lancamento na planta | Plano&Plano | Apartamento na planta | Acima do teto",
-      "entry_price_brl": 204986,
-      "current_price_brl": 225000,
+      "entry_price_brl": 204986.0,
+      "current_price_brl": 225000.0,
       "latest_price_at": "2026-05-04T14:43:37+00:00",
       "planned_exit_at": "",
       "exit_rule": "Rever preco maximo ou descartar",
@@ -76889,7 +77960,7 @@
       "moment_result_pct": -16.8,
       "duration_days": 0,
       "open_days": null,
-      "learning_note": "Aprendizado: candidato descartado pelo radar. Revisar preco teto, margem conservadora e pendencias antes de reabrir.",
+      "learning_note": "Aprendizado: candidato fora do radar ativo. Revisar fonte, preco teto, margem conservadora e pendencias antes de reabrir.",
       "real_estate_analysis": {
         "score": 41,
         "confidence": 13,
@@ -77037,6 +78108,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -77095,18 +78173,18 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 212000,
-            "net_profit": -25206,
+            "sale_price": 212000.0,
+            "net_profit": -25206.0,
             "roi_pct": -41.66
           },
           "base": {
-            "sale_price": 228000,
-            "net_profit": -10166,
+            "sale_price": 228000.0,
+            "net_profit": -10166.0,
             "roi_pct": -16.8
           },
           "optimistic": {
-            "sale_price": 240000,
-            "net_profit": 1114,
+            "sale_price": 240000.0,
+            "net_profit": 1114.0,
             "roi_pct": 1.84
           }
         },
@@ -77114,9 +78192,16 @@
         "max_purchase_price": 167680.6,
         "price_gap_to_ceiling": 37305.4,
         "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 60497,
+        "target_roi_pct": 20.0,
+        "cash_needed": 60497.0,
         "base_profit_pct": -4.96,
+        "source_validation": {
+          "url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "Lancamento na planta",
           "source_url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
@@ -77124,22 +78209,32 @@
           "city": "Sao Paulo",
           "neighborhood": "Belem",
           "property_type": "Apartamento na planta",
-          "asking_price": 204986,
-          "market_value_estimate": 225000,
-          "private_area_m2": 0,
+          "asking_price": 204986.0,
+          "market_value_estimate": 225000.0,
+          "private_area_m2": 0.0,
           "bedrooms": 1,
           "parking_spaces": 0,
           "renovation_type": "desconhecida",
-          "renovation_budget": 0,
+          "renovation_budget": 0.0,
           "sale_comparables_count": 0,
           "rent_comparables_count": 0,
           "carrying_months": 18,
-          "monthly_carrying_cost": 500,
-          "estimated_sale_base": 228000,
-          "estimated_sale_conservative": 212000,
-          "estimated_sale_optimistic": 240000,
+          "monthly_carrying_cost": 500.0,
+          "estimated_sale_base": 228000.0,
+          "estimated_sale_conservative": 212000.0,
+          "estimated_sale_optimistic": 240000.0,
           "notes": "Caso real em estudo. PDF da incorporadora lista Plano&Estacao Belem, UND204, 1 dorm, HIS2, sacada, sem vaga, de R.986 por R.986. Area, fluxo e data de entrega precisam ser confirmados.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
@@ -77147,18 +78242,28 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 3894,
+      "thesis_number": 3899,
       "thesis_id": "IM-RADAR-14",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
       "source_url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+      "source_validation": {
+        "url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+        "status": "unchecked",
+        "reason": "Fonte ainda nao validada pela app.",
+        "checked_at": "",
+        "http_status": null
+      },
+      "source_validation_status": "unchecked",
+      "source_validation_reason": "Fonte ainda nao validada pela app.",
+      "source_checked_at": "",
       "action": "REAL - Lancamento Plano Estacao Bras UND210",
       "thesis_reason": "Radar imobiliario: Plano&Plano em Bras / Sao Paulo. Score 41/100, confianca 13/100, status Descartado.",
       "expected_result_pct": -21.82,
       "operation_plan": "Preco pedido R$ 189,071.00 | Teto de compra R$ 154,617.20 | Caixa necessario R$ 55,414.00 | Proximo passo: Rever preco maximo ou descartar",
       "structured_operation": "Lancamento na planta | Plano&Plano | Apartamento na planta | Acima do teto",
-      "entry_price_brl": 189071,
-      "current_price_brl": 205000,
+      "entry_price_brl": 189071.0,
+      "current_price_brl": 205000.0,
       "latest_price_at": "2026-05-04T14:43:37+00:00",
       "planned_exit_at": "",
       "exit_rule": "Rever preco maximo ou descartar",
@@ -77167,7 +78272,7 @@
       "moment_result_pct": -21.82,
       "duration_days": 0,
       "open_days": null,
-      "learning_note": "Aprendizado: candidato descartado pelo radar. Revisar preco teto, margem conservadora e pendencias antes de reabrir.",
+      "learning_note": "Aprendizado: candidato fora do radar ativo. Revisar fonte, preco teto, margem conservadora e pendencias antes de reabrir.",
       "real_estate_analysis": {
         "score": 41,
         "confidence": 13,
@@ -77315,6 +78420,13 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Validar fonte do candidato",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "A app ainda nao confirmou se o link individual esta vivo."
+          },
+          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -77373,18 +78485,18 @@
         ],
         "scenarios": {
           "conservative": {
-            "sale_price": 195000,
-            "net_profit": -23371,
+            "sale_price": 195000.0,
+            "net_profit": -23371.0,
             "roi_pct": -42.18
           },
           "base": {
-            "sale_price": 207000,
-            "net_profit": -12091,
+            "sale_price": 207000.0,
+            "net_profit": -12091.0,
             "roi_pct": -21.82
           },
           "optimistic": {
-            "sale_price": 220000,
-            "net_profit": 129,
+            "sale_price": 220000.0,
+            "net_profit": 129.0,
             "roi_pct": 0.23
           }
         },
@@ -77392,9 +78504,16 @@
         "max_purchase_price": 154617.2,
         "price_gap_to_ceiling": 34453.8,
         "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 55414,
+        "target_roi_pct": 20.0,
+        "cash_needed": 55414.0,
         "base_profit_pct": -6.39,
+        "source_validation": {
+          "url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+          "status": "unchecked",
+          "reason": "Fonte ainda nao validada pela app.",
+          "checked_at": "",
+          "http_status": null
+        },
         "candidate": {
           "strategy": "Lancamento na planta",
           "source_url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
@@ -77402,761 +78521,36 @@
           "city": "Sao Paulo",
           "neighborhood": "Bras",
           "property_type": "Apartamento na planta",
-          "asking_price": 189071,
-          "market_value_estimate": 205000,
-          "private_area_m2": 0,
+          "asking_price": 189071.0,
+          "market_value_estimate": 205000.0,
+          "private_area_m2": 0.0,
           "bedrooms": 1,
           "parking_spaces": 0,
           "renovation_type": "desconhecida",
-          "renovation_budget": 0,
+          "renovation_budget": 0.0,
           "sale_comparables_count": 0,
           "rent_comparables_count": 0,
           "carrying_months": 18,
-          "monthly_carrying_cost": 450,
-          "estimated_sale_base": 207000,
-          "estimated_sale_conservative": 195000,
-          "estimated_sale_optimistic": 220000,
+          "monthly_carrying_cost": 450.0,
+          "estimated_sale_base": 207000.0,
+          "estimated_sale_conservative": 195000.0,
+          "estimated_sale_optimistic": 220000.0,
           "notes": "Caso real em estudo. PDF da incorporadora lista Plano&Estacao Bras, torre A, UND210, 1 dorm, HIS1, sem vaga, de R.071 por R.071. Area e fluxo precisam ser confirmados.",
-          "visit_evidence": []
+          "source_validation_status": "unchecked",
+          "source_validation_reason": "Fonte ainda nao validada pela app.",
+          "source_checked_at": "",
+          "visit_evidence": [],
+          "source_validation": {
+            "url": "https://www.planoeplano.com.br/estatico/pdf/blacknovember-4.pdf",
+            "status": "unchecked",
+            "reason": "Fonte ainda nao validada pela app.",
+            "checked_at": "",
+            "http_status": null
+          }
         },
         "visit_evidence": []
       },
       "is_open": false
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 3895,
-      "thesis_id": "IM-FOLHA-FRAZAO-SAUDE-37528",
-      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
-      "front": "imoveis",
-      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
-      "source_validation": {
-        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
-        "status": "valid",
-        "reason": "Fonte individual validada.",
-        "checked_at": "2026-05-18T12:00:00+00:00",
-        "http_status": 200
-      },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Fonte individual validada.",
-      "source_checked_at": "2026-05-18T12:00:00+00:00",
-      "action": "REAL - Frazão Itaú Saúde Rua Abagiba 74m2",
-      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Saude / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
-      "expected_result_pct": 7.45,
-      "operation_plan": "Preco pedido R$ 388,700.00 | Teto de compra R$ 334,958.60 | Caixa necessario R$ 166,097.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
-      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Apartamento | Acima do teto",
-      "entry_price_brl": 388700,
-      "current_price_brl": 500000,
-      "latest_price_at": "2026-05-18T12:00:00+00:00",
-      "planned_exit_at": "2026-05-25",
-      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
-      "duration_days": null,
-      "open_days": 1,
-      "is_open": true,
-      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
-      "real_estate_analysis": {
-        "score": 66,
-        "confidence": 39,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
-        "score_breakdown": [],
-        "confidence_breakdown": [],
-        "pending_items": [
-          {
-            "key": "occupied_auction",
-            "title": "Avaliar risco de imovel ocupado",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "debts",
-            "title": "Confirmar dividas e responsabilidades",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
-          },
-          {
-            "key": "sale_comparables",
-            "title": "Buscar 3 comparaveis de venda",
-            "priority": "P1",
-            "status": "aberta",
-            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
-          }
-        ],
-        "clarified_items": [
-          {
-            "key": "source_validation",
-            "title": "Fonte individual validada",
-            "status": "esclarecido",
-            "detail": "A app confirmou link individual do lote na Frazão Leilões."
-          }
-        ],
-        "scenarios": {
-          "conservative": {
-            "sale_price": 465000,
-            "net_profit": -20522,
-            "roi_pct": -12.36
-          },
-          "base": {
-            "sale_price": 500000,
-            "net_profit": 12378,
-            "roi_pct": 7.45
-          },
-          "optimistic": {
-            "sale_price": 525000,
-            "net_profit": 35878,
-            "roi_pct": 21.6
-          }
-        },
-        "breakeven_sale_price": 486831.91,
-        "max_purchase_price": 334958.6,
-        "price_gap_to_ceiling": 53741.4,
-        "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 166097,
-        "base_profit_pct": 3.18,
-        "source_validation": {
-          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
-          "status": "valid",
-          "reason": "Fonte individual validada.",
-          "checked_at": "2026-05-18T12:00:00+00:00",
-          "http_status": 200
-        },
-        "candidate": {
-          "strategy": "Leilao + HF",
-          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
-          "origin": "Frazao Leiloes / Itau",
-          "city": "Sao Paulo",
-          "neighborhood": "Saude",
-          "property_type": "Apartamento",
-          "asking_price": 388700,
-          "market_value_estimate": 500000,
-          "private_area_m2": 74.14,
-          "bedrooms": 0,
-          "parking_spaces": 1,
-          "renovation_type": "leve",
-          "renovation_budget": 28000,
-          "sale_comparables_count": 0,
-          "rent_comparables_count": 0,
-          "carrying_months": 8,
-          "monthly_carrying_cost": 2200,
-          "estimated_sale_base": 500000,
-          "estimated_sale_conservative": 465000,
-          "estimated_sale_optimistic": 525000,
-          "notes": "Lote 044 do leilao Itau/Frazao 3609. Imovel ocupado; sem visita; condominio/IPTU segundo edital devem ser lidos antes de qualquer lance.",
-          "source_validation_status": "valid",
-          "source_validation_reason": "Fonte individual validada.",
-          "source_checked_at": "2026-05-18T12:00:00+00:00",
-          "visit_evidence": [],
-          "source_validation": {
-            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
-            "status": "valid",
-            "reason": "Fonte individual validada.",
-            "checked_at": "2026-05-18T12:00:00+00:00",
-            "http_status": 200
-          }
-        },
-        "visit_evidence": []
-      }
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 3896,
-      "thesis_id": "IM-FOLHA-FRAZAO-PARADA-INGLESA-37570",
-      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
-      "front": "imoveis",
-      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
-      "source_validation": {
-        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
-        "status": "valid",
-        "reason": "Fonte individual validada.",
-        "checked_at": "2026-05-18T12:00:00+00:00",
-        "http_status": 200
-      },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Fonte individual validada.",
-      "source_checked_at": "2026-05-18T12:00:00+00:00",
-      "action": "REAL - Frazão Itaú Parada Inglesa casa vila 105m2",
-      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Parada Inglesa / Tucuruvi / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
-      "expected_result_pct": 35.31,
-      "operation_plan": "Preco pedido R$ 399,400.00 | Teto de compra R$ 390,133.20 | Caixa necessario R$ 185,014.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
-      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Casa de vila | Acima do teto",
-      "entry_price_brl": 399400,
-      "current_price_brl": 585000,
-      "latest_price_at": "2026-05-18T12:00:00+00:00",
-      "planned_exit_at": "2026-05-25",
-      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
-      "duration_days": null,
-      "open_days": 1,
-      "is_open": true,
-      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
-      "real_estate_analysis": {
-        "score": 71,
-        "confidence": 40,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
-        "score_breakdown": [],
-        "confidence_breakdown": [],
-        "pending_items": [
-          {
-            "key": "occupied_auction",
-            "title": "Avaliar risco de imovel ocupado",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "debts",
-            "title": "Confirmar dividas e responsabilidades",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
-          },
-          {
-            "key": "sale_comparables",
-            "title": "Buscar 3 comparaveis de venda",
-            "priority": "P1",
-            "status": "aberta",
-            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
-          }
-        ],
-        "clarified_items": [
-          {
-            "key": "source_validation",
-            "title": "Fonte individual validada",
-            "status": "esclarecido",
-            "detail": "A app confirmou link individual do lote na Frazão Leilões."
-          }
-        ],
-        "scenarios": {
-          "conservative": {
-            "sale_price": 545000,
-            "net_profit": 27736,
-            "roi_pct": 14.99
-          },
-          "base": {
-            "sale_price": 585000,
-            "net_profit": 65336,
-            "roi_pct": 35.31
-          },
-          "optimistic": {
-            "sale_price": 620000,
-            "net_profit": 98236,
-            "roi_pct": 53.1
-          }
-        },
-        "breakeven_sale_price": 515493.62,
-        "max_purchase_price": 390133.2,
-        "price_gap_to_ceiling": 9266.8,
-        "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 185014,
-        "base_profit_pct": 16.36,
-        "source_validation": {
-          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
-          "status": "valid",
-          "reason": "Fonte individual validada.",
-          "checked_at": "2026-05-18T12:00:00+00:00",
-          "http_status": 200
-        },
-        "candidate": {
-          "strategy": "Leilao + HF",
-          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
-          "origin": "Frazao Leiloes / Itau",
-          "city": "Sao Paulo",
-          "neighborhood": "Parada Inglesa / Tucuruvi",
-          "property_type": "Casa de vila",
-          "asking_price": 399400,
-          "market_value_estimate": 585000,
-          "private_area_m2": 105.38,
-          "bedrooms": 0,
-          "parking_spaces": 2,
-          "renovation_type": "leve",
-          "renovation_budget": 42000,
-          "sale_comparables_count": 0,
-          "rent_comparables_count": 0,
-          "carrying_months": 8,
-          "monthly_carrying_cost": 2400,
-          "estimated_sale_base": 585000,
-          "estimated_sale_conservative": 545000,
-          "estimated_sale_optimistic": 620000,
-          "notes": "Lote 084 do leilao Itau/Frazao 3609. Casa em vila/condominio ocupada; tese depende de leitura de desocupacao e liquidez local.",
-          "source_validation_status": "valid",
-          "source_validation_reason": "Fonte individual validada.",
-          "source_checked_at": "2026-05-18T12:00:00+00:00",
-          "visit_evidence": [],
-          "source_validation": {
-            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
-            "status": "valid",
-            "reason": "Fonte individual validada.",
-            "checked_at": "2026-05-18T12:00:00+00:00",
-            "http_status": 200
-          }
-        },
-        "visit_evidence": []
-      }
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 3897,
-      "thesis_id": "IM-FOLHA-FRAZAO-CAMPINAS-37386",
-      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
-      "front": "imoveis",
-      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
-      "source_validation": {
-        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
-        "status": "valid",
-        "reason": "Fonte individual validada.",
-        "checked_at": "2026-05-18T12:00:00+00:00",
-        "http_status": 200
-      },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Fonte individual validada.",
-      "source_checked_at": "2026-05-18T12:00:00+00:00",
-      "action": "REAL - Frazão Itaú Campinas Jardim Garcia casa 270m2",
-      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Jardim Garcia / Campinas. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
-      "expected_result_pct": 28.69,
-      "operation_plan": "Preco pedido R$ 433,400.00 | Teto de compra R$ 401,965.20 | Caixa necessario R$ 233,154.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
-      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Casa | Acima do teto",
-      "entry_price_brl": 433400,
-      "current_price_brl": 665000,
-      "latest_price_at": "2026-05-18T12:00:00+00:00",
-      "planned_exit_at": "2026-05-25",
-      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
-      "duration_days": null,
-      "open_days": 1,
-      "is_open": true,
-      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
-      "real_estate_analysis": {
-        "score": 68,
-        "confidence": 38,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
-        "score_breakdown": [],
-        "confidence_breakdown": [],
-        "pending_items": [
-          {
-            "key": "occupied_auction",
-            "title": "Avaliar risco de imovel ocupado",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "debts",
-            "title": "Confirmar dividas e responsabilidades",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
-          },
-          {
-            "key": "sale_comparables",
-            "title": "Buscar 3 comparaveis de venda",
-            "priority": "P1",
-            "status": "aberta",
-            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
-          }
-        ],
-        "clarified_items": [
-          {
-            "key": "source_validation",
-            "title": "Fonte individual validada",
-            "status": "esclarecido",
-            "detail": "A app confirmou link individual do lote na Frazão Leilões."
-          }
-        ],
-        "scenarios": {
-          "conservative": {
-            "sale_price": 610000,
-            "net_profit": 15196,
-            "roi_pct": 6.52
-          },
-          "base": {
-            "sale_price": 665000,
-            "net_profit": 66896,
-            "roi_pct": 28.69
-          },
-          "optimistic": {
-            "sale_price": 710000,
-            "net_profit": 109196,
-            "roi_pct": 46.83
-          }
-        },
-        "breakeven_sale_price": 593834.04,
-        "max_purchase_price": 401965.2,
-        "price_gap_to_ceiling": 31434.8,
-        "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 233154,
-        "base_profit_pct": 15.44,
-        "source_validation": {
-          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
-          "status": "valid",
-          "reason": "Fonte individual validada.",
-          "checked_at": "2026-05-18T12:00:00+00:00",
-          "http_status": 200
-        },
-        "candidate": {
-          "strategy": "Leilao + HF",
-          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
-          "origin": "Frazao Leiloes / Itau",
-          "city": "Campinas",
-          "neighborhood": "Jardim Garcia",
-          "property_type": "Casa",
-          "asking_price": 433400,
-          "market_value_estimate": 665000,
-          "private_area_m2": 270.91,
-          "bedrooms": 0,
-          "parking_spaces": 0,
-          "renovation_type": "retrofit controlado",
-          "renovation_budget": 78000,
-          "sale_comparables_count": 0,
-          "rent_comparables_count": 0,
-          "carrying_months": 8,
-          "monthly_carrying_cost": 2600,
-          "estimated_sale_base": 665000,
-          "estimated_sale_conservative": 610000,
-          "estimated_sale_optimistic": 710000,
-          "notes": "Lote 124 do leilao Itau/Frazao 3609. Casa ocupada em Campinas; candidato entra por metragem, mas reforma e posse sao P0.",
-          "source_validation_status": "valid",
-          "source_validation_reason": "Fonte individual validada.",
-          "source_checked_at": "2026-05-18T12:00:00+00:00",
-          "visit_evidence": [],
-          "source_validation": {
-            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37386",
-            "status": "valid",
-            "reason": "Fonte individual validada.",
-            "checked_at": "2026-05-18T12:00:00+00:00",
-            "http_status": 200
-          }
-        },
-        "visit_evidence": []
-      }
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 3898,
-      "thesis_id": "IM-FOLHA-FRAZAO-BUTANTA-37467",
-      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
-      "front": "imoveis",
-      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
-      "source_validation": {
-        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
-        "status": "valid",
-        "reason": "Fonte individual validada.",
-        "checked_at": "2026-05-18T12:00:00+00:00",
-        "http_status": 200
-      },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Fonte individual validada.",
-      "source_checked_at": "2026-05-18T12:00:00+00:00",
-      "action": "REAL - Frazão Itaú Butantã Piazza Morumbi 232m2",
-      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Butanta / Morumbi / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
-      "expected_result_pct": 7.62,
-      "operation_plan": "Preco pedido R$ 749,600.00 | Teto de compra R$ 617,228.80 | Caixa necessario R$ 385,976.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
-      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Apartamento | Acima do teto",
-      "entry_price_brl": 749600,
-      "current_price_brl": 1040000,
-      "latest_price_at": "2026-05-18T12:00:00+00:00",
-      "planned_exit_at": "2026-05-25",
-      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
-      "duration_days": null,
-      "open_days": 1,
-      "is_open": true,
-      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
-      "real_estate_analysis": {
-        "score": 62,
-        "confidence": 37,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
-        "score_breakdown": [],
-        "confidence_breakdown": [],
-        "pending_items": [
-          {
-            "key": "occupied_auction",
-            "title": "Avaliar risco de imovel ocupado",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "debts",
-            "title": "Confirmar dividas e responsabilidades",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
-          },
-          {
-            "key": "sale_comparables",
-            "title": "Buscar 3 comparaveis de venda",
-            "priority": "P1",
-            "status": "aberta",
-            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
-          }
-        ],
-        "clarified_items": [
-          {
-            "key": "source_validation",
-            "title": "Fonte individual validada",
-            "status": "esclarecido",
-            "detail": "A app confirmou link individual do lote na Frazão Leilões."
-          }
-        ],
-        "scenarios": {
-          "conservative": {
-            "sale_price": 950000,
-            "net_profit": -55176,
-            "roi_pct": -14.3
-          },
-          "base": {
-            "sale_price": 1040000,
-            "net_profit": 29424,
-            "roi_pct": 7.62
-          },
-          "optimistic": {
-            "sale_price": 1110000,
-            "net_profit": 95224,
-            "roi_pct": 24.67
-          }
-        },
-        "breakeven_sale_price": 1008697.87,
-        "max_purchase_price": 617228.8,
-        "price_gap_to_ceiling": 132371.2,
-        "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 385976,
-        "base_profit_pct": 3.93,
-        "source_validation": {
-          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
-          "status": "valid",
-          "reason": "Fonte individual validada.",
-          "checked_at": "2026-05-18T12:00:00+00:00",
-          "http_status": 200
-        },
-        "candidate": {
-          "strategy": "Leilao + HF",
-          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
-          "origin": "Frazao Leiloes / Itau",
-          "city": "Sao Paulo",
-          "neighborhood": "Butanta / Morumbi",
-          "property_type": "Apartamento",
-          "asking_price": 749600,
-          "market_value_estimate": 1040000,
-          "private_area_m2": 232.23,
-          "bedrooms": 0,
-          "parking_spaces": 3,
-          "renovation_type": "retrofit controlado",
-          "renovation_budget": 120000,
-          "sale_comparables_count": 0,
-          "rent_comparables_count": 0,
-          "carrying_months": 8,
-          "monthly_carrying_cost": 4200,
-          "estimated_sale_base": 1040000,
-          "estimated_sale_conservative": 950000,
-          "estimated_sale_optimistic": 1110000,
-          "notes": "Lote 121 do leilao Itau/Frazao 3609. Apartamento grande ocupado; caixa alto e retrofit exigem margem conservadora robusta.",
-          "source_validation_status": "valid",
-          "source_validation_reason": "Fonte individual validada.",
-          "source_checked_at": "2026-05-18T12:00:00+00:00",
-          "visit_evidence": [],
-          "source_validation": {
-            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37467",
-            "status": "valid",
-            "reason": "Fonte individual validada.",
-            "checked_at": "2026-05-18T12:00:00+00:00",
-            "http_status": 200
-          }
-        },
-        "visit_evidence": []
-      }
-    },
-    {
-      "phase": "pos_go_live",
-      "thesis_number": 3899,
-      "thesis_id": "IM-FOLHA-FRAZAO-BELENZINHO-37539",
-      "thesis_raised_at": "2026-05-18T12:00:00+00:00",
-      "front": "imoveis",
-      "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
-      "source_validation": {
-        "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
-        "status": "valid",
-        "reason": "Fonte individual validada.",
-        "checked_at": "2026-05-18T12:00:00+00:00",
-        "http_status": 200
-      },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Fonte individual validada.",
-      "source_checked_at": "2026-05-18T12:00:00+00:00",
-      "action": "REAL - Frazão Itaú Belenzinho In Parque Belém 74m2",
-      "thesis_reason": "Radar imobiliario: lote Frazão/Itaú em Belenzinho / Sao Paulo. Fonte individual validada; tese segue travada por ocupacao, edital, matricula e comparaveis.",
-      "expected_result_pct": -1.67,
-      "operation_plan": "Preco pedido R$ 677,700.00 | Teto de compra R$ 567,660.60 | Caixa necessario R$ 290,887.00 | Proximo passo: ler edital, matricula e risco de ocupacao",
-      "structured_operation": "Leilao + HF | Frazao Leiloes / Itau | Apartamento | Acima do teto",
-      "entry_price_brl": 677700,
-      "current_price_brl": 845000,
-      "latest_price_at": "2026-05-18T12:00:00+00:00",
-      "planned_exit_at": "2026-05-25",
-      "exit_rule": "Invalidar se ocupacao, edital, debitos ou comparaveis derrubarem a margem conservadora.",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
-      "moment_result_pct": 0,
-      "duration_days": null,
-      "open_days": 1,
-      "is_open": true,
-      "learning_note": "Fonte individual validada. Aprendizado em andamento: leilao bancario com imovel ocupado so vira tese depois de edital, matricula, debitos e comparaveis.",
-      "real_estate_analysis": {
-        "score": 58,
-        "confidence": 36,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Ler edital, matricula e risco de ocupacao antes de qualquer lance",
-        "score_breakdown": [],
-        "confidence_breakdown": [],
-        "pending_items": [
-          {
-            "key": "occupied_auction",
-            "title": "Avaliar risco de imovel ocupado",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Ler edital, estimar prazo/custo de desocupacao e travar qualquer lance ate especialista validar."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "debts",
-            "title": "Confirmar dividas e responsabilidades",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Separar o que o vendedor quita do que pode ficar com o arrematante."
-          },
-          {
-            "key": "sale_comparables",
-            "title": "Buscar 3 comparaveis de venda",
-            "priority": "P1",
-            "status": "aberta",
-            "action": "Usar mesmo bairro, metragem proxima e liquidez real antes de confirmar valor de saida."
-          }
-        ],
-        "clarified_items": [
-          {
-            "key": "source_validation",
-            "title": "Fonte individual validada",
-            "status": "esclarecido",
-            "detail": "A app confirmou link individual do lote na Frazão Leilões."
-          }
-        ],
-        "scenarios": {
-          "conservative": {
-            "sale_price": 795000,
-            "net_profit": -51862,
-            "roi_pct": -17.83
-          },
-          "base": {
-            "sale_price": 845000,
-            "net_profit": -4862,
-            "roi_pct": -1.67
-          },
-          "optimistic": {
-            "sale_price": 890000,
-            "net_profit": 37438,
-            "roi_pct": 12.87
-          }
-        },
-        "breakeven_sale_price": 850172.34,
-        "max_purchase_price": 567660.6,
-        "price_gap_to_ceiling": 110039.4,
-        "price_ceiling_status": "Acima do teto",
-        "target_roi_pct": 20,
-        "cash_needed": 290887,
-        "base_profit_pct": -0.72,
-        "source_validation": {
-          "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
-          "status": "valid",
-          "reason": "Fonte individual validada.",
-          "checked_at": "2026-05-18T12:00:00+00:00",
-          "http_status": 200
-        },
-        "candidate": {
-          "strategy": "Leilao + HF",
-          "source_url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
-          "origin": "Frazao Leiloes / Itau",
-          "city": "Sao Paulo",
-          "neighborhood": "Belenzinho",
-          "property_type": "Apartamento",
-          "asking_price": 677700,
-          "market_value_estimate": 845000,
-          "private_area_m2": 74.63,
-          "bedrooms": 0,
-          "parking_spaces": 2,
-          "renovation_type": "leve",
-          "renovation_budget": 52000,
-          "sale_comparables_count": 0,
-          "rent_comparables_count": 0,
-          "carrying_months": 8,
-          "monthly_carrying_cost": 3600,
-          "estimated_sale_base": 845000,
-          "estimated_sale_conservative": 795000,
-          "estimated_sale_optimistic": 890000,
-          "notes": "Lote 055 do leilao Itau/Frazao 3609. Preco alto para primeiro filtro; segue no radar para comparar m2, liquidez e risco de ocupacao.",
-          "source_validation_status": "valid",
-          "source_validation_reason": "Fonte individual validada.",
-          "source_checked_at": "2026-05-18T12:00:00+00:00",
-          "visit_evidence": [],
-          "source_validation": {
-            "url": "https://www.frazaoleiloes.com.br/Auction/LotDetails/37539",
-            "status": "valid",
-            "reason": "Fonte individual validada.",
-            "checked_at": "2026-05-18T12:00:00+00:00",
-            "http_status": 200
-          }
-        },
-        "visit_evidence": []
-      }
     }
   ],
   "front_overview": {
@@ -78185,7 +78579,7 @@
       "success_count": 1,
       "updated_at": "2026-05-09T12:11:23+00:00",
       "counting_policy": "radar_candidates",
-      "mapped_count": 12
+      "mapped_count": 17
     }
   },
   "data_quality_gate": {
@@ -78200,12 +78594,12 @@
     },
     "thresholds": {
       "market_max_lag_seconds": 1800,
-      "market_min_fresh_coverage_pct": 95,
-      "fundamentals_min_coverage_pct": 90,
+      "market_min_fresh_coverage_pct": 95.0,
+      "fundamentals_min_coverage_pct": 90.0,
       "fundamentals_max_staleness_days": 2,
-      "fundamentals_min_fresh_coverage_pct": 90,
+      "fundamentals_min_fresh_coverage_pct": 90.0,
       "news_lookback_days": 7,
-      "news_min_coverage_pct": 60,
+      "news_min_coverage_pct": 60.0,
       "max_critical_providers": 0,
       "max_no_data_providers": 0
     },
@@ -78214,7 +78608,7 @@
       "passed_checks": 6,
       "failed_checks": 0,
       "total_checks": 6,
-      "quality_score_pct": 100
+      "quality_score_pct": 100.0
     },
     "checks": [
       {
@@ -78222,8 +78616,8 @@
         "label": "Market fresh coverage",
         "status": "pass",
         "comparator": ">=",
-        "actual_value": 100,
-        "target_value": 95,
+        "actual_value": 100.0,
+        "target_value": 95.0,
         "details": "fresh=2/2 com janela por frente (B3 diario, cripto intraday)"
       },
       {
@@ -78231,8 +78625,8 @@
         "label": "Provider critical count",
         "status": "pass",
         "comparator": "<=",
-        "actual_value": 0,
-        "target_value": 0,
+        "actual_value": 0.0,
+        "target_value": 0.0,
         "details": "providers_criticos=0"
       },
       {
@@ -78240,8 +78634,8 @@
         "label": "Provider no-data count",
         "status": "pass",
         "comparator": "<=",
-        "actual_value": 0,
-        "target_value": 0,
+        "actual_value": 0.0,
+        "target_value": 0.0,
         "details": "providers_sem_dados=0"
       },
       {
@@ -78249,8 +78643,8 @@
         "label": "Fundamentals coverage",
         "status": "pass",
         "comparator": ">=",
-        "actual_value": 100,
-        "target_value": 90,
+        "actual_value": 100.0,
+        "target_value": 90.0,
         "details": "com_snapshot=1/1 no universo com fundamentos aplicaveis"
       },
       {
@@ -78258,8 +78652,8 @@
         "label": "Fundamentals fresh coverage",
         "status": "pass",
         "comparator": ">=",
-        "actual_value": 100,
-        "target_value": 90,
+        "actual_value": 100.0,
+        "target_value": 90.0,
         "details": "frescos=1/1 com staleness <= 2 dia(s)"
       },
       {
@@ -78267,8 +78661,8 @@
         "label": "News recent coverage",
         "status": "pass",
         "comparator": ">=",
-        "actual_value": 100,
-        "target_value": 60,
+        "actual_value": 100.0,
+        "target_value": 60.0,
         "details": "ativos_com_noticia=2/2 na janela de 7 dia(s)"
       }
     ],
@@ -78277,8 +78671,8 @@
       "missing_instrument_count": 0,
       "fresh_instrument_count": 2,
       "stale_instrument_count": 0,
-      "coverage_pct": 100,
-      "fresh_coverage_pct": 100,
+      "coverage_pct": 100.0,
+      "fresh_coverage_pct": 100.0,
       "max_lag_seconds": 31994.3373,
       "missing_instruments_sample": []
     },
@@ -78287,15 +78681,15 @@
       "missing_instrument_count": 0,
       "fresh_instrument_count": 1,
       "stale_instrument_count": 0,
-      "coverage_pct": 100,
-      "fresh_coverage_pct": 100,
+      "coverage_pct": 100.0,
+      "fresh_coverage_pct": 100.0,
       "missing_instruments_sample": [],
       "stale_instruments_sample": []
     },
     "news": {
       "lookback_days": 7,
       "instruments_with_recent_news": 2,
-      "recent_news_coverage_pct": 100,
+      "recent_news_coverage_pct": 100.0,
       "articles_in_window": 15,
       "source_count": 11,
       "missing_instruments_sample": []
@@ -78444,7 +78838,7 @@
               }
             ],
             "age_days": 3.649,
-            "max_age_days": 4
+            "max_age_days": 4.0
           },
           "crypto": {
             "count": 19083,
@@ -78459,7 +78853,7 @@
               }
             ],
             "age_days": 0.003,
-            "max_age_days": 1
+            "max_age_days": 1.0
           }
         }
       },
@@ -78485,7 +78879,7 @@
         "status": "ok",
         "message": "Dashboard seed legivel.",
         "generated_at": "2026-05-18T15:34:21+00:00",
-        "age_days": 0,
+        "age_days": 0.0,
         "thesis_open_operations": 3894,
         "operations_by_front": {
           "sem_frente": 3882,

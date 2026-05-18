@@ -24,3 +24,18 @@ def test_folha_frazao_candidates_are_seeded_with_individual_validated_sources() 
         assert row["real_estate_analysis"]["source_validation"]["status"] == "valid"
         assert row["real_estate_analysis"]["source_validation"]["reason"] == "Fonte individual validada."
         assert row["is_open"] is True
+
+
+def test_seed_candidate_17_is_closed_as_learning_case() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    row = next(
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if row.get("thesis_id") == "IM-RADAR-17"
+    )
+
+    assert row["status"] == "Fechada"
+    assert row["outcome"] == "Descartado pelo radar"
+    assert row["real_estate_analysis"]["suggested_status"] == "Descartado"
+    assert row["is_open"] is False
+    assert "sem fonte individual" in row["exit_rule"]
