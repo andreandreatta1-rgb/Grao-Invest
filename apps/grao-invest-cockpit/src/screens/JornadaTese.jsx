@@ -1229,6 +1229,7 @@ function SourceListingLink({ item }) {
 
 function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle }) {
   const canDiscard = item.canDiscard && item.isLiveCandidate && typeof onDiscard === "function" && /^#?IM-RADAR-\d+$/i.test(String(item.id || ""));
+  const visibleId = displayCaseId(item.id);
 
   return (
     <article style={{ background: C.panel, borderBottom: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderLeft: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderRight: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderTop: `2px solid ${item.color}`, borderRadius: 14, display: "grid", gap: 12, gridColumn: isOpen ? "1 / -1" : "auto", padding: 15, position: "relative", overflow: "hidden" }}>
@@ -1254,15 +1255,22 @@ function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle
         >
           <div style={{ alignItems: "flex-start", display: "flex", gap: 12, minWidth: 0 }}>
             <ThesisIcon item={item} isOpen={isOpen} />
-            <div>
-            <div style={{ color: item.color, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.09em", marginBottom: 6, textTransform: "uppercase" }}>{item.id} · {item.role}</div>
-            <h3 style={{ color: C.text, fontSize: 16, lineHeight: 1.2, margin: 0 }}>{item.title}</h3>
-            <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.45, marginTop: 7 }}>
-              {item.strategy} · score {item.score}/100 · confiança {item.confidence}/100
-            </div>
-            <div style={{ color: item.color, fontFamily: mono, fontSize: 8, fontWeight: 900, letterSpacing: "0.08em", marginTop: 7, textTransform: "uppercase" }}>
-              {item.iconLabel}
-            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 7 }}>
+                <span style={{ background: withAlpha(item.color, "14"), border: `1px solid ${withAlpha(item.color, alpha.border)}`, borderRadius: 8, color: item.color, display: "inline-flex", fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: 0, lineHeight: 1.3, maxWidth: "100%", padding: "4px 7px", textTransform: "uppercase", wordBreak: "break-word" }}>
+                  ID {visibleId}
+                </span>
+                <span style={{ color: item.color, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.09em", textTransform: "uppercase" }}>
+                  {item.role}
+                </span>
+              </div>
+              <h3 style={{ color: C.text, fontSize: 16, lineHeight: 1.2, margin: 0 }}>{item.title}</h3>
+              <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.45, marginTop: 7 }}>
+                {item.strategy} · score {item.score}/100 · confiança {item.confidence}/100
+              </div>
+              <div style={{ color: item.color, fontFamily: mono, fontSize: 8, fontWeight: 900, letterSpacing: "0.08em", marginTop: 7, textTransform: "uppercase" }}>
+                {item.iconLabel}
+              </div>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>

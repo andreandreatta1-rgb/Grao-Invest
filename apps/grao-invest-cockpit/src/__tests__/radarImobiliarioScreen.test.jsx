@@ -230,13 +230,13 @@ describe("Radar Imobiliário screen", () => {
       thesisRows: [
         ...fillerRows,
         {
-          thesisId: "IM-FOLHA-FRAZAO-SAUDE-37528",
+          thesisId: "IM-FOLHA-FRAZAO-PARADA-INGLESA-37570",
           front: "imoveis",
           status: "Aberta - Atencao",
           statusGroup: "Go-live",
           isOpen: true,
-          asset: "REAL - Folha Frazao Itau Saude Rua Abagiba 74m2",
-          sourceUrl: "https://www.frazaoleiloes.com.br/Auction/LotDetails/37528",
+          asset: "REAL - Frazão Itaú Parada Inglesa casa vila 105m2",
+          sourceUrl: "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
           entryPrice: 285000,
           currentPrice: 285000,
           targetPrice: 430000,
@@ -263,7 +263,8 @@ describe("Radar Imobiliário screen", () => {
     const portfolio = screen.getByTestId("radar-imobiliario-portfolio");
     const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
     expect(within(portfolio).getByText(/16 casos reais no radar/i)).toBeInTheDocument();
-    expect(within(openPortfolio).getByText(/Folha Frazao Itau Saude Rua Abagiba/i)).toBeInTheDocument();
+    expect(within(openPortfolio).getByText(/Frazão Itaú Parada Inglesa/i)).toBeInTheDocument();
+    expect(within(openPortfolio).getByText(/ID #IM-FOLHA-FRAZAO-PARADA-INGLESA-37570/i)).toBeInTheDocument();
     expect(within(openPortfolio).getByText(/Fonte validada/i)).toBeInTheDocument();
     expect(within(openPortfolio).getAllByRole("button", { name: /Abrir/i })).toHaveLength(16);
   });
