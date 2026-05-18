@@ -1227,7 +1227,9 @@ function SourceListingLink({ item }) {
   );
 }
 
-function CaseStoryCard({ item, isOpen, onToggle }) {
+function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle }) {
+  const canDiscard = item.isLiveCandidate && typeof onDiscard === "function" && /^#?IM-RADAR-\d+$/i.test(String(item.id || ""));
+
   return (
     <article style={{ background: C.panel, borderBottom: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderLeft: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderRight: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderTop: `2px solid ${item.color}`, borderRadius: 14, display: "grid", gap: 12, gridColumn: isOpen ? "1 / -1" : "auto", padding: 15, position: "relative", overflow: "hidden" }}>
       <div style={{ background: `radial-gradient(circle at top right, ${withAlpha(item.color, alpha.glow)}, transparent 72%)`, height: 95, position: "absolute", right: 0, top: 0, width: 120 }} />
@@ -1276,6 +1278,32 @@ function CaseStoryCard({ item, isOpen, onToggle }) {
         <div style={{ marginTop: 10 }}>
           <SourceListingLink item={item} />
         </div>
+        {canDiscard && (
+          <button
+            aria-label={`Descartar ${item.title}`}
+            disabled={isDiscarding}
+            onClick={() => onDiscard(item)}
+            style={{
+              alignSelf: "flex-start",
+              background: withAlpha(C.coral, isDiscarding ? "08" : "12"),
+              border: `1px solid ${withAlpha(C.coral, isDiscarding ? "22" : "45")}`,
+              borderRadius: 9,
+              color: isDiscarding ? C.muted : C.coral,
+              cursor: isDiscarding ? "wait" : "pointer",
+              display: "inline-flex",
+              fontFamily: mono,
+              fontSize: 9,
+              fontWeight: 900,
+              letterSpacing: "0.07em",
+              marginTop: 10,
+              padding: "7px 9px",
+              textTransform: "uppercase",
+            }}
+            type="button"
+          >
+            {isDiscarding ? "Descartando" : "Descartar do radar"}
+          </button>
+        )}
       </div>
 
       {isOpen && (
@@ -1290,7 +1318,9 @@ export function PerdizesCasePortfolio({
   dataTestId = "perdizes-case-portfolio",
   eyebrow = "Radar imobiliário",
   intro = "Cada card nasce contraído para preservar foco. Há leilão, compra direta e renda urbana: abra um por vez para ver ficha, números, P0, comentário do laboratório e fonte.",
+  discardingId = "",
   items = REAL_ESTATE_DEMO_CASES,
+  onDiscard,
   title = "Oito histórias para mostrar que o método não depende de um único imóvel",
 } = {}) {
   const [openCaseId, setOpenCaseId] = useState(null);
@@ -1305,7 +1335,9 @@ export function PerdizesCasePortfolio({
           <CaseStoryCard
             key={item.id}
             item={item}
+            isDiscarding={discardingId === item.id}
             isOpen={openCaseId === item.id}
+            onDiscard={onDiscard}
             onToggle={() => setOpenCaseId((current) => (current === item.id ? null : item.id))}
           />
         ))}

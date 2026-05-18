@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Badge, C, KPICard, PatrickJane, alpha, mono, withAlpha } from "../components";
+import { discardRealEstateCandidate } from "../data/cockpitHalleyApi";
 import { PerdizesCasePortfolio, REAL_ESTATE_DEMO_CASES } from "./JornadaTese.jsx";
 
 function asArray(value) {
@@ -672,7 +673,7 @@ function pluralizeCase(count, singular, plural) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
-function RadarRealStoryPortfolio({ closedStories, liveStories, portfolioIntro, portfolioTitle }) {
+function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onDiscard, portfolioIntro, portfolioTitle }) {
   return (
     <section
       data-testid="radar-imobiliario-portfolio"
@@ -704,7 +705,9 @@ function RadarRealStoryPortfolio({ closedStories, liveStories, portfolioIntro, p
           dataTestId="radar-imobiliario-abertos"
           eyebrow="Abertos"
           intro="Candidatos ainda vivos. Aqui ficam os casos que pedem P0, fonte, ocupação, matrícula, comparáveis ou decisão antes de qualquer proposta."
+          discardingId={discardingId}
           items={liveStories}
+          onDiscard={onDiscard}
           title={`Abertos - ${pluralizeCase(liveStories.length, "candidato real", "candidatos reais")}`}
         />
       )}
@@ -775,6 +778,8 @@ function RadarRefreshBar({ isRefreshing, onRefresh, stats }) {
 }
 
 export default function RadarImobiliario({ data, onRefresh }) {
+  const [discardError, setDiscardError] = useState("");
+  const [discardingId, setDiscardingId] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { closedStories, items, liveStories, usingRealStories } = useMemo(() => radarStoriesForData(data), [data]);
   const stats = useMemo(() => buildRadarStats(items), [items]);
@@ -802,9 +807,34 @@ export default function RadarImobiliario({ data, onRefresh }) {
     }
   }
 
+  async function handleDiscard(item) {
+    if (discardingId) return;
+    const defaultReason = `Descartado manualmente pelo investidor: ${item.title} nao faz sentido manter no radar aberto.`;
+    const reason = window.prompt("Motivo para descartar este candidato do radar aberto:", defaultReason);
+    if (reason === null) return;
+    const cleanedReason = String(reason || "").trim() || defaultReason;
+    setDiscardError("");
+    setDiscardingId(item.id);
+    try {
+      await discardRealEstateCandidate({ thesisId: item.id, reason: cleanedReason });
+      if (typeof onRefresh === "function") {
+        await onRefresh();
+      }
+    } catch (error) {
+      setDiscardError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setDiscardingId("");
+    }
+  }
+
   return (
     <main style={{ background: C.bg, color: C.text, display: "flex", flexDirection: "column", fontFamily: "Sora, system-ui, sans-serif", gap: 18, minHeight: 640, padding: "24px 28px 40px" }}>
       <RadarHero stats={stats} />
+      {discardError && (
+        <section style={{ background: withAlpha(C.coral, "10"), border: `1px solid ${withAlpha(C.coral, alpha.border)}`, borderRadius: 12, color: C.coral, fontSize: 12, fontWeight: 800, lineHeight: 1.5, padding: "10px 12px" }}>
+          Falha ao descartar candidato: {discardError}
+        </section>
+      )}
       <RadarRefreshBar isRefreshing={isRefreshing} onRefresh={handleRefresh} stats={stats} />
       <RadarOperatingModel />
       <StrategyIconLegend />
@@ -812,7 +842,9 @@ export default function RadarImobiliario({ data, onRefresh }) {
       {usingRealStories ? (
         <RadarRealStoryPortfolio
           closedStories={closedStories}
+          discardingId={discardingId}
           liveStories={liveStories}
+          onDiscard={handleDiscard}
           portfolioIntro={portfolioIntro}
           portfolioTitle={portfolioTitle}
         />

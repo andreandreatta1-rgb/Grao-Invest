@@ -97,6 +97,23 @@ export async function saveRealEstateVisitEvidence({ thesisId, section, evidence 
   return response.json();
 }
 
+export async function discardRealEstateCandidate({ thesisId, reason }) {
+  const candidateId = parseCandidateId(thesisId);
+  if (!candidateId) {
+    throw new Error("Nao foi possivel identificar o candidato imobiliario desta tese.");
+  }
+
+  const response = await fetch(`/api/real-estate/candidates/${candidateId}/discard`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ reason }),
+  });
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`.trim());
+  }
+  return response.json();
+}
+
 export async function fetchCockpitPayloads() {
   const settled = await Promise.allSettled(FEEDS.map(([, url]) => fetchJson(url)));
   const result = {

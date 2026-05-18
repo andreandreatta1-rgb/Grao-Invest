@@ -268,6 +268,48 @@ describe("Radar Imobiliário screen", () => {
     expect(within(openPortfolio).getAllByRole("button", { name: /Abrir/i })).toHaveLength(16);
   });
 
+  it("lets the investor discard an open runtime candidate from the radar", async () => {
+    const user = userEvent.setup();
+    const onRefresh = vi.fn();
+    const fetchMock = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ status: "Descartado" }) }));
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(window, "prompt").mockReturnValue("Sem fonte individual e P0 demais para manter aberto.");
+    const data = {
+      thesisRows: [
+        {
+          thesisId: "IM-RADAR-17",
+          front: "Imóveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL - Parque do Estado Agua Funda reforma pesada 50m2",
+          entryPrice: 120000,
+          targetPrice: 300000,
+          expectedPct: 54,
+          realEstateAnalysis: {
+            score: 70,
+            confidence: 30,
+            suggested_status: "Aberto com pendencias",
+            next_action: "Confirmar ocupacao",
+            scenarios: { base: { sale_price: 300000, net_profit: 64800, roi_pct: 54 } },
+            pending_items: [{ priority: "P0", title: "Confirmar fonte", action: "Validar fonte individual." }],
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} onRefresh={onRefresh} />);
+
+    const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
+    await user.click(within(openPortfolio).getByRole("button", { name: /Descartar Parque do Estado Agua Funda/i }));
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/real-estate/candidates/17/discard", expect.objectContaining({
+      method: "POST",
+      body: JSON.stringify({ reason: "Sem fonte individual e P0 demais para manter aberto." }),
+    }));
+    await waitFor(() => expect(onRefresh).toHaveBeenCalled());
+  });
+
   it("recovers from fallback and replaces demo stories when the real feed comes back", async () => {
     window.history.replaceState(null, "", "/#radar-imobiliario");
     let feedRequests = 0;
