@@ -1265,14 +1265,35 @@ function pluralizeCase(count, singular, plural) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+function isTargetNeighborhoodStory(story) {
+  return Boolean(
+    story?.targetNeighborhoodKey
+    || String(story?.id || "").includes("IM-RADAR-TARGET-")
+    || String(story?.title || "").includes("REAL TARGET -"),
+  );
+}
+
+function prioritizeActiveCandidateStories(stories) {
+  return asArray(stories)
+    .map((story, index) => ({ story, index }))
+    .sort((left, right) => {
+      const leftPriority = isTargetNeighborhoodStory(left.story) ? 0 : 1;
+      const rightPriority = isTargetNeighborhoodStory(right.story) ? 0 : 1;
+      if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+      return left.index - right.index;
+    })
+    .map(({ story }) => story);
+}
+
 function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onDiscard, portfolioIntro, portfolioTitle }) {
-  const numberedLiveStories = liveStories.map((story, index) => ({
+  const prioritizedLiveStories = prioritizeActiveCandidateStories(liveStories);
+  const numberedLiveStories = prioritizedLiveStories.map((story, index) => ({
     ...story,
     identifierNumber: String(index + 1).padStart(2, "0"),
   }));
   const numberedClosedStories = closedStories.map((story, index) => ({
     ...story,
-    identifierNumber: String(liveStories.length + index + 1).padStart(2, "0"),
+    identifierNumber: String(prioritizedLiveStories.length + index + 1).padStart(2, "0"),
   }));
 
   return (

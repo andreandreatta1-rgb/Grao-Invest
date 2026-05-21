@@ -974,6 +974,67 @@ describe("Radar Imobiliário screen", () => {
     expect(within(panel).getByText(/1 candidato neste bairro/i)).toBeInTheDocument();
   });
 
+  it("promotes target neighborhood candidates to the top of active real estate candidates", () => {
+    const data = {
+      thesisRows: [
+        {
+          thesisId: "IM-RADAR-OLD-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL - Alphaville Campinas flat Ibis Styles 32m2",
+          operation: "Renda / Plano B | Chaves na Mao | Flat | Dentro do teto",
+          entryPrice: 152000,
+          currentPrice: 250000,
+          realEstateAnalysis: {
+            score: 82,
+            confidence: 33,
+            max_purchase_price: 190000,
+            next_action: "Confirmar ocupacao",
+            scenarios: { base: { sale_price: 250000, net_profit: 62000, roi_pct: 96.88 } },
+            pending_items: [{ priority: "P0", title: "Confirmar ocupacao", action: "Validar fonte oficial." }],
+            candidate: { city: "Campinas", neighborhood: "Alphaville Campinas", strategy: "Renda / Plano B" },
+          },
+        },
+        {
+          thesisId: "IM-RADAR-TARGET-PIN-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL TARGET - Pinheiros Capote Valente 33m 1q",
+          operation: "Leilao extrajudicial + HF leve | Leilao Imovel | Apartamento | Teto a validar",
+          entryPrice: 339845.69,
+          currentPrice: 566409.48,
+          realEstateAnalysis: {
+            score: 70,
+            confidence: 28,
+            max_purchase_price: 350000,
+            next_action: "Validar fonte manualmente",
+            scenarios: { base: { sale_price: 566409.48, net_profit: 80000, roi_pct: 23.5 } },
+            pending_items: [{ priority: "P0", title: "Validar fonte manualmente", action: "Confirmar edital." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Capote Valente",
+              strategy: "Leilao extrajudicial + HF leve",
+              origin: "Leilao Imovel",
+              private_area_m2: 33.5,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
+    const buttons = within(openPortfolio).getAllByRole("button", { name: /Abrir/i });
+    expect(buttons[0]).toHaveAccessibleName(/Abrir REAL TARGET - Pinheiros Capote Valente/i);
+    expect(within(openPortfolio).getAllByTestId("candidate-identifier-number")[0]).toHaveTextContent("01");
+  });
+
   it("renders radar subareas as isolated content views", () => {
     render(<RadarImobiliario data={{ realEstateStrategyTerritoryCandidates: {} }} section="garimpo" />);
 
