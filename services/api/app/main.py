@@ -2701,6 +2701,7 @@ REAL_ESTATE_CANDIDATE_FIELDS = [
 
 VISIT_EVIDENCE_PREFIX = "[VISITA_HF] "
 SOURCE_VALIDATION_PREFIX = "[SOURCE_VALIDATION] "
+PAYMENT_TERMS_PREFIX = "[PAYMENT_TERMS] "
 
 
 def _parse_real_estate_source_validation(notes: str | None) -> dict[str, object]:
@@ -2771,12 +2772,43 @@ def _parse_real_estate_visit_evidence(notes: str | None) -> list[dict[str, str]]
     return entries
 
 
+def _parse_real_estate_payment_terms_notes(notes: str | None) -> list[dict[str, object]]:
+    latest: list[dict[str, object]] = []
+    for line in str(notes or "").splitlines():
+        if not line.startswith(PAYMENT_TERMS_PREFIX):
+            continue
+        try:
+            raw_entry = json.loads(line[len(PAYMENT_TERMS_PREFIX) :])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(raw_entry, list):
+            latest = [item for item in raw_entry if isinstance(item, dict)]
+    return latest
+
+
+def _append_real_estate_payment_terms(
+    notes: str | None,
+    payment_terms: list[dict[str, object]] | None,
+) -> str:
+    visible_lines = [
+        line
+        for line in str(notes or "").splitlines()
+        if not line.startswith(PAYMENT_TERMS_PREFIX)
+    ]
+    if not payment_terms:
+        return "\n".join(line for line in visible_lines if line).strip()
+    serialized = json.dumps(payment_terms, ensure_ascii=False, separators=(",", ":"))
+    parts = ["\n".join(line for line in visible_lines if line).strip(), f"{PAYMENT_TERMS_PREFIX}{serialized}"]
+    return "\n".join(part for part in parts if part).strip()
+
+
 def _strip_real_estate_visit_evidence(notes: str | None) -> str:
     return "\n".join(
         line
         for line in str(notes or "").splitlines()
         if not line.startswith(VISIT_EVIDENCE_PREFIX)
         and not line.startswith(SOURCE_VALIDATION_PREFIX)
+        and not line.startswith(PAYMENT_TERMS_PREFIX)
     ).strip()
 
 
@@ -2786,6 +2818,7 @@ def _merge_real_estate_notes_preserving_visit_evidence(current_notes: str | None
         for line in str(current_notes or "").splitlines()
         if line.startswith(VISIT_EVIDENCE_PREFIX)
         or line.startswith(SOURCE_VALIDATION_PREFIX)
+        or line.startswith(PAYMENT_TERMS_PREFIX)
     ]
     parts = [str(visible_notes or "").strip(), *evidence_lines]
     return "\n".join(part for part in parts if part).strip()
@@ -2812,6 +2845,7 @@ def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, 
     base = {field: getattr(candidate, field) for field in REAL_ESTATE_CANDIDATE_FIELDS}
     base["notes"] = _strip_real_estate_visit_evidence(candidate.notes)
     visit_evidence = _parse_real_estate_visit_evidence(candidate.notes)
+    payment_terms = _parse_real_estate_payment_terms_notes(candidate.notes)
     source_validation = _parse_real_estate_source_validation(candidate.notes)
     if not source_validation:
         source_validation = {
@@ -2824,6 +2858,7 @@ def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, 
     base["source_validation_status"] = str(source_validation.get("status") or "")
     base["source_validation_reason"] = str(source_validation.get("reason") or "")
     base["source_checked_at"] = str(source_validation.get("checked_at") or "")
+    base["payment_terms"] = payment_terms
     analysis = build_candidate_analysis(base)
     status_value = candidate.status_override or str(analysis["suggested_status"])
     if "descart" in str(status_value or "").lower():
@@ -2843,6 +2878,7 @@ def _real_estate_candidate_payload(candidate: RealEstateCandidate) -> dict[str, 
         "id": candidate.id,
         "user_id": candidate.user_id,
         **base,
+        "payment_terms": payment_terms,
         "visit_evidence": visit_evidence,
         "source_validation": source_validation,
         "source_validation_status": base["source_validation_status"],
@@ -2913,9 +2949,15 @@ def real_estate_candidate_create(
     db: Session = Depends(get_db),
 ) -> dict[str, object]:
     now = isoformat(utc_now())
+    payload_data = payload.model_dump()
+    payment_terms = payload_data.pop("payment_terms", [])
+    payload_data["notes"] = _append_real_estate_payment_terms(
+        payload_data.get("notes"),
+        payment_terms,
+    )
     candidate = RealEstateCandidate(
         user_id=user.id,
-        **payload.model_dump(),
+        **payload_data,
         created_at=now,
         updated_at=now,
     )
@@ -2939,6 +2981,9 @@ def real_estate_candidate_update(
         candidate_id=candidate_id,
     )
     for field, value in payload.model_dump(exclude_unset=True, exclude_none=True).items():
+        if field == "payment_terms":
+            candidate.notes = _append_real_estate_payment_terms(candidate.notes, value)
+            continue
         if field == "notes":
             value = _merge_real_estate_notes_preserving_visit_evidence(candidate.notes, str(value))
         setattr(candidate, field, value)
@@ -5496,7 +5541,7 @@ def dashboard_summary(
             if not isinstance(row, dict):
                 continue
             thesis_id_value = str(row.get("thesis_id") or "")
-            if not thesis_id_value.startswith("IM-FOLHA-FRAZAO-"):
+            if not thesis_id_value.startswith(("IM-FOLHA-FRAZAO-", "IM-RADAR-TARGET-")):
                 continue
             if thesis_id_value in existing_ids:
                 continue
@@ -5546,6 +5591,9 @@ def dashboard_summary(
                     "rent_comparables_count",
                     "carrying_months",
                     "monthly_carrying_cost",
+                    "acquisition_costs",
+                    "selling_commission_pct",
+                    "cash_needed",
                     "estimated_sale_base",
                     "estimated_sale_conservative",
                     "estimated_sale_optimistic",
@@ -5572,6 +5620,13 @@ def dashboard_summary(
                 [item for item in pending_items if isinstance(item, dict)]
                 if isinstance(pending_items, list)
                 else []
+            )
+            valuation_evidence = analysis_dict.get("valuation_evidence")
+            valuation_evidence_dict = (
+                valuation_evidence if isinstance(valuation_evidence, dict) else {}
+            )
+            has_weak_exit_value = (
+                valuation_evidence_dict.get("risk_flag") == "weak_neighborhood_benchmark"
             )
 
             status_value = str(candidate_payload.get("status") or "").strip()
@@ -5610,7 +5665,11 @@ def dashboard_summary(
                 status_label = "Aberta"
                 outcome_label = status_value or "Em monitoramento"
 
-            expected_result_pct = round(_safe_number(base_scenario_dict.get("roi_pct"), 0.0), 4)
+            expected_result_pct = (
+                0.0
+                if has_weak_exit_value
+                else round(_safe_number(base_scenario_dict.get("roi_pct"), 0.0), 4)
+            )
             asking_price = round(_safe_number(candidate_payload.get("asking_price"), 0.0), 2)
             market_value = round(
                 _safe_number(
@@ -5619,6 +5678,7 @@ def dashboard_summary(
                 ),
                 2,
             )
+            headline_price = asking_price if has_weak_exit_value else market_value
             max_purchase_price = round(
                 _safe_number(analysis_dict.get("max_purchase_price"), 0.0),
                 2,
@@ -5648,7 +5708,9 @@ def dashboard_summary(
             operation_plan = (
                 f"Preco pedido R$ {asking_price:,.2f} | "
                 f"Teto de compra R$ {max_purchase_price:,.2f} | "
-                f"Caixa necessario R$ {cash_needed:,.2f} | Proximo passo: {next_action}"
+                f"Caixa necessario R$ {cash_needed:,.2f}"
+                f"{' | Valor de saida a validar' if has_weak_exit_value else ''} | "
+                f"Proximo passo: {next_action}"
             )
             structured_operation = (
                 f"{candidate_payload.get('strategy') or 'Estrategia n/d'} | "
@@ -5711,7 +5773,7 @@ def dashboard_summary(
                 "operation_plan": operation_plan,
                 "structured_operation": structured_operation,
                 "entry_price_brl": asking_price,
-                "current_price_brl": market_value,
+                "current_price_brl": headline_price,
                 "latest_price_at": candidate.updated_at,
                 "planned_exit_at": planned_exit_at_value,
                 "exit_rule": exit_rule,
@@ -5860,13 +5922,15 @@ def dashboard_summary(
             if mapped_count > 0:
                 item["mapped_count"] = mapped_count
             if front_key in {"b3", "crypto"}:
-                resolved_count = max(
-                    _safe_int(item.get("resolved_count")),
-                    _safe_int(stats.get("resolved_count")),
-                )
-                if resolved_count > 0:
-                    item["resolved_count"] = resolved_count
-                    item["total_tested"] = resolved_count
+                seed_resolved_count = _safe_int(item.get("resolved_count"))
+                stats_resolved_count = _safe_int(stats.get("resolved_count"))
+                if seed_resolved_count > 0:
+                    item["resolved_count"] = seed_resolved_count
+                    item["total_tested"] = seed_resolved_count
+                elif stats_resolved_count > 0:
+                    item.setdefault("resolved_count", stats_resolved_count)
+                    if _safe_int(item.get("total_tested")) <= 0:
+                        item["total_tested"] = stats_resolved_count
                 success_count = max(
                     _safe_int(item.get("success_count")),
                     _safe_int(stats.get("success_count")),

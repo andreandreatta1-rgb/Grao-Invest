@@ -67,6 +67,26 @@ const DIRECT_MARKERS = [
   "zapimoveis",
 ];
 
+const TARGET_NEIGHBORHOODS = [
+  { key: "pinheiros", label: "Pinheiros", terms: ["pinheiros", "mourato coelho", "mateus grou", "padre carvalho"] },
+  { key: "perdizes", label: "Perdizes", terms: ["perdizes", "turiassu", "turiaçu", "cardoso de almeida", "caiubi"] },
+  { key: "itaim-bibi", label: "Itaim Bibi", terms: ["itaim bibi", "itaim"] },
+  { key: "campo-belo", label: "Campo Belo", terms: ["campo belo", "joao de sousa dias", "vieira de morais"] },
+  { key: "paraiso", label: "Paraiso", terms: ["paraiso", "abilio soares", "rafael de barros", "fausto ferraz"] },
+];
+
+const RADAR_SECTION_IDS = new Set(["visao-geral", "modelo", "garimpo", "candidatos"]);
+
+function targetNeighborhoodForText(value) {
+  const text = searchText(value);
+  return TARGET_NEIGHBORHOODS.find((target) => target.terms.some((term) => text.includes(term))) || null;
+}
+
+function normalizedRadarSection(section) {
+  const value = String(section || "").trim();
+  return RADAR_SECTION_IDS.has(value) ? value : "";
+}
+
 function firstNumber(...values) {
   for (const value of values) {
     const number = Number(value);
@@ -83,10 +103,106 @@ function firstFiniteNumber(...values) {
   return 0;
 }
 
+function localDemandLabel(risk) {
+  const value = String(risk || "").toLowerCase();
+  if (value === "critico" || value === "critical") return "Demanda local critica";
+  if (value === "alto" || value === "high") return "Demanda local alta";
+  if (value === "medio" || value === "medium") return "Demanda local a validar";
+  if (value === "baixo" || value === "low") return "Demanda local ok";
+  return "";
+}
+
+function localDemandBadgeType(risk) {
+  const value = String(risk || "").toLowerCase();
+  if (value === "critico" || value === "critical") return "danger";
+  if (value === "alto" || value === "high") return "warning";
+  return "info";
+}
+
 function money(value) {
   const number = Number(value);
   if (!Number.isFinite(number) || number <= 0) return "R$ --";
   return `R$ ${number.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`;
+}
+
+function wordsForComparison(value) {
+  return searchText(value)
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function cleanStreetCandidate(value) {
+  return compactText(value)
+    .replace(/\b\d+(?:[.,]\d+)?\s*m(?:2|²)?\b/gi, " ")
+    .replace(/\b\d+\s*q\b/gi, " ")
+    .replace(/\b(?:apto|apartamento|casa|vila|kitnet|studio|flat)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function streetFromText(source, city, neighborhood) {
+  const text = cleanAssetTitle(source);
+  if (!text) return "";
+
+  const prefixedStreet = text.match(/\b(Rua|R\.|Avenida|Av\.|Alameda|Al\.|Travessa|Estrada|Rodovia|Largo|Praca|Praça)\s+([^,;|]+?)(?=\s+\d+(?:[.,]\d+)?\s*m(?:2|²)?\b|\s+\d+\s*q\b|$)/i);
+  if (prefixedStreet) {
+    const streetName = cleanStreetCandidate(prefixedStreet[2]);
+    return streetName ? `${prefixedStreet[1].replace(/^R\.$/i, "Rua").replace(/^Av\.$/i, "Av.")} ${streetName}` : "";
+  }
+
+  const stopWords = new Set([
+    "real",
+    "target",
+    "frazao",
+    "itau",
+    "leilao",
+    "caixa",
+    "apartamento",
+    "apto",
+    "casa",
+    "vila",
+    "kitnet",
+    "studio",
+    "flat",
+    "predio",
+    "condominio",
+    ...wordsForComparison(city),
+    ...wordsForComparison(neighborhood),
+  ]);
+  const cleaned = text
+    .replace(/^REAL\s+TARGET\s*[-–—]\s*/i, "")
+    .replace(/^TARGET\s*[-–—]\s*/i, "")
+    .replace(/\b\d+(?:[.,]\d+)?\s*m(?:2|²)?\b/gi, " ")
+    .replace(/\b\d+\s*q\b/gi, " ")
+    .replace(/[-–—|]/g, " ");
+  const inferred = cleaned
+    .split(/\s+/)
+    .filter((word) => {
+      const normalized = wordsForComparison(word)[0] || "";
+      return normalized && !stopWords.has(normalized) && !/^\d+$/.test(normalized);
+    })
+    .join(" ")
+    .trim();
+
+  return inferred.length >= 4 ? inferred : "";
+}
+
+function operationalCandidateTitle({ row, candidate, entry, saleBase, fallbackTitle, targetNeighborhood }) {
+  const city = firstText(candidate.city, candidate.cidade, candidate.municipality, candidate.municipio, "Cidade a validar");
+  const neighborhood = firstText(candidate.neighborhood, candidate.neighborhoods, candidate.bairro, candidate.district, targetNeighborhood?.label, "Bairro a validar");
+  const addressText = firstText(candidate.street, candidate.street_name, candidate.streetName, candidate.rua, candidate.address, candidate.endereco);
+  const street = firstText(
+    cleanStreetCandidate(addressText),
+    streetFromText(firstText(row?.asset, row?.action, row?.name, candidate.title, fallbackTitle), city, neighborhood),
+    "Rua a validar",
+  );
+  return `${city} / ${neighborhood} / ${street} / Entrada ${money(entry)} / Saida ${money(saleBase || row?.targetPrice || row?.currentPrice || entry)}`;
+}
+
+function candidateIdentifierNumber(index) {
+  return String(index + 1).padStart(2, "0");
 }
 
 function shortText(value, size = 48) {
@@ -96,7 +212,11 @@ function shortText(value, size = 48) {
 }
 
 function formatDate(value) {
-  const date = value ? new Date(value) : null;
+  let date = value ? new Date(value) : null;
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split("-").map(Number);
+    date = new Date(year, month - 1, day);
+  }
   if (!date || Number.isNaN(date.getTime())) return "entrada no radar";
   return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
 }
@@ -108,12 +228,17 @@ function isOpenRealEstateRow(row) {
   return status.includes("go-live") || status.includes("abert") || status.includes("pendenc") || status.includes("analise") || status.includes("análise") || status.includes("observ") || status.includes("monitor") || row?.isOpen === true;
 }
 
+function canonicalRealEstateId(row) {
+  const value = String(row?.thesisId || row?.id || "").trim();
+  return value.match(/^IM-RADAR-(\d+)$/i)?.[1] || value.match(/^\d+$/)?.[0] || "";
+}
+
 function canonicalRealEstateRows(data) {
   const thesisRows = asArray(data?.thesisRows).filter(isRealEstateFront);
   const candidateRows = asArray(data?.realEstateCandidates).filter(isRealEstateFront);
   const seen = new Set();
   return [...candidateRows, ...thesisRows].filter((row) => {
-    const candidateId = String(row?.thesisId || row?.id || "").match(/(?:IM-RADAR-)?(\d+)$/i)?.[1];
+    const candidateId = canonicalRealEstateId(row);
     const key = candidateId
       ? `im-radar-${candidateId}`
       : String(row?.sourceUrl || row?.source_url || row?.asset || "").toLowerCase();
@@ -326,6 +451,12 @@ function temporalTypeFor(score, p0Count, decision) {
 function liveStoryFromRow(row, index) {
   const analysis = analysisFor(row);
   const candidate = candidateFor(row);
+  const valuationEvidence = analysis.valuation_evidence || analysis.valuationEvidence || candidate.valuation_evidence || candidate.valuationEvidence || {};
+  const localDemandEvidence = analysis.local_demand_evidence || analysis.localDemandEvidence || candidate.local_demand_evidence || candidate.localDemandEvidence || {};
+  const localDemandRisk = firstText(localDemandEvidence.risk_level, localDemandEvidence.riskLevel, candidate.local_demand_risk, candidate.localDemandRisk);
+  const localDemandStatus = firstText(localDemandEvidence.status_label, localDemandEvidence.statusLabel, localDemandLabel(localDemandRisk));
+  const localDemandBadge = localDemandLabel(localDemandRisk);
+  const commercialTerms = analysis.commercial_terms || analysis.commercialTerms || candidate.commercial_terms || candidate.commercialTerms || {};
   const score = Math.round(firstNumber(analysis.score, row?.score, 58));
   const confidence = Math.round(firstNumber(analysis.confidence, row?.confidence, 42));
   const p0Items = p0ItemsFor(row);
@@ -335,7 +466,7 @@ function liveStoryFromRow(row, index) {
   const decision = isOpen
     ? firstText(analysis.suggested_status, analysis.suggestedStatus, analysis.next_action, analysis.nextAction, row?.outcome, row?.direction, "Investigar")
     : firstText(row?.outcome, row?.exitRule, row?.status, analysis.suggested_status, analysis.suggestedStatus, "Encerrado");
-  const entry = firstNumber(row?.entryPrice, row?.currentPrice, analysis.ask_price, analysis.entry_price, candidate.price, candidate.ask_price);
+  const entry = firstNumber(row?.entryPrice, row?.currentPrice, analysis.ask_price, analysis.entry_price, candidate.asking_price, candidate.askingPrice, candidate.price, candidate.ask_price);
   const ceiling = firstNumber(analysis.max_purchase_price, analysis.maxPurchasePrice, row?.stopPrice, entry);
   const saleBase = firstNumber(
     analysis.scenarios?.base?.sale_price,
@@ -345,25 +476,75 @@ function liveStoryFromRow(row, index) {
     row?.targetPrice,
     row?.currentPrice,
   );
-  const renovationCosts = firstNumber(analysis.renovation_budget, analysis.renovationBudget, candidate.renovation_budget, candidate.renovationBudget, candidate.reform_budget);
-  const acquisitionCosts = firstNumber(candidate.transaction_costs, candidate.transactionCosts, analysis.transaction_costs, Math.round(entry * 0.08));
-  const carryingCosts = firstNumber(analysis.carrying_costs, analysis.carryingCosts, Math.round(entry * 0.04));
-  const sellingCosts = firstNumber(analysis.selling_costs, analysis.sellingCosts, Math.round(saleBase * 0.06));
-  const auctioneerFee = strategyFor(row).includes("Leilão") ? Math.round(entry * 0.05) : 0;
-  const totalCost = firstNumber(analysis.total_cost, analysis.totalCost, entry + auctioneerFee + acquisitionCosts + renovationCosts + carryingCosts + sellingCosts);
+  const renovationCosts = firstNumber(analysis.renovation_budget, analysis.renovationBudget, candidate.renovation_budget, candidate.renovationBudget, candidate.reform_budget, Math.round(saleBase * 0.06));
+  const acquisitionCosts = firstNumber(analysis.acquisition_costs, analysis.acquisitionCosts, candidate.acquisition_costs, candidate.acquisitionCosts, candidate.transaction_costs, candidate.transactionCosts, analysis.transaction_costs, Math.round(entry * 0.08));
+  const carryingMonths = firstNumber(candidate.carrying_months, candidate.carryingMonths, analysis.carrying_months, analysis.carryingMonths);
+  const monthlyCarryingCost = firstNumber(candidate.monthly_carrying_cost, candidate.monthlyCarryingCost, analysis.monthly_carrying_cost, analysis.monthlyCarryingCost);
+  const carryingCosts = firstNumber(analysis.carrying_costs, analysis.carryingCosts, candidate.carrying_costs, candidate.carryingCosts, carryingMonths && monthlyCarryingCost ? carryingMonths * monthlyCarryingCost : 0, Math.round(entry * 0.04));
+  const sellingPct = firstNumber(candidate.selling_commission_pct, candidate.sellingCommissionPct, analysis.selling_commission_pct, analysis.sellingCommissionPct, 6);
+  const sellingCosts = firstNumber(analysis.selling_costs, analysis.sellingCosts, candidate.selling_costs, candidate.sellingCosts, Math.round(saleBase * sellingPct / 100));
+  const hasAuctioneerFee = [
+    analysis.auctioneer_fee,
+    analysis.auctioneerFee,
+    candidate.auctioneer_fee,
+    candidate.auctioneerFee,
+  ].some((value) => Number.isFinite(Number(value)));
+  const hasExplicitAcquisitionCosts = [
+    analysis.acquisition_costs,
+    analysis.acquisitionCosts,
+    candidate.acquisition_costs,
+    candidate.acquisitionCosts,
+    candidate.transaction_costs,
+    candidate.transactionCosts,
+    analysis.transaction_costs,
+  ].some((value) => Number.isFinite(Number(value)));
+  const auctioneerFee = hasAuctioneerFee
+    ? firstFiniteNumber(analysis.auctioneer_fee, analysis.auctioneerFee, candidate.auctioneer_fee, candidate.auctioneerFee)
+    : !hasExplicitAcquisitionCosts && strategyFor(row).includes("Leilão") ? Math.round(entry * 0.05) : 0;
+  const totalCost = entry + auctioneerFee + acquisitionCosts + renovationCosts + carryingCosts + sellingCosts;
   const netProfit = firstFiniteNumber(analysis.scenarios?.base?.net_profit, analysis.scenarios?.base?.netProfit, saleBase - totalCost);
   const roiPct = firstFiniteNumber(analysis.scenarios?.base?.roi_pct, analysis.scenarios?.base?.roiPct, analysis.target_roi_pct, row?.expectedPct);
+  const valuationCount = firstNumber(valuationEvidence.sale_comparables_count, valuationEvidence.saleComparablesCount, candidate.sale_comparables_count, candidate.saleComparablesCount);
+  const saleProofStatus = localDemandRisk === "critico" || localDemandRisk === "critical"
+    ? "bloqueada por demanda local"
+    : valuationCount > 0
+      ? `${valuationCount} comparável${valuationCount > 1 ? "is" : ""} de anúncio`
+      : "parcialmente comprovada";
+  const saleNextEvidence = firstText(localDemandEvidence.required_action, localDemandEvidence.requiredAction)
+    || (valuationCount >= 3
+      ? "venda recente ou proposta firme"
+      : `buscar ${Math.max(0, 3 - valuationCount)} comparável${3 - valuationCount === 1 ? "" : "is"} adicional${3 - valuationCount === 1 ? "" : "is"}`);
   const color = colorForStory(score, decision);
-  const title = cleanAssetTitle(firstText(row?.asset, row?.name, `Candidato imobiliário ${index + 1}`));
+  const title = cleanAssetTitle(firstText(row?.asset, row?.action, row?.name, `Candidato imobiliário ${index + 1}`));
   const nextAction = firstText(analysis.next_action, analysis.nextAction, row?.exitRule, row?.invalidation, "Diligência aberta");
   const strategy = strategyFor(row);
   const strategyIcon = iconForStrategy(strategy);
   const identifier = String(row?.thesisId || row?.id || `IM-ABERTO-${index + 1}`);
   const sourceValidation = sourceValidationFor(row);
+  const targetNeighborhood = targetNeighborhoodForText([
+    candidate.neighborhood,
+    candidate.neighborhoods,
+    candidate.district,
+    candidate.address,
+    candidate.notes,
+    row?.asset,
+    row?.action,
+    row?.operation,
+    row?.structure,
+    row?.hypothesis,
+    row?.sourceUrl,
+    row?.source_url,
+  ].map(compactText).join(" "));
+  const displayTitle = operationalCandidateTitle({ row, candidate, entry, saleBase, fallbackTitle: title, targetNeighborhood });
 
   return {
     id: identifier.startsWith("#") ? identifier : `#${identifier}`,
     title,
+    displayTitle,
+    identifierNumber: candidateIdentifierNumber(index),
+    neighborhood: firstText(candidate.neighborhood, candidate.neighborhoods, targetNeighborhood?.label),
+    targetNeighborhood: targetNeighborhood?.label || "",
+    targetNeighborhoodKey: targetNeighborhood?.key || "",
     role: isOpen ? `Caso real aberto · ${statusLabel}` : `Caso real encerrado · ${firstText(row?.outcome, row?.status, statusLabel)}`,
     strategy,
     sourceUrl: firstText(row?.sourceUrl, row?.source_url, "#"),
@@ -383,6 +564,7 @@ function liveStoryFromRow(row, index) {
     sourceValidation,
     firstAuction: entry,
     secondAuction: ceiling || entry,
+    purchasePrice: entry,
     comparator: saleBase || row?.targetPrice || row?.currentPrice || entry,
     saleBase: saleBase || row?.targetPrice || row?.currentPrice || entry,
     auctioneerFee,
@@ -394,6 +576,17 @@ function liveStoryFromRow(row, index) {
     netProfit,
     roiPct,
     fixedIncomePct: 6.5,
+    valuationEvidence,
+    localDemandEvidence,
+    localDemandRisk,
+    localDemandStatus,
+    localDemandBadge,
+    localDemandBadgeType: localDemandBadgeType(localDemandRisk),
+    commercialTerms,
+    saleProofStatus,
+    saleNextEvidence,
+    saleCaveat: firstText(localDemandEvidence.caveat, valuationEvidence.caveat),
+    saleComparablesCount: valuationCount,
     score,
     confidence,
     color,
@@ -413,8 +606,8 @@ function liveStoryFromRow(row, index) {
     secondPriceLabel: "Teto Halley",
     secondPriceNote: "limite disciplinado",
     salePriceLabel: "Saída base",
-    salePriceNote: "venda a validar",
-    purchaseCostLabel: "Preço de entrada",
+    salePriceNote: valuationCount > 0 ? "comparável anunciado" : "venda a validar",
+    purchaseCostLabel: "Preço do lote",
     firstStepTitle: "Entrou no radar",
     firstStepText: `A ${money(entry)}, o candidato entrou porque ${firstText(row?.hypothesis, "há assimetria inicial para testar")}.`,
     secondStepTitle: "Teto e saída criam a pergunta",
@@ -625,6 +818,404 @@ function RadarDecisionStrip({ stats }) {
   );
 }
 
+function sourceTierLabel(value) {
+  const text = compactText(value).replace(/_/g, " ");
+  if (!text) return "fonte oficial";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function auctioneerTierBadgeType(value) {
+  const tier = compactText(value).toLowerCase();
+  if (tier === "cauda_longa") return "purple";
+  if (tier === "estabelecido") return "open";
+  if (tier === "validar") return "warning";
+  return "neutral";
+}
+
+function auctioneerOutreachBadge(contact) {
+  const status = compactText(contact?.outreachStatus).toLowerCase();
+  if (status === "respondido_sem_imoveis") return { label: "Sem imóveis", type: "warning" };
+  if (status.startsWith("respondido")) return { label: "Respondido", type: "info" };
+  if (status === "enviado") return { label: "E-mail enviado", type: "success" };
+  return null;
+}
+
+function SignalPill({ children, color = C.sky }) {
+  return (
+    <span
+      style={{
+        background: withAlpha(color, "12"),
+        border: `1px solid ${withAlpha(color, alpha.border)}`,
+        borderRadius: 999,
+        color,
+        display: "inline-flex",
+        fontSize: 10,
+        fontWeight: 800,
+        lineHeight: 1.35,
+        padding: "5px 8px",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function RadarAuctioneerSourcing({ sourcing }) {
+  const directories = asArray(sourcing?.officialDirectories);
+  const contacts = asArray(sourcing?.officialContacts);
+  const playbook = asArray(sourcing?.outreachPlaybook);
+  const lowCompetitionSignals = asArray(sourcing?.scoringModel?.lowCompetitionSignals);
+  const qualitySignals = asArray(sourcing?.scoringModel?.qualitySignals);
+  const summary = sourcing?.summary ?? {};
+  const scopeLabel = asArray(summary.scopeCities).join(" / ");
+  const outreachSentCount = summary.outreachSentCount || contacts.filter((contact) => contact.outreachSentAt).length;
+  const outreachResponseCount = summary.outreachResponseCount || contacts.filter((contact) => contact.responseReceivedAt).length;
+  const outreachPendingResponseCount = summary.outreachPendingResponseCount ?? contacts.filter((contact) => contact.outreachStatus === "enviado").length;
+  const outreachNoRealEstateCount = summary.outreachNoRealEstateCount || contacts.filter((contact) => contact.outreachStatus === "respondido_sem_imoveis").length;
+  const hasSourcingData = directories.length > 0 || contacts.length > 0 || playbook.length > 0;
+
+  return (
+    <section
+      data-testid="radar-imobiliario-garimpo"
+      style={{
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        borderRadius: 14,
+        display: "grid",
+        gap: 16,
+        padding: 18,
+      }}
+    >
+      <div style={{ display: "grid", gap: 10 }}>
+        <div style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          Radar de leiloeiros · Garimpo estruturado
+        </div>
+        <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+          <div>
+            <h2 style={{ color: C.text, fontSize: 20, lineHeight: 1.15, margin: 0 }}>
+              {hasSourcingData ? "Base propria de leiloeiros oficiais" : "Aguardando diretorios oficiais"}
+            </h2>
+            <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.65, margin: "8px 0 0" }}>
+              {summary.actionability || "Listas oficiais das Juntas Comerciais viram fonte de contato para encontrar leiloeiros regulares, regionais e menos concorridos antes de escolher lotes."}
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))", gap: 8 }}>
+            <KPICard label="Diretorios" value={summary.officialDirectoryCount || directories.length} sub="fontes oficiais" accent={C.sky} valueColor={C.sky} valueFontSize={20} />
+            <KPICard label="Contatos" value={summary.officialContactCount || contacts.length} sub={scopeLabel || "leiloeiros"} accent={C.gold} valueColor={C.gold} valueFontSize={20} />
+            <KPICard label="Cauda longa" value={summary.longTailDirectoryCount || directories.filter((item) => item.visibilityTier === "cauda_longa").length} sub="menos obvios" accent={C.purple} valueColor={C.purple} valueFontSize={20} />
+            <KPICard label="Com contato" value={summary.contactSourceCount || directories.filter((item) => item.contactPath).length} sub="para mailing" accent={C.green} valueColor={C.green} valueFontSize={20} />
+            <KPICard label="Enviados" value={outreachSentCount} sub="primeiro contato" accent={C.green} valueColor={C.green} valueFontSize={20} />
+            <KPICard label="Respostas" value={outreachResponseCount} sub={outreachNoRealEstateCount ? `${outreachNoRealEstateCount} sem imóveis` : "retornos"} accent={C.sky} valueColor={C.sky} valueFontSize={20} />
+            <KPICard label="Pendentes" value={outreachPendingResponseCount} sub={summary.nextFollowUpAt ? `follow-up ${formatDate(summary.nextFollowUpAt)}` : "sem data"} accent={C.amber} valueColor={C.amber} valueFontSize={20} />
+          </div>
+        </div>
+      </div>
+
+      {!hasSourcingData && (
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, color: C.muted, fontSize: 12, fontWeight: 800, lineHeight: 1.55, padding: 14 }}>
+          Este radar fica visivel mesmo quando o feed ainda nao carregou. Quando a API responder, aparecem as Juntas Comerciais, fontes oficiais, roteiro de contato e sinais de baixa concorrencia.
+        </div>
+      )}
+
+      {contacts.length > 0 && (
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, display: "grid", gap: 12, padding: 14 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ color: C.gold, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.1em", marginBottom: 5, textTransform: "uppercase" }}>
+                Leiloeiros SP/Campinas
+              </div>
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 900 }}>
+                {contacts.length} contatos oficiais classificados por concorrencia
+              </div>
+            </div>
+            {scopeLabel && <Badge label={scopeLabel} type="info" />}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 10 }}>
+            {contacts.map((contact) => {
+              const phones = asArray(contact.phones).join(" | ");
+              const outreachBadge = auctioneerOutreachBadge(contact);
+              return (
+                <article
+                  key={contact.id || `${contact.registration}-${contact.name}`}
+                  style={{
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
+                    borderTop: `2px solid ${contact.competitionTier === "cauda_longa" ? C.purple : contact.competitionTier === "validar" ? C.amber : C.teal}`,
+                    borderRadius: 12,
+                    display: "grid",
+                    gap: 7,
+                    padding: 12,
+                  }}
+                >
+                  <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+                    <Badge label={sourceTierLabel(contact.competitionTier)} type={auctioneerTierBadgeType(contact.competitionTier)} />
+                    <Badge label={contact.city || "cidade"} type="info" />
+                    {outreachBadge && <Badge label={outreachBadge.label} type={outreachBadge.type} />}
+                  </div>
+                  <div style={{ color: C.text, fontSize: 13, fontWeight: 900, lineHeight: 1.25 }}>{contact.name}</div>
+                  <div style={{ color: C.muted, fontFamily: mono, fontSize: 10, lineHeight: 1.45 }}>
+                    Matricula {contact.registration || "--"}{contact.neighborhood ? ` - ${contact.neighborhood}` : ""}
+                  </div>
+                  {(contact.email || phones) && (
+                    <div style={{ color: C.text, fontSize: 11, lineHeight: 1.5 }}>
+                      {contact.email && <div>{contact.email}</div>}
+                      {phones && <div>{phones}</div>}
+                    </div>
+                  )}
+                  {contact.competitionReason && (
+                    <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.5, margin: 0 }}>{contact.competitionReason}</p>
+                  )}
+                  {contact.contactStrategy && (
+                    <p style={{ color: C.green, fontSize: 11, fontWeight: 800, lineHeight: 1.45, margin: 0 }}>{contact.contactStrategy}</p>
+                  )}
+                  {contact.outreachStatus && (
+                    <p style={{ color: C.gold, fontSize: 11, fontWeight: 800, lineHeight: 1.45, margin: 0 }}>
+                      Contato: {sourceTierLabel(contact.outreachStatus)}
+                      {contact.outreachSentAt ? ` em ${formatDate(contact.outreachSentAt)}` : ""}
+                      {contact.responseReceivedAt ? ` - resposta ${formatDate(contact.responseReceivedAt)}` : ""}
+                      {contact.nextFollowUpAt ? ` - follow-up ${formatDate(contact.nextFollowUpAt)}` : ""}
+                    </p>
+                  )}
+                  {contact.responseSummary && (
+                    <p style={{ color: C.coral, fontSize: 11, fontWeight: 800, lineHeight: 1.45, margin: 0 }}>{contact.responseSummary}</p>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {directories.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 10 }}>
+          {directories.slice(0, 6).map((directory) => (
+            <article
+              key={directory.id || `${directory.uf}-${directory.sourceName}`}
+              style={{
+                background: C.panel,
+                border: `1px solid ${C.border}`,
+                borderTop: `2px solid ${directory.visibilityTier === "cauda_longa" ? C.purple : C.sky}`,
+                borderRadius: 12,
+                display: "grid",
+                gap: 8,
+                padding: 13,
+              }}
+            >
+              <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+                <Badge label={directory.uf || "UF"} type="info" />
+                <Badge label={sourceTierLabel(directory.visibilityTier)} type={directory.visibilityTier === "cauda_longa" ? "purple" : "open"} />
+              </div>
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 900, lineHeight: 1.25 }}>{directory.sourceName}</div>
+              <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.55, margin: 0 }}>{directory.contactPath}</p>
+              <p style={{ color: C.text, fontSize: 11, lineHeight: 1.55, margin: 0 }}>{directory.contactStrategy}</p>
+              {directory.qualityFilter?.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {directory.qualityFilter.slice(0, 3).map((item) => (
+                    <SignalPill key={item} color={C.green}>{item}</SignalPill>
+                  ))}
+                </div>
+              )}
+              {directory.sourceUrl && (
+                <a
+                  href={directory.sourceUrl}
+                  rel="noreferrer"
+                  style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 900, textDecoration: "none", textTransform: "uppercase" }}
+                  target="_blank"
+                >
+                  Abrir fonte oficial
+                </a>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+        {playbook.length > 0 && (
+          <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14 }}>
+            <div style={{ color: C.gold, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.1em", marginBottom: 10, textTransform: "uppercase" }}>
+              Roteiro de contato
+            </div>
+            <div style={{ display: "grid", gap: 9 }}>
+              {playbook.slice(0, 4).map((step, index) => (
+                <div key={step.id || `${step.stage}-${index}`} style={{ display: "grid", gap: 5, gridTemplateColumns: "34px minmax(0, 1fr)" }}>
+                  <div style={{ color: C.purple, fontFamily: mono, fontSize: 10, fontWeight: 900 }}>{String(index + 1).padStart(2, "0")}</div>
+                  <div>
+                    <div style={{ color: C.text, fontSize: 12, fontWeight: 900 }}>{sourceTierLabel(step.stage)}</div>
+                    <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.55, marginTop: 3 }}>{step.action}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(lowCompetitionSignals.length > 0 || qualitySignals.length > 0) && (
+          <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14 }}>
+            <div style={{ color: C.gold, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.1em", marginBottom: 10, textTransform: "uppercase" }}>
+              Modelo de score
+            </div>
+            <div style={{ display: "grid", gap: 10 }}>
+              <div>
+                <div style={{ color: C.text, fontSize: 12, fontWeight: 900, marginBottom: 7 }}>Sinais de baixa concorrencia</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {lowCompetitionSignals.map((signal) => <SignalPill key={signal} color={C.purple}>{signal}</SignalPill>)}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: C.text, fontSize: 12, fontWeight: 900, marginBottom: 7 }}>Sinais de qualidade</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {qualitySignals.map((signal) => <SignalPill key={signal} color={C.green}>{signal}</SignalPill>)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function TargetNeighborhoodRadar({ stories }) {
+  const targetStories = asArray(stories).filter((item) => item.isLiveCandidate && item.targetNeighborhoodKey);
+  const [activeKey, setActiveKey] = useState("all");
+  const activeTarget = TARGET_NEIGHBORHOODS.find((target) => target.key === activeKey);
+  const filteredStories = activeTarget
+    ? targetStories.filter((item) => item.targetNeighborhoodKey === activeTarget.key)
+    : targetStories;
+  const summaryLabel = activeTarget
+    ? `${filteredStories.length} candidato${filteredStories.length === 1 ? "" : "s"} neste bairro`
+    : `${targetStories.length} candidato${targetStories.length === 1 ? "" : "s"}-alvo`;
+
+  return (
+    <section
+      data-testid="radar-imobiliario-bairros-alvo"
+      style={{
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        borderRadius: 14,
+        display: "grid",
+        gap: 14,
+        padding: 18,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <div style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            Bairros-alvo para amanha
+          </div>
+          <h2 style={{ color: C.text, fontSize: 20, lineHeight: 1.15, margin: "7px 0 0" }}>
+            Pinheiros, Perdizes, Itaim Bibi, Campo Belo e Paraiso em uma fila propria
+          </h2>
+          <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6, margin: "8px 0 0", maxWidth: 760 }}>
+            Esta visao separa os leads publicados ontem da carteira geral. A leitura aqui e simples: bairro, candidato, P0, fonte e proximo passo antes de abrir proposta.
+          </p>
+        </div>
+        <Badge label={summaryLabel} type={targetStories.length ? "warning" : "neutral"} />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8 }}>
+        <button
+          aria-pressed={activeKey === "all"}
+          onClick={() => setActiveKey("all")}
+          style={{
+            background: activeKey === "all" ? withAlpha(C.gold, "18") : C.panel,
+            border: `1px solid ${activeKey === "all" ? withAlpha(C.gold, "55") : C.border}`,
+            borderRadius: 10,
+            color: activeKey === "all" ? C.gold : C.text,
+            cursor: "pointer",
+            fontFamily: "inherit",
+            padding: 11,
+            textAlign: "left",
+          }}
+          type="button"
+        >
+          <span style={{ display: "block", fontSize: 12, fontWeight: 900 }}>Todos</span>
+          <span style={{ color: C.muted, display: "block", fontFamily: mono, fontSize: 10, fontWeight: 800, marginTop: 5 }}>{targetStories.length} candidatos</span>
+        </button>
+        {TARGET_NEIGHBORHOODS.map((target) => {
+          const items = targetStories.filter((item) => item.targetNeighborhoodKey === target.key);
+          const p0Count = items.reduce((sum, item) => sum + (item.p0?.length || 0), 0);
+          const active = activeKey === target.key;
+          return (
+            <button
+              key={target.key}
+              aria-pressed={active}
+              onClick={() => setActiveKey(target.key)}
+              style={{
+                background: active ? withAlpha(C.gold, "18") : C.panel,
+                border: `1px solid ${active ? withAlpha(C.gold, "55") : C.border}`,
+                borderRadius: 10,
+                color: active ? C.gold : C.text,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                padding: 11,
+                textAlign: "left",
+              }}
+              type="button"
+            >
+              <span style={{ display: "block", fontSize: 12, fontWeight: 900 }}>{target.label}</span>
+              <span style={{ color: C.muted, display: "block", fontFamily: mono, fontSize: 10, fontWeight: 800, marginTop: 5 }}>
+                {items.length} cand. / {p0Count} P0
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredStories.length > 0 ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
+          {filteredStories.map((item) => (
+            <article
+              key={item.id}
+              style={{
+                background: C.panel,
+                border: `1px solid ${C.border}`,
+                borderLeft: `3px solid ${item.color || C.gold}`,
+                borderRadius: 12,
+                display: "grid",
+                gap: 9,
+                padding: 13,
+              }}
+            >
+              <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                <Badge label={item.targetNeighborhood} type="info" />
+                <Badge label={item.sourceValidation?.label || "Fonte a validar"} type={item.sourceValidation?.type || "warning"} />
+                <Badge label={`${item.score}/100`} type={item.score >= 70 ? "success" : "warning"} />
+              </div>
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 950, lineHeight: 1.25 }}>{item.displayTitle || item.title}</div>
+              <div style={{ color: C.gold, fontSize: 11, fontWeight: 850, lineHeight: 1.45 }}>
+                {item.strategy} | {item.sourceOrigin || "fonte a validar"}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 7 }}>
+                <div style={{ background: C.bg + "72", border: `1px solid ${C.border}`, borderRadius: 9, padding: 8 }}>
+                  <div style={{ color: C.muted, fontSize: 9, fontWeight: 900, textTransform: "uppercase" }}>Entrada</div>
+                  <div style={{ color: C.text, fontFamily: mono, fontSize: 11, fontWeight: 900, marginTop: 4 }}>{money(item.purchasePrice)}</div>
+                </div>
+                <div style={{ background: C.bg + "72", border: `1px solid ${C.border}`, borderRadius: 9, padding: 8 }}>
+                  <div style={{ color: C.muted, fontSize: 9, fontWeight: 900, textTransform: "uppercase" }}>Teto</div>
+                  <div style={{ color: C.text, fontFamily: mono, fontSize: 11, fontWeight: 900, marginTop: 4 }}>{money(item.secondAuction)}</div>
+                </div>
+                <div style={{ background: C.bg + "72", border: `1px solid ${C.border}`, borderRadius: 9, padding: 8 }}>
+                  <div style={{ color: C.muted, fontSize: 9, fontWeight: 900, textTransform: "uppercase" }}>P0</div>
+                  <div style={{ color: item.p0?.length ? C.coral : C.green, fontFamily: mono, fontSize: 11, fontWeight: 900, marginTop: 4 }}>{item.p0?.length || 0}</div>
+                </div>
+              </div>
+              <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.5 }}>
+                Proximo passo: <span style={{ color: C.text, fontWeight: 800 }}>{item.p0Actions?.[0]?.title || item.decision}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, color: C.muted, fontSize: 12, fontWeight: 800, lineHeight: 1.55, padding: 14 }}>
+          Nenhum candidato aberto nos bairros-alvo neste snapshot. Use Atualizar radar quando novos leads forem publicados.
+        </div>
+      )}
+    </section>
+  );
+}
+
 function StrategyIconLegend() {
   const items = [
     iconForStrategy("Leilão / Caixa"),
@@ -675,6 +1266,15 @@ function pluralizeCase(count, singular, plural) {
 }
 
 function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onDiscard, portfolioIntro, portfolioTitle }) {
+  const numberedLiveStories = liveStories.map((story, index) => ({
+    ...story,
+    identifierNumber: String(index + 1).padStart(2, "0"),
+  }));
+  const numberedClosedStories = closedStories.map((story, index) => ({
+    ...story,
+    identifierNumber: String(liveStories.length + index + 1).padStart(2, "0"),
+  }));
+
   return (
     <section
       data-testid="radar-imobiliario-portfolio"
@@ -707,8 +1307,9 @@ function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onD
           eyebrow="Abertos"
           intro="Candidatos ainda vivos. Aqui ficam os casos que pedem P0, fonte, ocupação, matrícula, comparáveis ou decisão antes de qualquer proposta."
           discardingId={discardingId}
-          items={liveStories}
+          items={numberedLiveStories}
           onDiscard={onDiscard}
+          prominentIdentifier
           title={`Abertos - ${pluralizeCase(liveStories.length, "candidato real", "candidatos reais")}`}
         />
       )}
@@ -719,7 +1320,8 @@ function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onD
           dataTestId="radar-imobiliario-fechados"
           eyebrow="Fechados / aprendizados"
           intro="Casos que saíram do radar ativo. Eles continuam visíveis porque explicam preço teto, P0, descarte, erro evitado e aprendizado para a próxima triagem."
-          items={closedStories}
+          items={numberedClosedStories}
+          prominentIdentifier
           title={`Fechados - ${pluralizeCase(closedStories.length, "caso real encerrado", "casos reais encerrados")}`}
         />
       )}
@@ -778,11 +1380,13 @@ function RadarRefreshBar({ isRefreshing, onRefresh, stats }) {
   );
 }
 
-export default function RadarImobiliario({ data, onRefresh }) {
+export default function RadarImobiliario({ data, onRefresh, section = "" }) {
   const [discardError, setDiscardError] = useState("");
   const [discardingId, setDiscardingId] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { closedStories, items, liveStories, usingRealStories } = useMemo(() => radarStoriesForData(data), [data]);
+  const auctioneerSourcing = data?.realEstateStrategyTerritoryCandidates?.auctioneerSourcing;
+  const activeSection = normalizedRadarSection(section) || "visao-geral";
   const stats = useMemo(() => buildRadarStats(items), [items]);
   const closedStoriesCount = Math.max(0, items.length - liveStories.length);
   const openLabel = `${liveStories.length} ${liveStories.length === 1 ? "aberto" : "abertos"}`;
@@ -830,14 +1434,31 @@ export default function RadarImobiliario({ data, onRefresh }) {
 
   return (
     <main style={{ background: C.bg, color: C.text, display: "flex", flexDirection: "column", fontFamily: "Sora, system-ui, sans-serif", gap: 18, minHeight: 640, padding: "24px 28px 40px" }}>
-      <RadarHero stats={stats} />
-      {discardError && (
+      {activeSection === "candidatos" && discardError && (
         <section style={{ background: withAlpha(C.coral, "10"), border: `1px solid ${withAlpha(C.coral, alpha.border)}`, borderRadius: 12, color: C.coral, fontSize: 12, fontWeight: 800, lineHeight: 1.5, padding: "10px 12px" }}>
           Falha ao descartar candidato: {discardError}
         </section>
       )}
+      {activeSection === "visao-geral" && (
+      <section id="radar-imobiliario-visao-geral" data-section-id="visao-geral" data-testid="radar-imobiliario-visao-geral" style={{ display: "flex", flexDirection: "column", gap: 18, scrollMarginTop: 18 }}>
+        <RadarHero stats={stats} />
       <RadarRefreshBar isRefreshing={isRefreshing} onRefresh={handleRefresh} stats={stats} />
-      <RadarOperatingModel />
+      <TargetNeighborhoodRadar stories={items} />
+      </section>
+      )}
+      {activeSection === "modelo" && (
+      <section id="radar-imobiliario-modelo" data-section-id="modelo" style={{ display: "flex", flexDirection: "column", gap: 18, scrollMarginTop: 18 }}>
+        <RadarOperatingModel />
+      </section>
+      )}
+      {activeSection === "garimpo" && (
+      <section id="radar-imobiliario-garimpo" data-section-id="garimpo" style={{ display: "flex", flexDirection: "column", gap: 18, scrollMarginTop: 18 }}>
+        <RadarAuctioneerSourcing sourcing={auctioneerSourcing} />
+      </section>
+      )}
+      {activeSection === "candidatos" && (
+      <section id="radar-imobiliario-candidatos" data-section-id="candidatos" style={{ display: "flex", flexDirection: "column", gap: 18, scrollMarginTop: 18 }}>
+      <RadarRefreshBar isRefreshing={isRefreshing} onRefresh={handleRefresh} stats={stats} />
       <StrategyIconLegend />
       <RadarDecisionStrip stats={stats} />
       {usingRealStories ? (
@@ -855,8 +1476,11 @@ export default function RadarImobiliario({ data, onRefresh }) {
         eyebrow="Radar imobiliário"
         intro={portfolioIntro}
         items={items}
+        prominentIdentifier
         title={portfolioTitle}
       />
+      )}
+      </section>
       )}
     </main>
   );

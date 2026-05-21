@@ -23,7 +23,56 @@ def test_folha_frazao_candidates_are_seeded_with_individual_validated_sources() 
         assert "/Auction/LotDetails/" in row["source_url"]
         assert row["real_estate_analysis"]["source_validation"]["status"] == "valid"
         assert row["real_estate_analysis"]["source_validation"]["reason"] == "Fonte individual validada."
-        assert row["is_open"] is True
+        if row["thesis_id"] == "IM-FOLHA-FRAZAO-BUTANTA-37467":
+            assert row["is_open"] is False
+            assert row["outcome"] == "Descartado pelo radar"
+        else:
+            assert row["is_open"] is True
+
+
+def test_saude_candidate_uses_comparable_supported_exit_value() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    row = next(
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if row.get("thesis_id") == "IM-FOLHA-FRAZAO-SAUDE-37528"
+    )
+    analysis = row["real_estate_analysis"]
+    candidate = analysis["candidate"]
+
+    assert row["current_price_brl"] == 600000
+    assert row["expected_result_pct"] == 64.05
+    assert analysis["scenarios"]["conservative"]["sale_price"] == 550000
+    assert analysis["scenarios"]["base"]["sale_price"] == 600000
+    assert analysis["scenarios"]["optimistic"]["sale_price"] == 650000
+    assert analysis["scenarios"]["base"]["net_profit"] == 106378
+    assert analysis["price_ceiling_status"] == "Dentro do teto"
+    assert candidate["estimated_sale_base"] == 600000
+    assert candidate["sale_comparables_count"] == 1
+    assert analysis["valuation_evidence"]["source"] == "sale_comparables"
+    assert analysis["valuation_evidence"]["sale_comparables_count"] == 1
+
+
+def test_parada_inglesa_seed_includes_commercial_payment_scenarios() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    row = next(
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if row.get("thesis_id") == "IM-FOLHA-FRAZAO-PARADA-INGLESA-37570"
+    )
+
+    analysis = row["real_estate_analysis"]
+    commercial = analysis["commercial_terms"]
+    candidate_terms = analysis["candidate"]["payment_terms"]
+    scenarios = {item["key"]: item for item in commercial["scenarios"]}
+
+    assert len(candidate_terms) == 4
+    assert commercial["recommended_scenario_key"] == "cash_discount"
+    assert commercial["requires_ipca_assumption"] is True
+    assert scenarios["cash_discount"]["effective_purchase_price"] == 359460
+    assert scenarios["down_20_8x_no_interest"]["initial_cash"] == 79880
+    assert scenarios["down_30_78x_price_ipca"]["decision"] == "alto_custo_financeiro"
+    assert any(item["key"] == "commercial_terms_ipca" for item in analysis["pending_items"])
 
 
 def test_seed_candidate_17_is_closed_as_learning_case() -> None:
@@ -39,3 +88,47 @@ def test_seed_candidate_17_is_closed_as_learning_case() -> None:
     assert row["real_estate_analysis"]["suggested_status"] == "Descartado"
     assert row["is_open"] is False
     assert "sem fonte individual" in row["exit_rule"]
+
+
+def test_seed_butanta_morumbi_candidate_is_closed_by_local_demand_learning() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    row = next(
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if row.get("thesis_id") == "IM-FOLHA-FRAZAO-BUTANTA-37467"
+    )
+    analysis = row["real_estate_analysis"]
+
+    assert row["status"] == "Fechada"
+    assert row["outcome"] == "Descartado pelo radar"
+    assert row["is_open"] is False
+    assert "demanda local" in row["exit_rule"].lower()
+    assert analysis["suggested_status"] == "Descartado"
+    assert analysis["local_demand_evidence"]["risk_level"] == "critico"
+    assert analysis["local_demand_evidence"]["should_discard"] is True
+    assert any(item["key"] == "local_buyer_demand" for item in analysis["pending_items"])
+
+
+def test_seed_includes_target_neighborhood_pipeline_for_tomorrow() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    rows = [
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if str(row.get("thesis_id", "")).startswith("IM-RADAR-TARGET-")
+    ]
+    candidates = [
+        row.get("real_estate_analysis", {}).get("candidate", {})
+        for row in rows
+    ]
+
+    assert {candidate.get("neighborhood") for candidate in candidates} >= {
+        "Pinheiros",
+        "Perdizes",
+        "Itaim Bibi",
+        "Campo Belo",
+        "Paraiso",
+    }
+    assert len(rows) >= 12
+    assert len({candidate.get("strategy") for candidate in candidates}) >= 5
+    assert all(row["front"] == "imoveis" for row in rows)
+    assert all(row["is_open"] is True for row in rows)
