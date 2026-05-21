@@ -81009,12 +81009,12 @@
       "thesis_id": "IM-RADAR-TARGET-PIN-03",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
-      "source_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/pinheiros",
+      "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-imovel-banco-santander-2810257",
       "source_validation": {
         "status": "ambiguous",
         "reason": "Checar ocupacao, debitos condominiais e liquidez de cobertura antes de lance.",
         "checked_at": "2026-05-20T21:00:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/pinheiros"
+        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-imovel-banco-santander-2810257"
       },
       "source_validation_status": "ambiguous",
       "source_validation_reason": "Checar ocupacao, debitos condominiais e liquidez de cobertura antes de lance.",
@@ -81301,11 +81301,11 @@
           "status": "ambiguous",
           "reason": "Checar ocupacao, debitos condominiais e liquidez de cobertura antes de lance.",
           "checked_at": "2026-05-20T21:00:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/pinheiros"
+          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-imovel-banco-santander-2810257"
         },
         "candidate": {
           "strategy": "Leilao valor alto + comprador final seletivo",
-          "source_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/pinheiros",
+          "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-imovel-banco-santander-2810257",
           "origin": "Leilao Imovel / Santander",
           "city": "Sao Paulo",
           "neighborhood": "Pinheiros",
@@ -81337,7 +81337,7 @@
             "status": "ambiguous",
             "reason": "Checar ocupacao, debitos condominiais e liquidez de cobertura antes de lance.",
             "checked_at": "2026-05-20T21:00:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/pinheiros"
+            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-imovel-banco-santander-2810257"
           }
         },
         "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."

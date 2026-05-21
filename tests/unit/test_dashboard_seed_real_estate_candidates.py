@@ -4,6 +4,13 @@ import json
 from pathlib import Path
 
 
+PINHEIROS_ALVES_GUIMARAES_SOURCE_URL = (
+    "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/"
+    "residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-"
+    "imovel-banco-santander-2810257"
+)
+
+
 def test_folha_frazao_candidates_are_seeded_with_individual_validated_sources() -> None:
     payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
     rows = [
@@ -132,3 +139,19 @@ def test_seed_includes_target_neighborhood_pipeline_for_tomorrow() -> None:
     assert len({candidate.get("strategy") for candidate in candidates}) >= 5
     assert all(row["front"] == "imoveis" for row in rows)
     assert all(row["is_open"] is True for row in rows)
+
+
+def test_pinheiros_alves_guimaraes_uses_individual_lot_source_url() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    row = next(
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if row.get("thesis_id") == "IM-RADAR-TARGET-PIN-03"
+    )
+    candidate = row["real_estate_analysis"]["candidate"]
+
+    assert row["source_url"] == PINHEIROS_ALVES_GUIMARAES_SOURCE_URL
+    assert row["source_validation"]["url"] == PINHEIROS_ALVES_GUIMARAES_SOURCE_URL
+    assert candidate["source_url"] == PINHEIROS_ALVES_GUIMARAES_SOURCE_URL
+    assert candidate["source_validation"]["url"] == PINHEIROS_ALVES_GUIMARAES_SOURCE_URL
+    assert "/leilao-de-imovel/sp/sao-paulo/pinheiros" not in row["source_url"]
