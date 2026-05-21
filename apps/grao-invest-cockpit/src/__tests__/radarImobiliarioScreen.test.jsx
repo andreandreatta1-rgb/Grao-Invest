@@ -464,7 +464,7 @@ describe("Radar Imobiliário screen", () => {
     expect(within(portfolio).getByText(/16 casos reais no radar/i)).toBeInTheDocument();
     expect(within(openPortfolio).getByText(/Frazão Itaú Parada Inglesa/i)).toBeInTheDocument();
     expect(within(openPortfolio).getByText(/Sao Paulo \/ Parada Inglesa \/ Tucuruvi \/ Rua a validar \/ Entrada R\$ 285\.000 \/ Saida R\$ 430\.000/i)).toBeInTheDocument();
-    expect(within(openPortfolio).getAllByTestId("candidate-identifier-number").some((node) => node.textContent === "16")).toBe(true);
+    expect(within(openPortfolio).getAllByTestId("candidate-identifier-number").some((node) => node.textContent === "37570")).toBe(true);
     expect(within(openPortfolio).getByText(/Fonte validada/i)).toBeInTheDocument();
     expect(within(openPortfolio).getAllByRole("button", { name: /Abrir/i })).toHaveLength(16);
   });
@@ -507,7 +507,7 @@ describe("Radar Imobiliário screen", () => {
     const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
     expect(within(openPortfolio).getByText(/Sao Paulo \/ Saude \/ Rua Abagiba \/ Entrada R\$ 388\.700 \/ Saida R\$ 600\.000/i)).toBeInTheDocument();
     expect(within(openPortfolio).getByText(/Origem: Frazão Itaú Saúde Rua Abagiba 74m2/i)).toBeInTheDocument();
-    expect(within(openPortfolio).getByTestId("candidate-identifier-number")).toHaveTextContent("01");
+    expect(within(openPortfolio).getByTestId("candidate-identifier-number")).toHaveTextContent("3885");
   });
 
   it("shows commercial payment scenarios for a real estate candidate", async () => {
@@ -875,6 +875,7 @@ describe("Radar Imobiliário screen", () => {
     const data = {
       thesisRows: [
         {
+          id: "3968",
           thesisId: "IM-RADAR-TARGET-PIN-01",
           front: "imoveis",
           status: "Aberta - Atencao",
@@ -998,6 +999,7 @@ describe("Radar Imobiliário screen", () => {
           },
         },
         {
+          id: "3968",
           thesisId: "IM-RADAR-TARGET-PIN-01",
           front: "imoveis",
           status: "Aberta - Atencao",
@@ -1032,7 +1034,7 @@ describe("Radar Imobiliário screen", () => {
     const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
     const buttons = within(openPortfolio).getAllByRole("button", { name: /Abrir/i });
     expect(buttons[0]).toHaveAccessibleName(/Abrir REAL TARGET - Pinheiros Capote Valente/i);
-    expect(within(openPortfolio).getAllByTestId("candidate-identifier-number")[0]).toHaveTextContent("01");
+    expect(within(openPortfolio).getAllByTestId("candidate-identifier-number")[0]).toHaveTextContent("3968");
   });
 
   it("renders radar subareas as isolated content views", () => {

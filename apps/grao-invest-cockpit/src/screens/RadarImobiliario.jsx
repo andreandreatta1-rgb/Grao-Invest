@@ -201,7 +201,29 @@ function operationalCandidateTitle({ row, candidate, entry, saleBase, fallbackTi
   return `${city} / ${neighborhood} / ${street} / Entrada ${money(entry)} / Saida ${money(saleBase || row?.targetPrice || row?.currentPrice || entry)}`;
 }
 
-function candidateIdentifierNumber(index) {
+function numericIdentifier(value) {
+  const text = String(value || "").trim();
+  return /^\d+$/.test(text) ? text : "";
+}
+
+function candidateIdentifierNumber(row, index) {
+  const explicit = numericIdentifier(firstText(
+    row?.identifierNumber,
+    row?.historicalIdentifier,
+    row?.historical_identifier,
+    row?.thesisNumber,
+    row?.thesis_number,
+    row?.candidateNumber,
+    row?.candidate_number,
+  ));
+  if (explicit) return explicit;
+
+  const rowId = numericIdentifier(row?.id);
+  if (rowId) return rowId;
+
+  const thesisMatches = String(row?.thesisId || row?.thesis_id || "").match(/\d+/g);
+  if (thesisMatches?.length) return thesisMatches[thesisMatches.length - 1];
+
   return String(index + 1).padStart(2, "0");
 }
 
@@ -541,7 +563,7 @@ function liveStoryFromRow(row, index) {
     id: identifier.startsWith("#") ? identifier : `#${identifier}`,
     title,
     displayTitle,
-    identifierNumber: candidateIdentifierNumber(index),
+    identifierNumber: candidateIdentifierNumber(row, index),
     neighborhood: firstText(candidate.neighborhood, candidate.neighborhoods, targetNeighborhood?.label),
     targetNeighborhood: targetNeighborhood?.label || "",
     targetNeighborhoodKey: targetNeighborhood?.key || "",
@@ -1289,11 +1311,11 @@ function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onD
   const prioritizedLiveStories = prioritizeActiveCandidateStories(liveStories);
   const numberedLiveStories = prioritizedLiveStories.map((story, index) => ({
     ...story,
-    identifierNumber: String(index + 1).padStart(2, "0"),
+    identifierNumber: story.identifierNumber || String(index + 1).padStart(2, "0"),
   }));
   const numberedClosedStories = closedStories.map((story, index) => ({
     ...story,
-    identifierNumber: String(prioritizedLiveStories.length + index + 1).padStart(2, "0"),
+    identifierNumber: story.identifierNumber || String(prioritizedLiveStories.length + index + 1).padStart(2, "0"),
   }));
 
   return (
