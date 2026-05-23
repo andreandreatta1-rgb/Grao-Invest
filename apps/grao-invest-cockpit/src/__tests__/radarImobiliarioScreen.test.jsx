@@ -1037,6 +1037,125 @@ describe("Radar Imobiliário screen", () => {
     expect(within(openPortfolio).getAllByTestId("candidate-identifier-number")[0]).toHaveTextContent("3968");
   });
 
+  it("blocks target candidates with occupied unit, ceiling breach, and weak sale proof", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "3970",
+          thesisId: "IM-RADAR-TARGET-PIN-03",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL TARGET - Pinheiros Alves Guimaraes cobertura 147m",
+          operation: "Leilao extrajudicial + HF leve | Leilao Imovel | Cobertura | Acima do teto",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-imovel-banco-santander-2810257",
+          entryPrice: 821000,
+          currentPrice: 1098416.67,
+          targetPrice: 1098416.67,
+          realEstateAnalysis: {
+            score: 58,
+            confidence: 43,
+            max_purchase_price: 776000,
+            source_validation: {
+              status: "ambiguous",
+              reason: "Checar ocupacao, debitos condominiais e liquidez de cobertura antes de lance.",
+            },
+            valuation_evidence: { sale_comparables_count: 0 },
+            scenarios: {
+              base: { sale_price: 1098416.67, net_profit: 50502, roi_pct: 6.29 },
+              conservative: { sale_price: 980000, net_profit: -78000, roi_pct: -9.1 },
+            },
+            suggested_status: "Aberto com pendencias",
+            next_action: "Checar ocupacao e plano juridico",
+            pending_items: [{ priority: "P0", title: "Confirmar ocupacao", action: "Validar desocupacao." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Alves Guimaraes, 866",
+              occupancy_status: "ocupado",
+              asking_price: 821000,
+              estimated_sale_base: 1098416.67,
+              sale_comparables_count: 0,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const blocked = screen.getByTestId("radar-imobiliario-bloqueados");
+    expect(within(blocked).getByText(/Sao Paulo \/ Pinheiros \/ Rua Alves Guimaraes/i)).toBeInTheDocument();
+    expect(within(blocked).getByTestId("candidate-identifier-number")).toHaveTextContent("3970");
+    expect(within(blocked).getAllByText(/Bloqueado por prova/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getByText(/imovel ocupado/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/entrada acima do Teto Halley/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/sem 3 comparaveis/i)).toBeInTheDocument();
+
+    const advance = screen.queryByTestId("radar-imobiliario-avancar");
+    expect(advance ? within(advance).queryByText(/Rua Alves Guimaraes/i) : null).not.toBeInTheDocument();
+  });
+
+  it("blocks generic neighborhood source urls from the advance queue", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "3975",
+          thesisId: "IM-RADAR-TARGET-CAMPO-02",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL TARGET - Campo Belo generico",
+          operation: "Leilao extrajudicial + HF leve | Leilao Imovel | Apartamento | Dentro do teto",
+          sourceUrl: "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/campo-belo",
+          entryPrice: 420000,
+          currentPrice: 620000,
+          targetPrice: 620000,
+          realEstateAnalysis: {
+            score: 78,
+            confidence: 50,
+            max_purchase_price: 460000,
+            source_validation: {
+              status: "ambiguous",
+              reason: "Fonte de bairro; abrir lote individual antes de proposta.",
+            },
+            valuation_evidence: { sale_comparables_count: 4 },
+            local_demand_evidence: {
+              risk_level: "baixo",
+              status_label: "Demanda local ok",
+            },
+            scenarios: {
+              base: { sale_price: 620000, net_profit: 92000, roi_pct: 21.9 },
+              conservative: { sale_price: 590000, net_profit: 42000, roi_pct: 10 },
+            },
+            suggested_status: "Aberto com pendencias",
+            next_action: "Abrir lote individual",
+            pending_items: [{ priority: "P0", title: "Abrir lote individual", action: "Substituir link generico." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Campo Belo",
+              street: "Rua Joao de Sousa Dias",
+              occupancy_status: "desocupado",
+              sale_comparables_count: 4,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const blocked = screen.getByTestId("radar-imobiliario-bloqueados");
+    expect(within(blocked).getByText(/Sao Paulo \/ Campo Belo \/ Rua Joao de Sousa Dias/i)).toBeInTheDocument();
+    expect(within(blocked).getAllByText(/Bloqueado por prova/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getByText(/fonte generica/i)).toBeInTheDocument();
+
+    const advance = screen.queryByTestId("radar-imobiliario-avancar");
+    expect(advance ? within(advance).queryByText(/Campo Belo generico/i) : null).not.toBeInTheDocument();
+  });
+
   it("renders radar subareas as isolated content views", () => {
     render(<RadarImobiliario data={{ realEstateStrategyTerritoryCandidates: {} }} section="garimpo" />);
 

@@ -303,6 +303,118 @@ function sourceValidationFor(row) {
   return { status, reason, label: "Fonte a validar", type: "warning" };
 }
 
+function sourceUrlFor(row) {
+  const candidate = candidateFor(row);
+  return firstText(row?.sourceUrl, row?.source_url, candidate.source_url, candidate.sourceUrl, "#");
+}
+
+function isGenericSourceUrl(value) {
+  const text = searchText(value);
+  if (!text) return false;
+  if (text.includes("leilao-de-imovel/") && !text.includes("/imovel/")) return true;
+  if (text.includes("/leiloes/") && includesAny(text, TARGET_NEIGHBORHOODS.map((item) => item.key))) return true;
+  return false;
+}
+
+function scenarioFor(analysis, key) {
+  return analysis?.scenarios?.[key] || analysis?.scenario?.[key] || {};
+}
+
+function explicitOccupiedWithoutPlan(row, candidate, analysis) {
+  const occupancyText = searchText([
+    candidate.occupancy_status,
+    candidate.occupancyStatus,
+    candidate.ocupacao,
+    analysis.occupancy_status,
+    analysis.occupancyStatus,
+    row?.occupancy_status,
+    row?.occupancyStatus,
+  ]);
+  if (!occupancyText || occupancyText.includes("desocup")) return false;
+  if (!occupancyText.includes("ocupad")) return false;
+
+  const planText = searchText([
+    candidate.legal_plan,
+    candidate.legalPlan,
+    candidate.eviction_plan,
+    candidate.evictionPlan,
+    analysis.legal_plan,
+    analysis.legalPlan,
+    analysis.eviction_plan,
+    analysis.evictionPlan,
+    row?.legal_plan,
+    row?.legalPlan,
+  ]);
+  return !includesAny(planText, ["acordo de desocupacao", "desocupacao acordada", "imissao planejada", "plano juridico aprovado"]);
+}
+
+function qualificationForLiveCandidate({ analysis, candidate, ceiling, confidence, entry, localDemandRisk, p0Count, roiPct, row, score, sourceValidation, sourceUrl, valuationCount }) {
+  const reasons = [];
+  const watchReasons = [];
+  const demandRisk = String(localDemandRisk || "").toLowerCase();
+  const sourceStatus = String(sourceValidation?.status || "").toLowerCase();
+  const conservative = scenarioFor(analysis, "conservative");
+  const conservativeProfit = firstFiniteNumber(conservative.net_profit, conservative.netProfit);
+  const hasConservativeLoss = Number.isFinite(conservativeProfit) && conservativeProfit < 0;
+  const hasGenericSource = isGenericSourceUrl(sourceUrl);
+  const hasOccupiedUnit = explicitOccupiedWithoutPlan(row, candidate, analysis);
+  const isAboveCeiling = Boolean(ceiling && entry && entry > ceiling);
+
+  if (sourceStatus === "expired" || sourceStatus === "unavailable") reasons.push("fonte indisponivel");
+  if (hasGenericSource) reasons.push("fonte generica");
+  if (hasOccupiedUnit) reasons.push("imovel ocupado");
+  if (isAboveCeiling) reasons.push("entrada acima do Teto Halley");
+  if (valuationCount <= 0) reasons.push("sem 3 comparaveis");
+  if (demandRisk === "alto" || demandRisk === "high") reasons.push("demanda local alta");
+  if (demandRisk === "critico" || demandRisk === "critical") reasons.push("demanda local critica");
+  if (hasConservativeLoss && score < 66) reasons.push("cenario conservador negativo");
+
+  if (!reasons.length && sourceStatus && sourceStatus !== "valid") watchReasons.push("fonte manual");
+  if (!reasons.length && valuationCount > 0 && valuationCount < 3) watchReasons.push("menos de 3 comparaveis");
+  if (!reasons.length && p0Count > 0) watchReasons.push(`${p0Count} P0 aberto${p0Count > 1 ? "s" : ""}`);
+  if (!reasons.length && confidence < 45) watchReasons.push("confianca baixa");
+  if (!reasons.length && roiPct > 0 && roiPct < 15) watchReasons.push("margem base estreita");
+
+  const canAdvance = !reasons.length
+    && sourceStatus === "valid"
+    && valuationCount >= 3
+    && p0Count === 0
+    && confidence >= 45
+    && roiPct >= 15
+    && !hasConservativeLoss;
+
+  if (reasons.length) {
+    return {
+      key: "blocked",
+      label: "Bloqueado por prova",
+      shortLabel: "Bloqueado",
+      type: "danger",
+      color: C.coral,
+      reasons,
+    };
+  }
+
+  if (canAdvance) {
+    return {
+      key: "advance",
+      label: "Avancar agora",
+      shortLabel: "Avancar",
+      type: "success",
+      color: C.green,
+      reasons: ["fonte, teto, saida e P0 dentro da regra"],
+    };
+  }
+
+  return {
+    key: "watchlist",
+    label: "Watchlist",
+    shortLabel: "Watchlist",
+    type: "warning",
+    color: C.gold,
+    reasons: watchReasons.length ? watchReasons : ["prova incompleta para proposta"],
+  };
+}
+
 function sourceTextFor(row) {
   const candidate = candidateFor(row);
   return [
@@ -536,13 +648,32 @@ function liveStoryFromRow(row, index) {
     || (valuationCount >= 3
       ? "venda recente ou proposta firme"
       : `buscar ${Math.max(0, 3 - valuationCount)} comparável${3 - valuationCount === 1 ? "" : "is"} adicional${3 - valuationCount === 1 ? "" : "is"}`);
-  const color = colorForStory(score, decision);
+  const baseColor = colorForStory(score, decision);
   const title = cleanAssetTitle(firstText(row?.asset, row?.action, row?.name, `Candidato imobiliário ${index + 1}`));
   const nextAction = firstText(analysis.next_action, analysis.nextAction, row?.exitRule, row?.invalidation, "Diligência aberta");
   const strategy = strategyFor(row);
   const strategyIcon = iconForStrategy(strategy);
   const identifier = String(row?.thesisId || row?.id || `IM-ABERTO-${index + 1}`);
   const sourceValidation = sourceValidationFor(row);
+  const sourceUrl = sourceUrlFor(row);
+  const qualification = isOpen
+    ? qualificationForLiveCandidate({
+      analysis,
+      candidate,
+      ceiling,
+      confidence,
+      entry,
+      localDemandRisk,
+      p0Count,
+      roiPct,
+      row,
+      score,
+      sourceValidation,
+      sourceUrl,
+      valuationCount,
+    })
+    : null;
+  const color = qualification?.color || baseColor;
   const targetNeighborhood = targetNeighborhoodForText([
     candidate.neighborhood,
     candidate.neighborhoods,
@@ -569,7 +700,7 @@ function liveStoryFromRow(row, index) {
     targetNeighborhoodKey: targetNeighborhood?.key || "",
     role: isOpen ? `Caso real aberto · ${statusLabel}` : `Caso real encerrado · ${firstText(row?.outcome, row?.status, statusLabel)}`,
     strategy,
-    sourceUrl: firstText(row?.sourceUrl, row?.source_url, "#"),
+    sourceUrl,
     sourceOrigin: firstText(row?.sourceOrigin, row?.source_origin, row?.origin, candidate.origin),
     area: firstText(candidate.area, candidate.private_area, candidate.privateArea, candidate.private_area_m2, candidate.privateAreaM2, "área a validar"),
     floor: firstText(candidate.floor, candidate.andar, "andar a validar"),
@@ -615,8 +746,14 @@ function liveStoryFromRow(row, index) {
     icon: strategyIcon.icon,
     iconLabel: strategyIcon.label,
     iconBasis: `${strategyIcon.basis} Importado dos casos imobiliários canônicos da app.`,
-    decision: shortText(decision, 30),
-    whyRadar: firstText(row?.hypothesis, analysis.summary, row?.operation, "Caso real no radar imobiliário aguardando leitura de evidência."),
+    decision: shortText(qualification?.label || decision, 30),
+    decisionTier: qualification?.key || (isOpen ? "watchlist" : "closed"),
+    decisionReasons: qualification?.reasons || [],
+    decisionType: qualification?.type || (isOpen ? "warning" : "neutral"),
+    whyRadar: [
+      qualification ? `${qualification.label}: ${qualification.reasons.join("; ")}.` : "",
+      firstText(row?.hypothesis, analysis.summary, row?.operation, "Caso real no radar imobiliário aguardando leitura de evidência."),
+    ].filter(Boolean).join(" "),
     p0: p0Items.map((item) => compactText(item?.title || item?.action)).filter(Boolean),
     p0Actions: p0Items.map((item) => ({
       title: compactText(item?.title || item?.key || "Diligência"),
@@ -669,6 +806,9 @@ function radarStoriesForData(data) {
 }
 
 function decisionBucket(item) {
+  if (item?.decisionTier === "advance") return "avancar";
+  if (item?.decisionTier === "watchlist") return "watchlist";
+  if (item?.decisionTier === "blocked") return "bloqueado";
   const decision = String(item.decision || "").toLowerCase();
   if (decision.includes("descartar") || decision.includes("não avançar") || decision.includes("recusar") || decision.includes("bloquear")) return "bloqueado";
   if (decision.includes("calibrar")) return "aprendizado";
@@ -683,7 +823,7 @@ function buildRadarStats(items) {
       if (String(item.temporalStatus || "").toLowerCase().includes("futura")) acc.futureSecondRound += 1;
       return acc;
     },
-    { aprendizado: 0, bloqueado: 0, futureSecondRound: 0, investigar: 0, monitorar: 0 },
+    { aprendizado: 0, avancar: 0, bloqueado: 0, futureSecondRound: 0, investigar: 0, monitorar: 0, watchlist: 0 },
   );
 
   return {
@@ -832,10 +972,10 @@ function RadarDecisionStrip({ stats }) {
         gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
       }}
     >
-      <RadarSignalCard label="Avançar" title={`${stats.investigar} candidatos pedem investigação`} text="São casos em que preço e território já justificam abrir prova, mas ainda sem compra automática." color={C.green} />
-      <RadarSignalCard label="Monitorar" title={`${stats.monitorar} candidato no calendário`} text="A data crítica ainda não chegou; a app preserva foco e evita diligência cedo demais." color={C.gold} />
-      <RadarSignalCard label="Aprender" title={`${stats.aprendizado} caso para calibração`} text="Histórico também é ativo: ensina preço teto, custo total e regra de descarte." color={C.sky} />
-      <RadarSignalCard label="Bloquear" title={`${stats.bloqueado} casos fora do radar ativo`} text="Quando passivo, ocupação ou saída dominam a margem, o radar registra o não." color={C.coral} />
+      <RadarSignalCard label="Avancar" title={`${stats.avancar} candidatos prontos`} text="So entra aqui quando fonte, teto, saida, P0 e cenario conservador passam juntos." color={C.green} />
+      <RadarSignalCard label="Watchlist" title={`${stats.watchlist + stats.investigar + stats.monitorar} candidatos com prova pendente`} text="Promissor o suficiente para vigiar, mas ainda sem qualidade para defender proposta." color={C.gold} />
+      <RadarSignalCard label="Bloquear" title={`${stats.bloqueado} casos travados por prova`} text="Fonte generica, ocupacao, teto estourado, demanda fraca ou comparaveis insuficientes derrubam o candidato." color={C.coral} />
+      <RadarSignalCard label="Aprender" title={`${stats.aprendizado} caso para calibracao`} text="Historico tambem e ativo: ensina preco teto, custo total e regra de descarte." color={C.sky} />
     </section>
   );
 }
@@ -1295,6 +1435,33 @@ function isTargetNeighborhoodStory(story) {
   );
 }
 
+const DECISION_QUEUE_LANES = [
+  {
+    color: C.green,
+    dataTestId: "radar-imobiliario-avancar",
+    intro: "So fica aqui o que ja passa em fonte individual, teto, demanda de saida, comparaveis, P0 e cenario conservador.",
+    key: "advance",
+    label: "Avancar agora",
+    title: "Avancar agora",
+  },
+  {
+    color: C.gold,
+    dataTestId: "radar-imobiliario-watchlist",
+    intro: "Casos com bairro ou preco interessantes, mas ainda sem prova suficiente para defender capital.",
+    key: "watchlist",
+    label: "Watchlist",
+    title: "Watchlist de prova",
+  },
+  {
+    color: C.coral,
+    dataTestId: "radar-imobiliario-bloqueados",
+    intro: "Casos vivos no feed, mas bloqueados para proposta enquanto a prova essencial nao aparecer.",
+    key: "blocked",
+    label: "Bloqueado por prova",
+    title: "Bloqueado por prova",
+  },
+];
+
 function prioritizeActiveCandidateStories(stories) {
   return asArray(stories)
     .map((story, index) => ({ story, index }))
@@ -1302,9 +1469,99 @@ function prioritizeActiveCandidateStories(stories) {
       const leftPriority = isTargetNeighborhoodStory(left.story) ? 0 : 1;
       const rightPriority = isTargetNeighborhoodStory(right.story) ? 0 : 1;
       if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+      const leftScore = Number(left.story?.score || 0);
+      const rightScore = Number(right.story?.score || 0);
+      if (leftScore !== rightScore) return rightScore - leftScore;
       return left.index - right.index;
     })
     .map(({ story }) => story);
+}
+
+function storiesByDecisionLane(stories) {
+  return DECISION_QUEUE_LANES.map((lane) => ({
+    ...lane,
+    items: prioritizeActiveCandidateStories(stories.filter((story) => story.decisionTier === lane.key)),
+  }));
+}
+
+function RadarDecisionQueue({ discardingId, liveStories, onDiscard }) {
+  const lanes = storiesByDecisionLane(asArray(liveStories));
+  const allItems = lanes.flatMap((lane) => lane.items);
+  const total = allItems.length;
+
+  if (!total) return null;
+
+  return (
+    <section
+      data-testid="radar-imobiliario-abertos"
+      style={{
+        display: "grid",
+        gap: 14,
+      }}
+    >
+      <div
+        style={{
+          background: C.card,
+          border: `1px solid ${C.border}`,
+          borderRadius: 14,
+          display: "grid",
+          gap: 12,
+          padding: 16,
+        }}
+      >
+        <div>
+          <div style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            Mesa de decisao
+          </div>
+          <h2 style={{ color: C.text, fontSize: 20, lineHeight: 1.15, margin: "7px 0 0" }}>
+            Abertos - {pluralizeCase(total, "candidato real", "candidatos reais")}
+          </h2>
+          <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.65, margin: "8px 0 0" }}>
+            O radar fica mais agressivo: candidato aberto nao significa oportunidade. A fila separa o que pode avancar, o que exige prova e o que deve ficar bloqueado no reporte.
+          </p>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 8 }}>
+          {lanes.map((lane) => (
+            <div
+              key={lane.key}
+              style={{
+                background: C.panel,
+                border: `1px solid ${withAlpha(lane.color, alpha.border)}`,
+                borderLeft: `3px solid ${lane.color}`,
+                borderRadius: 10,
+                padding: 11,
+              }}
+            >
+              <div style={{ color: lane.color, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                {lane.label}
+              </div>
+              <div style={{ color: C.text, fontSize: 18, fontWeight: 950, marginTop: 5 }}>
+                {lane.items.length}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {lanes
+        .filter((lane) => lane.items.length > 0)
+        .map((lane) => (
+          <PerdizesCasePortfolio
+            key={lane.key}
+            color={lane.color}
+            dataTestId={lane.dataTestId}
+            eyebrow={lane.label}
+            intro={lane.intro}
+            discardingId={discardingId}
+            items={lane.items}
+            onDiscard={onDiscard}
+            prominentIdentifier
+            title={`${lane.title} - ${pluralizeCase(lane.items.length, "candidato real", "candidatos reais")}`}
+          />
+        ))}
+    </section>
+  );
 }
 
 function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onDiscard, portfolioIntro, portfolioTitle }) {
@@ -1344,16 +1601,10 @@ function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onD
       </div>
 
       {liveStories.length > 0 && (
-        <PerdizesCasePortfolio
-          color={C.green}
-          dataTestId="radar-imobiliario-abertos"
-          eyebrow="Abertos"
-          intro="Candidatos ainda vivos. Aqui ficam os casos que pedem P0, fonte, ocupação, matrícula, comparáveis ou decisão antes de qualquer proposta."
+        <RadarDecisionQueue
           discardingId={discardingId}
-          items={numberedLiveStories}
+          liveStories={numberedLiveStories}
           onDiscard={onDiscard}
-          prominentIdentifier
-          title={`Abertos - ${pluralizeCase(liveStories.length, "candidato real", "candidatos reais")}`}
         />
       )}
 
