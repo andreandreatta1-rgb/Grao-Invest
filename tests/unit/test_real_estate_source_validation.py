@@ -57,3 +57,41 @@ def test_source_validation_accepts_individual_frazao_lot_details() -> None:
 
     assert result.status == "valid"
     assert result.reason == "Fonte individual validada."
+
+
+def test_source_validation_flags_ended_auctions_as_expired() -> None:
+    result = validate_real_estate_source_url(
+        "https://www.frazaoleiloes.com.br/Auction/LotDetails/11024",
+        fetcher=lambda url, timeout: _Response(
+            200,
+            "Leilao de Apartamento - Campinas/SP. Encerrado Leilao: 23/12/2022 as 11h00.",
+            url,
+        ),
+    )
+
+    assert result.status == "expired"
+    assert "encerrado" in result.reason.lower()
+
+
+def test_source_validation_accepts_mega_leiloes_detail_pages_even_without_text_markers() -> None:
+    result = validate_real_estate_source_url(
+        (
+            "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/campinas/"
+            "apartamento-79-m2-edificio-palmares-campinas-sp-j122562"
+        ),
+        fetcher=lambda url, timeout: _Response(200, "OK", url),
+    )
+
+    assert result.status == "valid"
+
+
+def test_source_validation_accepts_mega_leiloes_x_series_detail_pages() -> None:
+    result = validate_real_estate_source_url(
+        (
+            "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/"
+            "apartamento-127-m2-paraiso-do-morumbi-sao-paulo-sp-x124760"
+        ),
+        fetcher=lambda url, timeout: _Response(200, "OK", url),
+    )
+
+    assert result.status == "valid"

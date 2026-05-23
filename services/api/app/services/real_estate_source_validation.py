@@ -39,6 +39,7 @@ EXPIRED_MARKERS = [
     "imovel indisponivel",
     "lote retirado",
     "lote encerrado",
+    "encerrado leilao",
     "leilao encerrado",
     "venda encerrada",
 ]
@@ -49,6 +50,7 @@ INDIVIDUAL_PATH_PATTERNS = [
     re.compile(r"/propriedades/[^/]+", re.IGNORECASE),
     re.compile(r"/property/[^/]+", re.IGNORECASE),
     re.compile(r"/imovel/[^/]+", re.IGNORECASE),
+    re.compile(r"/imoveis/.+-[jx]\d{5,7}", re.IGNORECASE),
 ]
 
 GENERIC_SEARCH_PATH_MARKERS = [

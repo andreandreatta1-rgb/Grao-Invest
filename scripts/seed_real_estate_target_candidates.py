@@ -25,6 +25,14 @@ def _number(value: Any, default: float = 0.0) -> float:
         return default
 
 
+def _positive_int(value: Any) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return 0
+    return parsed if parsed > 0 else 0
+
+
 def _candidate_snapshot(lead: dict[str, Any], analysis: dict[str, Any]) -> dict[str, Any]:
     fields = [
         "strategy",
@@ -52,6 +60,8 @@ def _candidate_snapshot(lead: dict[str, Any], analysis: dict[str, Any]) -> dict[
         "estimated_sale_base",
         "estimated_sale_conservative",
         "estimated_sale_optimistic",
+        "listing_description",
+        "sale_comparables",
         "plan_b",
         "notes",
         "source_validation_status",
@@ -103,10 +113,16 @@ def _operation_row(lead: dict[str, Any], thesis_number: int) -> dict[str, Any]:
     }
     candidate = analysis["candidate"]
     asking_price = round(_number(enriched.get("asking_price")), 2)
-    sale_base = round(_number(enriched.get("estimated_sale_base"), _number(enriched.get("market_value_estimate"))), 2)
+    base_scenario = analysis.get("scenarios", {}).get("base", {})
+    sale_base = round(
+        _number(
+            base_scenario.get("sale_price"),
+            _number(enriched.get("estimated_sale_base"), _number(enriched.get("market_value_estimate"))),
+        ),
+        2,
+    )
     max_purchase_price = round(_number(analysis.get("max_purchase_price")), 2)
     cash_needed = round(_number(analysis.get("cash_needed")), 2)
-    base_scenario = analysis.get("scenarios", {}).get("base", {})
     roi_pct = round(_number(base_scenario.get("roi_pct")), 4)
     next_action = str(analysis.get("next_action") or "Validar candidato").strip()
     pending_titles = [
@@ -118,6 +134,10 @@ def _operation_row(lead: dict[str, Any], thesis_number: int) -> dict[str, Any]:
     price_ceiling_status = str(analysis.get("price_ceiling_status") or "Teto a validar")
     thesis_id = f"{TARGET_PREFIX}{enriched['id_suffix']}"
     observed_at = str(enriched.get("observed_at") or "2026-05-20T21:00:00-03:00")
+    suggested_status = str(analysis.get("suggested_status") or "").strip()
+    is_discarded = suggested_status == "Descartado"
+    status = "Fechada" if is_discarded else "Aberta - Atencao"
+    outcome = "Descartado pelo radar" if is_discarded else "Pendencias abertas"
 
     return {
         "phase": "pos_go_live",
@@ -152,13 +172,13 @@ def _operation_row(lead: dict[str, Any], thesis_number: int) -> dict[str, Any]:
         "latest_price_at": observed_at,
         "planned_exit_at": (date(2026, 5, 20) + timedelta(days=14)).isoformat(),
         "exit_rule": next_action,
-        "status": "Aberta - Atencao",
-        "outcome": "Pendencias abertas",
+        "status": status,
+        "outcome": outcome,
         "moment_result_pct": 0.0,
         "duration_days": None,
         "open_days": 0,
         "learning_note": f"Antes de proposta: {next_action}. Pendencias principais: {pending_summary}.",
-        "is_open": True,
+        "is_open": not is_discarded,
         "real_estate_analysis": analysis,
     }
 
@@ -170,19 +190,62 @@ def seed_target_candidates() -> int:
     if not isinstance(operations, list):
         raise ValueError("dashboard_seed.json nao contem thesis_open_operations.")
 
-    retained = [
+    reserved_target_numbers = {
+        _positive_int(lead.get("thesis_number"))
+        for lead in leads
+        if isinstance(lead, dict) and _positive_int(lead.get("thesis_number")) > 0
+    }
+    existing_target_numbers = {
+        str(row.get("thesis_id") or ""): _positive_int(row.get("thesis_number"))
+        for row in operations
+        if isinstance(row, dict)
+        and str(row.get("thesis_id") or "").startswith(TARGET_PREFIX)
+        and _positive_int(row.get("thesis_number")) > 0
+    }
+    raw_retained = [
         row
         for row in operations
         if not str(row.get("thesis_id") or "").startswith(TARGET_PREFIX)
     ]
-    max_thesis_number = max(
-        [int(row.get("thesis_number") or 0) for row in retained if isinstance(row, dict)]
-        or [0]
-    )
-    generated = [
-        _operation_row(lead, max_thesis_number + index + 1)
-        for index, lead in enumerate(leads)
-    ]
+    all_existing_numbers = {
+        _positive_int(row.get("thesis_number"))
+        for row in raw_retained
+        if isinstance(row, dict) and _positive_int(row.get("thesis_number")) > 0
+    }
+    used_numbers: set[int] = set()
+    next_thesis_number = max(all_existing_numbers | reserved_target_numbers or {0}) + 1
+    retained = []
+    for row in raw_retained:
+        if not isinstance(row, dict):
+            retained.append(row)
+            continue
+        retained_row = row
+        thesis_number = _positive_int(row.get("thesis_number"))
+        if thesis_number in reserved_target_numbers:
+            retained_row = {**row}
+            while next_thesis_number in used_numbers or next_thesis_number in reserved_target_numbers:
+                next_thesis_number += 1
+            thesis_number = next_thesis_number
+            retained_row["thesis_number"] = thesis_number
+            next_thesis_number += 1
+        if thesis_number > 0:
+            used_numbers.add(thesis_number)
+        retained.append(retained_row)
+    retained_numbers = set(used_numbers)
+    generated = []
+    for lead in leads:
+        thesis_id = f"{TARGET_PREFIX}{lead['id_suffix']}"
+        thesis_number = _positive_int(lead.get("thesis_number")) or existing_target_numbers.get(thesis_id)
+        if thesis_number in retained_numbers or thesis_number in used_numbers:
+            thesis_number = 0
+        if not thesis_number:
+            while next_thesis_number in used_numbers:
+                next_thesis_number += 1
+            thesis_number = next_thesis_number
+            next_thesis_number += 1
+        used_numbers.add(thesis_number)
+        next_thesis_number = max(next_thesis_number, thesis_number + 1)
+        generated.append(_operation_row(lead, thesis_number))
     payload["thesis_open_operations"] = retained + generated
     SEED_PATH.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
