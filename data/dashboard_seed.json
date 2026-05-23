@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-23T13:57:30+00:00",
+  "generated_at": "2026-05-23T14:59:38+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -207,19 +207,19 @@
         ]
       }
     ],
-    "event_count": 4551,
-    "global_event_count": 4554,
+    "event_count": 4552,
+    "global_event_count": 4555,
     "global_total_tested": 2620,
     "user_total_tested": 2619,
     "sources": {
       "case_study_runs": 2620,
-      "current_monitor_runs": 586
+      "current_monitor_runs": 587
     },
     "sample_quality": {
       "counting_policy": "unique_resolved_case_studies",
       "raw_case_study_events": 3968,
       "duplicate_case_study_events_excluded": 1348,
-      "current_monitor_snapshots_excluded": 586,
+      "current_monitor_snapshots_excluded": 587,
       "current_monitor_policy": "excluded_until_resolved_and_deduplicated"
     },
     "avg_resolution_days": 2.33,
@@ -75617,7 +75617,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 4013,
+      "thesis_number": 4019,
       "thesis_id": "TH-PETR4-bullish-3514",
       "thesis_raised_at": "2026-05-23T03:33:45+00:00",
       "action": "PETR4",
@@ -75636,7 +75636,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4014,
+      "thesis_number": 4020,
       "thesis_id": "TH-GGBR4-bearish-0098",
       "thesis_raised_at": "2026-05-20T00:00:00+00:00",
       "action": "GGBR4",
@@ -75659,7 +75659,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4015,
+      "thesis_number": 4021,
       "thesis_id": "TH-PRIO3-bullish-0084",
       "thesis_raised_at": "2026-05-22T00:00:00+00:00",
       "action": "PRIO3",
@@ -75682,7 +75682,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4016,
+      "thesis_number": 4022,
       "thesis_id": "TH-BPAC11-bearish-0127",
       "thesis_raised_at": "2026-05-22T00:00:00+00:00",
       "action": "BPAC11",
@@ -75705,7 +75705,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4017,
+      "thesis_number": 4023,
       "thesis_id": "TH-B3SA3-bearish-0061",
       "thesis_raised_at": "2026-05-22T00:00:00+00:00",
       "action": "B3SA3",
@@ -75728,7 +75728,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4018,
+      "thesis_number": 4024,
       "thesis_id": "TH-HAPV3-bullish-0117",
       "thesis_raised_at": "2026-05-20T00:00:00+00:00",
       "action": "HAPV3",
@@ -75751,7 +75751,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4019,
+      "thesis_number": 4025,
       "thesis_id": "TH-BTCUSDT-range-0008",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "BTCUSDT",
@@ -75774,7 +75774,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4020,
+      "thesis_number": 4026,
       "thesis_id": "TH-ETHUSDT-range-0016",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "ETHUSDT",
@@ -75797,7 +75797,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4021,
+      "thesis_number": 4027,
       "thesis_id": "TH-SOLUSDT-range-0024",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "SOLUSDT",
@@ -75820,7 +75820,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4022,
+      "thesis_number": 4028,
       "thesis_id": "TH-XRPUSDT-range-0040",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "XRPUSDT",
@@ -75843,7 +75843,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4023,
+      "thesis_number": 4029,
       "thesis_id": "TH-LTCUSDT-range-0080",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "LTCUSDT",
@@ -75866,7 +75866,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4024,
+      "thesis_number": 4030,
       "thesis_id": "TH-BNBUSDT-range-0032",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "BNBUSDT",
@@ -75889,7 +75889,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4025,
+      "thesis_number": 4031,
       "thesis_id": "TH-AVAXUSDT-range-0064",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "AVAXUSDT",
@@ -75912,7 +75912,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4026,
+      "thesis_number": 4032,
       "thesis_id": "TH-LINKUSDT-range-0072",
       "thesis_raised_at": "2026-05-23T03:29:59+00:00",
       "action": "LINKUSDT",
@@ -75935,7 +75935,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4027,
+      "thesis_number": 4033,
       "thesis_id": "IM-FOLHA-FRAZAO-SAUDE-37528",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -76125,7 +76125,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4028,
+      "thesis_number": 4034,
       "thesis_id": "IM-FOLHA-FRAZAO-PARADA-INGLESA-37570",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -76401,7 +76401,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4029,
+      "thesis_number": 4035,
       "thesis_id": "IM-FOLHA-FRAZAO-CAMPINAS-37386",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -76555,7 +76555,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4030,
+      "thesis_number": 4036,
       "thesis_id": "IM-FOLHA-FRAZAO-BUTANTA-37467",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -76733,7 +76733,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4031,
+      "thesis_number": 4037,
       "thesis_id": "IM-FOLHA-FRAZAO-BELENZINHO-37539",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -76880,7 +76880,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4001,
+      "thesis_number": 4007,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -77215,7 +77215,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4002,
+      "thesis_number": 4008,
       "thesis_id": "IM-RADAR-20",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -77231,9 +77231,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Jardim das Colinas SJC 65m2 regiao Shopping",
-      "thesis_reason": "Radar imobiliario: Imovelweb em Jardim das Colinas / Sao Jose dos Campos. Score 72/100, confianca 30/100, status Descartado.",
-      "expected_result_pct": 33.47,
-      "operation_plan": "Preco pedido R$ 460,000.00 | Teto de compra R$ 423,377.90 | Caixa necessario R$ 145,900.00 | Proximo passo: Anuncio Imovelweb finalizado pelo anunciante; fonte publica nao esta mais publicada. Encerrar este candidato e, se fizer sentido, abrir novo caso apenas com link individual de anuncio semelhante ainda ativo.",
+      "thesis_reason": "Radar imobiliario: Imovelweb em Jardim das Colinas / Sao Jose dos Campos. Score 67/100, confianca 30/100, status Descartado.",
+      "expected_result_pct": 9.5,
+      "operation_plan": "Preco pedido R$ 460,000.00 | Teto de compra R$ 349,777.90 | Caixa necessario R$ 513,900.00 | Proximo passo: Anuncio Imovelweb finalizado pelo anunciante; fonte publica nao esta mais publicada. Encerrar este candidato e, se fizer sentido, abrir novo caso apenas com link individual de anuncio semelhante ainda ativo.",
       "structured_operation": "Arbitragem sem reforma + venda direta | Imovelweb | Apartamento | Acima do teto",
       "entry_price_brl": 460000.0,
       "current_price_brl": 598650.0,
@@ -77242,12 +77242,12 @@
       "exit_rule": "Anuncio Imovelweb finalizado pelo anunciante; fonte publica nao esta mais publicada. Encerrar este candidato e, se fizer sentido, abrir novo caso apenas com link individual de anuncio semelhante ainda ativo.",
       "status": "Fechada",
       "outcome": "Descartado pelo radar",
-      "moment_result_pct": 33.47,
+      "moment_result_pct": 9.5,
       "duration_days": 0,
       "open_days": null,
       "learning_note": "Aprendizado: candidato fora do radar ativo. Revisar fonte, preco teto, margem conservadora e pendencias antes de reabrir.",
       "real_estate_analysis": {
-        "score": 72,
+        "score": 67,
         "confidence": 30,
         "suggested_status": "Descartado",
         "next_action": "Anuncio Imovelweb finalizado pelo anunciante; fonte publica nao esta mais publicada. Encerrar este candidato e, se fizer sentido, abrir novo caso apenas com link individual de anuncio semelhante ainda ativo.",
@@ -77303,10 +77303,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 8,
+            "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 145,900.00."
+            "detail": "Caixa estimado: R$ 513,900.00."
           },
           {
             "key": "plan_b",
@@ -77459,25 +77459,25 @@
           "conservative": {
             "sale_price": 538785.0,
             "net_profit": -7442.1,
-            "roi_pct": -5.1
+            "roi_pct": -1.45
           },
           "base": {
             "sale_price": 598650.0,
             "net_profit": 48831.0,
-            "roi_pct": 33.47
+            "roi_pct": 9.5
           },
           "optimistic": {
             "sale_price": 628583.0,
             "net_profit": 76968.02,
-            "roi_pct": 52.75
+            "roi_pct": 14.98
           }
         },
         "breakeven_sale_price": 546702.13,
-        "max_purchase_price": 423377.9,
-        "price_gap_to_ceiling": 36622.1,
+        "max_purchase_price": 349777.9,
+        "price_gap_to_ceiling": 110222.1,
         "price_ceiling_status": "Acima do teto",
         "target_roi_pct": 20.0,
-        "cash_needed": 145900.0,
+        "cash_needed": 513900.0,
         "base_profit_pct": 10.62,
         "acquisition_costs": 23000.0,
         "renovation_budget": 26000.0,
@@ -77539,7 +77539,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4003,
+      "thesis_number": 4009,
       "thesis_id": "IM-RADAR-25",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -77555,9 +77555,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Alphaville Campinas flat Ibis Styles 32m2",
-      "thesis_reason": "Radar imobiliario: Chaves na Mao em Alphaville Campinas / Campinas. Score 64/100, confianca 33/100, status Aberto com pendencias.",
+      "thesis_reason": "Radar imobiliario: Chaves na Mao em Alphaville Campinas / Campinas. Score 62/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
-      "operation_plan": "Preco pedido R$ 152,000.00 | Teto de compra R$ 168,080.00 | Caixa necessario R$ 57,600.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
+      "operation_plan": "Preco pedido R$ 152,000.00 | Teto de compra R$ 143,760.00 | Caixa necessario R$ 179,200.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
       "structured_operation": "Renda / Plano B | Chaves na Mao | Flat | Teto a validar",
       "entry_price_brl": 152000.0,
       "current_price_brl": 152000.0,
@@ -77571,7 +77571,7 @@
       "open_days": 6,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
-        "score": 64,
+        "score": 62,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
         "next_action": "Validar fonte do candidato",
@@ -77627,10 +77627,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 10,
+            "points": 8,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 57,600.00."
+            "detail": "Caixa estimado: R$ 179,200.00."
           },
           {
             "key": "plan_b",
@@ -77796,25 +77796,25 @@
           "conservative": {
             "sale_price": 220000.0,
             "net_profit": 27600.0,
-            "roi_pct": 47.92
+            "roi_pct": 15.4
           },
           "base": {
             "sale_price": 250000.0,
             "net_profit": 55800.0,
-            "roi_pct": 96.88
+            "roi_pct": 31.14
           },
           "optimistic": {
             "sale_price": 265000.0,
             "net_profit": 69900.0,
-            "roi_pct": 121.35
+            "roi_pct": 39.01
           }
         },
         "breakeven_sale_price": 190638.3,
-        "max_purchase_price": 168080.0,
-        "price_gap_to_ceiling": -16080.0,
+        "max_purchase_price": 143760.0,
+        "price_gap_to_ceiling": 8240.0,
         "price_ceiling_status": "Teto a validar",
         "target_roi_pct": 20.0,
-        "cash_needed": 57600.0,
+        "cash_needed": 179200.0,
         "base_profit_pct": 36.71,
         "acquisition_costs": 7600.0,
         "renovation_budget": 12000.0,
@@ -77887,7 +77887,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4004,
+      "thesis_number": 4010,
       "thesis_id": "IM-RADAR-24",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -77903,9 +77903,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Mansoes Santo Antonio Campinas 75m2 sem financiamento",
-      "thesis_reason": "Radar imobiliario: Chaves na Mao em Mansoes Santo Antonio / Campinas. Score 60/100, confianca 33/100, status Aberto com pendencias.",
+      "thesis_reason": "Radar imobiliario: Chaves na Mao em Mansoes Santo Antonio / Campinas. Score 55/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
-      "operation_plan": "Preco pedido R$ 360,000.00 | Teto de compra R$ 414,555.00 | Caixa necessario R$ 153,400.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
+      "operation_plan": "Preco pedido R$ 360,000.00 | Teto de compra R$ 356,955.00 | Caixa necessario R$ 441,400.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
       "structured_operation": "Compra direta com negociacao + house flipping leve | Chaves na Mao | Apartamento | Teto a validar",
       "entry_price_brl": 360000.0,
       "current_price_brl": 360000.0,
@@ -77919,7 +77919,7 @@
       "open_days": 6,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
-        "score": 60,
+        "score": 55,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
         "next_action": "Validar fonte do candidato",
@@ -77975,10 +77975,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 8,
+            "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 153,400.00."
+            "detail": "Caixa estimado: R$ 441,400.00."
           },
           {
             "key": "plan_b",
@@ -78144,25 +78144,25 @@
           "conservative": {
             "sale_price": 560250.0,
             "net_profit": 85235.0,
-            "roi_pct": 55.56
+            "roi_pct": 19.31
           },
           "base": {
             "sale_price": 622500.0,
             "net_profit": 143750.0,
-            "roi_pct": 93.71
+            "roi_pct": 32.57
           },
           "optimistic": {
             "sale_price": 653625.0,
             "net_profit": 173007.5,
-            "roi_pct": 112.78
+            "roi_pct": 39.2
           }
         },
         "breakeven_sale_price": 469574.47,
-        "max_purchase_price": 414555.0,
-        "price_gap_to_ceiling": -54555.0,
+        "max_purchase_price": 356955.0,
+        "price_gap_to_ceiling": 3045.0,
         "price_ceiling_status": "Teto a validar",
         "target_roi_pct": 20.0,
-        "cash_needed": 153400.0,
+        "cash_needed": 441400.0,
         "base_profit_pct": 39.93,
         "acquisition_costs": 18000.0,
         "renovation_budget": 55000.0,
@@ -78235,7 +78235,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4005,
+      "thesis_number": 4011,
       "thesis_id": "IM-RADAR-23",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -78251,9 +78251,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Parque Faber Castell Sao Carlos 59m2",
-      "thesis_reason": "Radar imobiliario: Imovelweb em Parque Faber Castell I / Sao Carlos. Score 63/100, confianca 30/100, status Descartado.",
-      "expected_result_pct": 12.37,
-      "operation_plan": "Preco pedido R$ 370,000.00 | Teto de compra R$ 317,937.50 | Caixa necessario R$ 119,080.00 | Proximo passo: Rever preco maximo ou descartar",
+      "thesis_reason": "Radar imobiliario: Imovelweb em Parque Faber Castell I / Sao Carlos. Score 58/100, confianca 30/100, status Descartado.",
+      "expected_result_pct": 3.55,
+      "operation_plan": "Preco pedido R$ 370,000.00 | Teto de compra R$ 258,737.50 | Caixa necessario R$ 415,080.00 | Proximo passo: Rever preco maximo ou descartar",
       "structured_operation": "House flipping leve + venda direta | Imovelweb | Apartamento | Acima do teto",
       "entry_price_brl": 370000.0,
       "current_price_brl": 457250.0,
@@ -78262,12 +78262,12 @@
       "exit_rule": "Rever preco maximo ou descartar",
       "status": "Fechada",
       "outcome": "Descartado pelo radar",
-      "moment_result_pct": 12.37,
+      "moment_result_pct": 3.55,
       "duration_days": 0,
       "open_days": null,
       "learning_note": "Aprendizado: candidato fora do radar ativo. Revisar fonte, preco teto, margem conservadora e pendencias antes de reabrir.",
       "real_estate_analysis": {
-        "score": 63,
+        "score": 58,
         "confidence": 30,
         "suggested_status": "Descartado",
         "next_action": "Rever preco maximo ou descartar",
@@ -78323,10 +78323,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 8,
+            "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 119,080.00."
+            "detail": "Caixa estimado: R$ 415,080.00."
           },
           {
             "key": "plan_b",
@@ -78479,25 +78479,25 @@
           "conservative": {
             "sale_price": 411525.0,
             "net_profit": -28246.5,
-            "roi_pct": -23.72
+            "roi_pct": -6.81
           },
           "base": {
             "sale_price": 457250.0,
             "net_profit": 14735.0,
-            "roi_pct": 12.37
+            "roi_pct": 3.55
           },
           "optimistic": {
             "sale_price": 480113.0,
             "net_profit": 36226.22,
-            "roi_pct": 30.42
+            "roi_pct": 8.73
           }
         },
         "breakeven_sale_price": 441574.47,
-        "max_purchase_price": 317937.5,
-        "price_gap_to_ceiling": 52062.5,
+        "max_purchase_price": 258737.5,
+        "price_gap_to_ceiling": 111262.5,
         "price_ceiling_status": "Acima do teto",
         "target_roi_pct": 20.0,
-        "cash_needed": 119080.0,
+        "cash_needed": 415080.0,
         "base_profit_pct": 3.98,
         "acquisition_costs": 18500.0,
         "renovation_budget": 24000.0,
@@ -78559,7 +78559,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4006,
+      "thesis_number": 4012,
       "thesis_id": "IM-RADAR-22",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -78575,9 +78575,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Parque Campolim Sorocaba Augusto Lippel 48m2",
-      "thesis_reason": "Radar imobiliario: Chaves na Mao em Parque Campolim / Sorocaba. Score 74/100, confianca 33/100, status Aberto com pendencias.",
-      "expected_result_pct": 41.19,
-      "operation_plan": "Preco pedido R$ 320,000.00 | Teto de compra R$ 301,801.60 | Caixa necessario R$ 104,700.00 | Proximo passo: Validar fonte do candidato",
+      "thesis_reason": "Radar imobiliario: Chaves na Mao em Parque Campolim / Sorocaba. Score 69/100, confianca 33/100, status Aberto com pendencias.",
+      "expected_result_pct": 11.96,
+      "operation_plan": "Preco pedido R$ 320,000.00 | Teto de compra R$ 250,601.60 | Caixa necessario R$ 360,700.00 | Proximo passo: Validar fonte do candidato",
       "structured_operation": "House flipping leve + renda plano B | Chaves na Mao | Apartamento | Acima do teto",
       "entry_price_brl": 320000.0,
       "current_price_brl": 429600.0,
@@ -78591,7 +78591,7 @@
       "open_days": 6,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
-        "score": 74,
+        "score": 69,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
         "next_action": "Validar fonte do candidato",
@@ -78647,10 +78647,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 8,
+            "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 104,700.00."
+            "detail": "Caixa estimado: R$ 360,700.00."
           },
           {
             "key": "plan_b",
@@ -78809,25 +78809,25 @@
           "conservative": {
             "sale_price": 386640.0,
             "net_profit": 2741.6,
-            "roi_pct": 2.62
+            "roi_pct": 0.76
           },
           "base": {
             "sale_price": 429600.0,
             "net_profit": 43124.0,
-            "roi_pct": 41.19
+            "roi_pct": 11.96
           },
           "optimistic": {
             "sale_price": 451080.0,
             "net_profit": 63315.2,
-            "roi_pct": 60.47
+            "roi_pct": 17.55
           }
         },
         "breakeven_sale_price": 383723.4,
-        "max_purchase_price": 301801.6,
-        "price_gap_to_ceiling": 18198.4,
+        "max_purchase_price": 250601.6,
+        "price_gap_to_ceiling": 69398.4,
         "price_ceiling_status": "Acima do teto",
         "target_roi_pct": 20.0,
-        "cash_needed": 104700.0,
+        "cash_needed": 360700.0,
         "base_profit_pct": 13.48,
         "acquisition_costs": 16000.0,
         "renovation_budget": 22000.0,
@@ -78889,7 +78889,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4007,
+      "thesis_number": 4013,
       "thesis_id": "IM-RADAR-21",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -78905,9 +78905,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Vila Aviacao Bauru leilao Olavo Moura 50m2",
-      "thesis_reason": "Radar imobiliario: Leilao Caixa via Imovelweb em Vila Aviacao / Bauru. Score 59/100, confianca 33/100, status Aberto com pendencias.",
+      "thesis_reason": "Radar imobiliario: Leilao Caixa via Imovelweb em Vila Aviacao / Bauru. Score 54/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
-      "operation_plan": "Preco pedido R$ 180,000.00 | Teto de compra R$ 259,770.00 | Caixa necessario R$ 92,000.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
+      "operation_plan": "Preco pedido R$ 180,000.00 | Teto de compra R$ 230,970.00 | Caixa necessario R$ 236,000.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
       "structured_operation": "Leilao/venda online + venda | Leilao Caixa via Imovelweb | Apartamento | Teto a validar",
       "entry_price_brl": 180000.0,
       "current_price_brl": 180000.0,
@@ -78921,7 +78921,7 @@
       "open_days": 6,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
-        "score": 59,
+        "score": 54,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
         "next_action": "Validar fonte do candidato",
@@ -78977,10 +78977,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 10,
+            "points": 5,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 92,000.00."
+            "detail": "Caixa estimado: R$ 236,000.00."
           },
           {
             "key": "plan_b",
@@ -79146,25 +79146,25 @@
           "conservative": {
             "sale_price": 355500.0,
             "net_profit": 98170.0,
-            "roi_pct": 106.71
+            "roi_pct": 41.6
           },
           "base": {
             "sale_price": 395000.0,
             "net_profit": 135300.0,
-            "roi_pct": 147.07
+            "roi_pct": 57.33
           },
           "optimistic": {
             "sale_price": 414750.0,
             "net_profit": 153865.0,
-            "roi_pct": 167.24
+            "roi_pct": 65.2
           }
         },
         "breakeven_sale_price": 251063.83,
-        "max_purchase_price": 259770.0,
-        "price_gap_to_ceiling": -79770.0,
+        "max_purchase_price": 230970.0,
+        "price_gap_to_ceiling": -50970.0,
         "price_ceiling_status": "Teto a validar",
         "target_roi_pct": 20.0,
-        "cash_needed": 92000.0,
+        "cash_needed": 236000.0,
         "base_profit_pct": 75.17,
         "acquisition_costs": 12000.0,
         "renovation_budget": 38000.0,
@@ -79237,7 +79237,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4008,
+      "thesis_number": 4014,
       "thesis_id": "IM-RADAR-19",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -79253,9 +79253,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Jardim Olhos D Agua RP Monterey 56m2",
-      "thesis_reason": "Radar imobiliario: Imovelweb em Jardim Olhos D Agua / Ribeirao Preto. Score 60/100, confianca 33/100, status Aberto com pendencias.",
+      "thesis_reason": "Radar imobiliario: Imovelweb em Jardim Olhos D Agua / Ribeirao Preto. Score 55/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
-      "operation_plan": "Preco pedido R$ 370,000.00 | Teto de compra R$ 392,287.04 | Caixa necessario R$ 131,140.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
+      "operation_plan": "Preco pedido R$ 370,000.00 | Teto de compra R$ 333,087.04 | Caixa necessario R$ 427,140.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
       "structured_operation": "House flipping leve + renda plano B | Imovelweb | Apartamento | Teto a validar",
       "entry_price_brl": 370000.0,
       "current_price_brl": 370000.0,
@@ -79269,7 +79269,7 @@
       "open_days": 6,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
-        "score": 60,
+        "score": 55,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
         "next_action": "Validar fonte do candidato",
@@ -79325,10 +79325,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 8,
+            "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 131,140.00."
+            "detail": "Caixa estimado: R$ 427,140.00."
           },
           {
             "key": "plan_b",
@@ -79494,25 +79494,25 @@
           "conservative": {
             "sale_price": 506016.0,
             "net_profit": 48515.04,
-            "roi_pct": 36.99
+            "roi_pct": 11.36
           },
           "base": {
             "sale_price": 562240.0,
             "net_profit": 101365.6,
-            "roi_pct": 77.3
+            "roi_pct": 23.73
           },
           "optimistic": {
             "sale_price": 590352.0,
             "net_profit": 127790.88,
-            "roi_pct": 97.45
+            "roi_pct": 29.92
           }
         },
         "breakeven_sale_price": 454404.26,
-        "max_purchase_price": 392287.04,
-        "price_gap_to_ceiling": -22287.04,
+        "max_purchase_price": 333087.04,
+        "price_gap_to_ceiling": 36912.96,
         "price_ceiling_status": "Teto a validar",
         "target_roi_pct": 20.0,
-        "cash_needed": 131140.0,
+        "cash_needed": 427140.0,
         "base_profit_pct": 27.4,
         "acquisition_costs": 18500.0,
         "renovation_budget": 35000.0,
@@ -79585,7 +79585,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4009,
+      "thesis_number": 4015,
       "thesis_id": "IM-RADAR-18",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -79601,9 +79601,9 @@
       "source_validation_reason": "Fonte ainda nao validada pela app.",
       "source_checked_at": "",
       "action": "REAL - Cambui Campinas Rua Coronel Quirino 45m2",
-      "thesis_reason": "Radar imobiliario: Flora Imoveis em Cambui / Campinas. Score 60/100, confianca 33/100, status Aberto com pendencias.",
+      "thesis_reason": "Radar imobiliario: Flora Imoveis em Cambui / Campinas. Score 55/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
-      "operation_plan": "Preco pedido R$ 328,000.00 | Teto de compra R$ 424,526.10 | Caixa necessario R$ 130,800.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
+      "operation_plan": "Preco pedido R$ 328,000.00 | Teto de compra R$ 372,046.10 | Caixa necessario R$ 393,200.00 | Valor de saida a validar | Proximo passo: Validar fonte do candidato",
       "structured_operation": "House flipping leve + venda direta | Flora Imoveis | Apartamento | Teto a validar",
       "entry_price_brl": 328000.0,
       "current_price_brl": 328000.0,
@@ -79617,7 +79617,7 @@
       "open_days": 6,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
       "real_estate_analysis": {
-        "score": 60,
+        "score": 55,
         "confidence": 33,
         "suggested_status": "Aberto com pendencias",
         "next_action": "Validar fonte do candidato",
@@ -79673,10 +79673,10 @@
           {
             "key": "cash",
             "label": "Caixa necessario",
-            "points": 8,
+            "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 130,800.00."
+            "detail": "Caixa estimado: R$ 393,200.00."
           },
           {
             "key": "plan_b",
@@ -79842,25 +79842,25 @@
           "conservative": {
             "sale_price": 548815.0,
             "net_profit": 122686.1,
-            "roi_pct": 93.8
+            "roi_pct": 31.2
           },
           "base": {
             "sale_price": 609795.0,
             "net_profit": 180007.3,
-            "roi_pct": 137.62
+            "roi_pct": 45.78
           },
           "optimistic": {
             "sale_price": 640285.0,
             "net_profit": 208667.9,
-            "roi_pct": 159.53
+            "roi_pct": 53.07
           }
         },
         "breakeven_sale_price": 418297.87,
-        "max_purchase_price": 424526.1,
-        "price_gap_to_ceiling": -96526.1,
+        "max_purchase_price": 372046.1,
+        "price_gap_to_ceiling": -44046.1,
         "price_ceiling_status": "Teto a validar",
         "target_roi_pct": 20.0,
-        "cash_needed": 130800.0,
+        "cash_needed": 393200.0,
         "base_profit_pct": 54.88,
         "acquisition_costs": 16400.0,
         "renovation_budget": 42000.0,
@@ -79933,7 +79933,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4010,
+      "thesis_number": 4016,
       "thesis_id": "IM-RADAR-16",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -80269,7 +80269,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4011,
+      "thesis_number": 4017,
       "thesis_id": "IM-RADAR-15",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -80594,7 +80594,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 4012,
+      "thesis_number": 4018,
       "thesis_id": "IM-RADAR-14",
       "thesis_raised_at": "2026-05-04T14:43:37+00:00",
       "front": "imoveis",
@@ -88111,7 +88111,7 @@
       "success_count": 0,
       "updated_at": "2026-05-19T14:25:00+00:00",
       "counting_policy": "radar_candidates",
-      "mapped_count": 31
+      "mapped_count": 37
     }
   },
   "data_quality_gate": {

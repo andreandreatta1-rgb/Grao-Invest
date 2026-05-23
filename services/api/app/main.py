@@ -6001,8 +6001,18 @@ def dashboard_summary(
         len(thesis_open_operations),
     )
     fallback_start_number = max(1, total_tested_for_numbering - len(thesis_open_operations) + 1)
+    used_thesis_numbers: set[int] = set()
     for index, row in enumerate(thesis_open_operations):
-        row["thesis_number"] = fallback_start_number + index
+        explicit_number = _safe_int(row.get("thesis_number"))
+        if explicit_number > 0 and explicit_number not in used_thesis_numbers:
+            row["thesis_number"] = explicit_number
+            used_thesis_numbers.add(explicit_number)
+            continue
+        fallback_number = fallback_start_number + index
+        while fallback_number in used_thesis_numbers:
+            fallback_number += 1
+        row["thesis_number"] = fallback_number
+        used_thesis_numbers.add(fallback_number)
 
     resolved_durations = [
         float(row["duration_days"])

@@ -67,8 +67,8 @@ def test_dashboard_summary_promotes_seed_open_operations_over_thin_vercel_runtim
         "historical_analysis_summary": {"thesis_count": 10},
         "thesis_executive_summary": {},
         "thesis_open_operations": [
-            {"thesis_id": "seed-1", "action": "PETR4", "phase": "pos_go_live"},
-            {"thesis_id": "seed-2", "action": "BTCUSDT", "phase": "pos_go_live"},
+            {"thesis_id": "seed-1", "thesis_number": 3970, "action": "PETR4", "phase": "pos_go_live"},
+            {"thesis_id": "seed-2", "thesis_number": 3982, "action": "BTCUSDT", "phase": "pos_go_live"},
         ],
     }
     (runtime_dir / "current_thesis_monitor_latest.json").write_text(
@@ -96,4 +96,8 @@ def test_dashboard_summary_promotes_seed_open_operations_over_thin_vercel_runtim
     assert [item["thesis_id"] for item in payload["thesis_open_operations"]] == [
         "seed-1",
         "seed-2",
+    ]
+    assert [item["thesis_number"] for item in payload["thesis_open_operations"]] == [
+        3970,
+        3982,
     ]
