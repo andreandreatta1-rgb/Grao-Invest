@@ -471,6 +471,362 @@ STRATEGY_CANDIDATE_SOURCES: list[dict[str, object]] = [
 ]
 
 
+AUCTIONEER_SCOPE_CITIES = ["Sao Paulo", "Campinas"]
+AUCTIONEER_JUCESP_SOURCE_URL = "https://www.institucional.jucesp.sp.gov.br/consultaLeilao.html"
+
+
+AUCTIONEER_DIRECTORY_SOURCES: list[dict[str, object]] = [
+    {
+        "id": "auctioneer-jucesp-sp-campinas",
+        "uf": "SP",
+        "source_name": "JUCESP - Consulta de Leiloeiros e Tradutores",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "contact_path": (
+            "Consulta oficial com filtro por municipio, situacao, matricula, telefone, "
+            "e-mail e site publicado."
+        ),
+        "contact_strategy": (
+            "Filtrar leiloeiros com situacao Atuante Regular em Sao Paulo capital e "
+            "Campinas; registrar contato publico antes de promover lote para candidato."
+        ),
+        "visibility_tier": "cauda_longa",
+        "relationship_stage": "coletar_contato",
+        "scope_cities": AUCTIONEER_SCOPE_CITIES,
+        "quality_filter": [
+            "situacao Atuante Regular",
+            "matricula informada pela JUCESP",
+            "telefone/e-mail publicados pela Junta",
+            "recorte inicial: Sao Paulo capital e Campinas",
+        ],
+    },
+]
+
+
+AUCTIONEER_OFFICIAL_CONTACTS: list[dict[str, object]] = [
+    {
+        "id": "auctioneer-sp-547",
+        "name": "CARLOS CHUI",
+        "registration": "547",
+        "city": "Sao Paulo",
+        "neighborhood": "Ipiranga",
+        "phones": ["(11)2272-7170", "(11)97014-2280"],
+        "email": "contato@arremataronline.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "estabelecido",
+        "competition_reason": (
+            "Contato com dominio de leilao e multiplos telefones; bom canal, mas "
+            "provavelmente mais disputado."
+        ),
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Entrar no mailing e acompanhar pauta imobiliaria filtrada por SP.",
+    },
+    {
+        "id": "auctioneer-sp-550",
+        "name": "GILBERTO FORTES DO AMARAL FILHO",
+        "registration": "550",
+        "city": "Sao Paulo",
+        "neighborhood": "",
+        "phones": ["(11)3885-0387", "(11)99931-7508"],
+        "email": "gilamaral@uol.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "E-mail pessoal e sem site publicado sugerem menor exposicao digital.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Contato direto para entender calendario e lotes imobiliarios.",
+    },
+    {
+        "id": "auctioneer-sp-570",
+        "name": "MIGUEL NIEMOJ",
+        "registration": "570",
+        "city": "Sao Paulo",
+        "neighborhood": "Vila Prudente",
+        "phones": ["(11)2341-2849", "(11)98114-8488"],
+        "email": "miguelniemoj@gmail.com",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "E-mail gratuito e bairro definido favorecem abordagem regional.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Validar se possui agenda imobiliaria na zona leste/sudeste.",
+    },
+    {
+        "id": "auctioneer-sp-581",
+        "name": "FLAVIO CUNHA SODRE SANTORO",
+        "registration": "581",
+        "city": "Sao Paulo",
+        "neighborhood": "Vila Romana",
+        "phones": ["(11)2464-6465"],
+        "email": "airton.silva@sodresantoro.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "estabelecido",
+        "competition_reason": "Dominio de marca reconhecivel indica operador mais visivel.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Acompanhar editais, mas tratar como canal de maior concorrencia.",
+    },
+    {
+        "id": "auctioneer-sp-587",
+        "name": "DOUGLAS JOSE FIDALGO",
+        "registration": "587",
+        "city": "Sao Paulo",
+        "neighborhood": "Vila Euthalia",
+        "phones": ["(11)2653-0553", "(11)99990-7776"],
+        "email": "douglas@fidalgoleiloes.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "estabelecido",
+        "competition_reason": "Dominio proprio de leiloes e varios canais de contato.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Monitorar lotes imobiliarios e medir concorrencia por edital.",
+    },
+    {
+        "id": "auctioneer-sp-593",
+        "name": "REINALDO MARQUES DA SILVA",
+        "registration": "593",
+        "city": "Sao Paulo",
+        "neighborhood": "Cidade Sao Francisco",
+        "phones": ["(11)94762-4447"],
+        "email": "artedosmarques@gmail.com",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "Canal simples, e-mail gratuito e apenas um telefone publicado.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Checar se recebe pauta de imoveis de menor ticket.",
+    },
+    {
+        "id": "auctioneer-sp-599",
+        "name": "VIVIAN CRISTINE DIANESE PEREZ",
+        "registration": "599",
+        "city": "Sao Paulo",
+        "neighborhood": "Perdizes",
+        "phones": ["(11)3862-1888", "(11)9998-3506"],
+        "email": "vcdperez@gmail.com",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "Contato publico simples sem site publicado na fonte oficial.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Pedir mailing institucional e historico de lotes residenciais.",
+    },
+    {
+        "id": "auctioneer-sp-602",
+        "name": "CEZAR AUGUSTO BADOLATO SILVA",
+        "registration": "602",
+        "city": "Sao Paulo",
+        "neighborhood": "Cerqueira Cesar",
+        "phones": ["(11)94898-9425"],
+        "email": "cezar.badolatooficial@gmail.com",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "E-mail gratuito e contato direto favorecem teste de relacionamento.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Validar se atua em imoveis compactos no eixo central/oeste.",
+    },
+    {
+        "id": "auctioneer-campinas-715",
+        "name": "ANGELA PECINI SILVEIRA",
+        "registration": "715",
+        "city": "Campinas",
+        "neighborhood": "Vila Brandina",
+        "phones": ["(19)3794-2044", "(11)97577-0485"],
+        "email": "angela@pecinileiloes.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "estabelecido",
+        "competition_reason": "Dominio proprio de leiloes indica maior presenca comercial.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Monitorar Campinas e entorno; comparar taxa de concorrencia por lote.",
+    },
+    {
+        "id": "auctioneer-campinas-716",
+        "name": "ANA CLARA DE MELLO E SILVA",
+        "registration": "716",
+        "city": "Campinas",
+        "neighborhood": "Centro",
+        "phones": ["(19)3849-7675", "(19)99695-3050"],
+        "email": "anaclarademello@bol.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "E-mail gratuito e recorte regional sugerem menor disputa inicial.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Contato direto para pauta de imoveis em Campinas.",
+    },
+    {
+        "id": "auctioneer-campinas-838",
+        "name": "CARLOS ALBERTO MADUREIRA DE OLIVEIRA",
+        "registration": "838",
+        "city": "Campinas",
+        "neighborhood": "Jardim Proenca",
+        "phones": ["(19)3323-2799", "(19)9127-2228"],
+        "email": "",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "validar",
+        "competition_reason": "Telefone publicado, mas sem e-mail/site na captura; exige validacao manual.",
+        "relationship_stage": "validar_contato",
+        "contact_strategy": "Telefonar apenas para confirmar canal oficial e pauta imobiliaria.",
+    },
+    {
+        "id": "auctioneer-campinas-843",
+        "name": "MARCELO EMIDIO FERREIRA PIEROBOM SILVEIRA",
+        "registration": "843",
+        "city": "Campinas",
+        "neighborhood": "Centro",
+        "phones": ["(19)3794-2030", "(19)98138-3065"],
+        "email": "marcelo@jsilveira-advogados.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "Dominio juridico, nao marketplace de leiloes; pode ser canal menos obvio.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Validar se agenda inclui imoveis e se aceita mailing por e-mail.",
+    },
+    {
+        "id": "auctioneer-campinas-849",
+        "name": "DORCA PEREIRA DOS REIS",
+        "registration": "849",
+        "city": "Campinas",
+        "neighborhood": "Jardim Guarani",
+        "phones": ["(19)99605-0505"],
+        "email": "atendimento@stiloleiloes.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "estabelecido",
+        "competition_reason": "E-mail de atendimento em dominio de leiloes indica estrutura comercial.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Entrar no mailing e marcar como canal com concorrencia moderada.",
+    },
+    {
+        "id": "auctioneer-campinas-873",
+        "name": "CARLOS DE JESUS RAMOS RIBEIRO",
+        "registration": "873",
+        "city": "Campinas",
+        "neighborhood": "Taquaral",
+        "phones": ["(19)3203-4409"],
+        "email": "contato@rmcleiloes.com.br",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "estabelecido",
+        "competition_reason": "Dominio proprio de leiloes sugere maior visibilidade no mercado.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Acompanhar Campinas e medir descontos efetivos antes de tese.",
+    },
+    {
+        "id": "auctioneer-campinas-911",
+        "name": "LEONETE MORAES AGUIAR",
+        "registration": "911",
+        "city": "Campinas",
+        "neighborhood": "Taquaral",
+        "phones": ["(17)99106-6422"],
+        "email": "leoneteleiloeira@gmail.com",
+        "website": "www.sumareleiloes.com.br",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "Site regional e contato pessoal indicam oportunidade de relacionamento.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Validar agenda Campinas/Sumare e lotes residenciais fora dos grandes portais.",
+    },
+    {
+        "id": "auctioneer-campinas-986",
+        "name": "MARCELO BRIDI",
+        "registration": "986",
+        "city": "Campinas",
+        "neighborhood": "Jardim Flamboyant",
+        "phones": ["(19)3367-2319", "(19)98354-9955"],
+        "email": "meno26@hotmail.com",
+        "website": "",
+        "status": "Atuante Regular",
+        "source_url": AUCTIONEER_JUCESP_SOURCE_URL,
+        "competition_tier": "cauda_longa",
+        "competition_reason": "E-mail pessoal e sem site publicado reduzem obviedade do canal.",
+        "relationship_stage": "coletar_contato",
+        "contact_strategy": "Contato exploratorio para entender pauta imobiliaria regional.",
+    },
+]
+
+
+AUCTIONEER_OUTREACH_SENT_AT = "2026-05-19"
+AUCTIONEER_OUTREACH_NEXT_FOLLOW_UP_AT = "2026-05-22"
+AUCTIONEER_OUTREACH_SENT_IDS = {
+    "auctioneer-sp-599",
+    "auctioneer-sp-602",
+    "auctioneer-campinas-843",
+    "auctioneer-campinas-911",
+}
+AUCTIONEER_OUTREACH_RESPONSES: dict[str, dict[str, str]] = {
+    "auctioneer-sp-599": {
+        "relationship_stage": "fora_do_radar_imobiliario",
+        "outreach_status": "respondido_sem_imoveis",
+        "response_received_at": "2026-05-19",
+        "response_summary": "Vivian respondeu que infelizmente nao trabalha com imoveis.",
+        "outreach_note": (
+            "Resposta real recebida no Gmail: nao trabalha com imoveis. Remover do "
+            "follow-up imobiliario e manter como aprendizado de qualidade da fonte."
+        ),
+    },
+}
+
+
+def _auctioneer_outreach_metadata(contact_id: object) -> dict[str, str]:
+    if str(contact_id) not in AUCTIONEER_OUTREACH_SENT_IDS:
+        return {}
+    metadata = {
+        "relationship_stage": "primeiro_contato_enviado",
+        "outreach_status": "enviado",
+        "outreach_channel": "Gmail",
+        "outreach_sent_at": AUCTIONEER_OUTREACH_SENT_AT,
+        "next_follow_up_at": AUCTIONEER_OUTREACH_NEXT_FOLLOW_UP_AT,
+        "outreach_note": (
+            "Envio confirmado pelo usuario no Gmail; aguardar resposta antes de "
+            "promover lote de canal para candidato."
+        ),
+    }
+    metadata.update(AUCTIONEER_OUTREACH_RESPONSES.get(str(contact_id), {}))
+    if metadata.get("outreach_status") != "enviado":
+        metadata.pop("next_follow_up_at", None)
+    return metadata
+
+
+AUCTIONEER_OUTREACH_PLAYBOOK: list[dict[str, str]] = [
+    {
+        "stage": "coleta_oficial",
+        "action": "Extrair nome, matricula, situacao, site, e-mail e telefone publicados pela Junta Comercial.",
+    },
+    {
+        "stage": "triagem_cauda_longa",
+        "action": "Marcar baixa concorrencia quando o leiloeiro tem site simples, pouca presenca em portais e atuacao regional.",
+    },
+    {
+        "stage": "primeiro_contato",
+        "action": "Pedir mailing institucional de lotes imobiliarios no ticket alvo, sem pedir qualquer vantagem privada.",
+    },
+    {
+        "stage": "relacionamento",
+        "action": "Registrar tempo de resposta, clareza do edital, recorrencia de pauta e qualidade das informacoes.",
+    },
+]
+
+
 BASE_DILIGENCE_CHECKLIST = [
     "confirmar unidade disponivel no edificio",
     "confirmar ocupacao",
@@ -656,10 +1012,95 @@ def generate_strategy_candidate_watchlist() -> list[dict[str, object]]:
     return watchlist
 
 
+def generate_auctioneer_sourcing_report() -> dict[str, Any]:
+    official_directories = [
+        {
+            **source,
+            "brief_type": "auctioneer_official_directory",
+            "trust_level": "official_directory",
+            "next_action": (
+                "Coletar contato publico, validar matricula e registrar resposta "
+                "antes de promover qualquer lote para candidato."
+            ),
+        }
+        for source in AUCTIONEER_DIRECTORY_SOURCES
+    ]
+    official_contacts = [
+        {
+            **contact,
+            **_auctioneer_outreach_metadata(contact.get("id")),
+            "brief_type": "auctioneer_official_contact",
+            "trust_level": "official_contact_seed",
+            "source_status": "official_captured_static_seed",
+        }
+        for contact in AUCTIONEER_OFFICIAL_CONTACTS
+    ]
+    long_tail_count = sum(
+        1
+        for source in official_directories
+        if str(source.get("visibility_tier") or "") == "cauda_longa"
+    )
+    contact_source_count = sum(1 for source in official_directories if source.get("contact_path"))
+    contact_tier_counts: dict[str, int] = {}
+    for contact in official_contacts:
+        tier = str(contact.get("competition_tier") or "validar")
+        contact_tier_counts[tier] = contact_tier_counts.get(tier, 0) + 1
+    outreach_sent_count = sum(1 for contact in official_contacts if contact.get("outreach_sent_at"))
+    outreach_response_count = sum(1 for contact in official_contacts if contact.get("response_received_at"))
+    outreach_no_real_estate_count = sum(
+        1
+        for contact in official_contacts
+        if contact.get("outreach_status") == "respondido_sem_imoveis"
+    )
+    outreach_pending_response_count = outreach_sent_count - outreach_response_count
+
+    return {
+        "summary": {
+            "official_directory_count": len(official_directories),
+            "official_contact_count": len(official_contacts),
+            "long_tail_directory_count": long_tail_count,
+            "contact_source_count": contact_source_count,
+            "outreach_sent_count": outreach_sent_count,
+            "outreach_response_count": outreach_response_count,
+            "outreach_no_real_estate_count": outreach_no_real_estate_count,
+            "outreach_pending_response_count": outreach_pending_response_count,
+            "next_follow_up_at": AUCTIONEER_OUTREACH_NEXT_FOLLOW_UP_AT,
+            "scope_cities": AUCTIONEER_SCOPE_CITIES,
+            "competition_tier_counts": contact_tier_counts,
+            "actionability": (
+                "Garimpo de cauda longa para sao paulo capital e campinas: usar a "
+                "consulta oficial da JUCESP para encontrar leiloeiros Atuante Regular, "
+                "separar canais estabelecidos de contatos menos obvios e so depois "
+                "promover lotes para candidato."
+            ),
+        },
+        "official_directories": official_directories,
+        "official_contacts": official_contacts,
+        "outreach_playbook": AUCTIONEER_OUTREACH_PLAYBOOK,
+        "scoring_model": {
+            "low_competition_signals": [
+                "site simples ou pouco indexado",
+                "baixa presenca em grandes portais",
+                "atuacao regional",
+                "agenda recorrente sem marketing agressivo",
+            ],
+            "quality_signals": [
+                "matricula regular",
+                "contato publico na Junta Comercial",
+                "situacao Atuante Regular",
+                "edital claro",
+                "historico de lotes imobiliarios",
+                "resposta direta e documentavel",
+            ],
+        },
+    }
+
+
 def strategy_territory_report() -> dict[str, Any]:
     matrix = generate_strategy_territory_candidate_briefs()
     strategy_watchlist = generate_strategy_candidate_watchlist()
     watchlist = generate_condominium_requalification_watchlist()
+    auctioneer_sourcing = generate_auctioneer_sourcing_report()
     return {
         "generated_at": _utc_now(),
         "summary": {
@@ -668,10 +1109,12 @@ def strategy_territory_report() -> dict[str, Any]:
             "matrix_brief_count": len(matrix),
             "source_candidate_count": len(strategy_watchlist),
             "source_confirmed_requalification_count": len(watchlist),
+            "auctioneer_directory_count": auctioneer_sourcing["summary"]["official_directory_count"],
+            "auctioneer_contact_count": auctioneer_sourcing["summary"]["official_contact_count"],
             "actionability": (
                 "Briefs sao hipoteses de busca. Fontes listadas e sinais confirmados "
-                "ainda exigem unidade, preco, comparaveis, disponibilidade vigente e "
-                "diligencia P0."
+                "ainda exigem unidade, preco, comparaveis, disponibilidade vigente, "
+                "diligencia P0 e validacao do canal de leiloeiro oficial."
             ),
         },
         "strategies": STRATEGY_BLUEPRINTS,
@@ -679,6 +1122,7 @@ def strategy_territory_report() -> dict[str, Any]:
         "matrix_briefs": matrix,
         "strategy_candidate_watchlist": strategy_watchlist,
         "condominium_requalification_watchlist": watchlist,
+        "auctioneer_sourcing": auctioneer_sourcing,
     }
 
 
@@ -696,6 +1140,8 @@ def report_to_markdown(report: dict[str, Any]) -> str:
             "- sinais confirmados de condominio em requalificacao: "
             f"`{summary['source_confirmed_requalification_count']}`"
         ),
+        f"- diretorios oficiais de leiloeiros: `{summary['auctioneer_directory_count']}`",
+        f"- contatos oficiais de leiloeiros: `{summary['auctioneer_contact_count']}`",
         "",
         "## Regra de confianca",
         "",

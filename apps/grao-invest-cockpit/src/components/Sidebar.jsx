@@ -3,7 +3,17 @@ import { fmtDate } from "../utils/formatters.js";
 
 const primaryNavItems = [
   { id: "dashboard", label: "Dashboard", icon: "target" },
-  { id: "teses", label: "Teses", icon: "diamond" },
+  {
+    id: "teses",
+    label: "Teses",
+    icon: "diamond",
+    subItems: [
+      { id: "mesa", label: "Mesa de decisão" },
+      { id: "ativos", label: "Ativos" },
+      { id: "imoveis", label: "Imóveis" },
+      { id: "historico", label: "Histórico" },
+    ],
+  },
   { id: "radar-imobiliario", label: "Radar Imobiliário", icon: "building" },
   { id: "mercado", label: "Mercado", icon: "wave" },
   { id: "backtest", label: "Validação", icon: "cycle" },
@@ -17,6 +27,15 @@ const learningNavItems = [
   { id: "metodo", label: "M\u00e9todo", icon: "method" },
   { id: "saude", label: "Sa\u00fade", icon: "health" },
 ];
+
+const navSubItemsById = {
+  "radar-imobiliario": [
+    { id: "visao-geral", label: "Visão geral" },
+    { id: "modelo", label: "Modelo operacional" },
+    { id: "garimpo", label: "Garimpo estruturado" },
+    { id: "candidatos", label: "Candidatos abertos" },
+  ],
+};
 
 function NavIcon({ type }) {
   const common = {
@@ -141,6 +160,81 @@ function NavButton({ item, active, onSelect }) {
       </span>
       {item.label}
     </button>
+  );
+}
+
+function SubNavButton({ parentId, item, activeSubsection, onSelect }) {
+  const isActive = activeSubsection === item.id;
+
+  return (
+    <button
+      type="button"
+      aria-current={isActive ? "page" : undefined}
+      aria-label={item.label}
+      onClick={() => onSelect?.(`${parentId}/${item.id}`)}
+      style={{
+        alignItems: "center",
+        background: isActive ? withAlpha(C.gold, "10") : "transparent",
+        border: `1px solid ${isActive ? withAlpha(C.gold, "28") : "transparent"}`,
+        borderRadius: 8,
+        color: isActive ? C.gold : C.dim,
+        cursor: "pointer",
+        display: "flex",
+        fontFamily: "inherit",
+        fontSize: 11,
+        fontWeight: isActive ? 800 : 600,
+        gap: 7,
+        lineHeight: 1.25,
+        margin: "1px 0",
+        padding: "7px 8px 7px 30px",
+        textAlign: "left",
+        width: "100%",
+      }}
+    >
+      <span
+        aria-hidden="true"
+        style={{
+          background: isActive ? C.gold : C.line,
+          borderRadius: 999,
+          height: 5,
+          width: 5,
+        }}
+      />
+      <span>{item.label}</span>
+    </button>
+  );
+}
+
+function NavGroup({ item, active, activeSubsection, onSelect }) {
+  const isActive = active === item.id;
+  const subItems = Array.isArray(item.subItems)
+    ? item.subItems
+    : navSubItemsById[item.id] || [];
+
+  return (
+    <div>
+      <NavButton item={item} active={active} onSelect={onSelect} />
+      {isActive && subItems.length > 0 && (
+        <div
+          aria-label={`${item.label} subáreas`}
+          style={{
+            borderLeft: `1px solid ${C.border}`,
+            margin: "0 0 6px 18px",
+            padding: "2px 0 4px",
+          }}
+        >
+          {subItems.map((subItem) => (
+            <SubNavButton
+              key={`${item.id}-${subItem.id}`}
+              parentId={item.id}
+              item={subItem}
+              activeSubsection={activeSubsection}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -269,6 +363,7 @@ function SidebarFeedStatus({ feedStatus }) {
 
 export function Sidebar({
   active = "dashboard",
+  activeSubsection = "",
   onSelect,
   feedStatus = "live",
   lastUpdatedAt,
@@ -363,7 +458,13 @@ export function Sidebar({
       </div>
       <nav style={{ padding: "12px 10px 8px", flex: "0 0 auto" }}>
         {primaryNavItems.map((item) => (
-          <NavButton key={item.id} item={item} active={active} onSelect={onSelect} />
+          <NavGroup
+            key={item.id}
+            item={item}
+            active={active}
+            activeSubsection={activeSubsection}
+            onSelect={onSelect}
+          />
         ))}
         <div style={{ height: 1, background: C.border, margin: "12px 8px" }} />
         {learningNavItems.map((item) => (

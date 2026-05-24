@@ -818,7 +818,7 @@ function normalizeMarketThesis(thesis, index, now) {
 
 function normalizeRealEstateCandidate(candidate, index, now) {
   const asset = cleanText(coalesce(candidate.title, candidate.name, candidate.instrument, candidate.asset, `Imóvel ${index + 1}`));
-  const entryPrice = toNumber(coalesce(candidate.entry_price, candidate.entryPrice, candidate.ask_price, candidate.price), 0);
+  const entryPrice = toNumber(coalesce(candidate.entry_price, candidate.entryPrice, candidate.asking_price, candidate.askingPrice, candidate.ask_price, candidate.price), 0);
   const currentPrice = toNumber(coalesce(candidate.current_price, candidate.currentPrice, entryPrice), entryPrice);
   const targetPrice = toNumber(coalesce(candidate.target_price, candidate.targetPrice, candidate.target_value, candidate.estimated_sale_base), 0);
   const openedAt = toIsoDate(coalesce(candidate.candidate_date, candidate.date, candidate.created_at, candidate.thesis_raised_at), now);
@@ -827,6 +827,15 @@ function normalizeRealEstateCandidate(candidate, index, now) {
   const analysisCandidate = rawAnalysis && typeof rawAnalysis === "object"
     ? coalesce(rawAnalysis.candidate, rawAnalysis.candidate_snapshot, rawAnalysis.candidateSnapshot, {})
     : {};
+  const valuationEvidence = rawAnalysis && typeof rawAnalysis === "object"
+    ? coalesce(rawAnalysis.valuation_evidence, rawAnalysis.valuationEvidence, {})
+    : {};
+  const saleComparables = [
+    ...asArray(coalesce(candidate.sale_comparables, candidate.saleComparables)),
+    ...asArray(coalesce(analysisCandidate.sale_comparables, analysisCandidate.saleComparables)),
+    ...asArray(coalesce(rawAnalysis?.sale_comparables, rawAnalysis?.saleComparables)),
+    ...asArray(coalesce(valuationEvidence.sale_comparables, valuationEvidence.saleComparables, valuationEvidence.comparables)),
+  ];
   const origin = cleanText(coalesce(candidate.origin, candidate.source_origin, candidate.sourceOrigin, analysisCandidate.origin));
   const strategy = cleanText(coalesce(candidate.strategy, analysisCandidate.strategy));
   const propertyType = cleanText(coalesce(candidate.property_type, candidate.propertyType, analysisCandidate.property_type, analysisCandidate.propertyType));
@@ -842,6 +851,11 @@ function normalizeRealEstateCandidate(candidate, index, now) {
   );
   const candidateSnapshot = {
     ...(analysisCandidate && typeof analysisCandidate === "object" ? analysisCandidate : {}),
+    title: cleanText(coalesce(analysisCandidate.title, candidate.title, candidate.name, asset)),
+    city: cleanText(coalesce(analysisCandidate.city, analysisCandidate.cidade, candidate.city, candidate.cidade, candidate.municipality, candidate.municipio)),
+    neighborhood: cleanText(coalesce(analysisCandidate.neighborhood, analysisCandidate.neighborhoods, analysisCandidate.bairro, analysisCandidate.district, candidate.neighborhood, candidate.neighborhoods, candidate.bairro, candidate.district)),
+    street: cleanText(coalesce(analysisCandidate.street, analysisCandidate.street_name, analysisCandidate.streetName, analysisCandidate.rua, candidate.street, candidate.street_name, candidate.streetName, candidate.rua)),
+    address: cleanText(coalesce(analysisCandidate.address, analysisCandidate.endereco, candidate.address, candidate.endereco)),
     origin,
     strategy,
     source_url: sourceUrl,
@@ -849,10 +863,22 @@ function normalizeRealEstateCandidate(candidate, index, now) {
     source_validation_status: cleanText(coalesce(candidate.source_validation_status, candidate.sourceValidationStatus, analysisCandidate.source_validation_status, analysisCandidate.sourceValidationStatus)),
     source_validation_reason: cleanText(coalesce(candidate.source_validation_reason, candidate.sourceValidationReason, analysisCandidate.source_validation_reason, analysisCandidate.sourceValidationReason)),
     source_checked_at: cleanText(coalesce(candidate.source_checked_at, candidate.sourceCheckedAt, analysisCandidate.source_checked_at, analysisCandidate.sourceCheckedAt)),
+    asking_price: toNumber(coalesce(analysisCandidate.asking_price, analysisCandidate.askingPrice, analysisCandidate.ask_price, candidate.asking_price, candidate.askingPrice, candidate.ask_price, candidate.entry_price, candidate.entryPrice, entryPrice), null),
+    ask_price: toNumber(coalesce(analysisCandidate.ask_price, analysisCandidate.askPrice, candidate.ask_price, candidate.askPrice, candidate.asking_price, candidate.askingPrice, entryPrice), null),
+    market_value_estimate: toNumber(coalesce(analysisCandidate.market_value_estimate, analysisCandidate.marketValueEstimate, candidate.market_value_estimate, candidate.marketValueEstimate), null),
+    estimated_sale_base: toNumber(coalesce(analysisCandidate.estimated_sale_base, analysisCandidate.estimatedSaleBase, candidate.estimated_sale_base, candidate.estimatedSaleBase, targetPrice), null),
+    occupancy_status: cleanText(coalesce(analysisCandidate.occupancy_status, analysisCandidate.occupancyStatus, analysisCandidate.ocupacao, candidate.occupancy_status, candidate.occupancyStatus, candidate.ocupacao)),
+    legal_plan: cleanText(coalesce(analysisCandidate.legal_plan, analysisCandidate.legalPlan, candidate.legal_plan, candidate.legalPlan)),
     property_type: propertyType,
     private_area_m2: toNumber(coalesce(candidate.private_area_m2, candidate.privateAreaM2, analysisCandidate.private_area_m2, analysisCandidate.privateAreaM2), null),
     bedrooms: toNumber(coalesce(candidate.bedrooms, analysisCandidate.bedrooms), null),
     parking_spaces: toNumber(coalesce(candidate.parking_spaces, candidate.parkingSpaces, analysisCandidate.parking_spaces, analysisCandidate.parkingSpaces), null),
+    acquisition_costs: toNumber(coalesce(candidate.acquisition_costs, candidate.acquisitionCosts, analysisCandidate.acquisition_costs, analysisCandidate.acquisitionCosts), null),
+    carrying_months: toNumber(coalesce(candidate.carrying_months, candidate.carryingMonths, analysisCandidate.carrying_months, analysisCandidate.carryingMonths), null),
+    monthly_carrying_cost: toNumber(coalesce(candidate.monthly_carrying_cost, candidate.monthlyCarryingCost, analysisCandidate.monthly_carrying_cost, analysisCandidate.monthlyCarryingCost), null),
+    selling_commission_pct: toNumber(coalesce(candidate.selling_commission_pct, candidate.sellingCommissionPct, analysisCandidate.selling_commission_pct, analysisCandidate.sellingCommissionPct), null),
+    sale_comparables_count: toNumber(coalesce(candidate.sale_comparables_count, candidate.saleComparablesCount, analysisCandidate.sale_comparables_count, analysisCandidate.saleComparablesCount), null),
+    sale_comparables: saleComparables,
   };
   const realEstateAnalysis = rawAnalysis && typeof rawAnalysis === "object"
     ? { ...rawAnalysis, source_validation: sourceValidation, candidate: candidateSnapshot }
@@ -884,6 +910,7 @@ function normalizeRealEstateCandidate(candidate, index, now) {
     sourceUrl,
     sourceOrigin: origin,
     strategy,
+    saleComparables,
     realEstateAnalysis,
     canDiscard: true,
   };
@@ -915,6 +942,136 @@ function normalizeRealEstateSearchBrief(brief, index) {
   };
 }
 
+function normalizeAuctioneerDirectory(directory, index) {
+  return {
+    id: cleanText(coalesce(directory.id, directory.source_id, `auctioneer-${index + 1}`)),
+    uf: cleanText(coalesce(directory.uf, directory.state)),
+    sourceName: cleanText(coalesce(directory.sourceName, directory.source_name, directory.name, `Diretorio oficial ${index + 1}`)),
+    sourceUrl: cleanText(coalesce(directory.sourceUrl, directory.source_url, directory.url)),
+    contactPath: cleanText(coalesce(directory.contactPath, directory.contact_path)),
+    contactStrategy: cleanText(coalesce(directory.contactStrategy, directory.contact_strategy)),
+    visibilityTier: cleanText(coalesce(directory.visibilityTier, directory.visibility_tier)),
+    relationshipStage: cleanText(coalesce(directory.relationshipStage, directory.relationship_stage)),
+    qualityFilter: asArray(coalesce(directory.qualityFilter, directory.quality_filter)).map(cleanText).filter(Boolean),
+    nextAction: cleanText(coalesce(directory.nextAction, directory.next_action)),
+    trustLevel: cleanText(coalesce(directory.trustLevel, directory.trust_level)),
+  };
+}
+
+function normalizeAuctioneerPhones(value) {
+  if (Array.isArray(value)) return value.map(cleanText).filter(Boolean);
+  return cleanText(value)
+    .split(/[|;,]/)
+    .map(cleanText)
+    .filter(Boolean);
+}
+
+function normalizeAuctioneerContact(contact, index) {
+  return {
+    id: cleanText(coalesce(contact.id, contact.contact_id, `auctioneer-contact-${index + 1}`)),
+    name: cleanText(coalesce(contact.name, contact.nome, `Leiloeiro ${index + 1}`)),
+    registration: cleanText(coalesce(contact.registration, contact.matricula)),
+    city: cleanText(coalesce(contact.city, contact.cidade)),
+    neighborhood: cleanText(coalesce(contact.neighborhood, contact.bairro)),
+    phones: normalizeAuctioneerPhones(coalesce(contact.phones, contact.telefones, contact.phone)),
+    email: cleanText(coalesce(contact.email, contact.e_mail)),
+    website: cleanText(coalesce(contact.website, contact.site, contact.web_site)),
+    status: cleanText(coalesce(contact.status, contact.situacao)),
+    sourceUrl: cleanText(coalesce(contact.sourceUrl, contact.source_url)),
+    competitionTier: cleanText(coalesce(contact.competitionTier, contact.competition_tier, "validar")),
+    competitionReason: cleanText(coalesce(contact.competitionReason, contact.competition_reason)),
+    relationshipStage: cleanText(coalesce(contact.relationshipStage, contact.relationship_stage)),
+    contactStrategy: cleanText(coalesce(contact.contactStrategy, contact.contact_strategy)),
+    outreachStatus: cleanText(coalesce(contact.outreachStatus, contact.outreach_status)),
+    outreachChannel: cleanText(coalesce(contact.outreachChannel, contact.outreach_channel)),
+    outreachSentAt: cleanText(coalesce(contact.outreachSentAt, contact.outreach_sent_at)),
+    nextFollowUpAt: cleanText(coalesce(contact.nextFollowUpAt, contact.next_follow_up_at)),
+    responseReceivedAt: cleanText(coalesce(contact.responseReceivedAt, contact.response_received_at)),
+    responseSummary: cleanText(coalesce(contact.responseSummary, contact.response_summary)),
+    outreachNote: cleanText(coalesce(contact.outreachNote, contact.outreach_note)),
+    trustLevel: cleanText(coalesce(contact.trustLevel, contact.trust_level)),
+  };
+}
+
+function normalizeAuctioneerPlaybookStep(step, index) {
+  return {
+    id: cleanText(coalesce(step.id, step.stage, `auctioneer-playbook-${index + 1}`)),
+    stage: cleanText(coalesce(step.stage, step.title, `Etapa ${index + 1}`)),
+    action: cleanText(coalesce(step.action, step.objective, step.next_action)),
+  };
+}
+
+function normalizeAuctioneerSourcing(payload = {}) {
+  const summary = payload.summary ?? {};
+  const officialDirectories = asArray(coalesce(
+    payload.officialDirectories,
+    payload.official_directories,
+  )).map(normalizeAuctioneerDirectory);
+  const officialContacts = asArray(coalesce(
+    payload.officialContacts,
+    payload.official_contacts,
+  )).map(normalizeAuctioneerContact);
+  const outreachPlaybook = asArray(coalesce(
+    payload.outreachPlaybook,
+    payload.outreach_playbook,
+  )).map(normalizeAuctioneerPlaybookStep);
+  const scoringModel = payload.scoringModel ?? payload.scoring_model ?? {};
+
+  return {
+    summary: {
+      officialDirectoryCount: toNumber(
+        coalesce(summary.officialDirectoryCount, summary.official_directory_count),
+        officialDirectories.length,
+      ),
+      officialContactCount: toNumber(
+        coalesce(summary.officialContactCount, summary.official_contact_count),
+        officialContacts.length,
+      ),
+      longTailDirectoryCount: toNumber(
+        coalesce(summary.longTailDirectoryCount, summary.long_tail_directory_count),
+        officialDirectories.filter((directory) => directory.visibilityTier === "cauda_longa").length,
+      ),
+      contactSourceCount: toNumber(
+        coalesce(summary.contactSourceCount, summary.contact_source_count),
+        officialDirectories.filter((directory) => directory.contactPath).length,
+      ),
+      outreachSentCount: toNumber(
+        coalesce(summary.outreachSentCount, summary.outreach_sent_count),
+        officialContacts.filter((contact) => contact.outreachSentAt).length,
+      ),
+      outreachResponseCount: toNumber(
+        coalesce(summary.outreachResponseCount, summary.outreach_response_count),
+        officialContacts.filter((contact) => contact.responseReceivedAt).length,
+      ),
+      outreachNoRealEstateCount: toNumber(
+        coalesce(summary.outreachNoRealEstateCount, summary.outreach_no_real_estate_count),
+        officialContacts.filter((contact) => contact.outreachStatus === "respondido_sem_imoveis").length,
+      ),
+      outreachPendingResponseCount: toNumber(
+        coalesce(summary.outreachPendingResponseCount, summary.outreach_pending_response_count),
+        officialContacts.filter((contact) => contact.outreachStatus === "enviado").length,
+      ),
+      nextFollowUpAt: cleanText(coalesce(summary.nextFollowUpAt, summary.next_follow_up_at)),
+      scopeCities: asArray(coalesce(summary.scopeCities, summary.scope_cities)).map(cleanText).filter(Boolean),
+      competitionTierCounts: coalesce(summary.competitionTierCounts, summary.competition_tier_counts, {}),
+      actionability: cleanText(summary.actionability),
+    },
+    officialDirectories,
+    officialContacts,
+    outreachPlaybook,
+    scoringModel: {
+      lowCompetitionSignals: asArray(coalesce(
+        scoringModel.lowCompetitionSignals,
+        scoringModel.low_competition_signals,
+      )).map(cleanText).filter(Boolean),
+      qualitySignals: asArray(coalesce(
+        scoringModel.qualitySignals,
+        scoringModel.quality_signals,
+      )).map(cleanText).filter(Boolean),
+    },
+  };
+}
+
 function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
   const summary = payload.summary ?? {};
   const matrixBriefs = asArray(coalesce(payload.matrixBriefs, payload.matrix_briefs)).map(normalizeRealEstateSearchBrief);
@@ -926,6 +1083,11 @@ function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
     payload.condominiumRequalificationWatchlist,
     payload.condominium_requalification_watchlist,
   )).map(normalizeRealEstateSearchBrief);
+  const auctioneerSourcing = normalizeAuctioneerSourcing(coalesce(
+    payload.auctioneerSourcing,
+    payload.auctioneer_sourcing,
+    {},
+  ));
 
   return {
     generatedAt: toOptionalIsoDate(coalesce(payload.generatedAt, payload.generated_at)),
@@ -941,6 +1103,14 @@ function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
         coalesce(summary.sourceConfirmedRequalificationCount, summary.source_confirmed_requalification_count),
         condominiumRequalificationWatchlist.length,
       ),
+      auctioneerDirectoryCount: toNumber(
+        coalesce(summary.auctioneerDirectoryCount, summary.auctioneer_directory_count),
+        auctioneerSourcing.summary.officialDirectoryCount,
+      ),
+      auctioneerContactCount: toNumber(
+        coalesce(summary.auctioneerContactCount, summary.auctioneer_contact_count),
+        auctioneerSourcing.summary.officialContactCount,
+      ),
       actionability: cleanText(summary.actionability),
     },
     strategies: asArray(payload.strategies),
@@ -948,6 +1118,7 @@ function normalizeRealEstateStrategyTerritoryCandidates(payload = {}) {
     matrixBriefs,
     strategyCandidateWatchlist,
     condominiumRequalificationWatchlist,
+    auctioneerSourcing,
   };
 }
 

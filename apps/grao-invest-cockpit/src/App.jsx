@@ -119,14 +119,35 @@ function preloadHeroImages() {
 }
 
 function activeScreenFromHash() {
-  if (typeof window === "undefined") return "dashboard";
-  const candidate = window.location.hash.replace(/^#/, "").trim();
-  return SCREEN_IDS.has(candidate) ? candidate : "dashboard";
+  return routeFromHash().screen;
 }
 
-function replaceScreenHash(screen) {
+function activeSubsectionFromHash() {
+  return routeFromHash().section;
+}
+
+function routeFromHash() {
+  if (typeof window === "undefined") return { screen: "dashboard", section: "" };
+  const candidate = window.location.hash.replace(/^#/, "").trim();
+  const [screen, section = ""] = candidate.split("/");
+  return {
+    screen: SCREEN_IDS.has(screen) ? screen : "dashboard",
+    section: SCREEN_IDS.has(screen) ? section : "",
+  };
+}
+
+function routeFromNavValue(value) {
+  const raw = String(value || "").trim();
+  const [screen, section = ""] = raw.split("/");
+  return {
+    screen: SCREEN_IDS.has(screen) ? screen : "dashboard",
+    section: SCREEN_IDS.has(screen) ? section : "",
+  };
+}
+
+function replaceScreenHash(screen, section = "") {
   if (typeof window === "undefined" || !SCREEN_IDS.has(screen)) return;
-  const nextHash = `#${screen}`;
+  const nextHash = section ? `#${screen}/${section}` : `#${screen}`;
   if (window.location.hash === nextHash) return;
   window.history.replaceState(null, "", nextHash);
 }
@@ -197,6 +218,7 @@ export default function App() {
   useFonts();
 
   const [active, setActive] = useState(activeScreenFromHash);
+  const [activeSubsection, setActiveSubsection] = useState(activeSubsectionFromHash);
   const [tesesEntryMode, setTesesEntryMode] = useState(null);
   const [buildInfo, setBuildInfo] = useState(DEFAULT_BUILD_INFO);
   const [isInitialCockpitLoad, setIsInitialCockpitLoad] = useState(true);
@@ -229,16 +251,19 @@ export default function App() {
     }
   }, []);
 
-  function handleNavSelect(nextScreen) {
+  function handleNavSelect(nextRoute) {
+    const { screen, section } = routeFromNavValue(nextRoute);
     setTesesEntryMode(null);
-    replaceScreenHash(nextScreen);
-    setActive(nextScreen);
+    replaceScreenHash(screen, section);
+    setActive(screen);
+    setActiveSubsection(section);
   }
 
   function openMethodExample() {
     setTesesEntryMode("method-demo");
     replaceScreenHash("teses");
     setActive("teses");
+    setActiveSubsection("");
   }
 
   useEffect(() => {
@@ -284,8 +309,10 @@ export default function App() {
     if (typeof window === "undefined") return undefined;
 
     const syncHashRoute = () => {
+      const { screen, section } = routeFromHash();
       setTesesEntryMode(null);
-      setActive(activeScreenFromHash());
+      setActive(screen);
+      setActiveSubsection(section);
     };
 
     window.addEventListener("hashchange", syncHashRoute);
@@ -305,10 +332,35 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (isInitialCockpitLoad || !activeSubsection) return undefined;
+    if (active === "radar-imobiliario") return undefined;
+
+    let timeoutId;
+    const scrollToSection = () => {
+      const sectionId = `${active}-${activeSubsection}`;
+      const target = document.getElementById(sectionId)
+        || document.querySelector(`[data-section-id="${activeSubsection}"]`);
+      if (!target) return false;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    };
+    const frameId = window.requestAnimationFrame(() => {
+      if (!scrollToSection()) {
+        timeoutId = window.setTimeout(scrollToSection, 80);
+      }
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [active, activeSubsection, isInitialCockpitLoad]);
+
   const screens = {
     dashboard: <CockpitHalley data={cockpitData} />,
-    teses: <Teses data={cockpitData} feedStatus={feedStatus} onRefresh={() => refreshCockpitData()} entryMode={tesesEntryMode} />,
-    "radar-imobiliario": <RadarImobiliario data={cockpitData} onRefresh={() => refreshCockpitData()} />,
+    teses: <Teses data={cockpitData} feedStatus={feedStatus} onRefresh={() => refreshCockpitData()} entryMode={tesesEntryMode} section={activeSubsection} />,
+    "radar-imobiliario": <RadarImobiliario data={cockpitData} onRefresh={() => refreshCockpitData()} section={activeSubsection} />,
     mercado: <Mercado data={cockpitData} />,
     backtest: <Backtest data={cockpitData} />,
     risco: <Risco data={cockpitData} />,
@@ -331,6 +383,7 @@ export default function App() {
     >
       <Sidebar
         active={active}
+        activeSubsection={activeSubsection}
         onSelect={handleNavSelect}
         feedStatus={feedStatus}
         lastUpdatedAt={cockpitData?.scientificSummary?.lastUpdatedAt}

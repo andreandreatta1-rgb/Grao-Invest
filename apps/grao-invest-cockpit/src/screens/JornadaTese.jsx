@@ -411,23 +411,53 @@ function numberOr(value, fallback = 0) {
   return Number.isFinite(number) ? number : fallback;
 }
 
+function firstNumber(...values) {
+  for (const value of values) {
+    const number = Number(value);
+    if (Number.isFinite(number)) return number;
+  }
+  return 0;
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function firstText(...values) {
+  for (const value of values) {
+    const text = String(value ?? "").trim();
+    if (text) return text;
+  }
+  return "";
+}
+
+function safeExternalUrl(value) {
+  const text = firstText(value);
+  if (!/^https?:\/\//i.test(text)) return "";
+  return text;
+}
+
 function caseEconomics(item) {
-  const purchase = numberOr(item.secondAuction || item.firstAuction, 0);
-  const saleBase = numberOr(item.saleBase || item.comparator, 0);
+  const purchase = firstNumber(item.purchasePrice, item.economicPurchase, item.purchase, item.secondAuction, item.firstAuction);
+  const saleBase = firstNumber(item.saleBase, item.comparator);
   const auctioneerFee = numberOr(item.auctioneerFee, Math.round(purchase * 0.05));
   const acquisitionCosts = numberOr(item.acquisitionCosts, Math.round(purchase * 0.08));
   const renovationCosts = numberOr(item.renovationCosts, Math.round(saleBase * 0.06));
   const carryingCosts = numberOr(item.carryingCosts, Math.round(purchase * 0.04));
   const sellingCosts = numberOr(item.sellingCosts, Math.round(saleBase * 0.06));
-  const totalCost = numberOr(
-    item.totalCost,
-    purchase + auctioneerFee + acquisitionCosts + renovationCosts + carryingCosts + sellingCosts
-  );
-  const netProfit = numberOr(item.netProfit, saleBase - totalCost);
-  const roiPct = numberOr(item.roiPct, totalCost > 0 ? (netProfit / totalCost) * 100 : 0);
+  const totalCost = purchase + auctioneerFee + acquisitionCosts + renovationCosts + carryingCosts + sellingCosts;
+  const netProfit = saleBase - totalCost;
+  const roiPct = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
   const fixedIncomePct = numberOr(item.fixedIncomePct, 6.5);
-  const fixedIncomeGain = numberOr(item.fixedIncomeGain, Math.round(totalCost * (fixedIncomePct / 100)));
-  const thesisPremium = numberOr(item.thesisPremium, netProfit - fixedIncomeGain);
+  const fixedIncomeGain = Math.round(totalCost * (fixedIncomePct / 100));
+  const thesisPremium = netProfit - fixedIncomeGain;
+  const hasExplicitCostLines = [
+    item.auctioneerFee,
+    item.acquisitionCosts,
+    item.renovationCosts,
+    item.carryingCosts,
+    item.sellingCosts,
+  ].some((value) => Number.isFinite(Number(value)));
 
   return {
     acquisitionCosts,
@@ -435,7 +465,7 @@ function caseEconomics(item) {
     carryingCosts,
     fixedIncomeGain,
     fixedIncomePct,
-    isModeled: !item.totalCost,
+    isModeled: !hasExplicitCostLines,
     netProfit,
     purchase,
     renovationCosts,
@@ -451,6 +481,13 @@ function displayCaseId(value) {
   const text = String(value || "").trim();
   if (!text) return PORTAL_FALLBACK.id;
   return text.startsWith("#") ? text : `#${text}`;
+}
+
+function displayCaseNumber(item, visibleId) {
+  const explicit = String(item?.identifierNumber || "").trim();
+  if (explicit) return explicit;
+  const matches = String(visibleId || "").match(/\d+/g);
+  return matches?.length ? matches[matches.length - 1] : String(visibleId || "").replace(/^#/, "");
 }
 
 function cleanAssetTitle(value) {
@@ -764,14 +801,73 @@ function statusBadgeType(type) {
   return "neutral";
 }
 
+function saleComparableSources(item) {
+  const valuationEvidence = item.valuationEvidence || item.valuation_evidence || {};
+  const seen = new Set();
+  return [
+    ...asArray(item.saleComparables),
+    ...asArray(item.sale_comparables),
+    ...asArray(item.comparables),
+    ...asArray(valuationEvidence.comparables),
+    ...asArray(valuationEvidence.saleComparables),
+    ...asArray(valuationEvidence.sale_comparables),
+  ]
+    .filter((entry) => entry && typeof entry === "object")
+    .filter((entry) => {
+      const sourceUrl = safeExternalUrl(entry.source_url || entry.sourceUrl || entry.url || entry.href)
+        .replace(/\/+$/, "")
+        .toLowerCase();
+      const price = firstNumber(entry.price, entry.asking_price, entry.askingPrice, entry.sale_price, entry.salePrice, entry.value);
+      const source = firstText(entry.source, entry.origin).toLowerCase();
+      const key = [sourceUrl, price || "", source].join("|");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function comparablePinsFor(item, reference) {
+  const positions = [
+    { x: 68, y: 36, color: C.teal },
+    { x: 30, y: 42, color: C.sky },
+    { x: 58, y: 70, color: C.purple },
+  ];
+
+  const realPins = saleComparableSources(item)
+    .map((entry, index) => {
+      const position = positions[index % positions.length];
+      const price = firstNumber(entry.price, entry.asking_price, entry.askingPrice, entry.sale_price, entry.salePrice, entry.value, reference);
+      return {
+        label: `Ref. venda ${String(index + 1).padStart(2, "0")}`,
+        price,
+        x: position.x,
+        y: position.y,
+        color: position.color,
+        note: firstText(entry.source, entry.origin, entry.evidence_type, entry.evidenceType, entry.note, "comparável real"),
+        sourceUrl: safeExternalUrl(entry.source_url || entry.sourceUrl || entry.url || entry.href),
+        isModeled: false,
+      };
+    })
+    .filter((pin) => pin.price > 0)
+    .slice(0, 3);
+
+  if (realPins.length) return realPins;
+
+  return [
+    { label: "Ref. venda 01", price: reference, x: 68, y: 36, color: C.teal, note: "modelado; falta link real", sourceUrl: "", isModeled: true },
+    { label: "Ref. venda 02", price: Math.round(reference * 1.05), x: 30, y: 42, color: C.sky, note: "faixa alta; falta link real", sourceUrl: "", isModeled: true },
+    { label: "Ref. venda 03", price: Math.round(reference * 0.94), x: 58, y: 70, color: C.purple, note: "faixa baixa; falta link real", sourceUrl: "", isModeled: true },
+  ];
+}
+
 function CompetitorMap({ item }) {
   const economics = caseEconomics(item);
   const reference = economics.saleBase || item.comparator || item.secondAuction || item.firstAuction;
+  const comparablePins = comparablePinsFor(item, reference);
+  const linkedReferenceCount = comparablePins.filter((pin) => pin.sourceUrl).length;
   const competitors = [
     { label: "Candidato", price: economics.purchase, x: 49, y: 52, color: C.gold, note: item.secondPriceLabel || (item.secondAuctionDate ? "2ª praça" : "entrada") },
-    { label: "Ref. venda 01", price: reference, x: 68, y: 36, color: C.teal, note: "comparável base" },
-    { label: "Ref. venda 02", price: Math.round(reference * 1.05), x: 30, y: 42, color: C.sky, note: "faixa alta" },
-    { label: "Ref. venda 03", price: Math.round(reference * 0.94), x: 58, y: 70, color: C.purple, note: "faixa baixa" },
+    ...comparablePins,
   ];
 
   return (
@@ -781,7 +877,7 @@ function CompetitorMap({ item }) {
           <div style={{ color: C.gold, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.1em", marginBottom: 4, textTransform: "uppercase" }}>Mapa de concorrentes</div>
           <div style={{ color: C.text, fontSize: 14, fontWeight: 800 }}>{item.title} · saída a validar</div>
         </div>
-        <Badge label="referências a validar" type="warning" />
+        <Badge label={linkedReferenceCount ? `${linkedReferenceCount} links reais` : "referências a validar"} type={linkedReferenceCount ? "success" : "warning"} />
       </div>
       <div style={{ height: 230, margin: 14, position: "relative", borderRadius: 12, border: `1px solid ${C.border}`, overflow: "hidden", background: `linear-gradient(135deg, ${C.faint}, ${C.card})` }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(${withAlpha(C.sky, "10")} 1px, transparent 1px), linear-gradient(90deg, ${withAlpha(C.sky, "10")} 1px, transparent 1px)`, backgroundSize: "42px 42px" }} />
@@ -790,18 +886,29 @@ function CompetitorMap({ item }) {
         <div style={{ background: withAlpha(C.gold, "16"), height: 8, left: "15%", position: "absolute", top: "12%", transform: "rotate(37deg)", width: "72%" }} />
         <div style={{ color: withAlpha(C.text, "55"), fontFamily: mono, fontSize: 9, fontWeight: 800, left: "7%", position: "absolute", top: "50%", transform: "rotate(-9deg)" }}>Eixo do candidato</div>
         <div style={{ color: withAlpha(C.text, "45"), fontFamily: mono, fontSize: 9, fontWeight: 800, left: "54%", position: "absolute", top: "23%", transform: "rotate(37deg)" }}>Bairro-alvo</div>
-        {competitors.map((pin) => (
+        {competitors.map((pin) => {
+          const PinInfo = pin.sourceUrl ? "a" : "div";
+          return (
           <div key={pin.label} style={{ left: `${pin.x}%`, position: "absolute", top: `${pin.y}%`, transform: "translate(-50%, -50%)" }}>
             <div style={{ alignItems: "center", background: pin.color, border: `2px solid ${C.bg}`, borderRadius: "50% 50% 50% 0", boxShadow: `0 0 18px ${withAlpha(pin.color, "55")}`, display: "flex", height: 30, justifyContent: "center", transform: "rotate(-45deg)", width: 30 }}>
               <span style={{ color: C.bg, fontFamily: mono, fontSize: 10, fontWeight: 900, transform: "rotate(45deg)" }}>{pin.label === "Candidato" ? "T" : "R"}</span>
             </div>
-            <div style={{ background: C.card, border: `1px solid ${withAlpha(pin.color, alpha.border)}`, borderRadius: 8, marginTop: 5, minWidth: 98, padding: "5px 7px" }}>
+            <PinInfo
+              aria-label={pin.sourceUrl ? `Abrir link real da ${pin.label}` : undefined}
+              href={pin.sourceUrl || undefined}
+              rel={pin.sourceUrl ? "noreferrer" : undefined}
+              target={pin.sourceUrl ? "_blank" : undefined}
+              style={{ background: C.card, border: `1px solid ${withAlpha(pin.color, alpha.border)}`, borderRadius: 8, color: "inherit", cursor: pin.sourceUrl ? "pointer" : "default", display: "block", marginTop: 5, minWidth: 98, padding: "5px 7px", textDecoration: "none" }}
+            >
               <div style={{ color: pin.color, fontFamily: mono, fontSize: 8, fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase" }}>{pin.label}</div>
               <div style={{ color: C.text, fontFamily: mono, fontSize: 11, fontWeight: 900 }}>{money(pin.price)}</div>
               <div style={{ color: C.muted, fontSize: 9 }}>{pin.note}</div>
-            </div>
+              {pin.sourceUrl && <div style={{ color: pin.color, fontFamily: mono, fontSize: 8, fontWeight: 900, marginTop: 3, textTransform: "uppercase" }}>abrir fonte ↗</div>}
+              {pin.isModeled && <div style={{ color: C.amber, fontFamily: mono, fontSize: 8, fontWeight: 900, marginTop: 3, textTransform: "uppercase" }}>sem link real</div>}
+            </PinInfo>
           </div>
-        ))}
+          );
+        })}
       </div>
       <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.5, padding: "0 14px 13px" }}>
         O mapa não aprova a tese sozinho. Ele mostra quem disputaria a venda: se a referência de venda não for realista, o score cai antes de gastar capital.
@@ -822,6 +929,82 @@ function PropertyFact({ label, value, color = C.gold }) {
 
 function valueOrPending(value, fallback = "a validar") {
   return value || fallback;
+}
+
+function scenarioValue(scenario, ...keys) {
+  for (const key of keys) {
+    const value = scenario?.[key];
+    if (value !== undefined && value !== null && value !== "") return value;
+  }
+  return "";
+}
+
+function commercialTermsFor(item) {
+  const commercial = item?.commercialTerms || item?.commercial_terms || {};
+  const scenarios = Array.isArray(commercial.scenarios) ? commercial.scenarios : [];
+  return {
+    ...commercial,
+    scenarios: scenarios.filter(Boolean),
+  };
+}
+
+function commercialRiskColor(risk) {
+  const normalized = String(risk || "").toLowerCase();
+  if (normalized.includes("alto")) return C.coral;
+  if (normalized.includes("medio") || normalized.includes("médio")) return C.amber;
+  return C.green;
+}
+
+function CommercialTermsPanel({ item }) {
+  const commercial = commercialTermsFor(item);
+  const scenarios = commercial.scenarios;
+  if (!scenarios.length) return null;
+
+  const recommendedKey = commercial.recommended_scenario_key || commercial.recommendedScenarioKey;
+  const recommended = scenarios.find((scenario) => scenario.key === recommendedKey) || scenarios[0];
+  const summary = commercial.summary || recommended.reading || "Forma de pagamento altera caixa, custo efetivo e margem da tese.";
+
+  return (
+    <div style={{ background: withAlpha(C.sky, "08"), border: `1px solid ${withAlpha(C.sky, alpha.border)}`, borderRadius: 14, display: "grid", gap: 12, padding: 16 }}>
+      <div style={{ alignItems: "center", display: "flex", justifyContent: "space-between", gap: 10 }}>
+        <div>
+          <div style={{ color: C.sky, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.1em", marginBottom: 5, textTransform: "uppercase" }}>Condições comerciais</div>
+          <div style={{ color: C.text, fontSize: 15, fontWeight: 900 }}>Como pagamento muda caixa, custo real e tese</div>
+        </div>
+        <Badge label={recommended.label || "cenário recomendado"} type="info" />
+      </div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.sky}`, borderRadius: 12, color: C.text, fontSize: 12, fontWeight: 800, lineHeight: 1.55, padding: "10px 12px" }}>
+        {summary}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
+        {scenarios.slice(0, 4).map((scenario) => {
+          const riskColor = commercialRiskColor(scenarioValue(scenario, "risk_level", "riskLevel"));
+          const initialCash = scenarioValue(scenario, "initial_cash", "initialCash");
+          const effectivePrice = scenarioValue(scenario, "effective_purchase_price", "effectivePurchasePrice", "present_value_cost", "presentValueCost");
+          const totalNominal = scenarioValue(scenario, "total_nominal_cost", "totalNominalCost", "effective_purchase_price", "effectivePurchasePrice");
+          const monthlyPayment = scenarioValue(scenario, "monthly_payment", "monthlyPayment");
+          const installments = Number(scenarioValue(scenario, "installments"));
+          const isRecommended = scenario.key === recommendedKey;
+
+          return (
+            <div key={scenario.key || scenario.label} style={{ background: C.card, border: `1px solid ${withAlpha(riskColor, alpha.border)}`, borderTop: `2px solid ${riskColor}`, borderRadius: 12, display: "grid", gap: 8, padding: 12 }}>
+              <div style={{ alignItems: "flex-start", display: "flex", justifyContent: "space-between", gap: 8 }}>
+                <div style={{ color: C.text, fontSize: 12, fontWeight: 900, lineHeight: 1.25 }}>{scenario.label}</div>
+                <Badge label={isRecommended ? "preferido" : scenarioValue(scenario, "risk_level", "riskLevel") || "simular"} type={isRecommended ? "success" : statusBadgeType(String(scenarioValue(scenario, "risk_level", "riskLevel")).includes("alto") ? "danger" : "warning")} />
+              </div>
+              <div style={{ display: "grid", gap: 6 }}>
+                <CostLine label="Caixa inicial" value={Number(initialCash)} color={C.gold} />
+                <CostLine label="Custo efetivo" value={Number(effectivePrice)} color={riskColor} />
+                {Number(totalNominal) !== Number(effectivePrice) && <CostLine label="Custo nominal" value={Number(totalNominal)} />}
+                {installments > 0 && Number(monthlyPayment) > 0 && <CostLine label={`${installments} parcelas`} value={Number(monthlyPayment)} />}
+              </div>
+              <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.45, margin: 0 }}>{scenario.reading || scenario.decision || "Cenário financeiro a comparar com margem e P0."}</p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 function p0ActionFor(label) {
@@ -1055,6 +1238,13 @@ function CandidateScreeningNumbers({ item }) {
 }
 
 function ExitDemand({ item }) {
+  const saleProofStatus = item.saleProofStatus || "parcialmente comprovada";
+  const saleNextEvidence = item.saleNextEvidence || "venda recente ou corretor";
+  const saleCaveat = item.saleCaveat || "";
+  const localDemandEvidence = item.localDemandEvidence || {};
+  const localDemandSignals = Array.isArray(localDemandEvidence.signals) ? localDemandEvidence.signals : [];
+  const hasLocalDemandEvidence = Boolean(item.localDemandStatus || localDemandEvidence.buyer_profile || localDemandSignals.length);
+
   return (
     <div style={{ background: withAlpha(C.teal, "08"), border: `1px solid ${withAlpha(C.teal, alpha.border)}`, borderRadius: 14, display: "grid", gap: 12, padding: 16 }}>
       <div style={{ alignItems: "center", display: "flex", justifyContent: "space-between", gap: 10 }}>
@@ -1066,11 +1256,26 @@ function ExitDemand({ item }) {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
         <PropertyFact label="Referência usada" value={money(item.comparator)} color={C.teal} />
-        <PropertyFact label="Status da prova" value="parcialmente comprovada" color={C.amber} />
-        <PropertyFact label="Próxima evidência" value="venda recente ou corretor" color={C.sky} />
+        <PropertyFact label="Status da prova" value={saleProofStatus} color={C.amber} />
+        <PropertyFact label="Próxima evidência" value={saleNextEvidence} color={C.sky} />
       </div>
+      {hasLocalDemandEvidence && (
+        <div style={{ background: withAlpha(C.coral, "08"), border: `1px solid ${withAlpha(C.coral, alpha.border)}`, borderRadius: 12, display: "grid", gap: 10, padding: 12 }}>
+          <div style={{ color: C.coral, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.09em", textTransform: "uppercase" }}>Demanda local / publico comprador</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+            <PropertyFact label="Leitura local" value={item.localDemandStatus || "a validar"} color={C.coral} />
+            <PropertyFact label="Perfil comprador" value={localDemandEvidence.buyer_profile || "comprador a validar"} color={C.gold} />
+          </div>
+          {localDemandSignals.length > 0 && (
+            <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.55, margin: 0 }}>
+              {localDemandSignals.slice(0, 3).join(" ")}
+            </p>
+          )}
+        </div>
+      )}
       <p style={{ color: C.muted, fontSize: 12, lineHeight: 1.6, margin: 0 }}>
         A pergunta não é “existe anúncio?”. É: existe comprador real nessa faixa, neste prédio ou raio curto, com metragem e estado comparáveis? Se não houver resposta, a tese continua aberta.
+        {saleCaveat ? ` ${saleCaveat}` : ""}
       </p>
     </div>
   );
@@ -1131,6 +1336,7 @@ function CaseDetailPackage({ item }) {
       <PropertySnapshot item={item} />
       <PropertyPhotoGallery item={item} />
       <CandidateScreeningNumbers item={item} />
+      <CommercialTermsPanel item={item} />
       <ExitDemand item={item} />
 
       <div style={{ display: "grid", gap: 7 }}>
@@ -1227,9 +1433,28 @@ function SourceListingLink({ item }) {
   );
 }
 
-function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle }) {
+function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle, prominentIdentifier = false }) {
   const canDiscard = item.canDiscard && item.isLiveCandidate && typeof onDiscard === "function" && /^#?IM-RADAR-\d+$/i.test(String(item.id || ""));
   const visibleId = displayCaseId(item.id);
+  const visibleNumber = displayCaseNumber(item, visibleId);
+  const displayTitle = item.displayTitle || item.title;
+  const showSourceTitle = Boolean(item.displayTitle && item.displayTitle !== item.title);
+  const fullCaseCode = String(item.id || "").replace(/^#/, "").trim();
+  const propertyType = String(item.propertyType || item.property_type || "").trim();
+  const sourcingScore = Number(item.sourcingScore || item.sourcing?.score || 0);
+  const sourcingTier = String(item.sourcingTier || item.sourcing?.tier || "").trim();
+  const sourcingBadgeLabel = sourcingScore > 0
+    ? `${sourcingTier === "bloqueado_por_p0" ? "Garimpo bloqueado" : "Garimpo"} ${Math.round(sourcingScore)}/100`
+    : item.isLiveCandidate
+      ? "Garimpo a calcular"
+      : "";
+  const sourcingBadgeType = sourcingTier === "bloqueado_por_p0"
+    ? "danger"
+    : sourcingScore >= 80
+      ? "success"
+      : sourcingScore > 0
+        ? "info"
+        : "neutral";
 
   return (
     <article style={{ background: C.panel, borderBottom: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderLeft: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderRight: `1px solid ${isOpen ? withAlpha(item.color, alpha.border) : C.border}`, borderTop: `2px solid ${item.color}`, borderRadius: 14, display: "grid", gap: 12, gridColumn: isOpen ? "1 / -1" : "auto", padding: 15, position: "relative", overflow: "hidden" }}>
@@ -1254,17 +1479,62 @@ function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle
           }}
         >
           <div style={{ alignItems: "flex-start", display: "flex", gap: 12, minWidth: 0 }}>
+            {prominentIdentifier && (
+              <div
+                aria-label={`Identificador ${visibleNumber}`}
+                style={{
+                  alignItems: "center",
+                  background: withAlpha(item.color, "14"),
+                  border: `1px solid ${withAlpha(item.color, alpha.border)}`,
+                  borderRadius: 10,
+                  color: item.color,
+                  display: "grid",
+                  flex: "0 0 76px",
+                  justifyItems: "center",
+                  minHeight: 62,
+                  padding: "7px 8px",
+                }}
+              >
+                <span style={{ fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", lineHeight: 1, textTransform: "uppercase" }}>
+                  ID
+                </span>
+                <strong data-testid="candidate-identifier-number" style={{ color: C.text, fontFamily: mono, fontSize: 24, fontWeight: 950, letterSpacing: 0, lineHeight: 1.05 }}>
+                  {visibleNumber}
+                </strong>
+              </div>
+            )}
             <ThesisIcon item={item} isOpen={isOpen} />
             <div style={{ minWidth: 0 }}>
               <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 7 }}>
-                <span style={{ background: withAlpha(item.color, "14"), border: `1px solid ${withAlpha(item.color, alpha.border)}`, borderRadius: 8, color: item.color, display: "inline-flex", fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: 0, lineHeight: 1.3, maxWidth: "100%", padding: "4px 7px", textTransform: "uppercase", wordBreak: "break-word" }}>
-                  ID {visibleId}
-                </span>
+                {!prominentIdentifier && (
+                  <span style={{ background: withAlpha(item.color, "14"), border: `1px solid ${withAlpha(item.color, alpha.border)}`, borderRadius: 8, color: item.color, display: "inline-flex", fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: 0, lineHeight: 1.3, maxWidth: "100%", padding: "4px 7px", textTransform: "uppercase", wordBreak: "break-word" }}>
+                    ID {visibleId}
+                  </span>
+                )}
                 <span style={{ color: item.color, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.09em", textTransform: "uppercase" }}>
                   {item.role}
                 </span>
               </div>
-              <h3 style={{ color: C.text, fontSize: 16, lineHeight: 1.2, margin: 0 }}>{item.title}</h3>
+              <h3 style={{ color: C.text, fontSize: 15, lineHeight: 1.25, margin: 0 }}>{displayTitle}</h3>
+              {(fullCaseCode || propertyType) && (
+                <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                  {fullCaseCode && (
+                    <span style={{ color: C.muted, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: 0, textTransform: "uppercase" }}>
+                      Tese {fullCaseCode}
+                    </span>
+                  )}
+                  {propertyType && (
+                    <span style={{ background: withAlpha(item.color, "10"), border: `1px solid ${withAlpha(item.color, alpha.border)}`, borderRadius: 6, color: item.color, fontSize: 9, fontWeight: 800, padding: "2px 6px" }}>
+                      {propertyType}
+                    </span>
+                  )}
+                </div>
+              )}
+              {showSourceTitle && (
+                <div style={{ color: C.muted, fontSize: 10, lineHeight: 1.45, marginTop: 5 }}>
+                  Origem: {item.title}
+                </div>
+              )}
               <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.45, marginTop: 7 }}>
                 {item.strategy} · score {item.score}/100 · confiança {item.confidence}/100
               </div>
@@ -1275,6 +1545,8 @@ function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
             <Badge label={item.temporalStatus} type={statusBadgeType(item.temporalType)} />
+            {sourcingBadgeLabel && <Badge label={sourcingBadgeLabel} type={sourcingBadgeType} />}
+            {item.localDemandBadge && <Badge label={item.localDemandBadge} type={item.localDemandBadgeType || "warning"} />}
             {item.sourceValidation?.label && <Badge label={item.sourceValidation.label} type={item.sourceValidation.type || "warning"} />}
             <Badge label={item.decision} type={item.color === C.coral ? "danger" : "info"} />
             <span style={{ color: item.color, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
@@ -1329,6 +1601,7 @@ export function PerdizesCasePortfolio({
   discardingId = "",
   items = REAL_ESTATE_DEMO_CASES,
   onDiscard,
+  prominentIdentifier = false,
   title = "Oito histórias para mostrar que o método não depende de um único imóvel",
 } = {}) {
   const [openCaseId, setOpenCaseId] = useState(null);
@@ -1347,6 +1620,7 @@ export function PerdizesCasePortfolio({
             isOpen={openCaseId === item.id}
             onDiscard={onDiscard}
             onToggle={() => setOpenCaseId((current) => (current === item.id ? null : item.id))}
+            prominentIdentifier={prominentIdentifier}
           />
         ))}
       </div>

@@ -1,4 +1,4 @@
-import { C, mono } from "./tokens.js";
+﻿import { C, mono } from "./tokens.js";
 import { fmtDate, fmtInteger, fmtPct } from "../utils/formatters.js";
 import Badge from "./Badge.jsx";
 import KPICard from "./KPICard.jsx";
@@ -7,8 +7,14 @@ import ProgressBar from "./ProgressBar.jsx";
 const frontStyles = {
   B3: { accent: C.teal, type: "bull" },
   Cripto: { accent: C.gold, type: "high" },
-  Imóveis: { accent: C.sky, type: "info" },
+  Imoveis: { accent: C.sky, type: "info" },
 };
+
+function normalizeFrontLabel(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
 
 export function FrontCard({
   front,
@@ -19,22 +25,37 @@ export function FrontCard({
 }) {
   const frontData = typeof front === "object" && front !== null ? front : {};
   const frontLabel = frontData.label || front;
+  const normalizedFrontLabel = normalizeFrontLabel(frontLabel);
   const testedValue = frontData.tested ?? tested;
+  const resolvedCountValue = frontData.resolvedCount ?? frontData.resolved_count ?? testedValue ?? null;
+  const mappedCountValue = frontData.mappedCount ?? frontData.mapped_count ?? null;
+  const countingPolicy = frontData.countingPolicy ?? frontData.counting_policy ?? null;
   const goLiveValue = frontData.goLive ?? goLive;
   const activeAssetsValue = frontData.activeAssets ?? frontData.activeAssetCount ?? null;
   const validatedValue = frontData.validatedPct ?? validatedPct;
   const statusValue = frontData.status ?? status;
   const lastUpdatedAt = frontData.lastUpdatedAt;
-  const style = frontStyles[frontLabel] || { accent: C.muted, type: "neutral" };
-  const isRealEstate = ["real_estate", "real-estate"].includes(frontData.id) || frontLabel === "Imóveis";
-  const testedLabel = isRealEstate ? "Avaliadas" : "Testadas";
-  const testedSub = isRealEstate ? "radar imobiliário" : "amostra validada";
+  const style = frontStyles[normalizedFrontLabel] || { accent: C.muted, type: "neutral" };
+  const isRealEstate = ["real_estate", "real-estate"].includes(frontData.id) || normalizedFrontLabel === "Imoveis";
+  const isCrypto = frontData.id === "crypto" || normalizedFrontLabel === "Cripto";
+  const showMappedCrypto = isCrypto
+    && countingPolicy === "resolved_historical"
+    && mappedCountValue !== null
+    && resolvedCountValue !== null
+    && mappedCountValue > resolvedCountValue;
+  const testedLabel = isRealEstate ? "Avaliadas" : showMappedCrypto ? "Mapeadas" : "Testadas";
+  const testedSub = isRealEstate
+    ? "radar imobiliario"
+    : showMappedCrypto
+      ? `${fmtInteger(resolvedCountValue)} resolvidas no histórico`
+      : "amostra validada";
+  const testedDisplayValue = showMappedCrypto ? mappedCountValue : testedValue;
   const activeLabel = isRealEstate ? "No radar" : "Planos ativos";
   const activeSub = isRealEstate
-    ? "candidatos imobiliários"
+    ? "candidatos imobiliarios"
     : activeAssetsValue !== null
       ? `${fmtInteger(activeAssetsValue)} ativos cobertos`
-      : "hipóteses abertas";
+      : "hipoteses abertas";
 
   return (
     <article
@@ -69,12 +90,12 @@ export function FrontCard({
           gap: 8,
         }}
       >
-        <KPICard label={testedLabel} value={fmtInteger(testedValue)} sub={testedSub} accent={C.sky} valueFontSize={13} />
+        <KPICard label={testedLabel} value={fmtInteger(testedDisplayValue)} sub={testedSub} accent={C.sky} valueFontSize={13} />
         <KPICard label={activeLabel} value={fmtInteger(goLiveValue)} sub={activeSub} accent={C.teal} valueFontSize={13} />
         <KPICard
           label="Validadas"
           value={fmtPct(validatedValue)}
-          sub="taxa histórica"
+          sub="taxa historica"
           valueColor={style.accent}
           accent={style.accent}
           valueFontSize={13}

@@ -121,6 +121,8 @@ const fixturePayloads = {
       matrix_brief_count: 96,
       source_candidate_count: 16,
       source_confirmed_requalification_count: 4,
+      auctioneer_directory_count: 1,
+      auctioneer_contact_count: 2,
     },
     matrix_briefs: [
       {
@@ -160,6 +162,80 @@ const fixturePayloads = {
         source_summary: "Pagina de condominio descreve predio com fachada reformada.",
       },
     ],
+    auctioneer_sourcing: {
+      summary: {
+        official_directory_count: 1,
+        official_contact_count: 2,
+        long_tail_directory_count: 1,
+        contact_source_count: 1,
+        outreach_sent_count: 1,
+        outreach_response_count: 1,
+        outreach_no_real_estate_count: 1,
+        outreach_pending_response_count: 0,
+        next_follow_up_at: "2026-05-22",
+        scope_cities: ["Sao Paulo", "Campinas"],
+        actionability: "Garimpo de cauda longa com base oficial JUCESP para sao paulo capital e campinas.",
+      },
+      official_directories: [
+        {
+          id: "auctioneer-jucesp-sp-campinas",
+          uf: "SP",
+          source_name: "JUCESP - Consulta de Leiloeiros e Tradutores",
+          source_url: "https://www.institucional.jucesp.sp.gov.br/consultaLeilao.html",
+          contact_path: "Consulta oficial por municipio, situacao, telefone, e-mail e site.",
+          contact_strategy: "Filtrar Atuante Regular em Sao Paulo capital e Campinas.",
+          visibility_tier: "cauda_longa",
+          relationship_stage: "coletar_contato",
+          quality_filter: ["situacao regular", "matricula informada"],
+        },
+      ],
+      official_contacts: [
+        {
+          id: "auctioneer-sp-547",
+          name: "CARLOS CHUI",
+          registration: "547",
+          city: "Sao Paulo",
+          neighborhood: "Ipiranga",
+          phones: ["(11)2272-7170", "(11)97014-2280"],
+          email: "contato@arremataronline.com.br",
+          status: "Atuante Regular",
+          source_url: "https://www.institucional.jucesp.sp.gov.br/consultaLeilao.html",
+          competition_tier: "estabelecido",
+          competition_reason: "Dominio de leilao e multiplos telefones sugerem maior exposicao.",
+          contact_strategy: "Entrar no mailing e monitorar lotes imobiliarios.",
+          outreach_status: "respondido_sem_imoveis",
+          outreach_channel: "Gmail",
+          outreach_sent_at: "2026-05-19",
+          response_received_at: "2026-05-19",
+          response_summary: "Carlos respondeu que nao trabalha com imoveis.",
+        },
+        {
+          id: "auctioneer-campinas-716",
+          name: "ANA CLARA DE MELLO E SILVA",
+          registration: "716",
+          city: "Campinas",
+          neighborhood: "Centro",
+          phones: ["(19)3849-7675", "(19)99695-3050"],
+          email: "anaclarademello@bol.com.br",
+          status: "Atuante Regular",
+          source_url: "https://www.institucional.jucesp.sp.gov.br/consultaLeilao.html",
+          visibility_tier: "cauda_longa",
+          competition_tier: "cauda_longa",
+          competition_reason: "E-mail gratuito e recorte regional indicam menor disputa inicial.",
+          contact_strategy: "Contato direto para pauta de imoveis em Campinas.",
+        },
+      ],
+      outreach_playbook: [
+        {
+          stage: "coleta_oficial",
+          action: "Extrair nome, matricula, situacao, site, e-mail e telefone publicados pela Junta Comercial.",
+        },
+      ],
+      scoring_model: {
+        low_competition_signals: ["site simples ou pouco indexado"],
+        quality_signals: ["matricula regular", "edital claro"],
+      },
+    },
   },
 };
 
@@ -185,6 +261,78 @@ describe("cockpitHalleyAdapter", () => {
     expect(result.fronts.find((front) => front.id === "real_estate").goLive).toBe(1);
     expect(result.goLiveTheses[0].daysOpen).toBe(4);
     expect(result.learningLoops.length).toBeGreaterThan(0);
+  });
+
+  it("normalizes official auctioneer sourcing without turning contacts into thesis rows", () => {
+    const result = normalizeCockpitHalley(fixturePayloads, now);
+    const sourcing = result.realEstateStrategyTerritoryCandidates.auctioneerSourcing;
+
+    expect(result.realEstateStrategyTerritoryCandidates.summary.auctioneerDirectoryCount).toBe(1);
+    expect(result.realEstateStrategyTerritoryCandidates.summary.auctioneerContactCount).toBe(2);
+    expect(sourcing.summary.longTailDirectoryCount).toBe(1);
+    expect(sourcing.summary.officialContactCount).toBe(2);
+    expect(sourcing.summary.outreachSentCount).toBe(1);
+    expect(sourcing.summary.outreachResponseCount).toBe(1);
+    expect(sourcing.summary.outreachNoRealEstateCount).toBe(1);
+    expect(sourcing.summary.outreachPendingResponseCount).toBe(0);
+    expect(sourcing.summary.nextFollowUpAt).toBe("2026-05-22");
+    expect(sourcing.summary.scopeCities).toEqual(["Sao Paulo", "Campinas"]);
+    expect(sourcing.officialDirectories[0]).toMatchObject({
+      id: "auctioneer-jucesp-sp-campinas",
+      sourceName: "JUCESP - Consulta de Leiloeiros e Tradutores",
+      visibilityTier: "cauda_longa",
+    });
+    expect(sourcing.officialContacts[0]).toMatchObject({
+      id: "auctioneer-sp-547",
+      name: "CARLOS CHUI",
+      city: "Sao Paulo",
+      competitionTier: "estabelecido",
+      outreachStatus: "respondido_sem_imoveis",
+      outreachChannel: "Gmail",
+      responseReceivedAt: "2026-05-19",
+      responseSummary: "Carlos respondeu que nao trabalha com imoveis.",
+    });
+    expect(sourcing.outreachPlaybook[0].stage).toBe("coleta_oficial");
+    expect(sourcing.scoringModel.lowCompetitionSignals).toContain("site simples ou pouco indexado");
+    expect(result.thesisRows.find((row) => row.id === "auctioneer-sp-547")).toBeUndefined();
+  });
+
+  it("shows weekly news learning activity as cockpit learning loops", () => {
+    const result = normalizeCockpitHalley(
+      {
+        currentMonitor: {
+          learning_activity: {
+            kpis: {
+              unique_news_events_count: 3,
+            },
+            lessons: [
+              {
+                area: "B3",
+                lesson: "Notícia macro/política deixou de ser contexto neutro.",
+                impacted_instruments: ["B3SA3", "PETR4"],
+                evidence: ["macro_political risco 55%"],
+                candidate_rule: "macro_political_news_shadow_rule",
+              },
+            ],
+            candidate_rules: [
+              {
+                rule_id: "macro_political_news_shadow_rule",
+                trigger: "MACROBR/POLITICABR com risco acima de 50% em tese B3 aberta.",
+                action: "Aplicar penalidade de confiança e exigir explicação no relatório semanal.",
+              },
+            ],
+          },
+        },
+      },
+      now,
+    );
+
+    expect(result.learningLoops[0]).toMatchObject({
+      pain: expect.stringContaining("Aprendizado semanal (B3)"),
+      remedy: expect.stringContaining("Aplicar penalidade"),
+      appliedTo: ["B3SA3", "PETR4"],
+      evidenceCount: 3,
+    });
   });
 
   it("derives front summaries and directional prices when front_overview and explicit target fields are missing", () => {
@@ -463,6 +611,61 @@ describe("cockpitHalleyAdapter", () => {
     });
   });
 
+  it("preserves real estate candidate comparable links from the candidate feed", () => {
+    const comparableUrl = "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-campo-belo-real/id-42367031/";
+    const result = normalizeCockpitHalley(
+      {
+        realEstateCandidates: {
+          candidates: [
+            {
+              id: "3975",
+              title: "Campo Belo Helbor 65m",
+              status: "analysis",
+              candidate_date: "2026-05-22T12:00:00Z",
+              entry_price: 852901,
+              target_price: 680000,
+              sale_comparables_count: 1,
+              sale_comparables: [
+                {
+                  source: "Chaves na Mao",
+                  source_url: comparableUrl,
+                  price: 680000,
+                  area_m2: 65.09,
+                  note: "mesmo endereco",
+                },
+              ],
+              analysis: {
+                score: 42,
+                confidence: 52,
+                candidate: {
+                  city: "Sao Paulo",
+                  neighborhood: "Campo Belo",
+                  street: "Rua Vieira de Morais, 2098",
+                },
+              },
+            },
+          ],
+        },
+      },
+      now,
+    );
+
+    const row = result.realEstateCandidates[0];
+
+    expect(row.realEstateAnalysis.candidate.sale_comparables).toEqual([
+      expect.objectContaining({
+        source: "Chaves na Mao",
+        source_url: comparableUrl,
+      }),
+    ]);
+    expect(row.saleComparables).toEqual([
+      expect.objectContaining({
+        source: "Chaves na Mao",
+        source_url: comparableUrl,
+      }),
+    ]);
+  });
+
   it("normalizes the real current monitor thesis shape", () => {
     const result = normalizeCockpitHalley(
       {
@@ -581,6 +784,47 @@ describe("cockpitHalleyAdapter", () => {
       rangeLowerPrice: 2326.49,
       rangeUpperPrice: 2397.35,
     });
+  });
+
+  it("keeps resolved history and broader mapped crypto coverage side by side", () => {
+    const result = normalizeCockpitHalley(
+      {
+        dashboardSummary: {
+          thesis_history_overview: {
+            total_tested: 879,
+            success_rate_pct: 76.34,
+            expectancy_net_pct: 3.01,
+          },
+          front_overview: {
+            b3: {
+              total_tested: 700,
+              resolved_count: 700,
+              success_rate_pct: 75.12,
+            },
+            crypto: {
+              total_tested: 2,
+              resolved_count: 2,
+              mapped_count: 12,
+              success_rate_pct: 100,
+              counting_policy: "resolved_historical",
+            },
+            real_estate: {
+              total_tested: 12,
+              success_rate_pct: 12.5,
+              counting_policy: "radar_candidates",
+            },
+          },
+        },
+      },
+      new Date("2026-05-06T16:15:00Z"),
+    );
+
+    const cryptoFront = result.fronts.find((front) => front.id === "crypto");
+
+    expect(cryptoFront.tested).toBe(2);
+    expect(cryptoFront.resolvedCount).toBe(2);
+    expect(cryptoFront.mappedCount).toBe(12);
+    expect(cryptoFront.countingPolicy).toBe("resolved_historical");
   });
 
   it("marks a stale reused current monitor as frozen study data", () => {

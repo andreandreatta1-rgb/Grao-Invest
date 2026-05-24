@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "../App.jsx";
+import { normalizeCockpitHalley } from "../data/cockpitHalleyAdapter.js";
 import RadarImobiliario from "../screens/RadarImobiliario.jsx";
 
 describe("Radar Imobiliário screen", () => {
@@ -1154,6 +1155,865 @@ describe("Radar Imobiliário screen", () => {
 
     const advance = screen.queryByTestId("radar-imobiliario-avancar");
     expect(advance ? within(advance).queryByText(/Campo Belo generico/i) : null).not.toBeInTheDocument();
+  });
+
+  it("blocks auction candidates with rights, fractional ownership, or bare ownership terms", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4101",
+          thesisId: "IM-RADAR-LEGAL-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Direitos sobre studio Pinheiros",
+          operation: "Direitos sobre imovel + opcionalidade",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/direitos-studio-pinheiros-imovel-4101",
+          entryPrice: 313600,
+          currentPrice: 522666,
+          targetPrice: 522666,
+          realEstateAnalysis: {
+            score: 88,
+            confidence: 82,
+            max_purchase_price: 340000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 522666, net_profit: 110000, roi_pct: 35 },
+              conservative: { sale_price: 480000, net_profit: 65000, roi_pct: 20 },
+            },
+            pending_items: [],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Galeno de Almeida",
+              occupancy_status: "desocupado",
+              sale_comparables_count: 3,
+              strategy: "Direitos sobre imovel + opcionalidade",
+            },
+          },
+        },
+        {
+          id: "4102",
+          thesisId: "IM-RADAR-LEGAL-02",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Fracao ideal Faria Lima",
+          operation: "Fracao comercial em eixo premium",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/fracao-conjunto-comercial-4102",
+          entryPrice: 704997,
+          currentPrice: 1409994,
+          targetPrice: 1409994,
+          realEstateAnalysis: {
+            score: 86,
+            confidence: 80,
+            max_purchase_price: 860000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 1409994, net_profit: 250000, roi_pct: 35 },
+              conservative: { sale_price: 1200000, net_profit: 90000, roi_pct: 12 },
+            },
+            pending_items: [],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Avenida Brigadeiro Faria Lima",
+              occupancy_status: "desocupado",
+              sale_comparables_count: 3,
+              property_type: "Fracao de conjunto comercial",
+            },
+          },
+        },
+        {
+          id: "4103",
+          thesisId: "IM-RADAR-LEGAL-03",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Nua propriedade Perdizes",
+          operation: "Nua propriedade com usufruto vigente",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/nua-propriedade-perdizes-4103",
+          entryPrice: 250000,
+          currentPrice: 500000,
+          targetPrice: 500000,
+          realEstateAnalysis: {
+            score: 87,
+            confidence: 81,
+            max_purchase_price: 320000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 500000, net_profit: 140000, roi_pct: 42 },
+              conservative: { sale_price: 430000, net_profit: 75000, roi_pct: 22 },
+            },
+            pending_items: [],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Perdizes",
+              street: "Rua Cardoso de Almeida",
+              occupancy_status: "desocupado",
+              sale_comparables_count: 3,
+              notes: "Oferta da nua propriedade.",
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const blocked = screen.getByTestId("radar-imobiliario-bloqueados");
+    expect(within(blocked).getByText(/Rua Galeno de Almeida/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/Avenida Brigadeiro Faria Lima/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/Rua Cardoso de Almeida/i)).toBeInTheDocument();
+    expect(within(blocked).getAllByText(/direitos sobre/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/fracao ideal/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/nua propriedade/i).length).toBeGreaterThan(0);
+
+    const advance = screen.queryByTestId("radar-imobiliario-avancar");
+    expect(advance ? within(advance).queryByText(/Galeno de Almeida/i) : null).not.toBeInTheDocument();
+    expect(advance ? within(advance).queryByText(/Faria Lima/i) : null).not.toBeInTheDocument();
+    expect(advance ? within(advance).queryByText(/Cardoso de Almeida/i) : null).not.toBeInTheDocument();
+  });
+
+  it("blocks auction candidates without official docs, debt total, or possession plan", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4201",
+          thesisId: "IM-RADAR-DOCS-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Leilao sem edital oficial",
+          operation: "Leilao Caixa sem edital anexado",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apto-sem-edital-4201",
+          entryPrice: 260000,
+          currentPrice: 420000,
+          targetPrice: 420000,
+          realEstateAnalysis: {
+            score: 88,
+            confidence: 78,
+            max_purchase_price: 320000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 420000, net_profit: 95000, roi_pct: 35 },
+              conservative: { sale_price: 390000, net_profit: 60000, roi_pct: 20 },
+            },
+            pending_items: [],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Sem Edital",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: false,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              sale_comparables_count: 3,
+            },
+          },
+        },
+        {
+          id: "4202",
+          thesisId: "IM-RADAR-DEBT-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Leilao sem custo total de debitos",
+          operation: "Leilao judicial com debitos a levantar",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apto-debitos-4202",
+          entryPrice: 240000,
+          currentPrice: 390000,
+          targetPrice: 390000,
+          realEstateAnalysis: {
+            score: 86,
+            confidence: 76,
+            max_purchase_price: 310000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 390000, net_profit: 90000, roi_pct: 37 },
+              conservative: { sale_price: 360000, net_profit: 55000, roi_pct: 20 },
+            },
+            pending_items: [],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Moema",
+              street: "Rua Sem Debitos",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: false,
+              iptu_debt_known: false,
+              sale_comparables_count: 3,
+            },
+          },
+        },
+        {
+          id: "4203",
+          thesisId: "IM-RADAR-POSSE-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Ocupado sem plano de posse",
+          operation: "Desocupacao por conta do adquirente",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apto-ocupado-4203",
+          entryPrice: 300000,
+          currentPrice: 520000,
+          targetPrice: 520000,
+          realEstateAnalysis: {
+            score: 84,
+            confidence: 72,
+            max_purchase_price: 360000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            listing_reading: { buyer_responsible_for_eviction: true },
+            scenarios: {
+              base: { sale_price: 520000, net_profit: 120000, roi_pct: 40 },
+              conservative: { sale_price: 480000, net_profit: 80000, roi_pct: 25 },
+            },
+            pending_items: [],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Campo Belo",
+              street: "Rua Sem Posse",
+              occupancy_status: "ocupado",
+              first_operation: false,
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              sale_comparables_count: 3,
+            },
+          },
+        },
+        {
+          id: "4204",
+          thesisId: "IM-RADAR-FRAUD-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Leilao com pagamento suspeito",
+          operation: "Leilao extrajudicial com Pix fora do edital",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apto-pix-4204",
+          entryPrice: 240000,
+          currentPrice: 390000,
+          targetPrice: 390000,
+          realEstateAnalysis: {
+            score: 86,
+            confidence: 76,
+            max_purchase_price: 310000,
+            source_validation: { status: "valid", reason: "Pix em conta de terceiro fora do edital." },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 390000, net_profit: 90000, roi_pct: 37 },
+              conservative: { sale_price: 360000, net_profit: 55000, roi_pct: 20 },
+            },
+            pending_items: [{ key: "source_payment_risk", priority: "P0", title: "Validar fonte e pagamento oficial", action: "Conta de pagamento diverge do edital." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Moema",
+              street: "Rua Pix Suspeito",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              sale_comparables_count: 3,
+            },
+          },
+        },
+        {
+          id: "4205",
+          thesisId: "IM-RADAR-FIN-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Leilao com FGTS sem prova",
+          operation: "Leilao Caixa depende de FGTS e financiamento",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apto-fgts-4205",
+          entryPrice: 260000,
+          currentPrice: 420000,
+          targetPrice: 420000,
+          realEstateAnalysis: {
+            score: 87,
+            confidence: 78,
+            max_purchase_price: 320000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 420000, net_profit: 95000, roi_pct: 35 },
+              conservative: { sale_price: 390000, net_profit: 60000, roi_pct: 20 },
+            },
+            pending_items: [{ key: "financing_dependency", priority: "P0", title: "Validar financiamento/FGTS", action: "Confirmar se edital e banco permitem." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Saude",
+              street: "Rua FGTS Sem Prova",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              financing_required: true,
+              financing_validated: false,
+              sale_comparables_count: 3,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const blocked = screen.getByTestId("radar-imobiliario-bloqueados");
+    expect(within(blocked).getByText(/Rua Sem Edital/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/Rua Sem Debitos/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/Rua Sem Posse/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/Rua Pix Suspeito/i)).toBeInTheDocument();
+    expect(within(blocked).getByText(/Rua FGTS Sem Prova/i)).toBeInTheDocument();
+    expect(within(blocked).getAllByText(/sem edital oficial/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/debitos sem custo total/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/desocupacao sem plano/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/fonte\/pagamento nao oficial/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/financiamento\/FGTS nao comprovado/i).length).toBeGreaterThan(0);
+  });
+
+  it("surfaces positive sourcing score for clean ugly candidates", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4301",
+          thesisId: "IM-RADAR-GARIMPO-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Imovel feio com documentacao limpa",
+          operation: "Leiloeiro regional oficial, reforma leve e revenda",
+          sourceUrl: "https://leiloeiro-regional.example/lote-881",
+          entryPrice: 180000,
+          currentPrice: 320000,
+          targetPrice: 320000,
+          realEstateAnalysis: {
+            score: 88,
+            confidence: 82,
+            max_purchase_price: 230000,
+            source_validation: { status: "valid", reason: "Lote individual em leiloeiro oficial de cauda longa." },
+            valuation_evidence: { sale_comparables_count: 3 },
+            sourcing: {
+              score: 86,
+              tier: "garimpo_qualificado",
+              signals: ["reforma precificavel", "saida clara", "fonte oficial individual"],
+            },
+            scenarios: {
+              base: { sale_price: 320000, net_profit: 70000, roi_pct: 31 },
+              conservative: { sale_price: 285000, net_profit: 32000, roi_pct: 14 },
+            },
+            pending_items: [],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Mooca",
+              street: "Rua do Garimpo",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              sale_comparables_count: 3,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const portfolio = screen.getByTestId("radar-imobiliario-portfolio");
+    expect(within(portfolio).getAllByText(/Garimpo 86\/100/i).length).toBeGreaterThan(1);
+    expect(within(portfolio).getByText(/reforma precificavel/i)).toBeInTheDocument();
+    expect(within(portfolio).getByText(/saida clara/i)).toBeInTheDocument();
+  });
+
+  it("infers a blocked garimpo score when the backend has not sent sourcing yet", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4501",
+          thesisId: "IM-RADAR-GARIMPO-PENDING",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Candidato sem score de garimpo",
+          operation: "Leilao Caixa com fonte ainda em validacao",
+          sourceUrl: "https://leilao.example/lote-4501",
+          entryPrice: 210000,
+          currentPrice: 340000,
+          targetPrice: 340000,
+          realEstateAnalysis: {
+            score: 64,
+            confidence: 40,
+            max_purchase_price: 230000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 340000, net_profit: 50000, roi_pct: 20 },
+            },
+            pending_items: [{ priority: "P0", title: "Validar fonte", action: "Confirmar edital e lote individual." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Saude",
+              street: "Rua Sem Garimpo",
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const portfolio = screen.getByTestId("radar-imobiliario-portfolio");
+    expect(within(portfolio).getAllByText(/Garimpo bloqueado 45\/100/i).length).toBeGreaterThan(1);
+    expect(within(portfolio).getByText(/fonte oficial individual/i)).toBeInTheDocument();
+  });
+
+  it("prioritizes the watchlist by sourcing score without moving P0 candidates to advance", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4401",
+          thesisId: "IM-RADAR-GARIMPO-LOW",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Pinheiros score alto sem garimpo",
+          operation: "Leilao extrajudicial com prova financeira incompleta",
+          sourceUrl: "https://leiloeiro-regional.example/lote-4401",
+          entryPrice: 220000,
+          currentPrice: 360000,
+          targetPrice: 360000,
+          realEstateAnalysis: {
+            score: 92,
+            confidence: 80,
+            max_purchase_price: 260000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            sourcing: {
+              score: 25,
+              tier: "bloqueado_por_p0",
+              signals: ["fonte oficial individual"],
+            },
+            scenarios: {
+              base: { sale_price: 360000, net_profit: 80000, roi_pct: 30 },
+              conservative: { sale_price: 330000, net_profit: 45000, roi_pct: 17 },
+            },
+            pending_items: [{ priority: "P0", title: "Aprovar capital final", action: "Confirmar limite interno antes de proposta." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Score Alto",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              financing_validated: true,
+            },
+          },
+        },
+        {
+          id: "4402",
+          thesisId: "IM-RADAR-GARIMPO-HIGH",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Perdizes garimpo primeiro",
+          operation: "Leiloeiro regional oficial, reforma leve e revenda",
+          sourceUrl: "https://leiloeiro-regional.example/lote-4402",
+          entryPrice: 180000,
+          currentPrice: 320000,
+          targetPrice: 320000,
+          realEstateAnalysis: {
+            score: 70,
+            confidence: 80,
+            max_purchase_price: 230000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            sourcing: {
+              score: 75,
+              tier: "bloqueado_por_p0",
+              signals: ["fonte oficial individual", "reforma precificavel", "saida clara"],
+            },
+            scenarios: {
+              base: { sale_price: 320000, net_profit: 70000, roi_pct: 31 },
+              conservative: { sale_price: 285000, net_profit: 32000, roi_pct: 14 },
+            },
+            pending_items: [{ priority: "P0", title: "Aprovar capital final", action: "Confirmar limite interno antes de proposta." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Perdizes",
+              street: "Rua Garimpo Primeiro",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              financing_validated: true,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const watchlist = screen.getByTestId("radar-imobiliario-watchlist");
+    const buttons = within(watchlist).getAllByRole("button", { name: /Abrir/i });
+    expect(buttons[0]).toHaveAccessibleName(/Perdizes garimpo primeiro/i);
+    expect(within(watchlist).getAllByText(/Garimpo bloqueado 75\/100/i).length).toBeGreaterThan(1);
+    expect(screen.queryByTestId("radar-imobiliario-avancar")).not.toBeInTheDocument();
+  });
+
+  it("keeps overview and active candidate counts scoped to the same open radar queue", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "501",
+          thesisId: "IM-RADAR-501",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL - Watchlist coerente",
+          entryPrice: 300000,
+          currentPrice: 420000,
+          targetPrice: 420000,
+          sourceUrl: "https://www.exemplo.com.br/imovel/watchlist-501",
+          realEstateAnalysis: {
+            score: 72,
+            confidence: 52,
+            max_purchase_price: 340000,
+            source_validation: { status: "valid" },
+            valuation_evidence: { sale_comparables_count: 3 },
+            scenarios: {
+              base: { sale_price: 420000, net_profit: 70000, roi_pct: 23 },
+              conservative: { sale_price: 390000, net_profit: 25000, roi_pct: 8 },
+            },
+            pending_items: [{ priority: "P0", title: "Confirmar matricula", action: "Validar matricula." }],
+            candidate: { city: "Sao Paulo", neighborhood: "Saude", street: "Rua Coerente" },
+          },
+        },
+        {
+          id: "502",
+          thesisId: "IM-RADAR-502",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL - Bloqueado coerente",
+          entryPrice: 500000,
+          currentPrice: 650000,
+          targetPrice: 650000,
+          sourceUrl: "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/campo-belo",
+          realEstateAnalysis: {
+            score: 66,
+            confidence: 50,
+            max_purchase_price: 560000,
+            source_validation: { status: "ambiguous" },
+            valuation_evidence: { sale_comparables_count: 4 },
+            scenarios: {
+              base: { sale_price: 650000, net_profit: 80000, roi_pct: 18 },
+              conservative: { sale_price: 610000, net_profit: 30000, roi_pct: 6 },
+            },
+            pending_items: [{ priority: "P0", title: "Trocar link generico", action: "Abrir lote individual." }],
+            candidate: { city: "Sao Paulo", neighborhood: "Campo Belo", street: "Rua Generica" },
+          },
+        },
+        {
+          id: "503",
+          thesisId: "IM-RADAR-503",
+          front: "imoveis",
+          status: "Fechada",
+          statusGroup: "Historica",
+          isOpen: false,
+          asset: "REAL - Fechado aprendizado",
+          entryPrice: 450000,
+          currentPrice: 450000,
+          targetPrice: 450000,
+          realEstateAnalysis: {
+            score: 42,
+            confidence: 20,
+            max_purchase_price: 360000,
+            scenarios: { base: { sale_price: 450000, net_profit: -20000, roi_pct: -4 } },
+          },
+        },
+        {
+          id: "504",
+          thesisId: "IM-RADAR-504",
+          front: "imoveis",
+          status: "Descartado",
+          statusGroup: "Historica",
+          isOpen: false,
+          asset: "REAL - Descartado aprendizado",
+          entryPrice: 600000,
+          currentPrice: 600000,
+          targetPrice: 600000,
+          realEstateAnalysis: {
+            score: 35,
+            confidence: 18,
+            max_purchase_price: 420000,
+            scenarios: { base: { sale_price: 600000, net_profit: -50000, roi_pct: -8 } },
+          },
+        },
+      ],
+    };
+
+    const overviewRender = render(<RadarImobiliario data={data} />);
+
+    const hero = screen.getByTestId("radar-imobiliario-hero");
+    expect(hero).toHaveTextContent(/Candidatos abertos/i);
+    expect(hero).toHaveTextContent(/2/);
+    expect(hero).toHaveTextContent(/Fechados\/aprendizados/i);
+    expect(hero).toHaveTextContent(/fora da fila ativa/i);
+    expect(hero).not.toHaveTextContent(/Investigar\/monitorar/i);
+    overviewRender.unmount();
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const decisionStrip = screen.getByLabelText(/Resumo de decis/i);
+    expect(within(decisionStrip).getByText("1 candidato com prova pendente")).toBeInTheDocument();
+    expect(within(decisionStrip).getByText("1 caso travado por prova")).toBeInTheDocument();
+    expect(within(decisionStrip).getByText("2 casos para calibracao")).toBeInTheDocument();
+    expect(screen.getByText(/Abertos - 2 candidatos reais/i)).toBeInTheDocument();
+  });
+
+  it("shows thesis code and property type for closed real estate candidates", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4002",
+          thesisId: "IM-RADAR-TARGET-PIN-04",
+          front: "imoveis",
+          status: "Fechada",
+          statusGroup: "Historica",
+          isOpen: false,
+          asset: "Sao Paulo / Pinheiros / Rua Padre Carvalho / Entrada 1.179M Saida 1.350M",
+          entryPrice: 1179000,
+          currentPrice: 1350000,
+          targetPrice: 1350000,
+          realEstateAnalysis: {
+            score: 48,
+            confidence: 58,
+            max_purchase_price: 691296,
+            scenarios: { base: { sale_price: 1350000, net_profit: -29320, roi_pct: -2.1 } },
+            suggested_status: "Descartado",
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Padre Carvalho, 129",
+              property_type: "Casa em vila",
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const closed = screen.getByTestId("radar-imobiliario-fechados");
+    expect(within(closed).getByText(/Tese IM-RADAR-TARGET-PIN-04/i)).toBeInTheDocument();
+    expect(within(closed).getByText(/Casa em vila/i)).toBeInTheDocument();
+    expect(within(closed).getByTestId("candidate-identifier-number")).toHaveTextContent("4002");
+  });
+
+  it("renders API real estate candidates with raw asking price and top-level address in open candidates", () => {
+    const comparableUrl = "https://www.chavesnamao.com.br/imovel/casa-a-venda-2-quartos-com-garagem-sp-sao-paulo-pinheiros-200m2-RS3200000/id-39888317/";
+    const data = normalizeCockpitHalley(
+      {
+        realEstateCandidates: {
+          candidates: [
+            {
+              id: 26,
+              title: "PIN-06 / Casa 5 Padre Carvalho, 129",
+              status: "Aberto com pendencias",
+              candidate_date: "2026-05-23T16:10:00-03:00",
+              source_url: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-casa-a-venda-em-leilao-imovel-bradesco-2844902",
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Padre Carvalho, 129 - Casa 5",
+              property_type: "Casa em vila",
+              asking_price: 1610827.63,
+              estimated_sale_base: 2880000,
+              occupancy_status: "ocupado",
+              source_validation_status: "valid",
+              source_validation_reason: "Fonte individual do Leilao Imovel para a Casa 5.",
+              sale_comparables_count: 1,
+              sale_comparables: [
+                {
+                  source: "ChavesNaMao",
+                  source_url: comparableUrl,
+                  price: 3200000,
+                  area_m2: 200,
+                  evidence_type: "same_address_listing",
+                },
+              ],
+              analysis: {
+                score: 61,
+                confidence: 63,
+                max_purchase_price: 1610827.63,
+                scenarios: {
+                  base: { sale_price: 2880000, net_profit: 480000, roi_pct: 29.8 },
+                  conservative: { sale_price: 2600000, net_profit: 120000, roi_pct: 7.4 },
+                },
+                suggested_status: "Aberto com pendencias",
+                pending_items: [{ priority: "P0", title: "Confirmar divida de condominio", action: "Validar antes de proposta." }],
+              },
+            },
+          ],
+        },
+      },
+      new Date("2026-05-23T19:10:00Z"),
+    );
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const openCandidates = screen.getByTestId("radar-imobiliario-abertos");
+    expect(within(openCandidates).getByText(/Sao Paulo \/ Pinheiros \/ Rua Padre Carvalho, 129 - Casa 5/i)).toBeInTheDocument();
+    expect(within(openCandidates).getByText(/Casa 5 Padre Carvalho, 129/i)).toBeInTheDocument();
+    expect(within(openCandidates).getByText(/Origem: PIN-06 \/ Casa 5 Padre Carvalho, 129/i)).toBeInTheDocument();
+    expect(within(openCandidates).getByText(/R\$ 1\.610\.828/i)).toBeInTheDocument();
+    expect(within(openCandidates).getByTestId("candidate-identifier-number")).toHaveTextContent("26");
+  });
+
+  it("keeps the property name visible when an API candidate has a title but no parsed street", () => {
+    const data = normalizeCockpitHalley(
+      {
+        realEstateCandidates: {
+          candidates: [
+            {
+              id: 26,
+              title: "PIN-06 / Casa 5 Padre Carvalho, 129",
+              status: "Aberto com pendencias",
+              candidate_date: "2026-05-23T16:10:00-03:00",
+              source_url: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-casa-a-venda-em-leilao-imovel-bradesco-2844902",
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              property_type: "Casa em vila",
+              asking_price: 1610827.63,
+              estimated_sale_base: 2880000,
+              source_validation_status: "valid",
+              sale_comparables_count: 1,
+              analysis: {
+                score: 61,
+                confidence: 63,
+                max_purchase_price: 1598995,
+                scenarios: { base: { sale_price: 2880000, net_profit: 480000, roi_pct: 29.8 } },
+                suggested_status: "Aberto com pendencias",
+                pending_items: [{ priority: "P0", title: "Confirmar divida de condominio", action: "Validar antes de proposta." }],
+              },
+            },
+          ],
+        },
+      },
+      new Date("2026-05-23T19:10:00Z"),
+    );
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const openCandidates = screen.getByTestId("radar-imobiliario-abertos");
+    expect(within(openCandidates).getByText(/Sao Paulo \/ Pinheiros \/ Casa 5 Padre Carvalho, 129/i)).toBeInTheDocument();
+    expect(within(openCandidates).queryByText(/PIN Padre Carvalho,/i)).not.toBeInTheDocument();
+  });
+
+  it("links real sale comparables in the competitor map for radar candidates", async () => {
+    const user = userEvent.setup();
+    const comparableUrl = "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-campo-belo-real/id-42367031/";
+    const data = {
+      thesisRows: [
+        {
+          id: "3975",
+          thesisId: "IM-RADAR-TARGET-CAM-02",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Campo Belo Helbor 65m",
+          operation: "Leilao extrajudicial + HF leve | Leilao Imovel | Apartamento",
+          sourceUrl: "https://www.frazaoleiloes.com.br/Auction/LotDetails/37570",
+          entryPrice: 852901,
+          targetPrice: 680000,
+          expectedPct: -111.6,
+          realEstateAnalysis: {
+            score: 42,
+            confidence: 52,
+            max_purchase_price: 430000,
+            valuation_evidence: {
+              sale_comparables_count: 1,
+              comparables: [
+                {
+                  price: 680000,
+                  area_m2: 65.09,
+                  source: "Chaves na Mao",
+                  source_url: comparableUrl,
+                  note: "mesmo endereco e area privativa",
+                },
+              ],
+            },
+            scenarios: {
+              base: { sale_price: 680000, net_profit: -172901, roi_pct: -20.3 },
+              conservative: { sale_price: 650000, net_profit: -210000, roi_pct: -24.6 },
+            },
+            suggested_status: "Aberto com pendencias",
+            next_action: "Revalidar saida com anuncios do mesmo predio",
+            pending_items: [{ priority: "P0", title: "Validar saida", action: "Abrir comparavel real antes de proposta." }],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Campo Belo",
+              street: "Rua Vieira de Morais, 2098",
+              private_area_m2: 65.09,
+              asking_price: 852901,
+              sale_comparables_count: 1,
+              sale_comparables: [
+                {
+                  price: 680000,
+                  area_m2: 65.09,
+                  source: "Chaves na Mao",
+                  source_url: comparableUrl,
+                  note: "mesmo endereco e area privativa",
+                },
+              ],
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const portfolio = screen.getByTestId("radar-imobiliario-portfolio");
+    await user.click(within(portfolio).getByRole("button", { name: /Abrir Campo Belo Helbor 65m/i }));
+
+    expect(within(portfolio).getByText(/Mapa de concorrentes/i)).toBeInTheDocument();
+    const comparableLink = within(portfolio).getByRole("link", { name: /Abrir link real da Ref\. venda 01/i });
+    expect(comparableLink).toHaveAttribute("href", comparableUrl);
+    expect(within(portfolio).getByText(/Chaves na Mao/i)).toBeInTheDocument();
+    expect(within(portfolio).getByText(/1 links reais/i)).toBeInTheDocument();
+    expect(within(portfolio).queryByRole("link", { name: /Abrir link real da Ref\. venda 02/i })).not.toBeInTheDocument();
   });
 
   it("renders radar subareas as isolated content views", () => {

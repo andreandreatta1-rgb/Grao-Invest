@@ -152,6 +152,60 @@ const realEstateRows = [
     realEstateAnalysis: { score: 58, confidence: 33, pending_items: [], next_action: "Validar aluguel de mercado" },
   },
   {
+    id: "ITAIM-1",
+    thesisId: "ITAIM-1",
+    asset: "Itaim Bibi compacto plano B",
+    front: "Im\u00f3veis",
+    direction: "Alta",
+    expectedPct: 7,
+    structure: "Renda / Plano B no Itaim Bibi",
+    entryPrice: 700000,
+    currentPrice: 780000,
+    exitRule: "Validar aluguel e liquidez",
+    outcome: "Observando",
+    days: 0,
+    statusGroup: "Em an\u00e1lise",
+    resultPct: 0,
+    resultKind: "estimate",
+    isOpen: true,
+    hypothesis: "Compacto no Itaim para renda.",
+    learning: "Validar yield liquido.",
+    realEstateAnalysis: {
+      score: 57,
+      confidence: 41,
+      pending_items: [],
+      next_action: "Validar aluguel no Itaim",
+      candidate: { neighborhood: "Itaim Bibi", strategy: "Renda / Plano B" },
+    },
+  },
+  {
+    id: "CAMPO-1",
+    thesisId: "CAMPO-1",
+    asset: "Campo Belo 62m sem reforma pesada",
+    front: "Im\u00f3veis",
+    direction: "Alta",
+    expectedPct: 8,
+    structure: "Arbitragem sem reforma em Campo Belo",
+    entryPrice: 595000,
+    currentPrice: 700000,
+    exitRule: "Validar fonte individual",
+    outcome: "Observando",
+    days: 0,
+    statusGroup: "Em an\u00e1lise",
+    resultPct: 0,
+    resultKind: "estimate",
+    isOpen: true,
+    hypothesis: "Campo Belo com ticket comparativamente menor.",
+    learning: "Validar comparaveis do mesmo microterritorio.",
+    realEstateAnalysis: {
+      score: 60,
+      confidence: 46,
+      pending_items: [],
+      next_action: "Validar fonte Campo Belo",
+      candidate: { neighborhood: "Campo Belo", strategy: "Arbitragem sem reforma" },
+    },
+  },
+  {
     id: "PLANTA-1",
     thesisId: "PLANTA-1",
     asset: "Lancamento zona leste",
@@ -334,6 +388,67 @@ describe("real estate radar experience", () => {
     expect(screen.getByTestId("teses-row-HF-1")).toBeInTheDocument();
   });
 
+  it("uses the same real estate candidate universe as the direct radar filters", () => {
+    const runtimeCandidate = {
+      id: "77",
+      thesisId: "IM-RADAR-77",
+      asset: "Pinheiros candidato runtime",
+      front: "Im\u00f3veis",
+      direction: "Alta",
+      expectedPct: 14,
+      structure: "House Flipping com reforma leve",
+      entryPrice: 310000,
+      currentPrice: 365000,
+      sourceUrl: "https://example.com/pinheiros-runtime",
+      openedAt: "2026-05-08T10:00:00.000Z",
+      exitRule: "Validar obra e comparaveis",
+      outcome: "Observando",
+      days: 0,
+      statusGroup: "Em an\u00e1lise",
+      resultPct: 0,
+      resultKind: "estimate",
+      isOpen: true,
+      hypothesis: "Pinheiros com reforma curta e revenda.",
+      learning: "Validar predio e liquidez antes da proposta.",
+      realEstateAnalysis: {
+        score: 72,
+        confidence: 41,
+        pending_items: [],
+        next_action: "Visitar e orcar reforma leve",
+        scenarios: {
+          base: { sale_price: 395000, net_profit: 42000, roi_pct: 14.1 },
+        },
+        candidate: {
+          strategy: "House flipping leve",
+        },
+      },
+    };
+
+    render(<Teses data={{ thesisRows: realEstateRows, realEstateCandidates: [runtimeCandidate] }} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Abrir radar imobili.rio/i }));
+    fireEvent.click(screen.getByText(/Ver lista completa/i));
+
+    expect(screen.getByText("9 candidatos no radar")).toBeInTheDocument();
+    expect(screen.getByTestId("teses-row-77")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/Explorar estrat.gias/i));
+    fireEvent.click(screen.getByRole("button", { name: /Ver candidatos House Flipping/i }));
+
+    expect(screen.getByText("2 candidatos filtrados")).toBeInTheDocument();
+    expect(screen.getByTestId("teses-row-HF-1")).toBeInTheDocument();
+    expect(screen.getByTestId("teses-row-77")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/Explorar territ.rios/i));
+    const radar = screen.getByTestId("neighborhood-condo-radar");
+    fireEvent.click(within(radar).getByRole("button", { name: /Filtrar candidatos Pinheiros/i }));
+
+    expect(screen.getByText("Candidatos em Pinheiros")).toBeInTheDocument();
+    expect(screen.getByText("2 candidatos filtrados")).toBeInTheDocument();
+    expect(screen.getByTestId("teses-row-HF-1")).toBeInTheDocument();
+    expect(screen.getByTestId("teses-row-77")).toBeInTheDocument();
+  });
+
   it("shows strategy-territory briefs as search hypotheses without mixing them into registered candidates", () => {
     render(<Teses data={{ thesisRows: realEstateRows, realEstateStrategyTerritoryCandidates: strategyTerritoryReport }} />);
 
@@ -424,6 +539,8 @@ describe("real estate radar experience", () => {
     const radar = screen.getByTestId("neighborhood-condo-radar");
     expect(within(radar).getByText("Radar de bairros e condomínios")).toBeInTheDocument();
     expect(within(radar).getByText("Pinheiros")).toBeInTheDocument();
+    expect(within(radar).getByText("Itaim Bibi")).toBeInTheDocument();
+    expect(within(radar).getByText("Campo Belo")).toBeInTheDocument();
     expect(within(radar).getByText("Barreira de reposição")).toBeInTheDocument();
     expect(within(radar).getByText("Prédios antigos bons")).toBeInTheDocument();
 
@@ -432,6 +549,18 @@ describe("real estate radar experience", () => {
     expect(screen.getByText("Candidatos em Pinheiros")).toBeInTheDocument();
     expect(screen.getByTestId("teses-row-HF-1")).toBeInTheDocument();
     expect(screen.queryByTestId("teses-row-LEILAO-1")).not.toBeInTheDocument();
+
+    fireEvent.click(within(radar).getByRole("button", { name: /Filtrar candidatos Pinheiros/i }));
+    fireEvent.click(within(radar).getByRole("button", { name: /Filtrar candidatos Itaim Bibi/i }));
+    expect(screen.getByText("Candidatos em Itaim Bibi")).toBeInTheDocument();
+    expect(screen.getByTestId("teses-row-ITAIM-1")).toBeInTheDocument();
+    expect(screen.queryByTestId("teses-row-CAMPO-1")).not.toBeInTheDocument();
+
+    fireEvent.click(within(radar).getByRole("button", { name: /Filtrar candidatos Itaim Bibi/i }));
+    fireEvent.click(within(radar).getByRole("button", { name: /Filtrar candidatos Campo Belo/i }));
+    expect(screen.getByText("Candidatos em Campo Belo")).toBeInTheDocument();
+    expect(screen.getByTestId("teses-row-CAMPO-1")).toBeInTheDocument();
+    expect(screen.queryByTestId("teses-row-ITAIM-1")).not.toBeInTheDocument();
   });
 
   it("shows structured building and condominium fields in real estate details", () => {

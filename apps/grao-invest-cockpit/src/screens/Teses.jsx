@@ -10,6 +10,12 @@ const statusFilters = [
 ];
 
 const frontFilters = ["B3", "Cripto", "Imóveis"];
+const subsectionViewById = {
+  mesa: "overview",
+  ativos: "open",
+  imoveis: "imoveis",
+  historico: "historico",
+};
 
 const historicalFallback = [
   { id: "H-1719", ativo: "PETR4", frente: "B3", direcao: "Alta", esperado: 4.82, estrutura: "Compra estruturada com alvo e stop", entrada: 39.92, saida: "alvo R$ 43,37 / stop R$ 38,83", desfecho: "Tempo", dias: 13, status: "Histórica", resultado: 3.14, hipotese: "A hipótese sugeria continuidade de alta após suporte respeitado e volume acima da média.", aprendizado: "Exigir confirmação de volume no fechamento antes de promover a tese para go-live." },
@@ -84,6 +90,118 @@ function exitText(row) {
 
 function compactExitRule(value) {
   return String(value || "--").replace(/\s*\/\s*/g, " · ");
+}
+
+function sourceArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function normalizedFront(row) {
+  const raw = String(row?.front ?? row?.frente ?? "");
+  const lower = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  if (lower.includes("real_estate") || lower.includes("imove")) return "Imóveis";
+  if (lower === "crypto" || lower === "cripto") return "Cripto";
+  if (lower === "b3") return "B3";
+  return raw;
+}
+
+function isRealEstateSourceRow(row) {
+  return normalizedFront(row) === "Imóveis";
+}
+
+function canonicalRealEstateId(row) {
+  const value = String(row?.thesisId || row?.thesis_id || row?.id || "").trim();
+  return value.match(/^IM-RADAR-(\d+)$/i)?.[1] || value.match(/^\d+$/)?.[0] || "";
+}
+
+function realEstateSourceKey(row) {
+  const candidateId = canonicalRealEstateId(row);
+  if (candidateId) return `im-radar-${candidateId}`;
+  return String(row?.sourceUrl || row?.source_url || row?.asset || row?.ativo || "").toLowerCase();
+}
+
+function canonicalTesesSourceRows(data) {
+  const thesisRows = sourceArray(data?.thesisRows);
+  const candidateRows = sourceArray(data?.realEstateCandidates).filter(isRealEstateSourceRow);
+  if (!candidateRows.length) return thesisRows;
+
+  const nonRealEstateRows = thesisRows.filter((row) => !isRealEstateSourceRow(row));
+  const realEstateRows = thesisRows.filter(isRealEstateSourceRow);
+  const seen = new Set();
+  const canonicalRealEstateRows = [...candidateRows, ...realEstateRows].filter((row) => {
+    const key = realEstateSourceKey(row);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return [...nonRealEstateRows, ...canonicalRealEstateRows];
+}
+
+function statusGroupForSourceRow(row, front, isOpen) {
+  const explicit = row.statusGroup ?? row.status_group;
+  if (explicit) return explicit;
+  const raw = String(row.status || "").toLowerCase();
+  if (front === "Imóveis") {
+    if (isOpen === false || /hist|fechad|closed|descart/.test(raw)) return "Histórica";
+    if (/go-live|go_live|abert|pendenc/.test(raw)) return "Go-live";
+    if (/analysis|analise|an.lise|observ|monitor/.test(raw) || isOpen === true) return "Em análise";
+  }
+  return row.status;
+}
+
+function normalizeTesesSourceRow(row) {
+  const front = normalizedFront(row);
+  const expectedPct = row.expectedPct ?? row.expected_pct ?? row.expectedFinancialPct ?? row.expected_financial_pct ?? row.esperado;
+  const resultPct = row.resultPct ?? row.result_pct ?? row.currentPct ?? row.current_pct ?? row.resultado;
+  const resultKind = row.resultKind ?? row.result_kind ?? (front === "Imóveis" ? "estimate" : undefined);
+  const isOpen = row.isOpen ?? row.is_open;
+  const statusGroup = statusGroupForSourceRow(row, front, isOpen);
+  const normalized = {
+    ...row,
+    asset: row.asset ?? row.ativo,
+    front,
+    expectedPct,
+    targetPrice: row.targetPrice ?? row.target_price,
+    stopPrice: row.stopPrice ?? row.stop_price,
+    exitRule: row.exitRule ?? row.exit_rule,
+    resultKind,
+    isOpen: isOpen ?? (front === "Imóveis" ? statusGroup !== "Histórica" : undefined),
+    statusGroup,
+    direction: row.direction ?? row.direcao,
+  };
+
+  return {
+    id: row.id ?? row.thesisId ?? row.thesis_id ?? row.asset ?? row.ativo,
+    thesisId: row.thesisId ?? row.thesis_id,
+    ativo: displayAssetName(normalized),
+    ativoOriginal: row.asset ?? row.ativo,
+    frente: front,
+    direcao: realEstateLabel(normalized),
+    esperado: expectedPct,
+    estrutura: row.structure || row.operation || row.estrutura,
+    operation: row.operation,
+    entrada: row.entryPrice ?? row.entry_price ?? row.entrada,
+    saida: compactExitRule(exitText(normalized)),
+    exitRule: row.exitRule ?? row.exit_rule,
+    targetPrice: row.targetPrice ?? row.target_price,
+    stopPrice: row.stopPrice ?? row.stop_price,
+    desfecho: row.outcome ?? row.desfecho,
+    dias: row.days ?? row.daysOpen ?? row.days_open ?? row.dias,
+    status: statusGroup,
+    statusRaw: row.status,
+    resultado: front === "Imóveis" && (resultKind === "estimate" || normalized.isOpen === false) ? expectedPct : resultPct,
+    resultadoTipo: resultKind,
+    isOpen: normalized.isOpen,
+    valorReferencia: row.currentPrice ?? row.current_price ?? row.valorReferencia,
+    sourceUrl: row.sourceUrl ?? row.source_url,
+    openedAt: row.openedAt ?? row.opened_at,
+    realEstateAnalysis: row.realEstateAnalysis ?? row.real_estate_analysis,
+    hipotese: row.hypothesis ?? row.hipotese,
+    aprendizado: row.learning ?? row.aprendizado,
+  };
 }
 
 function hasUsefulText(value) {
@@ -187,15 +305,26 @@ function compactDirectionLabel(row) {
 }
 
 function searchableText(row) {
+  const candidate = row.realEstateAnalysis?.candidate || row.realEstateAnalysis?.candidate_snapshot || row.realEstateAnalysis?.candidateSnapshot || {};
   return [
     row.ativo,
     row.estrutura,
     row.hipotese,
     row.aprendizado,
     row.sourceUrl,
+    row.realEstateAnalysis?.summary,
     row.realEstateAnalysis?.next_action,
+    candidate.strategy,
+    candidate.strategy_id,
+    candidate.strategyId,
+    candidate.neighborhood,
+    candidate.neighborhoods,
+    candidate.address,
+    candidate.source_summary,
+    candidate.sourceSummary,
   ]
     .filter(Boolean)
+    .map(compactEvidenceText)
     .join(" ")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -289,6 +418,22 @@ const neighborhoodCondoTargets = [
     thesis: "Bairros consolidados, muita unidade antiga e comprador final sensível a prédio bem cuidado.",
     signals: ["Estoque consolidado", "Condomínios conhecidos", "Demanda familiar", "Reforma interna valorizável"],
     searchTerms: ["perdizes", "pompeia", "pompéia", "agua branca"],
+  },
+  {
+    key: "itaim-bibi",
+    label: "Itaim Bibi",
+    accent: C.amber,
+    thesis: "Liquidez premium e estoque antigo onde o ganho depende de micropreço, renda e disciplina no teto.",
+    signals: ["Liquidez premium", "Ticket alto", "Plano B de renda", "Comparáveis por rua"],
+    searchTerms: ["itaim", "itaim bibi", "urimonduba", "jesuino arruda", "jesuíno arruda", "joaquim floriano"],
+  },
+  {
+    key: "campo-belo",
+    label: "Campo Belo",
+    accent: C.purple,
+    thesis: "Demanda forte entre metrô, Congonhas e Brooklin, com chance em unidades antigas bem negociadas.",
+    signals: ["Metrô Campo Belo", "Congonhas", "Renda familiar", "Prédio antigo"],
+    searchTerms: ["campo belo", "vila congonhas", "alvaro nunes", "álvaro nunes", "gabriele d'annunzio", "constantino de sousa"],
   },
   {
     key: "vila-mariana",
@@ -569,6 +714,7 @@ function RealEstateFrontCard({ summary, active, onClick }) {
   const total = summary.rows.length;
   const sourceCount = Number(summary.sourceCount) || 0;
   const hasBriefs = summary.briefCount > 0 || summary.signalCount > 0 || sourceCount > 0;
+  const borderColor = active ? summary.accent : summary.accent + "35";
 
   return (
     <button
@@ -578,7 +724,9 @@ function RealEstateFrontCard({ summary, active, onClick }) {
       data-testid={`real-estate-front-card-${summary.key}`}
       style={{
         background: active ? `linear-gradient(145deg, ${summary.accent}24, ${C.panel})` : `linear-gradient(145deg, ${summary.accent}12, ${C.panel})`,
-        border: `1px solid ${active ? summary.accent : summary.accent + "35"}`,
+        borderBottom: `1px solid ${borderColor}`,
+        borderLeft: `1px solid ${borderColor}`,
+        borderRight: `1px solid ${borderColor}`,
         borderTop: `3px solid ${summary.accent}`,
         borderRadius: 14,
         boxShadow: active ? `0 0 0 2px ${summary.accent}22` : "none",
@@ -1008,7 +1156,7 @@ function RealEstateDealCockpit({ rows, allRows, selected, onSelect }) {
                 key={`deal-queue-${item.id}`}
                 type="button"
                 onClick={() => onSelect(item)}
-                style={{ background: activeItem ? itemAccent + "16" : C.panel, border: `1px solid ${activeItem ? itemAccent + "65" : C.border}`, borderLeft: `3px solid ${itemAccent}`, borderRadius: 11, color: C.text, cursor: "pointer", fontFamily: "inherit", padding: "9px 10px", textAlign: "left" }}
+                style={{ background: activeItem ? itemAccent + "16" : C.panel, borderBottom: `1px solid ${activeItem ? itemAccent + "65" : C.border}`, borderLeft: `3px solid ${itemAccent}`, borderRight: `1px solid ${activeItem ? itemAccent + "65" : C.border}`, borderTop: `1px solid ${activeItem ? itemAccent + "65" : C.border}`, borderRadius: 11, color: C.text, cursor: "pointer", fontFamily: "inherit", padding: "9px 10px", textAlign: "left" }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
                   <span style={{ color: itemAccent, fontFamily: mono, fontSize: 10, fontWeight: 900 }}>#{index + 1}</span>
@@ -1086,6 +1234,7 @@ function NeighborhoodCondoRadar({ rows, activeKey, onSelect }) {
         {neighborhoodCondoTargets.map((target) => {
           const count = rows.filter((row) => neighborhoodCondoTargetKey(row) === target.key).length;
           const active = activeKey === target.key;
+          const borderColor = active ? target.accent : target.accent + "35";
           return (
             <button
               key={target.key}
@@ -1094,7 +1243,9 @@ function NeighborhoodCondoRadar({ rows, activeKey, onSelect }) {
               onClick={() => onSelect(active ? null : target.key)}
               style={{
                 background: active ? target.accent + "18" : C.card,
-                border: `1px solid ${active ? target.accent : target.accent + "35"}`,
+                borderBottom: `1px solid ${borderColor}`,
+                borderLeft: `1px solid ${borderColor}`,
+                borderRight: `1px solid ${borderColor}`,
                 borderTop: `3px solid ${target.accent}`,
                 borderRadius: 12,
                 color: "inherit",
@@ -3148,7 +3299,7 @@ function ThesisFicha({ thesis }) {
   );
 }
 
-export default function Teses({ data, feedStatus = "fallback", onRefresh, entryMode }) {
+export default function Teses({ data, feedStatus = "fallback", onRefresh, entryMode, section = "" }) {
   const methodDemoEntry = entryMode === "method-demo";
   const [status, setStatus] = useState(null);
   const [front, setFront] = useState(methodDemoEntry ? "Imóveis" : null);
@@ -3159,35 +3310,7 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
   const isNarrow = typeof window !== "undefined" && window.innerWidth < 860;
 
   const rows = useMemo(() => {
-    const normalized = (data?.thesisRows ?? []).map((row) => ({
-      id: row.id,
-      thesisId: row.thesisId,
-      ativo: displayAssetName(row),
-      ativoOriginal: row.asset,
-      frente: row.front,
-      direcao: realEstateLabel(row),
-      esperado: row.expectedPct,
-      estrutura: row.structure || row.operation,
-      operation: row.operation,
-      entrada: row.entryPrice,
-      saida: compactExitRule(exitText(row)),
-      exitRule: row.exitRule,
-      targetPrice: row.targetPrice,
-      stopPrice: row.stopPrice,
-      desfecho: row.outcome,
-      dias: row.days,
-      status: row.statusGroup,
-      statusRaw: row.status,
-      resultado: row.front === "Imóveis" && (row.resultKind === "estimate" || row.isOpen === false) ? row.expectedPct : row.resultPct,
-      resultadoTipo: row.resultKind,
-      isOpen: row.isOpen,
-      valorReferencia: row.currentPrice,
-      sourceUrl: row.sourceUrl,
-      openedAt: row.openedAt,
-      realEstateAnalysis: row.realEstateAnalysis,
-      hipotese: row.hypothesis,
-      aprendizado: row.learning,
-    }));
+    const normalized = canonicalTesesSourceRows(data).map(normalizeTesesSourceRow);
     return ensureHistoricalRows(normalized);
   }, [data]);
 
@@ -3262,6 +3385,12 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
       setNeighborhoodFilter(null);
     }
   }
+
+  useEffect(() => {
+    const nextView = subsectionViewById[section];
+    if (!nextView || nextView === view) return;
+    switchView(nextView);
+  }, [section]);
 
   function selectRealEstateFront(key) {
     setRealEstateFrontFilter((current) => (current === key ? null : key));
@@ -3393,7 +3522,7 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
       {view === "historico" && filters}
 
       {view === "overview" && (
-        <>
+        <section id="teses-mesa" data-section-id="mesa" data-testid="teses-mesa-section" style={{ display: "flex", flexDirection: "column", gap: 24, scrollMarginTop: 18 }}>
           <HubSection
             title="Mapa de oportunidades"
             eyebrow="Frentes e objetivos"
@@ -3467,11 +3596,11 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
             <ArchivePrompt historicalCount={historicalRows.length} onOpen={() => switchView("historico")} />
           </div>
 
-        </>
+        </section>
       )}
 
       {view === "open" && (
-        <>
+        <section id="teses-ativos" data-section-id="ativos" data-testid="teses-ativos-section" style={{ display: "flex", flexDirection: "column", gap: 24, scrollMarginTop: 18 }}>
           <HubSection title="Acompanhamento ativo" eyebrow="Menos arquivo, mais decisão">
             <ActiveCoverageNotice activeRows={activeRows} />
             <CompactThesisList
@@ -3484,11 +3613,11 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
             />
           </HubSection>
           {selectedDrawer}
-        </>
+        </section>
       )}
 
       {view === "imoveis" && (
-        <>
+        <section id="teses-imoveis" data-section-id="imoveis" data-testid="teses-imoveis-section" style={{ display: "flex", flexDirection: "column", gap: 24, scrollMarginTop: 18 }}>
           <RealEstateDealCockpit rows={realEstateDisplayRows} allRows={realEstateRows} selected={selected} onSelect={setSelected} />
 
           {methodDemoEntry && selectedDrawer && (
@@ -3574,11 +3703,11 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
               <ThesesTable rows={realEstateDisplayRows} selected={selected} onSelect={setSelected} decisionHeader="Decisão" compactRealEstateTable={compactRealEstateTable} />
             </SupportDisclosure>
           </section>
-        </>
+        </section>
       )}
 
       {view === "historico" && (
-        <>
+        <section id="teses-historico" data-section-id="historico" data-testid="teses-historico-section" style={{ display: "flex", flexDirection: "column", gap: 24, scrollMarginTop: 18 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14, alignItems: "start" }}>
             <ThesesTable rows={tableRows} selected={selected} onSelect={setSelected} decisionHeader={decisionHeader} compactRealEstateTable={compactRealEstateTable} />
             {selectedDrawer}
@@ -3593,7 +3722,7 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
               {fichaRows.map((thesis) => <ThesisFicha key={`ficha-${thesis.id}`} thesis={thesis} />)}
             </div>
           </section>
-        </>
+        </section>
       )}
     </main>
   );

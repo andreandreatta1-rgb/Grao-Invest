@@ -41,6 +41,58 @@ function includesAny(text, markers) {
   return markers.some((marker) => text.includes(marker));
 }
 
+function flagValue(...values) {
+  for (const value of values) {
+    if (value === undefined || value === null || value === "") continue;
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value !== 0;
+    const text = searchText(value);
+    if (["1", "true", "sim", "yes", "on", "validado", "esclarecido"].includes(text)) return true;
+    if (["0", "false", "nao", "no", "off", "pendente"].includes(text)) return false;
+  }
+  return undefined;
+}
+
+function isAuctionLikeCandidate(row, candidate, analysis, sourceUrl) {
+  const text = searchText([
+    row?.asset,
+    row?.operation,
+    row?.hypothesis,
+    row?.sourceUrl,
+    row?.source_url,
+    sourceUrl,
+    candidate?.origin,
+    candidate?.source,
+    candidate?.strategy,
+    candidate?.property_type,
+    analysis?.structured_operation,
+    analysis?.structuredOperation,
+  ]);
+  return includesAny(text, AUCTION_MARKERS) || includesAny(text, ["banco do brasil", "licitacao", "judicial", "extrajudicial"]);
+}
+
+function approvedPossessionPlanFor(row, candidate, analysis) {
+  const planText = searchText([
+    candidate?.legal_plan,
+    candidate?.legalPlan,
+    candidate?.eviction_plan,
+    candidate?.evictionPlan,
+    candidate?.possession_plan,
+    candidate?.possessionPlan,
+    analysis?.legal_plan,
+    analysis?.legalPlan,
+    analysis?.eviction_plan,
+    analysis?.evictionPlan,
+    analysis?.possession_plan,
+    analysis?.possessionPlan,
+    row?.legal_plan,
+    row?.legalPlan,
+    row?.eviction_plan,
+    row?.evictionPlan,
+  ]);
+  return includesAny(planText, ["acordo de desocupacao", "desocupacao acordada", "imissao planejada", "plano juridico aprovado", "posse planejada"]);
+}
+
 const AUCTION_MARKERS = [
   "arremat",
   "caixa",
@@ -142,6 +194,23 @@ function cleanStreetCandidate(value) {
     .trim();
 }
 
+function titleAddressFromText(source, city, neighborhood) {
+  const segments = cleanAssetTitle(source)
+    .split(/[\/|]/)
+    .map((item) => compactText(item))
+    .filter(Boolean);
+  if (segments.length < 2) return "";
+
+  const cityWords = wordsForComparison(city);
+  const neighborhoodWords = wordsForComparison(neighborhood);
+  return segments.slice(1).find((segment) => {
+    const normalized = searchText(segment);
+    if (!normalized) return false;
+    if (cityWords.some((word) => normalized === word) || neighborhoodWords.some((word) => normalized === word)) return false;
+    return /(?:\brua\b|\br\.\b|\bavenida\b|\bav\.\b|\balameda\b|\bcasa\b|\bapto\b|\bapartamento\b|,\s*\d+)/i.test(segment);
+  }) || "";
+}
+
 function streetFromText(source, city, neighborhood) {
   const text = cleanAssetTitle(source);
   if (!text) return "";
@@ -193,9 +262,11 @@ function operationalCandidateTitle({ row, candidate, entry, saleBase, fallbackTi
   const city = firstText(candidate.city, candidate.cidade, candidate.municipality, candidate.municipio, "Cidade a validar");
   const neighborhood = firstText(candidate.neighborhood, candidate.neighborhoods, candidate.bairro, candidate.district, targetNeighborhood?.label, "Bairro a validar");
   const addressText = firstText(candidate.street, candidate.street_name, candidate.streetName, candidate.rua, candidate.address, candidate.endereco);
+  const titleText = firstText(row?.asset, row?.action, row?.name, candidate.title, fallbackTitle);
   const street = firstText(
-    cleanStreetCandidate(addressText),
-    streetFromText(firstText(row?.asset, row?.action, row?.name, candidate.title, fallbackTitle), city, neighborhood),
+    compactText(addressText),
+    titleAddressFromText(titleText, city, neighborhood),
+    streetFromText(titleText, city, neighborhood),
     "Rua a validar",
   );
   return `${city} / ${neighborhood} / ${street} / Entrada ${money(entry)} / Saida ${money(saleBase || row?.targetPrice || row?.currentPrice || entry)}`;
@@ -308,6 +379,35 @@ function sourceUrlFor(row) {
   return firstText(row?.sourceUrl, row?.source_url, candidate.source_url, candidate.sourceUrl, "#");
 }
 
+function saleComparablesForRow(row, analysis, candidate, valuationEvidence) {
+  const entries = [
+    ...asArray(row?.saleComparables),
+    ...asArray(row?.sale_comparables),
+    ...asArray(row?.comparables),
+    ...asArray(analysis?.saleComparables),
+    ...asArray(analysis?.sale_comparables),
+    ...asArray(analysis?.comparables),
+    ...asArray(candidate?.saleComparables),
+    ...asArray(candidate?.sale_comparables),
+    ...asArray(candidate?.comparables),
+    ...asArray(valuationEvidence?.saleComparables),
+    ...asArray(valuationEvidence?.sale_comparables),
+    ...asArray(valuationEvidence?.comparables),
+  ].filter((entry) => entry && typeof entry === "object");
+
+  const seen = new Set();
+  return entries.filter((entry) => {
+    const key = [
+      entry.source_url || entry.sourceUrl || entry.url || entry.href || "",
+      entry.price || entry.asking_price || entry.askingPrice || entry.sale_price || entry.salePrice || entry.value || "",
+      entry.source || entry.origin || "",
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function isGenericSourceUrl(value) {
   const text = searchText(value);
   if (!text) return false;
@@ -348,6 +448,205 @@ function explicitOccupiedWithoutPlan(row, candidate, analysis) {
   return !includesAny(planText, ["acordo de desocupacao", "desocupacao acordada", "imissao planejada", "plano juridico aprovado"]);
 }
 
+function legalOwnershipBlockersFor(row, candidate, analysis, sourceValidation) {
+  const reading = analysis?.listing_reading || analysis?.listingReading || candidate?.listing_reading || candidate?.listingReading || {};
+  const pendingItems = asArray(analysis?.pending_items || analysis?.pendingItems)
+    .map((item) => compactText([item?.title, item?.action, item?.detail, item?.key]));
+  const text = searchText([
+    row?.asset,
+    row?.title,
+    row?.operation,
+    row?.hypothesis,
+    row?.learning_note,
+    row?.sourceUrl,
+    row?.source_url,
+    candidate.title,
+    candidate.strategy,
+    candidate.property_type,
+    candidate.propertyType,
+    candidate.local_demand_notes,
+    candidate.localDemandNotes,
+    candidate.notes,
+    candidate.source_validation_reason,
+    candidate.sourceValidationReason,
+    analysis?.structured_operation,
+    analysis?.structuredOperation,
+    analysis?.next_action,
+    analysis?.nextAction,
+    sourceValidation?.reason,
+    reading.legal_ownership_blockers,
+    reading.legalOwnershipBlockers,
+    pendingItems,
+  ]);
+
+  const blockers = [];
+  if (reading.rights_over_asset || reading.rightsOverAsset || /\bdireitos?\s+sobre\b|\bdireitos?\s+aquisitivos?\b|\bcessao\s+(?:de|do|dos)\s+direitos\b/.test(text)) {
+    blockers.push("direitos sobre");
+  }
+  if (reading.fractional_interest || reading.fractionalInterest || /\b(fracao|parte\s+ideal|quota|quotas|quinhao)\b/.test(text)) {
+    blockers.push("fracao ideal");
+  }
+  if (reading.bare_ownership || reading.bareOwnership || /\bnua\s+propriedade\b/.test(text)) {
+    blockers.push("nua propriedade");
+  }
+  return [...new Set(blockers)];
+}
+
+function officialDocumentationBlockersFor(row, candidate, analysis, sourceUrl) {
+  if (!isAuctionLikeCandidate(row, candidate, analysis, sourceUrl)) return [];
+  const pendingText = searchText(
+    asArray(analysis?.pending_items || analysis?.pendingItems)
+      .map((item) => compactText([item?.key, item?.title, item?.action, item?.detail]))
+  );
+  const hasEdital = flagValue(
+    candidate?.has_edital,
+    candidate?.hasEdital,
+    analysis?.has_edital,
+    analysis?.hasEdital,
+    row?.has_edital,
+    row?.hasEdital,
+  );
+  const hasRegistration = flagValue(
+    candidate?.has_registration,
+    candidate?.hasRegistration,
+    analysis?.has_registration,
+    analysis?.hasRegistration,
+    row?.has_registration,
+    row?.hasRegistration,
+  );
+  const blockers = [];
+  if (hasEdital === false || pendingText.includes("buscar edital oficial") || /\bedital\b/.test(pendingText)) {
+    blockers.push("sem edital oficial");
+  }
+  if (hasRegistration === false || pendingText.includes("matricula") || pendingText.includes("registration")) {
+    blockers.push("sem matricula atualizada");
+  }
+  return [...new Set(blockers)];
+}
+
+function debtCostBlockersFor(row, candidate, analysis, sourceUrl) {
+  if (!isAuctionLikeCandidate(row, candidate, analysis, sourceUrl)) return [];
+  const pendingText = searchText(
+    asArray(analysis?.pending_items || analysis?.pendingItems)
+      .map((item) => compactText([item?.key, item?.title, item?.action, item?.detail]))
+  );
+  const condoKnown = flagValue(
+    candidate?.condo_debt_known,
+    candidate?.condoDebtKnown,
+    analysis?.condo_debt_known,
+    analysis?.condoDebtKnown,
+    row?.condo_debt_known,
+    row?.condoDebtKnown,
+  );
+  const iptuKnown = flagValue(
+    candidate?.iptu_debt_known,
+    candidate?.iptuDebtKnown,
+    analysis?.iptu_debt_known,
+    analysis?.iptuDebtKnown,
+    row?.iptu_debt_known,
+    row?.iptuDebtKnown,
+  );
+  if (
+    condoKnown === false
+    || iptuKnown === false
+    || pendingText.includes("debt_total")
+    || pendingText.includes("custo total de debitos")
+  ) {
+    return ["debitos sem custo total"];
+  }
+  return [];
+}
+
+function possessionBlockersFor(row, candidate, analysis) {
+  const reading = analysis?.listing_reading || analysis?.listingReading || candidate?.listing_reading || candidate?.listingReading || {};
+  const pendingText = searchText(
+    asArray(analysis?.pending_items || analysis?.pendingItems)
+      .map((item) => compactText([item?.key, item?.title, item?.action, item?.detail]))
+  );
+  const text = searchText([
+    row?.operation,
+    row?.hypothesis,
+    row?.learning_note,
+    candidate?.strategy,
+    candidate?.notes,
+    candidate?.local_demand_notes,
+    analysis?.next_action,
+    analysis?.nextAction,
+    pendingText,
+  ]);
+  const buyerEvictionRisk = Boolean(reading.buyer_responsible_for_eviction || reading.buyerResponsibleForEviction)
+    || text.includes("desocupacao por conta")
+    || text.includes("eviction_risk");
+  if (buyerEvictionRisk && !approvedPossessionPlanFor(row, candidate, analysis)) {
+    return ["desocupacao sem plano"];
+  }
+  return [];
+}
+
+function sourcePaymentBlockersFor(row, candidate, analysis, sourceValidation) {
+  const reading = analysis?.listing_reading || analysis?.listingReading || candidate?.listing_reading || candidate?.listingReading || {};
+  const pendingText = searchText(
+    asArray(analysis?.pending_items || analysis?.pendingItems)
+      .map((item) => compactText([item?.key, item?.title, item?.action, item?.detail]))
+  );
+  const text = searchText([
+    row?.operation,
+    row?.hypothesis,
+    row?.sourceUrl,
+    row?.source_url,
+    candidate?.source_validation_reason,
+    candidate?.sourceValidationReason,
+    analysis?.next_action,
+    analysis?.nextAction,
+    sourceValidation?.reason,
+    pendingText,
+  ]);
+  const hasSuspiciousPayment = Boolean(reading.suspicious_payment_instruction || reading.suspiciousPaymentInstruction)
+    || text.includes("source_payment_risk")
+    || (
+      includesAny(text, ["pix", "boleto", "conta"])
+      && includesAny(text, ["terceiro", "fora do edital", "diverge", "divergente", "nao oficial", "site falso"])
+    );
+  return hasSuspiciousPayment ? ["fonte/pagamento nao oficial"] : [];
+}
+
+function financingBlockersFor(row, candidate, analysis, sourceUrl) {
+  if (!isAuctionLikeCandidate(row, candidate, analysis, sourceUrl)) return [];
+  const pendingText = searchText(
+    asArray(analysis?.pending_items || analysis?.pendingItems)
+      .map((item) => compactText([item?.key, item?.title, item?.action, item?.detail]))
+  );
+  const text = searchText([
+    row?.operation,
+    row?.hypothesis,
+    candidate?.strategy,
+    candidate?.notes,
+    analysis?.next_action,
+    analysis?.nextAction,
+    pendingText,
+  ]);
+  const financingValidated = flagValue(
+    candidate?.financing_validated,
+    candidate?.financingValidated,
+    analysis?.financing_validated,
+    analysis?.financingValidated,
+    row?.financing_validated,
+    row?.financingValidated,
+  );
+  const financingRequired = flagValue(
+    candidate?.financing_required,
+    candidate?.financingRequired,
+    candidate?.depends_on_financing,
+    candidate?.dependsOnFinancing,
+    analysis?.financing_required,
+    analysis?.financingRequired,
+  );
+  const hasFinancingDependency = financingRequired === true
+    || text.includes("financing_dependency")
+    || includesAny(text, ["fgts", "financiamento", "financiar", "entrada baixa", "minha casa minha vida", "mcmv"]);
+  return hasFinancingDependency && financingValidated !== true ? ["financiamento/FGTS nao comprovado"] : [];
+}
+
 function qualificationForLiveCandidate({ analysis, candidate, ceiling, confidence, entry, localDemandRisk, p0Count, roiPct, row, score, sourceValidation, sourceUrl, valuationCount }) {
   const reasons = [];
   const watchReasons = [];
@@ -359,8 +658,20 @@ function qualificationForLiveCandidate({ analysis, candidate, ceiling, confidenc
   const hasGenericSource = isGenericSourceUrl(sourceUrl);
   const hasOccupiedUnit = explicitOccupiedWithoutPlan(row, candidate, analysis);
   const isAboveCeiling = Boolean(ceiling && entry && entry > ceiling);
+  const legalOwnershipBlockers = legalOwnershipBlockersFor(row, candidate, analysis, sourceValidation);
+  const officialDocumentationBlockers = officialDocumentationBlockersFor(row, candidate, analysis, sourceUrl);
+  const debtCostBlockers = debtCostBlockersFor(row, candidate, analysis, sourceUrl);
+  const possessionBlockers = possessionBlockersFor(row, candidate, analysis);
+  const sourcePaymentBlockers = sourcePaymentBlockersFor(row, candidate, analysis, sourceValidation);
+  const financingBlockers = financingBlockersFor(row, candidate, analysis, sourceUrl);
 
   if (sourceStatus === "expired" || sourceStatus === "unavailable") reasons.push("fonte indisponivel");
+  reasons.push(...legalOwnershipBlockers);
+  reasons.push(...officialDocumentationBlockers);
+  reasons.push(...debtCostBlockers);
+  reasons.push(...possessionBlockers);
+  reasons.push(...sourcePaymentBlockers);
+  reasons.push(...financingBlockers);
   if (hasGenericSource) reasons.push("fonte generica");
   if (hasOccupiedUnit) reasons.push("imovel ocupado");
   if (isAboveCeiling) reasons.push("entrada acima do Teto Halley");
@@ -582,6 +893,85 @@ function temporalTypeFor(score, p0Count, decision) {
   return "info";
 }
 
+function inferredSourcingProfile({ analysis, candidate, p0Count, renovationCosts, roiPct, row, saleBase, sourceValidation, sourceUrl, strategy, valuationCount }) {
+  const signals = [];
+  const gaps = [];
+  let score = 0;
+  const text = searchText([
+    row?.asset,
+    row?.operation,
+    row?.hypothesis,
+    sourceUrl,
+    candidate?.origin,
+    candidate?.strategy,
+    candidate?.notes,
+    analysis?.summary,
+    analysis?.next_action,
+    analysis?.nextAction,
+  ]);
+
+  function addSignal(label, points) {
+    if (signals.includes(label)) return;
+    signals.push(label);
+    score += points;
+  }
+
+  function addGap(label) {
+    if (!gaps.includes(label)) gaps.push(label);
+  }
+
+  if (String(sourceValidation?.status || "").toLowerCase() === "valid") {
+    addSignal("fonte oficial individual", 15);
+  } else {
+    addGap("fonte oficial individual");
+  }
+
+  if (includesAny(text, ["cauda longa", "leiloeiro regional", "regional oficial", "pouca concorrencia"])) {
+    addSignal("canal pouco concorrido", 10);
+  }
+
+  if (valuationCount >= 3) {
+    addSignal("desconto validado por comparaveis", 20);
+  } else {
+    addGap("comparaveis de saida");
+  }
+
+  if (saleBase > 0 || roiPct > 0 || includesAny(text, ["revenda", "vender", "saida", "alugar", "locacao", "plano b"])) {
+    addSignal("saida clara", 15);
+  } else {
+    addGap("plano de saida");
+  }
+
+  if (strategy || isAuctionLikeCandidate(row, candidate, analysis, sourceUrl) || includesAny(text, ["compra direta", "venda direta"])) {
+    addSignal("modalidade classificada", 10);
+  } else {
+    addGap("modalidade");
+  }
+
+  if (renovationCosts > 0 && includesAny(text, ["reforma", "house flipping", "retrofit", " hf"])) {
+    addSignal("reforma precificavel", 15);
+  }
+
+  if (!score) return { score: 0, tier: "a_calcular", signals, gaps };
+
+  if (p0Count > 0) {
+    return {
+      score: Math.min(score, 45),
+      tier: "bloqueado_por_p0",
+      signals,
+      gaps,
+      recommendation: "Resolver P0 antes de usar como padrao positivo de busca.",
+    };
+  }
+
+  return {
+    score: Math.min(score, 100),
+    tier: score >= 80 ? "garimpo_qualificado" : score >= 60 ? "garimpo_em_prova" : "baixo_prioridade",
+    signals,
+    gaps,
+  };
+}
+
 function liveStoryFromRow(row, index) {
   const analysis = analysisFor(row);
   const candidate = candidateFor(row);
@@ -591,6 +981,8 @@ function liveStoryFromRow(row, index) {
   const localDemandStatus = firstText(localDemandEvidence.status_label, localDemandEvidence.statusLabel, localDemandLabel(localDemandRisk));
   const localDemandBadge = localDemandLabel(localDemandRisk);
   const commercialTerms = analysis.commercial_terms || analysis.commercialTerms || candidate.commercial_terms || candidate.commercialTerms || {};
+  const rawSourcing = analysis.sourcing || analysis.sourcing_profile || analysis.sourcingProfile || candidate.sourcing || candidate.sourcing_profile || candidate.sourcingProfile || {};
+  const rawSourcingScore = Math.round(firstNumber(rawSourcing.score, rawSourcing.sourcing_score, rawSourcing.sourcingScore));
   const score = Math.round(firstNumber(analysis.score, row?.score, 58));
   const confidence = Math.round(firstNumber(analysis.confidence, row?.confidence, 42));
   const p0Items = p0ItemsFor(row);
@@ -638,7 +1030,8 @@ function liveStoryFromRow(row, index) {
   const totalCost = entry + auctioneerFee + acquisitionCosts + renovationCosts + carryingCosts + sellingCosts;
   const netProfit = firstFiniteNumber(analysis.scenarios?.base?.net_profit, analysis.scenarios?.base?.netProfit, saleBase - totalCost);
   const roiPct = firstFiniteNumber(analysis.scenarios?.base?.roi_pct, analysis.scenarios?.base?.roiPct, analysis.target_roi_pct, row?.expectedPct);
-  const valuationCount = firstNumber(valuationEvidence.sale_comparables_count, valuationEvidence.saleComparablesCount, candidate.sale_comparables_count, candidate.saleComparablesCount);
+  const saleComparables = saleComparablesForRow(row, analysis, candidate, valuationEvidence);
+  const valuationCount = firstNumber(valuationEvidence.sale_comparables_count, valuationEvidence.saleComparablesCount, candidate.sale_comparables_count, candidate.saleComparablesCount, saleComparables.length);
   const saleProofStatus = localDemandRisk === "critico" || localDemandRisk === "critical"
     ? "bloqueada por demanda local"
     : valuationCount > 0
@@ -689,6 +1082,26 @@ function liveStoryFromRow(row, index) {
     row?.source_url,
   ].map(compactText).join(" "));
   const displayTitle = operationalCandidateTitle({ row, candidate, entry, saleBase, fallbackTitle: title, targetNeighborhood });
+  const sourcing = rawSourcingScore > 0
+    ? rawSourcing
+    : inferredSourcingProfile({
+      analysis,
+      candidate,
+      p0Count,
+      renovationCosts,
+      roiPct,
+      row,
+      saleBase,
+      sourceValidation,
+      sourceUrl,
+      strategy,
+      valuationCount,
+    });
+  const sourcingScore = Math.round(firstNumber(sourcing.score, sourcing.sourcing_score, sourcing.sourcingScore));
+  const sourcingTier = firstText(sourcing.tier, sourcing.status);
+  const sourcingSignals = asArray(sourcing.signals || sourcing.positive_signals || sourcing.positiveSignals).map(compactText).filter(Boolean);
+  const sourcingGaps = asArray(sourcing.gaps || sourcing.negative_signals || sourcing.negativeSignals).map(compactText).filter(Boolean);
+  const sourcingLabel = sourcingTier === "bloqueado_por_p0" ? "Garimpo bloqueado" : "Garimpo";
 
   return {
     id: identifier.startsWith("#") ? identifier : `#${identifier}`,
@@ -700,6 +1113,7 @@ function liveStoryFromRow(row, index) {
     targetNeighborhoodKey: targetNeighborhood?.key || "",
     role: isOpen ? `Caso real aberto · ${statusLabel}` : `Caso real encerrado · ${firstText(row?.outcome, row?.status, statusLabel)}`,
     strategy,
+    propertyType: firstText(candidate.property_type, candidate.propertyType, row?.propertyType, row?.property_type),
     sourceUrl,
     sourceOrigin: firstText(row?.sourceOrigin, row?.source_origin, row?.origin, candidate.origin),
     area: firstText(candidate.area, candidate.private_area, candidate.privateArea, candidate.private_area_m2, candidate.privateAreaM2, "área a validar"),
@@ -736,9 +1150,15 @@ function liveStoryFromRow(row, index) {
     localDemandBadge,
     localDemandBadgeType: localDemandBadgeType(localDemandRisk),
     commercialTerms,
+    sourcing,
+    sourcingScore,
+    sourcingTier,
+    sourcingSignals,
+    sourcingGaps,
     saleProofStatus,
     saleNextEvidence,
     saleCaveat: firstText(localDemandEvidence.caveat, valuationEvidence.caveat),
+    saleComparables,
     saleComparablesCount: valuationCount,
     score,
     confidence,
@@ -752,6 +1172,7 @@ function liveStoryFromRow(row, index) {
     decisionType: qualification?.type || (isOpen ? "warning" : "neutral"),
     whyRadar: [
       qualification ? `${qualification.label}: ${qualification.reasons.join("; ")}.` : "",
+      sourcingScore > 0 ? `${sourcingLabel} ${sourcingScore}/100${sourcingSignals.length ? `: ${sourcingSignals.slice(0, 3).join(", ")}.` : "."}` : "",
       firstText(row?.hypothesis, analysis.summary, row?.operation, "Caso real no radar imobiliário aguardando leitura de evidência."),
     ].filter(Boolean).join(" "),
     p0: p0Items.map((item) => compactText(item?.title || item?.action)).filter(Boolean),
@@ -817,7 +1238,9 @@ function decisionBucket(item) {
 }
 
 function buildRadarStats(items) {
-  const buckets = items.reduce(
+  const liveItems = items.filter((item) => item.isLiveCandidate);
+  const closedItems = items.filter((item) => item.isRealCandidate && !item.isLiveCandidate);
+  const buckets = liveItems.reduce(
     (acc, item) => {
       acc[decisionBucket(item)] += 1;
       if (String(item.temporalStatus || "").toLowerCase().includes("futura")) acc.futureSecondRound += 1;
@@ -828,11 +1251,11 @@ function buildRadarStats(items) {
 
   return {
     ...buckets,
-    closedCount: items.filter((item) => item.isRealCandidate && !item.isLiveCandidate).length,
-    liveCount: items.filter((item) => item.isLiveCandidate).length,
+    closedCount: closedItems.length,
+    liveCount: liveItems.length,
     realCount: items.filter((item) => item.isRealCandidate).length,
     total: items.length,
-    p0Count: items.reduce((sum, item) => sum + (item.p0?.length || 0), 0),
+    p0Count: liveItems.reduce((sum, item) => sum + (item.p0?.length || 0), 0),
   };
 }
 
@@ -890,8 +1313,8 @@ function RadarHero({ stats }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
           <KPICard label={stats.realCount ? "Casos reais" : "Histórias no radar"} value={stats.total} sub={stats.realCount ? "canônicos da app" : "cards de tese"} accent={C.purple} valueColor={C.purple} valueFontSize={22} />
           <KPICard label="Candidatos abertos" value={stats.liveCount} sub={stats.realCount ? "reais da app" : "vindos da app"} accent={C.gold} valueColor={C.gold} valueFontSize={22} />
-          <KPICard label="Investigar/monitorar" value={stats.investigar + stats.monitorar} sub="ainda vivos" accent={C.teal} valueColor={C.teal} valueFontSize={22} />
-          <KPICard label="P0 mapeados" value={stats.p0Count} sub="provas antes de decisão" accent={C.coral} valueColor={C.coral} valueFontSize={22} />
+          <KPICard label="Fechados/aprendizados" value={stats.closedCount} sub="fora da fila ativa" accent={C.teal} valueColor={C.teal} valueFontSize={22} />
+          <KPICard label="P0 abertos" value={stats.p0Count} sub="provas antes de decisão" accent={C.coral} valueColor={C.coral} valueFontSize={22} />
         </div>
       </div>
 
@@ -963,6 +1386,8 @@ function RadarOperatingModel() {
 }
 
 function RadarDecisionStrip({ stats }) {
+  const pendingCount = stats.watchlist + stats.investigar + stats.monitorar;
+
   return (
     <section
       aria-label="Resumo de decisão do radar"
@@ -972,10 +1397,10 @@ function RadarDecisionStrip({ stats }) {
         gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
       }}
     >
-      <RadarSignalCard label="Avancar" title={`${stats.avancar} candidatos prontos`} text="So entra aqui quando fonte, teto, saida, P0 e cenario conservador passam juntos." color={C.green} />
-      <RadarSignalCard label="Watchlist" title={`${stats.watchlist + stats.investigar + stats.monitorar} candidatos com prova pendente`} text="Promissor o suficiente para vigiar, mas ainda sem qualidade para defender proposta." color={C.gold} />
-      <RadarSignalCard label="Bloquear" title={`${stats.bloqueado} casos travados por prova`} text="Fonte generica, ocupacao, teto estourado, demanda fraca ou comparaveis insuficientes derrubam o candidato." color={C.coral} />
-      <RadarSignalCard label="Aprender" title={`${stats.aprendizado} caso para calibracao`} text="Historico tambem e ativo: ensina preco teto, custo total e regra de descarte." color={C.sky} />
+      <RadarSignalCard label="Avancar" title={pluralizeCase(stats.avancar, "candidato pronto", "candidatos prontos")} text="So entra aqui quando fonte, teto, saida, P0 e cenario conservador passam juntos." color={C.green} />
+      <RadarSignalCard label="Watchlist" title={pluralizeCase(pendingCount, "candidato com prova pendente", "candidatos com prova pendente")} text="Promissor o suficiente para vigiar, mas ainda sem qualidade para defender proposta." color={C.gold} />
+      <RadarSignalCard label="Bloquear" title={pluralizeCase(stats.bloqueado, "caso travado por prova", "casos travados por prova")} text="Fonte generica, ocupacao, teto estourado, demanda fraca ou comparaveis insuficientes derrubam o candidato." color={C.coral} />
+      <RadarSignalCard label="Aprender" title={pluralizeCase(stats.closedCount, "caso para calibracao", "casos para calibracao")} text="Historico tambem e ativo: ensina preco teto, custo total e regra de descarte." color={C.sky} />
     </section>
   );
 }
@@ -1469,6 +1894,9 @@ function prioritizeActiveCandidateStories(stories) {
       const leftPriority = isTargetNeighborhoodStory(left.story) ? 0 : 1;
       const rightPriority = isTargetNeighborhoodStory(right.story) ? 0 : 1;
       if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+      const leftSourcingScore = Number(left.story?.sourcingScore || left.story?.sourcing?.score || 0);
+      const rightSourcingScore = Number(right.story?.sourcingScore || right.story?.sourcing?.score || 0);
+      if (leftSourcingScore !== rightSourcingScore) return rightSourcingScore - leftSourcingScore;
       const leftScore = Number(left.story?.score || 0);
       const rightScore = Number(right.story?.score || 0);
       if (leftScore !== rightScore) return rightScore - leftScore;

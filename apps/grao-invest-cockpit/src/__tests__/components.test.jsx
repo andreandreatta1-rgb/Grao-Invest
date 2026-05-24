@@ -183,6 +183,33 @@ describe("base cockpit components", () => {
     expect(screen.getByText("em teste")).toBeInTheDocument();
   });
 
+  it("shows broader crypto mapping without confusing it with resolved history", () => {
+    render(
+      <FrontCard
+        front={{
+          id: "crypto",
+          label: "Cripto",
+          tested: 2,
+          resolvedCount: 2,
+          mappedCount: 12,
+          countingPolicy: "resolved_historical",
+          goLive: 8,
+          activeAssets: 8,
+          validatedPct: 100,
+          status: "atualizado",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Cripto")).toBeInTheDocument();
+    expect(screen.getByText("Mapeadas")).toBeInTheDocument();
+    expect(screen.queryByText("Testadas")).not.toBeInTheDocument();
+    expect(screen.getByText("12")).toBeInTheDocument();
+    expect(screen.getByText("2 resolvidas no histórico")).toBeInTheDocument();
+    expect(screen.getByText("8")).toBeInTheDocument();
+    expect(screen.getByText("+100,00%")).toBeInTheDocument();
+  });
+
   it("explains repeated crypto range plans without calling the range center an alvo", () => {
     render(
       <ThesisCard

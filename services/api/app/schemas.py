@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from typing import Any
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -252,6 +253,7 @@ class RealEstateCandidateBase(BaseModel):
     cash_needed: float = Field(default=0.0, ge=0)
     sale_comparables_count: int = Field(default=0, ge=0, le=50)
     rent_comparables_count: int = Field(default=0, ge=0, le=50)
+    payment_terms: list[dict[str, Any]] = Field(default_factory=list, max_length=12)
     first_operation: bool = True
     plan_a: str = Field(default="", max_length=1000)
     plan_b: str = Field(default="", max_length=1000)
@@ -300,6 +302,7 @@ class RealEstateCandidateUpdateRequest(BaseModel):
     cash_needed: float | None = Field(default=None, ge=0)
     sale_comparables_count: int | None = Field(default=None, ge=0, le=50)
     rent_comparables_count: int | None = Field(default=None, ge=0, le=50)
+    payment_terms: list[dict[str, Any]] | None = Field(default=None, max_length=12)
     first_operation: bool | None = None
     plan_a: str | None = Field(default=None, max_length=1000)
     plan_b: str | None = Field(default=None, max_length=1000)
