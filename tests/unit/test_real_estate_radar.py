@@ -520,6 +520,44 @@ def test_analysis_calculates_conservative_purchase_ceiling_for_negotiation() -> 
     assert analysis["price_ceiling_status"] == "Acima do teto"
 
 
+def test_negative_conservative_margin_above_ceiling_is_discarded() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "VivaReal",
+            "strategy": "House flipping leve",
+            "city": "Sao Paulo",
+            "neighborhood": "Colonia Zona Leste",
+            "property_type": "Apartamento",
+            "asking_price": 215000.0,
+            "market_value_estimate": 240000.0,
+            "estimated_sale_conservative": 225000.0,
+            "estimated_sale_base": 240000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 18000.0,
+            "carrying_months": 5,
+            "monthly_carrying_cost": 1100.0,
+            "acquisition_costs": 12000.0,
+            "selling_commission_pct": 6.0,
+            "cash_needed": 78000.0,
+            "occupancy_status": "desconhecido",
+            "has_registration": False,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 2,
+            "rent_comparables_count": 2,
+            "plan_a": "Validar anuncio e tentar desconto antes de proposta.",
+            "plan_b": "Usar apenas como comparavel se margem conservadora continuar negativa.",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Fonte individual validada.",
+        }
+    )
+
+    assert analysis["scenarios"]["conservative"]["net_profit"] < 0
+    assert analysis["price_ceiling_status"] == "Acima do teto"
+    assert analysis["suggested_status"] == "Descartado"
+    assert analysis["next_action"] == "Rever preco maximo ou descartar"
+
+
 def test_comparable_listing_rebases_active_candidate_exit_scenarios() -> None:
     analysis = build_candidate_analysis(
         {

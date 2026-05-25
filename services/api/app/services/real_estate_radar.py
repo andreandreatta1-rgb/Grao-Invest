@@ -2144,11 +2144,6 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
 
     has_p0 = any(item["priority"] == "P0" for item in pending_items)
     conservative_profit = scenarios["conservative"]["net_profit"]
-    comparable_entries = _sale_comparable_entries(payload)
-    has_same_address_comparable = any(
-        "same_address" in str(entry.get("evidence_type") or "").lower() for entry in comparable_entries
-    )
-    valuation_sample = int(valuation_evidence["sale_comparables_count"]) if valuation_evidence else 0
     condo_debt_amount = _first_float(payload, "condo_debt_amount_brl", "condoDebtAmountBrl")
     if source_validation_status in {"expired", "unavailable"}:
         suggested_status = "Descartado"
@@ -2178,9 +2173,6 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         next_action = "Fechar candidato: divida de condominio acima do limiar"
     elif conservative_profit < 0 and score < 70:
         if estimated_sale_base <= 0 and market_value <= 0:
-            suggested_status = "Aberto com pendencias"
-            next_action = "Validar valor de saida"
-        elif valuation_sample < 3 and not has_same_address_comparable:
             suggested_status = "Aberto com pendencias"
             next_action = "Validar valor de saida"
         else:
