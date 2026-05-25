@@ -1558,6 +1558,16 @@ function CaseStoryCard({ isDiscarding = false, item, onDiscard, isOpen, onToggle
         <div style={{ marginTop: 10 }}>
           <SourceListingLink item={item} />
         </div>
+        {item.sourceValidation?.status === "access_required" && (
+          <div style={{ background: withAlpha(C.gold, "12"), border: `1px solid ${withAlpha(C.gold, "35")}`, borderRadius: 10, color: C.muted, fontSize: 11, lineHeight: 1.5, marginTop: 10, padding: "8px 9px" }}>
+            Acesso: <span style={{ color: C.text, fontWeight: 800 }}>{item.sourceValidation.userAction || item.sourceValidation.reason || "Cadastrar/login no leiloeiro para continuar."}</span>
+            {item.sourceValidation.credentialFileHint && (
+              <div style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 850, marginTop: 4 }}>
+                Arquivo: {item.sourceValidation.credentialFileHint}
+              </div>
+            )}
+          </div>
+        )}
         {canDiscard && (
           <button
             aria-label={`Descartar ${item.title}`}

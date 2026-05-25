@@ -627,6 +627,61 @@ def test_high_dispersion_sale_comparables_reduce_confidence_and_add_p0_exit_vali
     assert sale_items and sale_items[0]["status"] == "parcial"
     assert sale_items[0]["points"] <= 5
 
+def test_access_required_source_becomes_user_credential_p0() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Leilao Imovel / WebLeiloes",
+            "strategy": "Leilao extrajudicial + HF leve",
+            "source_url": "https://www.webleiloes.com.br/lote/12345",
+            "source_validation_status": "access_required",
+            "source_validation_reason": "Fonte exige cadastro/login para continuar.",
+            "source_checked_at": "2026-05-25T10:00:00+00:00",
+            "source_validation": {
+                "status": "access_required",
+                "reason": "Fonte exige cadastro/login para continuar.",
+                "requires_user_action": True,
+                "user_action": "Criar cadastro/login no leiloeiro e anexar credenciais.",
+                "credential_file_hint": "data/secure/real_estate_sources/www.webleiloes.com.br.credentials.json",
+                "official_url": "https://www.webleiloes.com.br/lote/12345",
+                "edital_url": "https://suporteleiloes.com.br/editais/2803839-edital.pdf",
+            },
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Alves Guimaraes",
+            "property_type": "Apartamento",
+            "asking_price": 420000.0,
+            "market_value_estimate": 650000.0,
+            "estimated_sale_base": 650000.0,
+            "private_area_m2": 45.0,
+            "renovation_budget": 30000.0,
+            "carrying_months": 6,
+            "monthly_carrying_cost": 2500.0,
+            "acquisition_costs": 40000.0,
+            "selling_commission_pct": 6.0,
+            "cash_needed": 180000.0,
+            "occupancy_status": "desocupado",
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "financing_validated": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 1,
+        }
+    )
+
+    source_item = next(item for item in analysis["pending_items"] if item["key"] == "source_access")
+
+    assert source_item["priority"] == "P0"
+    assert source_item["title"] == "Acesso ao leiloeiro necessario"
+    assert "www.webleiloes.com.br.credentials.json" in source_item["action"]
+    assert analysis["next_action"] == "Acesso ao leiloeiro necessario"
+    assert analysis["source_validation"]["requires_user_action"] is True
+    assert (
+        analysis["source_validation"]["credential_file_hint"]
+        == "data/secure/real_estate_sources/www.webleiloes.com.br.credentials.json"
+    )
+
 
 def test_same_address_comparable_below_reference_rebases_exit_downward() -> None:
     comparable_url = (

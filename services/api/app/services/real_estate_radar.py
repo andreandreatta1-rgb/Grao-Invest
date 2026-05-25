@@ -1486,8 +1486,17 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     if weak_valuation and not valuation_evidence:
         valuation_evidence = weak_valuation_evidence
     source_url = _text(payload, "source_url")
-    source_validation_status = _text(payload, "source_validation_status").lower()
-    source_validation_reason = _text(payload, "source_validation_reason")
+    existing_source_validation = payload.get("source_validation")
+    source_validation_dict = (
+        existing_source_validation if isinstance(existing_source_validation, dict) else {}
+    )
+    source_validation_status = (
+        _text(payload, "source_validation_status")
+        or str(source_validation_dict.get("status") or "")
+    ).lower()
+    source_validation_reason = _text(payload, "source_validation_reason") or str(
+        source_validation_dict.get("reason") or ""
+    )
 
     location_score = _float(payload, "location_liquidity_score", 60.0)
     if local_demand_risk == "critico":
@@ -1745,9 +1754,22 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             action="Extrair valor minimo, lance inicial ou tabela de pagamento oficial antes de simular ROI.",
         )
     if source_url and source_validation_status not in {"valid"}:
+        source_key = "source_validation"
         if source_validation_status in {"expired", "unavailable"}:
             source_title = "Fonte indisponivel"
             source_action = source_validation_reason or "Remover do radar ativo ate existir nova fonte individual."
+        elif source_validation_status == "access_required":
+            credential_hint = str(source_validation_dict.get("credential_file_hint") or "")
+            user_action = str(source_validation_dict.get("user_action") or "")
+            source_key = "source_access"
+            source_title = "Acesso ao leiloeiro necessario"
+            source_action = (
+                user_action
+                or source_validation_reason
+                or "Criar cadastro/login no leiloeiro e anexar credenciais para continuar."
+            )
+            if credential_hint:
+                source_action = f"{source_action} Arquivo esperado: {credential_hint}."
         elif source_validation_status == "ambiguous":
             source_title = "Validar fonte manualmente"
             source_action = source_validation_reason or "Confirmar se o link e um lote/anuncio individual ainda publicado."
@@ -1756,7 +1778,7 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             source_action = "A app ainda nao confirmou se o link individual esta vivo."
         _add_pending(
             pending_items,
-            key="source_validation",
+            key=source_key,
             title=source_title,
             priority="P0",
             action=source_action,
@@ -2131,6 +2153,9 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     if source_validation_status in {"expired", "unavailable"}:
         suggested_status = "Descartado"
         next_action = source_validation_reason or "Fonte indisponivel"
+    elif source_validation_status == "access_required":
+        suggested_status = "Aberto com pendencias"
+        next_action = "Acesso ao leiloeiro necessario"
     elif listing_reading.get("suspicious_payment_instruction"):
         suggested_status = "Descartado"
         next_action = "Fechar candidato: fonte/pagamento nao oficial"
@@ -2210,6 +2235,24 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     else:
         price_ceiling_status = "Acima do teto"
 
+    source_validation_payload: dict[str, Any] = {
+        "status": source_validation_status or ("unchecked" if source_url else ""),
+        "reason": source_validation_reason,
+        "checked_at": _text(payload, "source_checked_at"),
+        "url": source_url,
+    }
+    source_validation_payload.update(source_validation_dict)
+    source_validation_payload["status"] = source_validation_status or str(
+        source_validation_payload.get("status") or ("unchecked" if source_url else "")
+    )
+    source_validation_payload["reason"] = source_validation_reason or str(
+        source_validation_payload.get("reason") or ""
+    )
+    source_validation_payload["checked_at"] = _text(payload, "source_checked_at") or str(
+        source_validation_payload.get("checked_at") or ""
+    )
+    source_validation_payload["url"] = source_url or str(source_validation_payload.get("url") or "")
+
     return {
         "score": score,
         "confidence": confidence,
@@ -2238,11 +2281,6 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         "valuation_evidence": valuation_evidence or {},
         "local_demand_evidence": local_demand_evidence or {},
         "listing_reading": listing_reading or {},
-        "source_validation": {
-            "status": source_validation_status or ("unchecked" if source_url else ""),
-            "reason": source_validation_reason,
-            "checked_at": _text(payload, "source_checked_at"),
-            "url": source_url,
-        },
+        "source_validation": source_validation_payload,
     }
 

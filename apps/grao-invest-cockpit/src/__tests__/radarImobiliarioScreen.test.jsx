@@ -119,6 +119,61 @@ describe("Radar Imobiliário screen", () => {
     expect(within(portfolio).getAllByText(/Teto Halley/i).length).toBeGreaterThan(0);
   });
 
+  it("surfaces source access blockers with the credential file requested by the app", () => {
+    const data = {
+      thesisRows: [
+        {
+          thesisId: "IM-RADAR-ACCESS-1234",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL TARGET - Pinheiros Alves Guimaraes",
+          sourceUrl: "https://www.webleiloes.com.br/lote/12345",
+          entryPrice: 420000,
+          currentPrice: 650000,
+          targetPrice: 650000,
+          expectedPct: 22,
+          realEstateAnalysis: {
+            score: 66,
+            confidence: 40,
+            max_purchase_price: 430000,
+            next_action: "Acesso ao leiloeiro necessario",
+            source_validation: {
+              status: "access_required",
+              reason: "Fonte exige cadastro/login para continuar.",
+              user_action: "Criar cadastro/login no leiloeiro e anexar credenciais.",
+              credential_file_hint: "data/secure/real_estate_sources/www.webleiloes.com.br.credentials.json",
+            },
+            scenarios: { base: { sale_price: 650000, net_profit: 90000, roi_pct: 22 } },
+            pending_items: [
+              {
+                key: "source_access",
+                priority: "P0",
+                title: "Acesso ao leiloeiro necessario",
+                action: "Criar cadastro/login no leiloeiro e anexar credenciais.",
+              },
+            ],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Alves Guimaraes",
+              strategy: "Leilao extrajudicial + HF leve",
+              origin: "Leilao Imovel / WebLeiloes",
+              private_area_m2: 45,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
+    expect(within(openPortfolio).getByText(/Acesso necessario/i)).toBeInTheDocument();
+    expect(within(openPortfolio).getByText(/www\.webleiloes\.com\.br\.credentials\.json/i)).toBeInTheDocument();
+  });
+
   it("shows structured auctioneer sourcing as a separate radar area", () => {
     const data = {
       realEstateStrategyTerritoryCandidates: {

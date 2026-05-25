@@ -369,8 +369,11 @@ function sourceValidationFor(row) {
     candidate.source_validation_reason,
     candidate.sourceValidationReason,
   );
+  const credentialFileHint = firstText(validation.credential_file_hint, validation.credentialFileHint);
+  const userAction = firstText(validation.user_action, validation.userAction);
   if (status === "valid") return { status, reason, label: "Fonte validada", type: "success" };
   if (status === "expired" || status === "unavailable") return { status, reason, label: "Fonte indisponível", type: "danger" };
+  if (status === "access_required") return { status, reason, label: "Acesso necessario", type: "warning", credentialFileHint, userAction };
   if (status === "ambiguous") return { status, reason, label: "Fonte manual", type: "warning" };
   return { status, reason, label: "Fonte a validar", type: "warning" };
 }
@@ -1796,6 +1799,16 @@ function TargetNeighborhoodRadar({ stories }) {
               <div style={{ color: C.muted, fontSize: 11, lineHeight: 1.5 }}>
                 Proximo passo: <span style={{ color: C.text, fontWeight: 800 }}>{item.p0Actions?.[0]?.title || item.decision}</span>
               </div>
+              {item.sourceValidation?.status === "access_required" && (
+                <div style={{ background: C.gold + "12", border: `1px solid ${C.gold}35`, borderRadius: 10, color: C.muted, fontSize: 11, lineHeight: 1.5, padding: "8px 9px" }}>
+                  Acesso: <span style={{ color: C.text, fontWeight: 800 }}>{item.sourceValidation.userAction || item.sourceValidation.reason || "Cadastrar/login no leiloeiro para continuar."}</span>
+                  {item.sourceValidation.credentialFileHint && (
+                    <div style={{ color: C.gold, fontFamily: mono, fontSize: 10, fontWeight: 850, marginTop: 4 }}>
+                      Arquivo: {item.sourceValidation.credentialFileHint}
+                    </div>
+                  )}
+                </div>
+              )}
             </article>
           ))}
         </div>
