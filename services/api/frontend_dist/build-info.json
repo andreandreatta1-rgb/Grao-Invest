@@ -1,9 +1,9 @@
 {
     "ui_revision":  "UI rev soul-4",
     "source_app":  "apps/grao-invest-cockpit",
-    "git_commit":  "7436afe2a10ed1cffac97bd656574a6f76ed2f32",
-    "git_commit_short":  "7436afe2a10e",
-    "built_at":  "2026-05-25T01:07:06.8961856Z",
+    "git_commit":  "9af4dcef81a2cdb28399b054c58ce3b4d78d8a2e",
+    "git_commit_short":  "9af4dcef81a2",
+    "built_at":  "2026-05-25T01:25:35.7833810Z",
     "entry_asset":  "assets/index-B0wjbpsf.js",
     "required_markers":  [
                              "UI rev soul-4",
