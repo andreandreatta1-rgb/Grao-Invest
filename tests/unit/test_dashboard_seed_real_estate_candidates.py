@@ -29,8 +29,14 @@ def test_folha_frazao_candidates_are_seeded_with_individual_validated_sources() 
     for row in rows:
         assert "/Auction/LotDetails/" in row["source_url"]
         assert row["real_estate_analysis"]["source_validation"]["status"] == "valid"
-        assert row["real_estate_analysis"]["source_validation"]["reason"] == "Fonte individual validada."
+        assert row["real_estate_analysis"]["source_validation"]["reason"] in {
+            "Fonte individual validada.",
+            "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
+        }
         if row["thesis_id"] == "IM-FOLHA-FRAZAO-BUTANTA-37467":
+            assert row["is_open"] is False
+            assert row["outcome"] == "Descartado pelo radar"
+        elif row["real_estate_analysis"].get("occupancy_status") == "ocupado":
             assert row["is_open"] is False
             assert row["outcome"] == "Descartado pelo radar"
         else:

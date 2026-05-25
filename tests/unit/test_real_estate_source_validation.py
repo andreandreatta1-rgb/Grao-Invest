@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import app.services.real_estate_source_validation as source_validation
 from app.services.real_estate_source_validation import validate_real_estate_source_url
 
 
@@ -154,3 +155,26 @@ def test_source_validation_asks_user_for_credentials_when_official_leiloeiro_blo
     assert payload["aggregator_url"] == aggregator_url
     assert payload["edital_url"] == edital_url
     assert payload["official_url"] == official_url
+
+
+def test_default_fetcher_uses_browser_headers_for_auction_sites(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_get(url: str, **kwargs: object) -> _Response:
+        captured["url"] = url
+        captured.update(kwargs)
+        return _Response(
+            200,
+            "Area privativa 33m2. Matricula 123. Lance minimo R$ 100.000,00.",
+            url,
+        )
+
+    monkeypatch.setattr(source_validation.httpx, "get", fake_get)
+
+    result = validate_real_estate_source_url("https://www.webleiloes.com.br/lote/12345")
+
+    headers = captured["headers"]
+    assert result.status == "valid"
+    assert isinstance(headers, dict)
+    assert "Mozilla/5.0" in headers["User-Agent"]
+    assert headers["Accept-Language"].startswith("pt-BR")
