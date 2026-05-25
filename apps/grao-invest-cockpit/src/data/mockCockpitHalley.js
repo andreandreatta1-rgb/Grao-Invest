@@ -12,7 +12,15 @@ export const mockCockpitHalleyPayloads = Object.freeze({
     front_overview: {
       b3: { total_tested: 901, success_rate_pct: 66.4, updated_at: "2026-05-03T09:00:00Z" },
       crypto: { total_tested: 502, success_rate_pct: 69.8, updated_at: "2026-05-03T09:15:00Z" },
-      real_estate: { total_tested: 324, success_rate_pct: 62.7, updated_at: "2026-05-03T09:30:00Z" },
+      real_estate: {
+        total_tested: 8,
+        radar_total: 8,
+        open_count: 7,
+        closed_count: 1,
+        success_rate_pct: 0,
+        counting_policy: "radar_candidates",
+        updated_at: "2026-05-03T09:30:00Z",
+      },
     },
     learning_notes: [
       {

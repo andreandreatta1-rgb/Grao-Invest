@@ -167,19 +167,27 @@ describe("base cockpit components", () => {
           id: "real-estate",
           label: "Imóveis",
           tested: 24,
-          goLive: 3,
-          validatedPct: 50,
+          radarTotal: 24,
+          openCount: 17,
+          closedCount: 7,
+          goLive: 17,
+          countingPolicy: "radar_candidates",
+          validatedPct: 0,
           status: "em teste",
         }}
       />,
     );
 
     expect(screen.getByText("Imóveis")).toBeInTheDocument();
-    expect(screen.getByText("Avaliadas")).toBeInTheDocument();
+    expect(screen.getByText("No radar")).toBeInTheDocument();
+    expect(screen.getByText("Abertos")).toBeInTheDocument();
+    expect(screen.getByText("Encerrados")).toBeInTheDocument();
+    expect(screen.queryByText("Validadas")).not.toBeInTheDocument();
     expect(screen.queryByText("Testadas")).not.toBeInTheDocument();
     expect(screen.getByText("24")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument();
-    expect(screen.getByText("+50,00%")).toBeInTheDocument();
+    expect(screen.getByText("17")).toBeInTheDocument();
+    expect(screen.getByText("7")).toBeInTheDocument();
+    expect(screen.getByTestId("front-radar-Imóveis")).toHaveTextContent("24 = 17 abertos + 7 encerrados");
     expect(screen.getByText("em teste")).toBeInTheDocument();
   });
 

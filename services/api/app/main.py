@@ -5882,6 +5882,23 @@ def dashboard_summary(
             or phase_text == "historico"
         )
 
+    def _real_estate_p0_count(row: dict[str, object]) -> int:
+        analysis = row.get("real_estate_analysis")
+        if not isinstance(analysis, dict):
+            return 0
+        pending_items = analysis.get("pending_items")
+        if not isinstance(pending_items, list):
+            return 0
+        return sum(
+            1
+            for item in pending_items
+            if isinstance(item, dict)
+            and str(item.get("priority") or item.get("severity") or item.get("level") or "")
+            .strip()
+            .upper()
+            == "P0"
+        )
+
     def _front_row_stats(rows: list[dict[str, object]]) -> dict[str, dict[str, int]]:
         stats: dict[str, dict[str, int]] = {}
         for front_key in ("b3", "crypto", "real_estate"):
@@ -5898,14 +5915,24 @@ def dashboard_summary(
             ]
             stats[front_key] = {
                 "mapped_count": len(front_rows),
+                "open_count": max(len(front_rows) - len(resolved_rows), 0),
+                "closed_count": len(resolved_rows),
                 "resolved_count": len(resolved_rows),
                 "success_count": len(successful_rows),
+                "p0_count": sum(
+                    _real_estate_p0_count(row)
+                    for row in front_rows
+                    if not _operation_is_resolved(row)
+                )
+                if front_key == "real_estate"
+                else 0,
             }
         return stats
 
     def _normalize_front_overview_counts(
         front_overview: dict[str, object],
         row_stats: dict[str, dict[str, int]] | None = None,
+        historical_total_tested: int = 0,
     ) -> dict[str, object]:
         result: dict[str, object] = {}
         for front_key in ("b3", "crypto", "real_estate"):
@@ -5939,8 +5966,53 @@ def dashboard_summary(
                     item["success_count"] = success_count
                 item.setdefault("counting_policy", "resolved_historical")
             else:
-                item.setdefault("counting_policy", "radar_candidates")
+                seed_total = max(
+                    _safe_int(item.get("radar_total")),
+                    _safe_int(item.get("total_tested")),
+                    _safe_int(item.get("tested")),
+                    _safe_int(item.get("totalTested")),
+                )
+                seed_closed_count = max(
+                    _safe_int(item.get("closed_count")),
+                    _safe_int(item.get("closedCount")),
+                    _safe_int(item.get("resolved_count")),
+                    _safe_int(item.get("resolvedCount")),
+                )
+                stats_open_count = _safe_int(stats.get("open_count"))
+                stats_closed_count = _safe_int(stats.get("closed_count"))
+                radar_total = max(mapped_count, seed_total, stats_open_count + stats_closed_count)
+                if radar_total > 0:
+                    item["radar_total"] = radar_total
+                    item["total_tested"] = radar_total
+                    item["mapped_count"] = radar_total
+                if stats_open_count or stats_closed_count:
+                    item["open_count"] = stats_open_count
+                    item["closed_count"] = stats_closed_count
+                    item["resolved_count"] = stats_closed_count
+                else:
+                    item["closed_count"] = seed_closed_count
+                    item["open_count"] = max(radar_total - seed_closed_count, 0)
+                item["p0_count"] = max(
+                    _safe_int(item.get("p0_count")),
+                    _safe_int(item.get("p0Count")),
+                    _safe_int(stats.get("p0_count")),
+                )
+                item["counting_policy"] = "radar_candidates"
             result[front_key] = item
+        if historical_total_tested > 0:
+            financial_total = sum(
+                _safe_int(cast(dict[str, object], result.get(front_key, {})).get("total_tested"))
+                for front_key in ("b3", "crypto")
+            )
+            delta = historical_total_tested - financial_total
+            b3_item = result.get("b3")
+            if delta and isinstance(b3_item, dict):
+                current_total = _safe_int(b3_item.get("total_tested"))
+                current_resolved = _safe_int(b3_item.get("resolved_count"))
+                adjusted_total = current_total + delta
+                if adjusted_total > 0:
+                    b3_item["total_tested"] = adjusted_total
+                    b3_item["resolved_count"] = max(current_resolved + delta, 0)
         return result
 
     def _build_front_overview() -> dict[str, object]:
@@ -5956,6 +6028,7 @@ def dashboard_summary(
                 return _normalize_front_overview_counts(
                     cast(dict[str, object], seed_front_overview),
                     row_stats,
+                    _safe_int(thesis_history_overview.get("total_tested")),
                 )
 
         global_success_rate = _safe_number(thesis_history_overview.get("success_rate_pct"), 0.0)
@@ -5975,12 +6048,16 @@ def dashboard_summary(
                 else round(global_success_rate, 2)
             )
             total_for_front = len(rows) if front_key == "real_estate" else resolved_count
+            open_count = _safe_int(stats.get("open_count"))
+            closed_count = _safe_int(stats.get("closed_count"))
             result[front_key] = {
                 "total_tested": total_for_front,
                 "success_rate_pct": success_rate,
                 "resolved_count": resolved_count,
                 "success_count": success_count,
                 "mapped_count": _safe_int(stats.get("mapped_count")),
+                "open_count": open_count,
+                "closed_count": closed_count,
                 "counting_policy": (
                     "radar_candidates"
                     if front_key == "real_estate"
@@ -5992,6 +6069,9 @@ def dashboard_summary(
                     else now.replace(microsecond=0).isoformat()
                 ),
             }
+            if front_key == "real_estate":
+                result[front_key]["radar_total"] = total_for_front
+                result[front_key]["p0_count"] = _safe_int(stats.get("p0_count"))
         return result
 
     front_overview = _build_front_overview()

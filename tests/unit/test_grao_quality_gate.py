@@ -32,7 +32,14 @@ def _valid_dashboard_payload() -> dict[str, object]:
         "front_overview": {
             "b3": {"total_tested": 779, "success_rate_pct": 64.1},
             "crypto": {"total_tested": 100, "success_rate_pct": 70.4},
-            "real_estate": {"total_tested": 79, "success_rate_pct": 62.7},
+            "real_estate": {
+                "total_tested": 1,
+                "radar_total": 1,
+                "open_count": 1,
+                "closed_count": 0,
+                "success_rate_pct": 0,
+                "counting_policy": "radar_candidates",
+            },
         },
         "thesis_history_overview": {"total_tested": 879},
         "historical_analysis_summary": {"thesis_count": 879},
@@ -210,7 +217,14 @@ def test_dashboard_payload_gate_rejects_front_overview_zero_rate_without_context
     payload["front_overview"] = {
         "b3": {"total_tested": 700, "success_rate_pct": 0},
         "crypto": {"total_tested": 100, "success_rate_pct": 70.4},
-        "real_estate": {"total_tested": 79, "success_rate_pct": 62.7},
+        "real_estate": {
+            "total_tested": 1,
+            "radar_total": 1,
+            "open_count": 1,
+            "closed_count": 0,
+            "success_rate_pct": 0,
+            "counting_policy": "radar_candidates",
+        },
     }
 
     with pytest.raises(gate.QualityGateFailure, match="front_overview"):
@@ -237,12 +251,30 @@ def test_dashboard_payload_gate_rejects_financial_front_total_mismatch() -> None
         "real_estate": {
             "total_tested": 12,
             "resolved_count": 8,
-            "success_rate_pct": 12.5,
+            "radar_total": 12,
+            "open_count": 4,
+            "closed_count": 8,
+            "success_rate_pct": 0,
             "counting_policy": "radar_candidates",
         },
     }
 
     with pytest.raises(gate.QualityGateFailure, match="front_overview.*1168.*1175"):
+        gate.inspect_dashboard_payload(payload)
+
+
+def test_dashboard_payload_gate_rejects_real_estate_radar_total_mismatch() -> None:
+    payload = _valid_dashboard_payload()
+    payload["front_overview"]["real_estate"] = {
+        "total_tested": 38,
+        "radar_total": 38,
+        "open_count": 31,
+        "closed_count": 6,
+        "success_rate_pct": 0,
+        "counting_policy": "radar_candidates",
+    }
+
+    with pytest.raises(gate.QualityGateFailure, match="imobiliario inconsistente"):
         gate.inspect_dashboard_payload(payload)
 
 

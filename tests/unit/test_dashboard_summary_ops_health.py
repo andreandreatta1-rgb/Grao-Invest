@@ -140,6 +140,10 @@ def test_dashboard_summary_exposes_quality_artifacts_from_runtime_files(
     assert payload["front_overview"]["b3"]["total_tested"] == 1
     assert payload["front_overview"]["crypto"]["total_tested"] == 1
     assert payload["front_overview"]["real_estate"]["total_tested"] == 1
+    assert payload["front_overview"]["real_estate"]["radar_total"] == 1
+    assert payload["front_overview"]["real_estate"]["open_count"] == 0
+    assert payload["front_overview"]["real_estate"]["closed_count"] == 1
+    assert payload["front_overview"]["real_estate"]["counting_policy"] == "radar_candidates"
 
 
 def test_dashboard_summary_promotes_seed_data_quality_when_vercel_runtime_is_thin(
@@ -227,7 +231,8 @@ def test_dashboard_summary_promotes_seed_data_quality_when_vercel_runtime_is_thi
         main_module.bundled_data_dir = original_bundled_data_dir
 
     assert payload["data_quality_gate"] == seed_quality
-    assert payload["front_overview"]["b3"]["total_tested"] == 800
+    assert payload["front_overview"]["b3"]["total_tested"] == 812
+    assert payload["front_overview"]["b3"]["total_tested"] + payload["front_overview"]["crypto"]["total_tested"] == 879
 
 
 def test_dashboard_summary_normalizes_seed_front_overview_to_historical_basis(
@@ -300,6 +305,9 @@ def test_dashboard_summary_normalizes_seed_front_overview_to_historical_basis(
     assert fronts["b3"]["total_tested"] == 1166
     assert fronts["crypto"]["total_tested"] == 2
     assert fronts["real_estate"]["total_tested"] == 12
+    assert fronts["real_estate"]["radar_total"] == 12
+    assert fronts["real_estate"]["open_count"] == 4
+    assert fronts["real_estate"]["closed_count"] == 8
     assert fronts["real_estate"]["counting_policy"] == "radar_candidates"
     assert fronts["b3"]["total_tested"] + fronts["crypto"]["total_tested"] == 1168
 

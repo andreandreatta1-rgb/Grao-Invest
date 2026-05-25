@@ -245,14 +245,63 @@ def _front_overview_item(payload: dict[str, Any], key: str) -> dict[str, Any]:
 
 
 def _inspect_front_overview(payload: dict[str, Any], *, total_tested: int) -> dict[str, Any]:
-    fronts: dict[str, dict[str, int | float]] = {}
+    fronts: dict[str, dict[str, int | float | str | None]] = {}
     missing: list[str] = []
 
     for key in ("b3", "crypto", "real_estate"):
         item = _front_overview_item(payload, key)
+        def item_int(*names: str) -> int | None:
+            for name in names:
+                parsed = _to_int(item.get(name))
+                if parsed is not None:
+                    return parsed
+            return None
+
         front_total_tested = _to_int(
             item.get("total_tested") or item.get("tested") or item.get("totalTested")
         )
+        if key == "real_estate":
+            radar_total = item_int(
+                "radar_total",
+                "radarTotal",
+                "mapped_count",
+                "mappedCount",
+                "total_tested",
+                "tested",
+                "totalTested",
+            )
+            open_count = item_int("open_count", "openCount")
+            closed_count = item_int(
+                "closed_count",
+                "closedCount",
+                "resolved_count",
+                "resolvedCount",
+            )
+            counting_policy = str(
+                item.get("counting_policy") or item.get("countingPolicy") or ""
+            ).strip()
+            if radar_total is None or radar_total <= 0 or counting_policy != "radar_candidates":
+                missing.append(key)
+                continue
+            if (
+                open_count is not None
+                and closed_count is not None
+                and open_count + closed_count != radar_total
+            ):
+                raise QualityGateFailure(
+                    "front_overview imobiliario inconsistente: "
+                    f"radar_total={radar_total} open_count={open_count} "
+                    f"closed_count={closed_count}"
+                )
+            fronts[key] = {
+                "total_tested": radar_total,
+                "radar_total": radar_total,
+                "open_count": open_count,
+                "closed_count": closed_count,
+                "counting_policy": counting_policy,
+            }
+            continue
+
         success_rate = item.get("success_rate_pct") or item.get("validated_pct")
         try:
             success_rate_number = float(success_rate)

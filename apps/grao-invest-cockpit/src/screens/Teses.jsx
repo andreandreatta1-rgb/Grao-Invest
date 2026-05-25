@@ -114,7 +114,8 @@ function isRealEstateSourceRow(row) {
 
 function canonicalRealEstateId(row) {
   const value = String(row?.thesisId || row?.thesis_id || row?.id || "").trim();
-  return value.match(/^IM-RADAR-(\d+)$/i)?.[1] || value.match(/^\d+$/)?.[0] || "";
+  if (/^IM-[A-Z0-9-]+$/i.test(value)) return value.toUpperCase();
+  return value.match(/^\d+$/)?.[0] || "";
 }
 
 function realEstateSourceKey(row) {
@@ -3345,7 +3346,19 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
   const uniqueTestedTheses = Number.isFinite(summaryTestedTheses)
     ? summaryTestedTheses
     : uniqueHistoricalCount;
-  const p0Total = realEstateRows.reduce((sum, row) => sum + getP0Count(row), 0);
+  const realEstateStats = data?.realEstateStats || {};
+  const realEstateOpenCount = Number.isFinite(Number(realEstateStats.openCount))
+    ? Number(realEstateStats.openCount)
+    : realEstateRows.filter((row) => isOpenThesis(row.status)).length;
+  const realEstateClosedCount = Number.isFinite(Number(realEstateStats.closedCount))
+    ? Number(realEstateStats.closedCount)
+    : Math.max(realEstateRows.length - realEstateOpenCount, 0);
+  const realEstateTotalCount = Number.isFinite(Number(realEstateStats.total))
+    ? Number(realEstateStats.total)
+    : realEstateRows.length;
+  const p0Total = Number.isFinite(Number(realEstateStats.p0Count))
+    ? Number(realEstateStats.p0Count)
+    : realEstateRows.reduce((sum, row) => sum + getP0Count(row), 0);
   const frontRows = Object.fromEntries(frontFilters.map((item) => [item, rows.filter((row) => row.frente === item)]));
   const dataUpdatedAt = data?.scientificSummary?.lastUpdatedAt;
   const dataTrust = data?.dataTrust?.teses ?? dataTrustForScreen("teses", data, feedStatus);
@@ -3552,7 +3565,7 @@ export default function Teses({ data, feedStatus = "fallback", onRefresh, entryM
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
               <KPICard label="Teses testadas únicas" value={uniqueTestedTheses.toLocaleString("pt-BR")} sub="validação deduplicada" accent={C.sky} valueColor={C.sky} />
               <KPICard label="Em acompanhamento" value={activeRows.length.toLocaleString("pt-BR")} sub="pedem acompanhamento" accent={C.teal} valueColor={C.teal} />
-              <KPICard label="No radar imobiliário" value={realEstateRows.filter((row) => isOpenThesis(row.status)).length.toLocaleString("pt-BR")} sub={`${p0Total} pendências P0`} accent={C.purple} valueColor={C.purple} />
+              <KPICard label="Abertos no radar" value={realEstateOpenCount.toLocaleString("pt-BR")} sub={`${realEstateTotalCount} total / ${realEstateClosedCount} encerrados / ${p0Total} P0`} accent={C.purple} valueColor={C.purple} />
               <KPICard label="Históricas positivas" value={positiveHistorical.toLocaleString("pt-BR")} sub="evidência arquivada" accent={C.gold} valueColor={C.gold} />
               <KPICard label="Esperado médio" value={pct(avgExpected)} sub="todas as frentes" accent={C.amber} valueColor={C.amber} />
             </div>

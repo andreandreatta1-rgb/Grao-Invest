@@ -17,7 +17,16 @@ const fixturePayloads = {
     front_overview: {
       b3: { total_tested: 900, success_rate_pct: 64.1, updated_at: "2026-05-03T09:00:00Z" },
       crypto: { total_tested: 503, success_rate_pct: 70.4, updated_at: "2026-05-03T09:15:00Z" },
-      real_estate: { total_tested: 324, success_rate_pct: 68.2, updated_at: "2026-05-03T09:30:00Z" },
+      real_estate: {
+        total_tested: 1,
+        radar_total: 1,
+        open_count: 1,
+        closed_count: 0,
+        p0_count: 0,
+        success_rate_pct: 0,
+        counting_policy: "radar_candidates",
+        updated_at: "2026-05-03T09:30:00Z",
+      },
     },
     learning_notes: [
       {
@@ -259,6 +268,14 @@ describe("cockpitHalleyAdapter", () => {
     expect(result.fronts.find((front) => front.id === "b3").goLive).toBe(1);
     expect(result.fronts.find((front) => front.id === "crypto").goLive).toBe(1);
     expect(result.fronts.find((front) => front.id === "real_estate").goLive).toBe(1);
+    expect(result.realEstateStats).toMatchObject({ total: 1, openCount: 1, closedCount: 0 });
+    expect(result.fronts.find((front) => front.id === "real_estate")).toMatchObject({
+      tested: 1,
+      radarTotal: 1,
+      openCount: 1,
+      closedCount: 0,
+      countingPolicy: "radar_candidates",
+    });
     expect(result.goLiveTheses[0].daysOpen).toBe(4);
     expect(result.learningLoops.length).toBeGreaterThan(0);
   });

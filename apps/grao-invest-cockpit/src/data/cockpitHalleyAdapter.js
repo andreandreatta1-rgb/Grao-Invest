@@ -1228,12 +1228,105 @@ function derivedFrontStats(front, thesisRows, dashboardSummary) {
   };
 }
 
-function buildFronts(dashboardSummary, goLiveTheses, now, thesisRows = []) {
+function metricText(value) {
+  return cleanText(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function isOpenRealEstateMetricRow(row) {
+  if (row?.isOpen === false || row?.is_open === false) return false;
+  const status = metricText(`${row?.statusGroup || ""} ${row?.status || ""} ${row?.phase || ""}`);
+  if (
+    status.includes("histor")
+    || status.includes("fechad")
+    || status.includes("descart")
+    || status.includes("encerr")
+  ) {
+    return false;
+  }
+  return row?.isOpen === true
+    || row?.is_open === true
+    || status.includes("go-live")
+    || status.includes("abert")
+    || status.includes("pendenc")
+    || status.includes("analise")
+    || status.includes("observ")
+    || status.includes("monitor");
+}
+
+function realEstateMetricKey(row, index) {
+  const thesisId = cleanText(coalesce(row?.thesisId, row?.thesis_id));
+  if (thesisId) return `thesis:${thesisId.toUpperCase()}`;
+  const id = cleanText(coalesce(row?.candidateId, row?.candidate_id, row?.id));
+  if (id) return `id:${id.toUpperCase()}`;
+  const sourceUrl = cleanText(coalesce(row?.sourceUrl, row?.source_url));
+  if (sourceUrl) return `source:${sourceUrl.toLowerCase()}`;
+  return `row:${index}`;
+}
+
+function realEstateP0Count(row) {
+  const analysis = row?.realEstateAnalysis || row?.real_estate_analysis || {};
+  return asArray(coalesce(analysis.pending_items, analysis.pendingItems)).filter((item) => (
+    cleanText(coalesce(item?.priority, item?.severity, item?.level)).toUpperCase() === "P0"
+  )).length;
+}
+
+function buildRealEstateStats(thesisRows = [], realEstateCandidates = [], dashboardSummary = {}) {
+  const overview = frontOverviewFor(dashboardSummary, "real_estate");
+  const rowsByKey = new Map();
+  [...asArray(realEstateCandidates), ...asArray(thesisRows).filter((row) => row.front === "Imóveis")].forEach((row, index) => {
+    const key = realEstateMetricKey(row, index);
+    if (!rowsByKey.has(key)) rowsByKey.set(key, row);
+  });
+
+  const rows = [...rowsByKey.values()];
+  const openFromRows = rows.filter(isOpenRealEstateMetricRow).length;
+  const closedFromRows = rows.length ? Math.max(rows.length - openFromRows, 0) : null;
+  const overviewTotal = toNumber(coalesce(
+    overview.radar_total,
+    overview.radarTotal,
+    overview.total_tested,
+    overview.totalTested,
+    overview.mapped_count,
+    overview.mappedCount,
+  ), null);
+  const overviewOpen = toNumber(coalesce(overview.open_count, overview.openCount), null);
+  const overviewClosed = toNumber(coalesce(overview.closed_count, overview.closedCount, overview.resolved_count, overview.resolvedCount), null);
+  const overviewP0 = toNumber(coalesce(overview.p0_count, overview.p0Count), null);
+  const hasOverviewOperationalCounts = overviewOpen !== null || overviewClosed !== null;
+  const rowTotal = rows.length || null;
+  const totalBase = hasOverviewOperationalCounts || !rowTotal
+    ? coalesce(overviewTotal, rowTotal, 0)
+    : rowTotal;
+  const openCount = coalesce(overviewOpen, openFromRows, 0);
+  const closedCount = coalesce(
+    overviewClosed,
+    closedFromRows,
+    Math.max(Number(totalBase || 0) - Number(openCount || 0), 0),
+  );
+  const total = Math.max(
+    toNumber(totalBase, 0),
+    toNumber(openCount, 0) + toNumber(closedCount, 0),
+  );
+
+  return {
+    total,
+    openCount: toNumber(openCount, 0),
+    closedCount: toNumber(closedCount, 0),
+    p0Count: overviewP0 ?? rows.reduce((sum, row) => sum + realEstateP0Count(row), 0),
+    source: hasOverviewOperationalCounts ? "front_overview" : "canonical_rows",
+  };
+}
+
+function buildFronts(dashboardSummary, goLiveTheses, now, thesisRows = [], realEstateStats = null) {
   return FRONT_DEFS.map((front) => {
     const overview = frontOverviewFor(dashboardSummary, front.id);
     const derived = derivedFrontStats(front, thesisRows, dashboardSummary);
     const goLive = goLiveTheses.filter((thesis) => thesis.front === front.label).length;
     const activeAssets = uniqueAssetCount(goLiveTheses.filter((thesis) => thesis.front === front.label));
+    const isRealEstate = front.id === "real_estate";
     const tested = coalesce(overview.total_tested, overview.tested, overview.totalTested, derived.tested);
     const resolvedCount = coalesce(overview.resolved_count, overview.resolvedCount, tested);
     const mappedCount = coalesce(overview.mapped_count, overview.mappedCount, resolvedCount);
@@ -1244,18 +1337,24 @@ function buildFronts(dashboardSummary, goLiveTheses, now, thesisRows = []) {
       overview.validatedPct,
       derived.validatedPct,
     );
+    const realEstateOpenCount = toNumber(coalesce(realEstateStats?.openCount, overview.open_count, overview.openCount, goLive), goLive);
+    const frontGoLive = isRealEstate ? realEstateOpenCount : goLive;
 
     return {
       id: front.id,
       label: front.label,
-      tested: toNumber(tested, null),
-      resolvedCount: toNumber(resolvedCount, null),
-      mappedCount: toNumber(mappedCount, null),
-      countingPolicy,
-      goLive,
+      tested: isRealEstate ? toNumber(coalesce(realEstateStats?.total, tested), null) : toNumber(tested, null),
+      resolvedCount: isRealEstate ? toNumber(coalesce(realEstateStats?.closedCount, resolvedCount), null) : toNumber(resolvedCount, null),
+      mappedCount: isRealEstate ? toNumber(coalesce(realEstateStats?.total, mappedCount), null) : toNumber(mappedCount, null),
+      radarTotal: isRealEstate ? toNumber(coalesce(realEstateStats?.total, overview.radar_total, overview.radarTotal, mappedCount), null) : null,
+      openCount: isRealEstate ? toNumber(coalesce(realEstateStats?.openCount, overview.open_count, overview.openCount, goLive), null) : null,
+      closedCount: isRealEstate ? toNumber(coalesce(realEstateStats?.closedCount, overview.closed_count, overview.closedCount, resolvedCount), null) : null,
+      p0Count: isRealEstate ? toNumber(coalesce(realEstateStats?.p0Count, overview.p0_count, overview.p0Count), 0) : null,
+      countingPolicy: isRealEstate ? "radar_candidates" : countingPolicy,
+      goLive: frontGoLive,
       activeAssets,
       validatedPct: toNumber(validatedPct, null),
-      status: goLive > 0 ? "atualizado" : "sem sinal",
+      status: frontGoLive > 0 ? "atualizado" : "sem sinal",
       lastUpdatedAt: toIsoDate(coalesce(overview.updated_at, dashboardSummary?.updated_at, dashboardSummary?.last_updated_at), now),
     };
   });
@@ -1630,6 +1729,7 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
   const hasCalibrationCycleHistory = asArray(dashboardSummary?.calibration_cycles ?? dashboardSummary?.calibrationCycles).length > 0;
   const realEstateCandidates = asArray(coalesce(payloads?.realEstateCandidates?.candidates, payloads?.realEstateCandidates?.items))
     .map((candidate, index) => normalizeRealEstateCandidate(candidate, index, now));
+  const realEstateStats = buildRealEstateStats(thesisRows, realEstateCandidates, dashboardSummary);
 
   return {
     monitorTrust,
@@ -1653,8 +1753,9 @@ export function normalizeCockpitHalley(payloads = {}, now = new Date()) {
     learningStats: buildLearningStats(scientificSummary, calibrationRows),
     dataQualityGate: dashboardSummary.data_quality_gate ?? null,
     realEstateCandidates,
+    realEstateStats,
     realEstateStrategyTerritoryCandidates: normalizeRealEstateStrategyTerritoryCandidates(payloads?.realEstateStrategyTerritoryCandidates),
     phaseKickoffDate: cleanText(dashboardSummary.phase_kickoff_date),
-    fronts: buildFronts(dashboardSummary, coveredActiveTheses, now, thesisRows),
+    fronts: buildFronts(dashboardSummary, coveredActiveTheses, now, thesisRows, realEstateStats),
   };
 }

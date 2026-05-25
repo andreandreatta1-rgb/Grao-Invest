@@ -162,18 +162,22 @@ describe("M1-M10 user experience improvements", () => {
         front={{
           id: "real_estate",
           label: "Imóveis",
-          tested: 324,
-          goLive: 2,
-          validatedPct: 62.7,
+          tested: 38,
+          radarTotal: 38,
+          openCount: 31,
+          closedCount: 7,
+          goLive: 31,
+          countingPolicy: "radar_candidates",
+          validatedPct: 0,
           status: "atualizado",
           lastUpdatedAt: "2026-05-03T09:30:00Z",
         }}
       />,
     );
 
-    expect(screen.getByTestId("front-validation-Imóveis")).toHaveTextContent("Validação da frente · taxa +62,70%");
+    expect(screen.getByTestId("front-radar-Imóveis")).toHaveTextContent("Contrato do radar · 38 = 31 abertos + 7 encerrados");
     expect(screen.getByTestId("front-update-Imóveis")).toHaveTextContent("Base atualizada em 03/05/2026");
-    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "62.7");
+    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "81.57894736842105");
     expect(screen.getByText("No radar")).toBeInTheDocument();
   });
 

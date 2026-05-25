@@ -29,6 +29,9 @@ export function FrontCard({
   const testedValue = frontData.tested ?? tested;
   const resolvedCountValue = frontData.resolvedCount ?? frontData.resolved_count ?? testedValue ?? null;
   const mappedCountValue = frontData.mappedCount ?? frontData.mapped_count ?? null;
+  const radarTotalValue = frontData.radarTotal ?? frontData.radar_total ?? mappedCountValue ?? testedValue;
+  const openCountValue = frontData.openCount ?? frontData.open_count ?? frontData.goLive ?? goLive;
+  const closedCountValue = frontData.closedCount ?? frontData.closed_count ?? resolvedCountValue;
   const countingPolicy = frontData.countingPolicy ?? frontData.counting_policy ?? null;
   const goLiveValue = frontData.goLive ?? goLive;
   const activeAssetsValue = frontData.activeAssets ?? frontData.activeAssetCount ?? null;
@@ -43,19 +46,26 @@ export function FrontCard({
     && mappedCountValue !== null
     && resolvedCountValue !== null
     && mappedCountValue > resolvedCountValue;
-  const testedLabel = isRealEstate ? "Avaliadas" : showMappedCrypto ? "Mapeadas" : "Testadas";
+  const testedLabel = isRealEstate ? "No radar" : showMappedCrypto ? "Mapeadas" : "Testadas";
   const testedSub = isRealEstate
-    ? "radar imobiliario"
+    ? "candidatos canonicos"
     : showMappedCrypto
       ? `${fmtInteger(resolvedCountValue)} resolvidas no histórico`
       : "amostra validada";
-  const testedDisplayValue = showMappedCrypto ? mappedCountValue : testedValue;
-  const activeLabel = isRealEstate ? "No radar" : "Planos ativos";
+  const testedDisplayValue = isRealEstate ? radarTotalValue : showMappedCrypto ? mappedCountValue : testedValue;
+  const activeLabel = isRealEstate ? "Abertos" : "Planos ativos";
   const activeSub = isRealEstate
-    ? "candidatos imobiliarios"
+    ? "fila operacional"
     : activeAssetsValue !== null
       ? `${fmtInteger(activeAssetsValue)} ativos cobertos`
       : "hipoteses abertas";
+  const activeDisplayValue = isRealEstate ? openCountValue : goLiveValue;
+  const thirdLabel = isRealEstate ? "Encerrados" : "Validadas";
+  const thirdValue = isRealEstate ? fmtInteger(closedCountValue) : fmtPct(validatedValue);
+  const thirdSub = isRealEstate ? "aprendizados fora da fila" : "taxa historica";
+  const realEstateProgress = radarTotalValue
+    ? Math.min(100, Math.max(0, (Number(openCountValue || 0) / Number(radarTotalValue)) * 100))
+    : 0;
 
   return (
     <article
@@ -91,35 +101,62 @@ export function FrontCard({
         }}
       >
         <KPICard label={testedLabel} value={fmtInteger(testedDisplayValue)} sub={testedSub} accent={C.sky} valueFontSize={13} />
-        <KPICard label={activeLabel} value={fmtInteger(goLiveValue)} sub={activeSub} accent={C.teal} valueFontSize={13} />
+        <KPICard label={activeLabel} value={fmtInteger(activeDisplayValue)} sub={activeSub} accent={C.teal} valueFontSize={13} />
         <KPICard
-          label="Validadas"
-          value={fmtPct(validatedValue)}
-          sub="taxa historica"
+          label={thirdLabel}
+          value={thirdValue}
+          sub={thirdSub}
           valueColor={style.accent}
           accent={style.accent}
           valueFontSize={13}
         />
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-        <div
-          data-testid={`front-validation-${frontLabel}`}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 10,
-            color: C.muted,
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}
-        >
-          <span>{"Validação da frente"}</span>
-          <span>{" · "}</span>
-          <span style={{ color: style.accent, fontFamily: mono }}>taxa {fmtPct(validatedValue)}</span>
-        </div>
-        <ProgressBar progress={validatedValue} color={style.accent} />
+        {isRealEstate ? (
+          <>
+            <div
+              data-testid={`front-radar-${frontLabel}`}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+                color: C.muted,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              <span>{"Contrato do radar"}</span>
+              <span>{" · "}</span>
+              <span style={{ color: style.accent, fontFamily: mono }}>
+                {fmtInteger(radarTotalValue)} = {fmtInteger(openCountValue)} abertos + {fmtInteger(closedCountValue)} encerrados
+              </span>
+            </div>
+            <ProgressBar progress={realEstateProgress} color={style.accent} />
+          </>
+        ) : (
+          <>
+            <div
+              data-testid={`front-validation-${frontLabel}`}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+                color: C.muted,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              <span>{"Validação da frente"}</span>
+              <span>{" · "}</span>
+              <span style={{ color: style.accent, fontFamily: mono }}>taxa {fmtPct(validatedValue)}</span>
+            </div>
+            <ProgressBar progress={validatedValue} color={style.accent} />
+          </>
+        )}
         {lastUpdatedAt && (
           <div
             data-testid={`front-update-${frontLabel}`}

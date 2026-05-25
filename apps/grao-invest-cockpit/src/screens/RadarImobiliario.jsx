@@ -323,7 +323,8 @@ function isOpenRealEstateRow(row) {
 
 function canonicalRealEstateId(row) {
   const value = String(row?.thesisId || row?.id || "").trim();
-  return value.match(/^IM-RADAR-(\d+)$/i)?.[1] || value.match(/^\d+$/)?.[0] || "";
+  if (/^IM-[A-Z0-9-]+$/i.test(value)) return value.toUpperCase();
+  return value.match(/^\d+$/)?.[0] || "";
 }
 
 function canonicalRealEstateRows(data) {

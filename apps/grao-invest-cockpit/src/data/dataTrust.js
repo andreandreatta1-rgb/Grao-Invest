@@ -171,6 +171,24 @@ function validateDashboard(data, issues) {
 
   fronts.forEach((front, index) => {
     validateFinite(issues, `dashboard.fronts.${index}.tested`, front?.tested, { min: 1 });
+    const isRealEstateRadar = front?.id === "real_estate"
+      && (front?.countingPolicy === "radar_candidates" || front?.counting_policy === "radar_candidates");
+    if (isRealEstateRadar) {
+      validateFinite(issues, `dashboard.fronts.${index}.openCount`, front?.openCount, { min: 0 });
+      validateFinite(issues, `dashboard.fronts.${index}.closedCount`, front?.closedCount, { min: 0 });
+      const total = finiteNumber(front?.radarTotal) ?? finiteNumber(front?.tested);
+      const open = finiteNumber(front?.openCount);
+      const closed = finiteNumber(front?.closedCount);
+      if (total !== null && open !== null && closed !== null && open + closed !== total) {
+        addIssue(
+          issues,
+          "error",
+          `dashboard.fronts.${index}.radarTotal.mismatch`,
+          "Radar imobiliario precisa reconciliar total, abertos e encerrados.",
+        );
+      }
+      return;
+    }
     validateFinite(issues, `dashboard.fronts.${index}.validatedPct`, front?.validatedPct, { min: 0, max: 100 });
     if (finiteNumber(front?.tested) > 0 && finiteNumber(front?.validatedPct) === 0) {
       addIssue(

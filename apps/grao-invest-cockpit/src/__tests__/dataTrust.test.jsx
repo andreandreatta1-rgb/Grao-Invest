@@ -20,7 +20,17 @@ const trustedData = {
   fronts: [
     { id: "b3", label: "B3", tested: 900, validatedPct: 64.1, status: "atualizado" },
     { id: "crypto", label: "Cripto", tested: 503, validatedPct: 70.4, status: "atualizado" },
-    { id: "real_estate", label: "Imóveis", tested: 324, validatedPct: 68.2, status: "atualizado" },
+    {
+      id: "real_estate",
+      label: "Imóveis",
+      tested: 38,
+      radarTotal: 38,
+      openCount: 31,
+      closedCount: 7,
+      countingPolicy: "radar_candidates",
+      validatedPct: 0,
+      status: "atualizado",
+    },
   ],
   learningLoops: [],
   thesisRows: [
@@ -186,13 +196,45 @@ describe("data trust layer", () => {
       fronts: [
         { id: "b3", label: "B3", tested: 879, validatedPct: 0, status: "atualizado" },
         { id: "crypto", label: "Cripto", tested: 12, validatedPct: 0, status: "atualizado" },
-        { id: "real_estate", label: "Imóveis", tested: 7, validatedPct: 0, status: "atualizado" },
+        {
+          id: "real_estate",
+          label: "Imóveis",
+          tested: 7,
+          radarTotal: 7,
+          openCount: 7,
+          closedCount: 0,
+          countingPolicy: "radar_candidates",
+          validatedPct: 0,
+          status: "atualizado",
+        },
       ],
     });
 
     expect(trust.status).toBe("degraded");
     expect(trust.issues.map((issue) => issue.code)).toContain("dashboard.testedTheses.range");
     expect(trust.issues.map((issue) => issue.code)).toContain("dashboard.fronts.0.validatedPct.zero_without_context");
+  });
+
+  it("trusts real estate radar totals when open plus closed reconciles without historical validation rate", () => {
+    const trust = dataTrustForScreen("dashboard", {
+      scientificSummary: trustedData.scientificSummary,
+      fronts: [
+        {
+          id: "real_estate",
+          label: "Imóveis",
+          tested: 38,
+          radarTotal: 38,
+          openCount: 31,
+          closedCount: 7,
+          countingPolicy: "radar_candidates",
+          validatedPct: 0,
+          status: "atualizado",
+        },
+      ],
+    });
+
+    expect(trust.issues.map((issue) => issue.code)).not.toContain("dashboard.fronts.0.validatedPct.zero_without_context");
+    expect(trust.issues.map((issue) => issue.code)).not.toContain("dashboard.fronts.0.radarTotal.mismatch");
   });
 
   it("degrades the dashboard when the three strategic fronts are not available", () => {
