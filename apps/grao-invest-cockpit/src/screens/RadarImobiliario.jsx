@@ -483,7 +483,11 @@ function legalOwnershipBlockersFor(row, candidate, analysis, sourceValidation) {
   if (reading.rights_over_asset || reading.rightsOverAsset || /\bdireitos?\s+sobre\b|\bdireitos?\s+aquisitivos?\b|\bcessao\s+(?:de|do|dos)\s+direitos\b/.test(text)) {
     blockers.push("direitos sobre");
   }
-  if (reading.fractional_interest || reading.fractionalInterest || /\b(fracao|parte\s+ideal|quota|quotas|quinhao)\b/.test(text)) {
+  if (
+    reading.fractional_interest
+    || reading.fractionalInterest
+    || /\b(parte\s+ideal|quota|quotas|cota|cotas|quinh[aã]o)\b|\bfracao\s+ideal(?:\s+de\s+[1-9]\d\s*%)?\b|\bfracao\s+(?:de|do|da|comercial)\b/.test(text)
+  ) {
     blockers.push("fracao ideal");
   }
   if (reading.bare_ownership || reading.bareOwnership || /\bnua\s+propriedade\b/.test(text)) {
@@ -1912,10 +1916,12 @@ function storiesByDecisionLane(stories) {
   }));
 }
 
-function RadarDecisionQueue({ discardingId, liveStories, onDiscard }) {
+function RadarDecisionQueue({ closedCount = 0, discardingId, liveStories, onDiscard }) {
   const lanes = storiesByDecisionLane(asArray(liveStories));
   const allItems = lanes.flatMap((lane) => lane.items);
   const total = allItems.length;
+  const activeLabel = pluralizeCase(total, "candidato real aberto", "candidatos reais abertos");
+  const closedLabel = pluralizeCase(closedCount, "caso real encerrado", "casos reais encerrados");
 
   if (!total) return null;
 
@@ -1942,10 +1948,10 @@ function RadarDecisionQueue({ discardingId, liveStories, onDiscard }) {
             Mesa de decisao
           </div>
           <h2 style={{ color: C.text, fontSize: 20, lineHeight: 1.15, margin: "7px 0 0" }}>
-            Abertos - {pluralizeCase(total, "candidato real", "candidatos reais")}
+            Fila ativa - {activeLabel}
           </h2>
           <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.65, margin: "8px 0 0" }}>
-            O radar fica mais agressivo: candidato aberto nao significa oportunidade. A fila separa o que pode avancar, o que exige prova e o que deve ficar bloqueado no reporte.
+            As tres raias abaixo somam so os abertos ({activeLabel}). {closedCount > 0 ? `${closedLabel} ficam fora desta mesa e aparecem em Fechados/aprendizados.` : "Nao ha encerrados fora desta mesa agora."}
           </p>
         </div>
 
@@ -2030,6 +2036,7 @@ function RadarRealStoryPortfolio({ closedStories, discardingId, liveStories, onD
 
       {liveStories.length > 0 && (
         <RadarDecisionQueue
+          closedCount={numberedClosedStories.length}
           discardingId={discardingId}
           liveStories={numberedLiveStories}
           onDiscard={onDiscard}

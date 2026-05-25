@@ -1799,7 +1799,9 @@ describe("Radar Imobiliário screen", () => {
     expect(within(decisionStrip).getByText("1 candidato com prova pendente")).toBeInTheDocument();
     expect(within(decisionStrip).getByText("1 caso travado por prova")).toBeInTheDocument();
     expect(within(decisionStrip).getByText("2 casos para calibracao")).toBeInTheDocument();
-    expect(screen.getByText(/Abertos - 2 candidatos reais/i)).toBeInTheDocument();
+    expect(screen.getByText(/Fila ativa - 2 candidatos reais abertos/i)).toBeInTheDocument();
+    expect(screen.getByText(/As tres raias abaixo somam so os abertos/i)).toBeInTheDocument();
+    expect(screen.getByText(/2 casos reais encerrados ficam fora desta mesa/i)).toBeInTheDocument();
   });
 
   it("shows thesis code and property type for closed real estate candidates", () => {
