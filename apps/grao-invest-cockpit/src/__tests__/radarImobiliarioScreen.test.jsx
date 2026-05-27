@@ -1801,6 +1801,69 @@ describe("Radar Imobiliário screen", () => {
     expect(screen.queryByTestId("radar-imobiliario-bloqueados")).not.toBeInTheDocument();
   });
 
+  it("blocks occupied fiduciary auctions when a nullity action attacks the auction", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4040",
+          thesisId: "IM-RADAR-TARGET-PIN-LEGAL",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Sao Paulo / Pinheiros / Rua Padre Carvalho Casa 4",
+          operation: "Leilao extrajudicial AF com acao de nulidade da consolidacao",
+          sourceUrl: "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-80-m2-sao-paulo-sp-rua-padre-carvalho-129-pinheiros-x123972",
+          entryPrice: 1179000,
+          currentPrice: 1800000,
+          targetPrice: 1800000,
+          realEstateAnalysis: {
+            score: 74,
+            confidence: 80,
+            max_purchase_price: 1300000,
+            source_validation: { status: "valid", reason: "Fonte oficial validada." },
+            valuation_evidence: { sale_comparables_count: 3 },
+            listing_reading: {
+              occupancy_status: "ocupado",
+              buyer_responsible_for_eviction: true,
+              fiduciary_auction_nullity_action: true,
+            },
+            scenarios: {
+              base: { sale_price: 1800000, net_profit: 180000, roi_pct: 16 },
+              conservative: { sale_price: 1650000, net_profit: 60000, roi_pct: 5 },
+            },
+            pending_items: [
+              {
+                key: "fiduciary_auction_nullity_action",
+                priority: "P0",
+                title: "Acao judicial ataca consolidacao/leilao",
+                action: "Remover do radar padrao ate advogado validar processo, liminar e risco de anulacao.",
+              },
+            ],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Padre Carvalho, 129 - Casa 4",
+              occupancy_status: "ocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              eviction_plan: "Imissao planejada com advogado.",
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const blocked = screen.getByTestId("radar-imobiliario-bloqueados");
+    expect(within(blocked).getAllByText(/Rua Padre Carvalho/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/acao judicial ataca consolidacao\/leilao/i).length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("radar-imobiliario-watchlist")).not.toBeInTheDocument();
+  });
+
   it("keeps overview and active candidate counts scoped to the same open radar queue", () => {
     const data = {
       thesisRows: [

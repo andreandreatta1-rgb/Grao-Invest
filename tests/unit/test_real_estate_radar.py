@@ -1201,6 +1201,88 @@ def test_suspicious_auction_payment_instruction_discards_candidate() -> None:
     assert any(item["key"] == "source_payment_risk" and item["priority"] == "P0" for item in analysis["pending_items"])
 
 
+def test_fiduciary_auction_nullity_action_discards_candidate_from_standard_radar() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Mega Leiloes / Bradesco",
+            "strategy": "Leilao extrajudicial AF + revenda",
+            "source_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-80-m2-sao-paulo-sp-rua-padre-carvalho-129-pinheiros-x123972",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Fonte oficial com edital e matricula.",
+            "listing_description": (
+                "Casa 04. Ocupada (AF). Consta Acao Declaratoria de Nulidade da "
+                "Consolidacao da Propriedade Fiduciaria e dos Leiloes Extrajudiciais, "
+                "processo 4057062-13.2026.8.26.0100."
+            ),
+            "asking_price": 1179000.0,
+            "market_value_estimate": 1800000.0,
+            "estimated_sale_conservative": 1650000.0,
+            "estimated_sale_base": 1800000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 50000.0,
+            "cash_needed": 1350000.0,
+            "occupancy_status": "ocupado",
+            "first_operation": False,
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 3,
+            "financing_validated": True,
+            "eviction_plan": "Imissao planejada com advogado.",
+            "plan_b": "Revender somente se a posse sair limpa.",
+        }
+    )
+
+    assert analysis["listing_reading"]["fiduciary_auction_nullity_action"] is True
+    assert analysis["suggested_status"] == "Descartado"
+    assert analysis["next_action"] == "Fechar candidato: acao judicial ataca consolidacao/leilao"
+    assert any(
+        item["key"] == "fiduciary_auction_nullity_action" and item["priority"] == "P0"
+        for item in analysis["pending_items"]
+    )
+    assert analysis["sourcing"]["tier"] == "bloqueado_por_p0"
+
+
+def test_occupied_fiduciary_auction_without_nullity_action_can_remain_legal_watchlist() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Zuk / Banco Bradesco",
+            "strategy": "2a praca extrajudicial AF + casa em vila",
+            "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Fonte oficial Zuk/Banco Bradesco validada.",
+            "listing_description": (
+                "Casa 5. Ocupado (AF). Desocupacao por conta do adquirente, "
+                "nos termos do art. 30 da Lei 9.514/97."
+            ),
+            "asking_price": 1610827.63,
+            "market_value_estimate": 2955000.0,
+            "estimated_sale_conservative": 2720000.0,
+            "estimated_sale_base": 2955000.0,
+            "renovation_type": "reforma completa",
+            "renovation_budget": 180000.0,
+            "cash_needed": 2100000.0,
+            "occupancy_status": "ocupado",
+            "first_operation": False,
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 4,
+            "rent_comparables_count": 3,
+            "financing_validated": True,
+            "eviction_plan": "Imissao planejada com advogado antes de qualquer lance.",
+            "plan_b": "Watchlist juridica ate validar prazo de posse.",
+        }
+    )
+
+    assert "fiduciary_auction_nullity_action" not in analysis["listing_reading"]
+    assert analysis["suggested_status"] == "Aberto com pendencias"
+    assert any(item["key"] == "eviction_risk" for item in analysis["pending_items"])
+
+
 def test_priscila_backlog_adds_modality_condition_and_exit_plan_pending_items() -> None:
     analysis = build_candidate_analysis(
         {

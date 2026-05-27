@@ -591,6 +591,53 @@ function possessionBlockersFor(row, candidate, analysis) {
   return [];
 }
 
+function fiduciaryAuctionNullityBlockersFor(row, candidate, analysis, sourceValidation) {
+  const reading = analysis?.listing_reading || analysis?.listingReading || candidate?.listing_reading || candidate?.listingReading || {};
+  const pendingText = searchText(
+    asArray(analysis?.pending_items || analysis?.pendingItems)
+      .map((item) => compactText([item?.key, item?.title, item?.action, item?.detail]))
+  );
+  const text = searchText([
+    row?.asset,
+    row?.operation,
+    row?.hypothesis,
+    row?.learning_note,
+    row?.sourceUrl,
+    row?.source_url,
+    candidate?.strategy,
+    candidate?.notes,
+    candidate?.source_validation_reason,
+    candidate?.sourceValidationReason,
+    analysis?.next_action,
+    analysis?.nextAction,
+    sourceValidation?.reason,
+    pendingText,
+  ]);
+  const hasNullityAction = Boolean(
+    reading.fiduciary_auction_nullity_action
+    || reading.fiduciaryAuctionNullityAction
+  ) || text.includes("fiduciary_auction_nullity_action")
+    || (
+      includesAny(text, [
+        "acao declaratoria de nulidade",
+        "acao anulatoria",
+        "anulacao do leilao",
+        "anulacao de leilao",
+        "nulidade da consolidacao",
+        "nulidade dos leiloes",
+        "nulidade do leilao",
+        "suspensao do leilao",
+      ])
+      && includesAny(text, [
+        "consolidacao",
+        "propriedade fiduciaria",
+        "leilao extrajudicial",
+        "leiloes extrajudiciais",
+      ])
+    );
+  return hasNullityAction ? ["acao judicial ataca consolidacao/leilao"] : [];
+}
+
 function sourcePaymentBlockersFor(row, candidate, analysis, sourceValidation) {
   const reading = analysis?.listing_reading || analysis?.listingReading || candidate?.listing_reading || candidate?.listingReading || {};
   const pendingText = searchText(
@@ -670,6 +717,7 @@ function qualificationForLiveCandidate({ analysis, candidate, ceiling, confidenc
   const officialDocumentationBlockers = officialDocumentationBlockersFor(row, candidate, analysis, sourceUrl);
   const debtCostBlockers = debtCostBlockersFor(row, candidate, analysis, sourceUrl);
   const possessionBlockers = possessionBlockersFor(row, candidate, analysis);
+  const fiduciaryNullityBlockers = fiduciaryAuctionNullityBlockersFor(row, candidate, analysis, sourceValidation);
   const sourcePaymentBlockers = sourcePaymentBlockersFor(row, candidate, analysis, sourceValidation);
   const financingBlockers = financingBlockersFor(row, candidate, analysis, sourceUrl);
 
@@ -678,6 +726,7 @@ function qualificationForLiveCandidate({ analysis, candidate, ceiling, confidenc
   reasons.push(...officialDocumentationBlockers);
   reasons.push(...debtCostBlockers);
   reasons.push(...possessionBlockers);
+  reasons.push(...fiduciaryNullityBlockers);
   reasons.push(...sourcePaymentBlockers);
   reasons.push(...financingBlockers);
   if (hasGenericSource) reasons.push("fonte generica");

@@ -446,6 +446,11 @@ def _auction_listing_reading(payload: dict[str, Any]) -> dict[str, Any]:
         reading["auction_modality"] = "venda_direta"
     elif "caixa" in normalized or "banco do brasil" in normalized:
         reading["auction_modality"] = "banco"
+    if _has_fiduciary_auction_nullity_action(normalized):
+        reading["fiduciary_auction_nullity_action"] = True
+        process_match = re.search(r"\b\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}\b", normalized)
+        if process_match:
+            reading["judicial_process_number"] = process_match.group(0)
     if (
         ("pix" in normalized or "boleto" in normalized or "conta" in normalized)
         and (
@@ -506,6 +511,30 @@ def _auction_reference_value_evidence(
             "de manter a tese ativa."
         ),
     }
+
+
+def _has_fiduciary_auction_nullity_action(normalized: str) -> bool:
+    nullity_terms = (
+        "acao declaratoria de nulidade",
+        "acao anulatoria",
+        "anulacao do leilao",
+        "anulacao de leilao",
+        "nulidade da consolidacao",
+        "nulidade dos leiloes",
+        "nulidade do leilao",
+        "suspensao do leilao",
+    )
+    auction_terms = (
+        "consolidacao da propriedade fiduciaria",
+        "propriedade fiduciaria",
+        "leilao extrajudicial",
+        "leiloes extrajudiciais",
+    )
+    if any(term in normalized for term in nullity_terms) and any(
+        term in normalized for term in auction_terms
+    ):
+        return True
+    return "liminar" in normalized and "leilao" in normalized and "extrajudicial" in normalized
 
 
 def _weak_neighborhood_benchmark_evidence(
@@ -1791,6 +1820,19 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             priority="P0",
             action="Conferir leiloeiro oficial, dominio, edital e dados de pagamento antes de qualquer lance.",
         )
+    if listing_reading.get("fiduciary_auction_nullity_action"):
+        process_number = str(listing_reading.get("judicial_process_number") or "").strip()
+        process_suffix = f" Processo: {process_number}." if process_number else ""
+        _add_pending(
+            pending_items,
+            key="fiduciary_auction_nullity_action",
+            title="Acao judicial ataca consolidacao/leilao",
+            priority="P0",
+            action=(
+                "Remover do radar padrao ate advogado validar processo, liminar, risco de anulacao "
+                f"e efeito sobre posse/titulo.{process_suffix}"
+            ),
+        )
     if occupancy == "desconhecido":
         _add_pending(
             pending_items,
@@ -2154,6 +2196,9 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
     elif listing_reading.get("suspicious_payment_instruction"):
         suggested_status = "Descartado"
         next_action = "Fechar candidato: fonte/pagamento nao oficial"
+    elif listing_reading.get("fiduciary_auction_nullity_action"):
+        suggested_status = "Descartado"
+        next_action = "Fechar candidato: acao judicial ataca consolidacao/leilao"
     elif legal_ownership_blockers:
         suggested_status = "Descartado"
         next_action = (
