@@ -48,6 +48,13 @@ def _candidate_snapshot(lead: dict[str, Any], analysis: dict[str, Any]) -> dict[
         "bedrooms",
         "parking_spaces",
         "occupancy_status",
+        "first_operation",
+        "has_registration",
+        "has_edital",
+        "condo_debt_known",
+        "iptu_debt_known",
+        "iptu_debt_amount",
+        "known_debt_costs_brl",
         "renovation_type",
         "renovation_budget",
         "sale_comparables_count",
@@ -62,6 +69,9 @@ def _candidate_snapshot(lead: dict[str, Any], analysis: dict[str, Any]) -> dict[
         "estimated_sale_optimistic",
         "listing_description",
         "sale_comparables",
+        "legal_plan",
+        "eviction_plan",
+        "possession_plan",
         "plan_b",
         "notes",
         "source_validation_status",
@@ -86,7 +96,11 @@ def _enriched_lead(lead: dict[str, Any]) -> dict[str, Any]:
     asking_price = _number(enriched.get("asking_price"))
     enriched.setdefault("acquisition_costs", round(asking_price * 0.08, 2))
     enriched.setdefault("selling_commission_pct", 6.0)
-    enriched.setdefault("sale_comparables_count", 0)
+    sale_comparables = enriched.get("sale_comparables")
+    enriched.setdefault(
+        "sale_comparables_count",
+        len(sale_comparables) if isinstance(sale_comparables, list) else 0,
+    )
     enriched.setdefault("rent_comparables_count", 0)
     enriched.setdefault("target_roi_pct", 20.0)
     enriched.setdefault("source_checked_at", enriched.get("observed_at", ""))

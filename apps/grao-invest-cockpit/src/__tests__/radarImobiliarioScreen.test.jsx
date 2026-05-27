@@ -1744,6 +1744,63 @@ describe("Radar Imobiliário screen", () => {
     expect(screen.queryByTestId("radar-imobiliario-avancar")).not.toBeInTheDocument();
   });
 
+  it("keeps occupied Zuk Bradesco candidates with an imissao plan in the watchlist", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4038",
+          thesisId: "IM-RADAR-TARGET-PIN-06",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Sao Paulo / Pinheiros / Rua Padre Carvalho Casa 5",
+          operation: "2a praca extrajudicial Bradesco + casa em vila",
+          sourceUrl: "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+          entryPrice: 1610827.63,
+          currentPrice: 2955000,
+          targetPrice: 2955000,
+          realEstateAnalysis: {
+            score: 70,
+            confidence: 83,
+            max_purchase_price: 1710000,
+            source_validation: { status: "valid", reason: "Fonte oficial Zuk/Bradesco validada." },
+            valuation_evidence: { sale_comparables_count: 4 },
+            scenarios: {
+              base: { sale_price: 2955000, net_profit: 400000, roi_pct: 20 },
+              conservative: { sale_price: 2720000, net_profit: 120000, roi_pct: 6 },
+            },
+            pending_items: [
+              {
+                key: "eviction_risk",
+                priority: "P0",
+                title: "Desocupacao por conta do comprador",
+                action: "Estimar prazo, custo juridico e risco de imissao.",
+              },
+            ],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Padre Carvalho, 129 - Casa 5",
+              occupancy_status: "ocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+              eviction_plan: "Imissao planejada com advogado antes de qualquer lance.",
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const watchlist = screen.getByTestId("radar-imobiliario-watchlist");
+    expect(within(watchlist).getAllByText(/Rua Padre Carvalho/i).length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("radar-imobiliario-bloqueados")).not.toBeInTheDocument();
+  });
+
   it("keeps overview and active candidate counts scoped to the same open radar queue", () => {
     const data = {
       thesisRows: [

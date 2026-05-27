@@ -160,6 +160,7 @@ def test_seed_includes_new_master_neighborhood_candidate_batch() -> None:
     expected_ids = {
         "IM-RADAR-TARGET-PIN-04",
         "IM-RADAR-TARGET-PIN-05",
+        "IM-RADAR-TARGET-PIN-06",
         "IM-RADAR-TARGET-PER-04",
         "IM-RADAR-TARGET-CAM-05",
         "IM-RADAR-TARGET-ITA-02",
@@ -168,6 +169,7 @@ def test_seed_includes_new_master_neighborhood_candidate_batch() -> None:
     expected_numbers = {
         "IM-RADAR-TARGET-PIN-04": 3982,
         "IM-RADAR-TARGET-PIN-05": 3983,
+        "IM-RADAR-TARGET-PIN-06": 4038,
         "IM-RADAR-TARGET-PER-04": 3984,
         "IM-RADAR-TARGET-CAM-05": 3985,
         "IM-RADAR-TARGET-ITA-02": 3986,
@@ -179,9 +181,42 @@ def test_seed_includes_new_master_neighborhood_candidate_batch() -> None:
         for thesis_id in expected_ids
     } == expected_numbers
     assert rows_by_id["IM-RADAR-TARGET-PIN-04"]["source_validation_status"] == "valid"
+    assert rows_by_id["IM-RADAR-TARGET-PIN-06"]["source_validation_status"] == "valid"
     assert rows_by_id["IM-RADAR-TARGET-ITA-02"]["source_validation_status"] == "valid"
     assert "Faria Lima" in rows_by_id["IM-RADAR-TARGET-PIN-05"]["asset"]
     assert "Le Premier" in rows_by_id["IM-RADAR-TARGET-PAR-04"]["asset"]
+
+
+def test_padre_carvalho_zuk_bradesco_candidate_keeps_primary_evidence_and_watchlist_plan() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    row = next(
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if row.get("thesis_id") == "IM-RADAR-TARGET-PIN-06"
+    )
+    analysis = row["real_estate_analysis"]
+    candidate = analysis["candidate"]
+    pending_by_key = {item["key"]: item for item in analysis["pending_items"]}
+
+    assert row["thesis_number"] == 4038
+    assert row["is_open"] is True
+    assert row["source_validation_status"] == "valid"
+    assert "Rua Padre Carvalho Casa 5" in row["asset"]
+    assert candidate["has_registration"] is True
+    assert candidate["has_edital"] is True
+    assert candidate["condo_debt_known"] is True
+    assert candidate["iptu_debt_known"] is True
+    assert candidate["sale_comparables_count"] == 4
+    assert "Banco Bradesco" in row["source_validation_reason"]
+    assert "consolidacao" in row["source_validation_reason"]
+    assert "matricula 22.175" in row["source_validation_reason"]
+    assert analysis["source_validation"]["url"] == (
+        "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/"
+        "rua-padre-carvalho-129/36388-226112"
+    )
+    assert analysis["valuation_evidence"]["sale_comparables_count"] == 4
+    assert pending_by_key["eviction_risk"]["priority"] == "P0"
+    assert candidate["eviction_plan"].startswith("Imissao planejada")
 
 
 def test_pinheiros_alves_guimaraes_uses_individual_lot_source_url() -> None:

@@ -666,5 +666,79 @@
     "source_validation_reason": "Fonte individual do Leilao Imovel; validar ocupacao, dividas e demanda de alto ticket antes de proposta.",
     "observed_at": "2026-05-23T11:24:00-03:00",
     "thesis_number": 3987
+  },
+  {
+    "id_suffix": "PIN-06",
+    "title": "Sao Paulo / Pinheiros / Rua Padre Carvalho Casa 5 / Entrada 1.611M Saida 2.955M",
+    "strategy": "2a praca extrajudicial Bradesco + casa em vila com desconto aparente",
+    "origin": "Portal Zuk / Bradesco",
+    "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+    "city": "Sao Paulo",
+    "neighborhood": "Pinheiros",
+    "street": "Rua Padre Carvalho, 129 - Casa 5",
+    "property_type": "Casa em vila",
+    "asking_price": 1610827.63,
+    "market_value_estimate": 2955000,
+    "listing_description": "Casa n. 5, Rua Padre Carvalho 129, Pinheiros, areas totais terreno 180,60m2 e construida estimada 180,00m2. Matricula 22.175 do 10 CRI de Sao Paulo/SP, CNM 111138.2.0022175-59, contribuinte 083.204.0042-2. Edital Zuk/Bradesco Lei 9.514/97. Ocupado (AF). Desocupacao por conta do adquirente. Matricula analisada: R.7 compra e venda em 29/06/2020 por R$ 1.800.000,00 para Renata Dias Ferreira Leite Mendonca e Mauricio Ferreira Mendonca; R.8 alienacao fiduciaria ao Banco Bradesco S/A para garantia de R$ 1.440.000,00; Av.11 em 17/03/2026 consolidou a propriedade fiduciaria em nome do Banco Bradesco S/A por nao purgacao da mora. Certidao expedida em 18/05/2026 reproduz onus e alienacoes, com fim dos atos apos Av.11.",
+    "private_area_m2": 180,
+    "bedrooms": 3,
+    "parking_spaces": 2,
+    "occupancy_status": "ocupado",
+    "first_operation": false,
+    "has_registration": true,
+    "has_edital": true,
+    "condo_debt_known": true,
+    "iptu_debt_known": true,
+    "iptu_debt_amount": 0,
+    "renovation_type": "reforma completa",
+    "renovation_budget": 180000,
+    "carrying_months": 14,
+    "monthly_carrying_cost": 8500,
+    "target_roi_pct": 20,
+    "location_liquidity_score": 88,
+    "local_demand_risk": "medio",
+    "local_demand_notes": "Rua Padre Carvalho tem liquidez e comparaveis de casa acima do valor de entrada, mas a vila mostrou leilao encerrado sem lance e o imovel esta ocupado; tratar como watchlist juridica, nao como lance automatico.",
+    "sale_comparables": [
+      {
+        "source": "Lopes",
+        "source_url": "https://www.lopes.com.br/busca/venda/br/sp/sao-paulo/pinheiros/rua-padre-carvalho/tipo/casa",
+        "price": 3900000,
+        "area_m2": 220,
+        "evidence_type": "asking_listing_same_street",
+        "note": "Rua Padre Carvalho, Pinheiros; casa 220m2 anunciada por R$ 3,9M."
+      },
+      {
+        "source": "Lopes",
+        "source_url": "https://www.lopes.com.br/busca/venda/br/sp/sao-paulo/pinheiros/rua-padre-carvalho/tipo/casa",
+        "price": 3250000,
+        "area_m2": 215,
+        "evidence_type": "asking_listing_same_street",
+        "note": "Rua Padre Carvalho, Pinheiros; casa 215m2 anunciada por R$ 3,25M."
+      },
+      {
+        "source": "Chaves na Mao",
+        "source_url": "https://www.chavesnamao.com.br/casas-a-venda/sp-sao-paulo/pinheiros/?q=Rua%20Padre%20Carvalho",
+        "price": 2200000,
+        "area_m2": 120,
+        "evidence_type": "asking_listing_same_neighborhood",
+        "note": "Pinheiros; Rua Santos Torres, 63; casa 120m2 anunciada por R$ 2,2M."
+      },
+      {
+        "source": "Mega Leiloes casa 4",
+        "source_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-80-m2-sao-paulo-sp-rua-padre-carvalho-129-pinheiros-x123972",
+        "price": 1179000,
+        "area_m2": 80,
+        "evidence_type": "failed_auction_reference",
+        "note": "Casa 4 na vila encerrou sem lance; alerta de risco e liquidez, nao usado como valor de saida."
+      }
+    ],
+    "eviction_plan": "Imissao planejada com advogado antes de qualquer lance; proposta so depois de validar matricula completa, ocupacao e custos de desocupacao.",
+    "plan_b": "Watchlist juridica: so virar proposta com matricula completa, debitos municipais e plano juridico de imissao/desocupacao.",
+    "notes": "Anexos analisados: Edital de venda, Edital de Venda do Imovel e Matricula do Imovel. A matricula I36393lote001matricula2.pdf foi aberta pelo usuario/Chrome e lida visualmente porque as paginas principais sao imagem; evidencia salva localmente em data/reports/evidence_4038_matricula_pages. Nao tratar como lance automatico: exigir plano de desocupacao, debitos municipais/condominio e revisao juridica da imissao antes de proposta.",
+    "source_validation_status": "valid",
+    "source_validation_reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026.",
+    "source_checked_at": "2026-05-27T18:00:00-03:00",
+    "observed_at": "2026-05-27T18:00:00-03:00",
+    "thesis_number": 4038
   }
 ]
