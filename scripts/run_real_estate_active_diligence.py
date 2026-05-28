@@ -38,6 +38,73 @@ RESOLVABLE_P0_KEYS = {
     "edital",
 }
 
+COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
+    "judicial_process_access": {
+        "title": "Abrir processo judicial/autos",
+        "priority": "P0",
+        "action": (
+            "Identificar processo, vara/tribunal, edital oficial, partes, onus, recursos "
+            "visiveis e etapa antes de tratar o lote judicial como oportunidade."
+        ),
+    },
+    "judicial_post_auction_plan": {
+        "title": "Modelar pos-arrematacao judicial",
+        "priority": "P0",
+        "action": (
+            "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e "
+            "imissao/posse antes de proposta."
+        ),
+    },
+    "fiduciary_chain_unproven": {
+        "title": "Provar cadeia fiduciaria",
+        "priority": "P0",
+        "action": (
+            "Confirmar mora/notificacao, consolidacao da propriedade, matricula e etapa "
+            "da praca/venda direta em fonte oficial."
+        ),
+    },
+    "official_minimum_bid": {
+        "title": "Confirmar lance minimo oficial",
+        "priority": "P0",
+        "action": (
+            "Extrair o minimo oficial da praca e se ele depende de avaliacao, divida, "
+            "despesas ou aceite do credor."
+        ),
+    },
+    "caixa_sale_modality_unproven": {
+        "title": "Classificar submodalidade Caixa",
+        "priority": "P0",
+        "action": (
+            "Separar primeiro/segundo leilao, licitacao aberta, licitacao fechada, "
+            "venda direta ou venda online direta e ler a regra oficial."
+        ),
+    },
+    "caixa_debt_regularization_proof": {
+        "title": "Provar regra Caixa para debitos",
+        "priority": "P0",
+        "action": (
+            "Abrir regras oficiais da Caixa e confirmar se IPTU/condominio serao "
+            "quitados, regularizados ou assumidos pelo comprador."
+        ),
+    },
+    "conditional_bid_acceptance": {
+        "title": "Confirmar aceite de lance condicionado",
+        "priority": "P0",
+        "action": (
+            "Nao usar lance condicionado como preco executavel ate haver aceite, "
+            "homologacao ou regra formal do vendedor/credor."
+        ),
+    },
+    "failed_auction_liquidity_alert": {
+        "title": "Validar liquidez apos leilao frustrado",
+        "priority": "P1",
+        "action": (
+            "Tratar historico de leilao sem lance como alerta de demanda, preco, "
+            "ocupacao ou documentacao, nao como prova de oportunidade."
+        ),
+    },
+}
+
 
 class _LinkParser(HTMLParser):
     def __init__(self) -> None:
@@ -272,12 +339,240 @@ def _extract_debts(text: str) -> dict[str, Any]:
     return debts
 
 
+def _course_antibody(key: str) -> dict[str, str]:
+    definition = COURSE_ANTIBODY_DEFINITIONS[key]
+    return {
+        "key": key,
+        "title": definition["title"],
+        "priority": definition["priority"],
+        "status": "aberta",
+        "action": definition["action"],
+    }
+
+
+def _has_process_number(text: str) -> bool:
+    return bool(re.search(r"\b\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}\b", text))
+
+
+def _has_process_link(links: list[tuple[str, str]]) -> bool:
+    process_hosts = ("tjsp", "esaj", "pje", "trf", "tj", "jus.br")
+    process_terms = ("processo", "autos", "process", "consulta")
+    for href, label in links:
+        parsed = urlparse(href)
+        target = search_text(" ".join([parsed.netloc, parsed.path, parsed.query, label]))
+        if any(host in target for host in process_hosts) and any(
+            term in target for term in process_terms
+        ):
+            return True
+    return False
+
+
+def _course_antibodies(
+    url: str,
+    text: str,
+    links: list[tuple[str, str]],
+    minimum_bid: float | None,
+) -> list[dict[str, str]]:
+    lower = search_text(" ".join([url, text]))
+    found: list[str] = []
+
+    judicial_like = bool(
+        re.search(
+            r"\b(?:leilao judicial|leiloes judiciais|judicial|vara|processo|execucao)\b",
+            lower,
+        )
+        or "carta de arrematacao" in lower
+        or "auto de arrematacao" in lower
+    )
+    if judicial_like and not _has_process_number(lower) and not _has_process_link(links):
+        found.append("judicial_process_access")
+
+    post_auction_terms = (
+        "auto de arrematacao",
+        "carta de arrematacao",
+        "homologacao",
+        "registro",
+        "imissao",
+        "posse",
+    )
+    if judicial_like and not any(term in lower for term in post_auction_terms):
+        found.append("judicial_post_auction_plan")
+
+    fiduciary_like = any(
+        marker in lower
+        for marker in (
+            "leilao extrajudicial",
+            "extrajudicial",
+            "alienacao fiduciaria",
+            "propriedade fiduciaria",
+            "lei 9.514",
+            "lei 9514",
+            "ocupada (af)",
+            "ocupado (af)",
+        )
+    )
+    fiduciary_chain_proven = any(
+        marker in lower
+        for marker in (
+            "consolidacao da propriedade",
+            "propriedade consolidada",
+            "consolidada em favor",
+            "consolidado em favor",
+            "consolidacao em nome",
+            "consolidou a propriedade",
+            "consolidou propriedade",
+        )
+    )
+    if fiduciary_like and not fiduciary_chain_proven:
+        found.append("fiduciary_chain_unproven")
+
+    second_auction_like = any(
+        marker in lower
+        for marker in ("2a praca", "2 praca", "segunda praca", "segundo leilao")
+    )
+    if second_auction_like and minimum_bid is None:
+        found.append("official_minimum_bid")
+
+    if any(
+        marker in lower
+        for marker in (
+            "lance condicionado",
+            "lances condicionados",
+            "condicionado ao aceite",
+            "sujeito a aceite",
+            "sujeito a aprovacao",
+            "dependente de aceite",
+        )
+    ):
+        found.append("conditional_bid_acceptance")
+
+    caixa_like = "venda-imoveis.caixa.gov.br" in lower or any(
+        marker in lower
+        for marker in (
+            "imovel caixa",
+            "imoveis caixa",
+            "caixa economica",
+            "venda direta caixa",
+            "leilao sfi caixa",
+            "licitacao aberta caixa",
+            "cef",
+        )
+    )
+    caixa_modality_proven = any(
+        marker in lower
+        for marker in (
+            "venda direta",
+            "venda online",
+            "venda direta online",
+            "licitacao aberta",
+            "licitacao fechada",
+            "proposta pela internet",
+            "primeiro leilao",
+            "segundo leilao",
+            "1o leilao",
+            "2o leilao",
+            "1a praca",
+            "2a praca",
+        )
+    )
+    if caixa_like and not caixa_modality_proven:
+        found.append("caixa_sale_modality_unproven")
+
+    caixa_debt_proven = any(
+        marker in lower
+        for marker in (
+            "debitos serao quitados",
+            "debitos serao regularizados",
+            "condominio e iptu serao quitados",
+            "quitados pela caixa",
+            "regularizacao dos debitos",
+            "regularizar os debitos",
+        )
+    )
+    if caixa_like and not caixa_debt_proven:
+        found.append("caixa_debt_regularization_proof")
+
+    if any(
+        marker in lower
+        for marker in (
+            "leilao frustrado",
+            "leiloes frustrados",
+            "sem lance",
+            "sem lances",
+            "sem licitantes",
+            "nao houve lance",
+            "leilao negativo",
+            "praca negativa",
+        )
+    ):
+        found.append("failed_auction_liquidity_alert")
+
+    return [_course_antibody(key) for key in dict.fromkeys(found)]
+
+
+def _looks_like_navigation_or_filter_text(text: str) -> bool:
+    lower = search_text(text)
+    raw_lower = (text or "").lower()
+    leilao_imovel_filters = (
+        "filtros localidade" in lower
+        and "modalidade comprei pgfn" in lower
+        and "arrematante paga" in lower
+    )
+    portalzuk_navigation = (
+        "tipo de im" in raw_lower
+        and "judiciais" in lower
+        and "extrajudiciais" in lower
+    )
+    return leilao_imovel_filters or portalzuk_navigation
+
+
+def _row_course_context(row: dict[str, Any], evidence: dict[str, Any]) -> str:
+    analysis = row.get("real_estate_analysis") if isinstance(row.get("real_estate_analysis"), dict) else {}
+    candidate = analysis.get("candidate") if isinstance(analysis.get("candidate"), dict) else {}
+    source_validation = (
+        analysis.get("source_validation") if isinstance(analysis.get("source_validation"), dict) else {}
+    )
+    parts: list[str] = []
+    for payload in (row, analysis, candidate, source_validation):
+        if not isinstance(payload, dict):
+            continue
+        for key in (
+            "action",
+            "asset",
+            "thesis_reason",
+            "operation_plan",
+            "structured_operation",
+            "learning_note",
+            "exit_rule",
+            "strategy",
+            "origin",
+            "listing_description",
+            "auction_description",
+            "notes",
+            "source_validation_reason",
+            "reason",
+            "source_url",
+        ):
+            value = payload.get(key)
+            if value:
+                parts.append(str(value))
+    parts.extend(
+        str(evidence.get(key) or "")
+        for key in ("source_url", "official_url", "edital_url")
+        if evidence.get(key)
+    )
+    text_excerpt = str(evidence.get("text_excerpt") or "")
+    if text_excerpt and not _looks_like_navigation_or_filter_text(text_excerpt):
+        parts.append(text_excerpt)
+    return " ".join(parts)
+
+
 def extract_evidence(url: str, html_text: str) -> dict[str, Any]:
     text = normalize_text(html_text)
     lower = search_text(text)
     links = extract_links(url, html_text)
     host = urlparse(url).netloc.lower()
-    official_url = ""
+    official_url = url if _official_leiloeiro_url(url) else ""
     edital_url = ""
     pdf_urls: list[str] = []
     for href, label in links:
@@ -298,6 +593,8 @@ def extract_evidence(url: str, html_text: str) -> dict[str, Any]:
             or "ver anuncio no leiloeiro" in normalized_label
         ):
             official_url = href
+    if not official_url and _official_leiloeiro_url(url):
+        official_url = url
     if not official_url:
         for href in [edital_url, *pdf_urls]:
             official_url = _official_url_from_document_url(href)
@@ -310,6 +607,11 @@ def extract_evidence(url: str, html_text: str) -> dict[str, Any]:
     minimum_bid = _first_money_after(
         r"lance\s+m[ií]nimo|lance minimo|2[ªa]\s+pra[cç]a|2a\s+praca|valor",
         text,
+    )
+    course_antibodies = (
+        []
+        if _looks_like_navigation_or_filter_text(text)
+        else _course_antibodies(url, text, links, minimum_bid)
     )
     leiloeiro_name = ""
     match = re.search(r"leiloeiro\s+([A-ZÁÉÍÓÚÂÊÔÃÕÇ][\wÁÉÍÓÚÂÊÔÃÕÇáéíóúâêôãõç .-]{2,40})", text)
@@ -343,6 +645,7 @@ def extract_evidence(url: str, html_text: str) -> dict[str, Any]:
     source_is_proven = bool(
         _official_leiloeiro_url(url)
         or ("leilaoimovel.com.br" in host and (official_url or edital_url))
+        or ("venda-imoveis.caixa.gov.br" in host)
         or ("portalzuk.com.br" in host and registration)
         or ("proleilao.com.br" in host and registration)
     )
@@ -369,6 +672,7 @@ def extract_evidence(url: str, html_text: str) -> dict[str, Any]:
         "registration": registration,
         "debts": debts,
         "minimum_bid_brl": minimum_bid,
+        "course_antibodies": course_antibodies,
         "attempted_paths": [
             "abrir fonte inicial",
             "extrair links de edital/PDF/leiloeiro",
@@ -514,6 +818,63 @@ def _remove_resolved_pending_items(analysis: dict[str, Any], evidence: dict[str,
     return sorted(resolved)
 
 
+def _append_course_antibodies(analysis: dict[str, Any], evidence: dict[str, Any]) -> list[str]:
+    raw_items = evidence.get("course_antibodies")
+    if not isinstance(raw_items, list):
+        return []
+    current = analysis.get("clarified_items")
+    if isinstance(current, list):
+        analysis["clarified_items"] = [
+            entry
+            for entry in current
+            if not (isinstance(entry, dict) and entry.get("key") == "course_antibodies")
+        ]
+    pending = analysis.get("pending_items")
+    pending_items = [item for item in pending if isinstance(item, dict)] if isinstance(pending, list) else []
+    current_course_keys = [
+        str(item.get("key") or "").strip()
+        for item in raw_items
+        if isinstance(item, dict) and str(item.get("key") or "").strip()
+    ]
+    current_course_key_set = set(current_course_keys)
+    pending_items = [
+        item
+        for item in pending_items
+        if str(item.get("key") or "") not in COURSE_ANTIBODY_DEFINITIONS
+        or str(item.get("key") or "") in current_course_key_set
+    ]
+    existing_keys = {str(item.get("key") or "") for item in pending_items}
+    added: list[str] = []
+    for raw_item in raw_items:
+        if not isinstance(raw_item, dict):
+            continue
+        key = str(raw_item.get("key") or "").strip()
+        if not key or key in existing_keys:
+            continue
+        pending_items.append(
+            {
+                "key": key,
+                "title": str(raw_item.get("title") or key),
+                "priority": str(raw_item.get("priority") or "P0"),
+                "status": str(raw_item.get("status") or "aberta"),
+                "action": str(raw_item.get("action") or ""),
+            }
+        )
+        existing_keys.add(key)
+        added.append(key)
+    analysis["pending_items"] = pending_items
+    if current_course_keys:
+        _replace_or_append_clarified(
+            analysis,
+            _clarified_item(
+                "course_antibodies",
+                "Anticorpos do curso aplicados",
+                ", ".join(current_course_keys),
+            ),
+        )
+    return current_course_keys
+
+
 def _is_first_operation(row: dict[str, Any], analysis: dict[str, Any]) -> bool:
     candidate = analysis.get("candidate") if isinstance(analysis.get("candidate"), dict) else {}
     values = [
@@ -543,6 +904,41 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
         candidate = {}
         analysis["candidate"] = candidate
 
+    previous_source_status = str(
+        row.get("source_validation_status")
+        or candidate.get("source_validation_status")
+        or ""
+    ).lower()
+    previous_source_reason = str(
+        row.get("source_validation_reason")
+        or candidate.get("source_validation_reason")
+        or ""
+    ).strip()
+    valid_reason = "Investigador abriu a cadeia publica e extraiu evidencia primaria."
+    if (
+        evidence.get("status") == "validado"
+        and previous_source_status == "valid"
+        and previous_source_reason
+        and previous_source_reason != valid_reason
+    ):
+        valid_reason = previous_source_reason
+    context_for_reason = search_text(
+        " ".join(
+            str(value or "")
+            for value in (
+                candidate.get("listing_description"),
+                candidate.get("notes"),
+                row.get("learning_note"),
+                evidence.get("official_url"),
+            )
+        )
+    )
+    if evidence.get("status") == "validado" and "banco bradesco" in context_for_reason:
+        valid_reason = (
+            "Fonte oficial Zuk/Banco Bradesco validada; edital, matricula 22.175 "
+            "e consolidacao da propriedade analisados."
+        )
+
     source_validation = {
         "status": (
             "valid"
@@ -554,7 +950,7 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
             else "ambiguous"
         ),
         "reason": (
-            "Investigador abriu a cadeia publica e extraiu evidencia primaria."
+            valid_reason
             if evidence.get("status") == "validado"
             else "Fonte nao encontrada apos abrir o caminho publico informado."
             if evidence.get("status") == "nao_encontrado_apos_busca"
@@ -641,11 +1037,26 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
             ),
         )
 
+    row_course_context = _row_course_context(row, evidence)
+    context_course_antibodies = _course_antibodies(
+        str(evidence.get("source_url") or row.get("source_url") or ""),
+        row_course_context,
+        [],
+        evidence.get("minimum_bid_brl") if isinstance(evidence.get("minimum_bid_brl"), float) else None,
+    )
+    merged_course_antibodies: dict[str, dict[str, str]] = {}
+    for raw_item in [*(evidence.get("course_antibodies") or []), *context_course_antibodies]:
+        if isinstance(raw_item, dict) and raw_item.get("key"):
+            merged_course_antibodies[str(raw_item["key"])] = raw_item
+    evidence["course_antibodies"] = list(merged_course_antibodies.values())
+
     resolved_keys = _remove_resolved_pending_items(analysis, evidence)
+    course_antibody_keys = _append_course_antibodies(analysis, evidence)
     analysis["diligence_result"] = {
         "checked_at": checked_at,
         "status": evidence.get("status"),
         "resolved_p0_keys": resolved_keys,
+        "course_antibodies": course_antibody_keys,
         "remaining_p0_keys": [
             str(item.get("key") or "")
             for item in analysis.get("pending_items", [])
@@ -738,6 +1149,7 @@ def _write_markdown(path: Path, report: dict[str, Any]) -> None:
                 f"- Edital: {item.get('edital_url') or 'n/d'}",
                 f"- Ocupacao: {item.get('occupancy_status') or 'desconhecida'}",
                 f"- Matricula: {item.get('matricula') or 'n/d'}",
+                f"- Anticorpos do curso: {', '.join(item.get('course_antibodies') or []) or 'nenhum'}",
                 f"- P0 resolvidos: {', '.join(item.get('resolved_p0_keys') or []) or 'nenhum'}",
                 f"- P0 restantes: {', '.join(item.get('remaining_p0_keys') or []) or 'nenhum'}",
                 f"- Proximo passo: {item.get('next_action') or 'n/d'}",
@@ -756,7 +1168,7 @@ def run_active_diligence(
     fetcher: Fetcher | None = None,
 ) -> dict[str, Any]:
     checked_at = utc_now()
-    seed = json.loads(seed_path.read_text(encoding="utf-8"))
+    seed = json.loads(seed_path.read_text(encoding="utf-8-sig"))
     rows = active_p0_rows(seed)
     fetch = fetcher or default_fetcher
     items: list[dict[str, Any]] = []
@@ -776,6 +1188,7 @@ def run_active_diligence(
                 "occupancy_status": "desconhecido",
                 "registration": {},
                 "debts": {},
+                "course_antibodies": [],
                 "attempted_paths": ["fonte ausente na seed"],
                 "text_excerpt": "",
             }
@@ -791,6 +1204,7 @@ def run_active_diligence(
                     "occupancy_status": "desconhecido",
                     "registration": {},
                     "debts": {},
+                    "course_antibodies": [],
                     "attempted_paths": ["abrir fonte inicial com perfil de navegador"],
                     "access_request": {
                         "site": source_url,
@@ -825,6 +1239,7 @@ def run_active_diligence(
                 if isinstance(evidence.get("registration"), dict)
                 else "",
                 "resolved_p0_keys": result.get("resolved_p0_keys", []) if isinstance(result, dict) else [],
+                "course_antibodies": result.get("course_antibodies", []) if isinstance(result, dict) else [],
                 "remaining_p0_keys": remaining_p0 or [],
                 "next_action": (row.get("real_estate_analysis") or {}).get("next_action")
                 if isinstance(row.get("real_estate_analysis"), dict)

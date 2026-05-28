@@ -88,6 +88,287 @@ def test_rejects_static_assets_and_404_pages_as_official_evidence() -> None:
     assert not evidence["official_url"]
 
 
+def test_course_antibodies_flag_judicial_without_process_access() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento em Perdizes</h1>
+      <p>2a praca judicial com desconto sobre avaliacao.</p>
+      <p>Imovel desocupado. Lance minimo R$ 420.000,00.</p>
+      <p>O arrematante deve observar auto de arrematacao e carta de arrematacao.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-perdizes",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "judicial_process_access" in antibody_keys
+    assert "judicial_post_auction_plan" not in antibody_keys
+
+
+def test_course_antibodies_flag_fiduciary_chain_and_conditional_bid() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao extrajudicial AF - casa ocupada</h1>
+      <p>Alienacao fiduciaria. Ocupada (AF). Lance condicionado sujeito a aceite do banco.</p>
+      <p>2a praca sem minimo oficial publicado nesta pagina.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/casa-af",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "fiduciary_chain_unproven" in antibody_keys
+    assert "conditional_bid_acceptance" in antibody_keys
+    assert "official_minimum_bid" in antibody_keys
+
+
+def test_course_antibodies_flag_caixa_debt_proof_without_blocking_known_direct_sale() -> None:
+    html = """
+    <html><body>
+      <h1>Imovel Caixa - venda direta online</h1>
+      <p>Casa em Jardim Aeroporto. Proposta pela internet.</p>
+      <p>Consultar condicoes de pagamento e debitos antes da proposta.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnImovel=123",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "caixa_sale_modality_unproven" not in antibody_keys
+    assert "caixa_debt_regularization_proof" in antibody_keys
+
+
+def test_market_listing_that_mentions_caixa_financing_does_not_trigger_caixa_antibodies() -> None:
+    html = """
+    <html><body>
+      <h1>Apartamento a venda em Campinas</h1>
+      <p>Aceita financiamento bancario e simulacao de caixa do comprador.</p>
+      <p>Condominio informado, IPTU informado e visita com corretor.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-campinas",
+        html,
+    )
+
+    assert evidence["course_antibodies"] == []
+
+
+def test_navigation_filter_text_does_not_trigger_course_antibodies() -> None:
+    html = """
+    <html><body>
+      <h1>Apartamento em Leilao em Sao Paulo / SP</h1>
+      <nav>
+        Filtros Localidade Selecione as localidades ImÃ³veis Caixa Compra Direta
+        Leilao SFI Caixa Licitacao Aberta Caixa Modalidade Comprei PGFN
+        Extrajudicial Judicial Venda Direta Arrematante paga ate 10% da avaliacao
+        Apartamento Casa Comercial Galpao Garagem Terreno Bancos FGTS Financiamento
+        Imoveis Caixa Debito Condominio Arrematante Paga Outros Particular
+      </nav>
+      <p>Rua Capote Valente, 134. Matricula 81.237 do 13o CRI.</p>
+      <a href="https://www.webleiloes.com.br/leilao/imovel/16156">Ver anuncio no leiloeiro</a>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apto-pinheiros-2803839",
+        html,
+    )
+
+    assert evidence["course_antibodies"] == []
+
+
+def test_active_diligence_removes_stale_course_antibodies_when_chain_is_proven(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    source_url = "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/casa-af"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4043,
+                        "thesis_id": "IM-AF-PROVEN",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": source_url,
+                        "source_validation_status": "valid",
+                        "real_estate_analysis": {
+                            "score": 82,
+                            "confidence": 70,
+                            "suggested_status": "Aberto com pendencias",
+                            "next_action": "Desocupacao por conta do comprador",
+                            "pending_items": [
+                                {"key": "eviction_risk", "title": "Desocupacao por conta do comprador", "priority": "P0", "status": "aberta"},
+                                {"key": "fiduciary_chain_unproven", "title": "Provar cadeia fiduciaria", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {
+                                "strategy": "2a praca extrajudicial Bradesco",
+                                "source_url": source_url,
+                                "listing_description": (
+                                    "Edital Zuk/Bradesco Lei 9.514/97. Ocupado (AF). "
+                                    "Matricula Av.11 consolidou a propriedade fiduciaria "
+                                    "em nome do Banco Bradesco S/A."
+                                ),
+                            },
+                            "source_validation": {"status": "valid", "reason": "Fonte oficial validada."},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    html_by_url = {
+        source_url: """
+        <html><body>
+          <nav>Tipo de imovel Residenciais Leiloes Judiciais Leiloes Extrajudiciais</nav>
+          <p>Casa ocupada. Lance minimo R$ 1.610.000,00. Matricula 22.175 do 10o CRI de Sao Paulo/SP.</p>
+          <a href="https://documentacaoleilao.portalzuk.com.br/edital.pdf">Edital</a>
+        </body></html>
+        """,
+    }
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: html_by_url[url],
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    analysis = updated["thesis_open_operations"][0]["real_estate_analysis"]
+    pending = {item["key"]: item for item in analysis["pending_items"]}
+
+    assert "fiduciary_chain_unproven" not in pending
+    assert "eviction_risk" in pending
+    assert analysis["diligence_result"]["course_antibodies"] == []
+
+
+def test_applies_course_antibodies_to_active_seed(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4042,
+                        "thesis_id": "IM-JUDICIAL-PERDIZES",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-perdizes",
+                        "source_validation_status": "ambiguous",
+                        "real_estate_analysis": {
+                            "score": 78,
+                            "confidence": 50,
+                            "suggested_status": "Aberto com pendencias",
+                            "next_action": "Validar fonte manualmente",
+                            "pending_items": [
+                                {"key": "source_validation", "title": "Validar fonte manualmente", "priority": "P0", "status": "aberta"},
+                                {"key": "sale_comparables", "title": "Buscar 3 comparaveis de venda", "priority": "P1", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {},
+                            "source_validation": {"status": "ambiguous", "reason": "Fonte ainda nao validada."},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    html_by_url = {
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-perdizes": """
+        <h1>Leilao judicial - apartamento em Perdizes</h1>
+        <p>Imovel desocupado. 2a praca judicial. Lance minimo R$ 420.000,00.</p>
+        <p>Sem numero do processo ou link para autos nesta pagina.</p>
+        """,
+    }
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: html_by_url[url],
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    analysis = updated["thesis_open_operations"][0]["real_estate_analysis"]
+    pending = {item["key"]: item for item in analysis["pending_items"]}
+
+    assert "source_validation" not in pending
+    assert pending["judicial_process_access"]["priority"] == "P0"
+    assert pending["judicial_post_auction_plan"]["priority"] == "P0"
+    assert analysis["next_action"] == "Abrir processo judicial/autos"
+    assert analysis["diligence_result"]["course_antibodies"] == [
+        "judicial_process_access",
+        "judicial_post_auction_plan",
+    ]
+
+
+def test_run_active_diligence_accepts_utf8_bom_seed(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4044,
+                        "thesis_id": "IM-BOM",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "source_url": "",
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "occupancy", "title": "Confirmar ocupacao", "priority": "P0", "status": "aberta"}
+                            ],
+                            "clarified_items": [],
+                            "candidate": {},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8-sig",
+    )
+
+    summary = diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: "",
+    )
+
+    assert summary["investigated_count"] == 1
+    assert json.loads(seed_path.read_text(encoding="utf-8"))
+
+
 def test_applies_diligence_to_open_seed_and_closes_occupied_first_operation(tmp_path: Path) -> None:
     seed_path = tmp_path / "dashboard_seed.json"
     report_json = tmp_path / "diligence.json"
