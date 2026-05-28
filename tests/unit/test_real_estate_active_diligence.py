@@ -188,6 +188,101 @@ def test_navigation_filter_text_does_not_trigger_course_antibodies() -> None:
     assert evidence["course_antibodies"] == []
 
 
+def test_course_antibodies_flag_unclear_execution_modality_for_auction() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento em Perdizes</h1>
+      <p>2a praca judicial. Lance minimo R$ 420.000,00.</p>
+      <p>O edital informa avaliacao e comissao, mas nao diz como participar do leilao.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-perdizes",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "auction_modality_unclear" in antibody_keys
+
+
+def test_course_antibodies_flag_online_registration_and_missing_closing_rule() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - casa em Pinheiros</h1>
+      <p>Lance minimo R$ 900.000,00.</p>
+      <p>Para ofertar lance, faca cadastro previo, habilitacao e envio de documentos.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/casa-online",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "bidder_registration_unproven" in antibody_keys
+    assert "online_closing_rule_unproven" in antibody_keys
+    assert "auction_modality_unclear" not in antibody_keys
+
+
+def test_course_antibodies_respect_online_closing_rule_when_stated() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - apartamento em Pinheiros</h1>
+      <p>Usuario deve estar cadastrado e habilitado antes de ofertar lance.</p>
+      <p>Encerramento com prorrogacao automatica de tres minutos a cada novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/apartamento-online",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "bidder_registration_unproven" in antibody_keys
+    assert "online_closing_rule_unproven" not in antibody_keys
+
+
+def test_course_antibodies_flag_hybrid_risk_and_presential_proxy_requirement() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao hibrido presencial e online - sobrado em Pinheiros</h1>
+      <p>O leilao ocorrera no auditorio do leiloeiro e tambem pela plataforma online.</p>
+      <p>Participacao por representante exige procuracao com poderes especificos.</p>
+      <p>Encerramento com prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/sobrado-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "hybrid_competition_risk" in antibody_keys
+    assert "representative_proxy_unproven" in antibody_keys
+    assert "auction_modality_unclear" not in antibody_keys
+
+
+def test_market_registration_text_does_not_trigger_execution_antibodies() -> None:
+    html = """
+    <html><body>
+      <h1>Casa a venda em Campinas</h1>
+      <p>Cadastre-se para receber alertas, fazer visita online e falar com o corretor.</p>
+      <p>Aceita financiamento bancario. Nao ha leilao.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.chavesnamao.com.br/imovel/casa-a-venda-campinas",
+        html,
+    )
+
+    assert evidence["course_antibodies"] == []
+
+
 def test_active_diligence_removes_stale_course_antibodies_when_chain_is_proven(tmp_path: Path) -> None:
     seed_path = tmp_path / "dashboard_seed.json"
     report_json = tmp_path / "diligence.json"
@@ -325,6 +420,7 @@ def test_applies_course_antibodies_to_active_seed(tmp_path: Path) -> None:
     assert analysis["diligence_result"]["course_antibodies"] == [
         "judicial_process_access",
         "judicial_post_auction_plan",
+        "auction_modality_unclear",
     ]
 
 

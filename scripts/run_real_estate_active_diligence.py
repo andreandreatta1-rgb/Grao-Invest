@@ -103,6 +103,54 @@ COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
             "ocupacao ou documentacao, nao como prova de oportunidade."
         ),
     },
+    "auction_modality_unclear": {
+        "title": "Provar modalidade operacional do leilao",
+        "priority": "P0",
+        "action": (
+            "Confirmar em edital, leiloeiro ou plataforma se a participacao e "
+            "presencial, online ou hibrida antes de classificar como acionavel."
+        ),
+    },
+    "bidder_registration_unproven": {
+        "title": "Validar cadastro/habilitacao para lance",
+        "priority": "P0",
+        "action": (
+            "Confirmar cadastro, habilitacao, aceite das regras e envio de documentos "
+            "exigidos pela plataforma ou leiloeiro."
+        ),
+    },
+    "online_closing_rule_unproven": {
+        "title": "Provar regra de fechamento online",
+        "priority": "P1",
+        "action": (
+            "Ler regra de encerramento, prorrogacao por novo lance, lance automatico "
+            "e prazo final antes de definir tatico de lance."
+        ),
+    },
+    "hybrid_competition_risk": {
+        "title": "Modelar risco de leilao hibrido",
+        "priority": "P1",
+        "action": (
+            "Tratar canal presencial e online simultaneos como risco competitivo e "
+            "exigir margem/plano de lance mais conservador."
+        ),
+    },
+    "representative_proxy_unproven": {
+        "title": "Validar procuracao/representacao presencial",
+        "priority": "P0",
+        "action": (
+            "Se o usuario nao comparecer pessoalmente, confirmar procuracao, poderes "
+            "e reconhecimento exigidos para participacao presencial."
+        ),
+    },
+}
+
+EXECUTION_READINESS_ANTIBODY_KEYS = {
+    "auction_modality_unclear",
+    "bidder_registration_unproven",
+    "online_closing_rule_unproven",
+    "hybrid_competition_risk",
+    "representative_proxy_unproven",
 }
 
 
@@ -367,6 +415,122 @@ def _has_process_link(links: list[tuple[str, str]]) -> bool:
     return False
 
 
+def _is_auction_like_source(url: str, lower: str) -> bool:
+    host = urlparse(url).netloc.lower()
+    return bool(
+        _official_leiloeiro_url(url)
+        or "leilaoimovel.com.br" in host
+        or "venda-imoveis.caixa.gov.br" in host
+        or any(
+            marker in lower
+            for marker in (
+                "leilao judicial",
+                "leilao extrajudicial",
+                "leilao online",
+                "leilao presencial",
+                "leilao hibrido",
+                "leiloeiro",
+                "lance minimo",
+                "arrematacao",
+                "arrematante",
+                "1a praca",
+                "2a praca",
+                "primeira praca",
+                "segunda praca",
+            )
+        )
+    )
+
+
+def _execution_modality_flags(lower: str) -> dict[str, bool]:
+    hybrid = any(
+        marker in lower
+        for marker in (
+            "hibrido",
+            "presencial e online",
+            "online e presencial",
+            "presencial e on-line",
+            "on-line e presencial",
+        )
+    )
+    online = hybrid or any(
+        marker in lower
+        for marker in (
+            "leilao online",
+            "on-line",
+            " online",
+            "eletronico",
+            "eletronica",
+            "pela internet",
+            "proposta pela internet",
+            "plataforma online",
+            "lance online",
+            "venda online",
+            "venda direta online",
+        )
+    )
+    presencial = hybrid or any(
+        marker in lower
+        for marker in (
+            "leilao presencial",
+            " presencial",
+            "auditorio",
+            "local do leilao",
+            "no forum",
+            "foro",
+            "escritorio do leiloeiro",
+            "comparecer",
+            "credenciamento presencial",
+        )
+    )
+    return {"online": online, "presencial": presencial, "hybrid": hybrid}
+
+
+def _requires_bidder_registration(lower: str) -> bool:
+    return bool(
+        re.search(
+            r"\b(?:cadastro|cadastrado|cadastramento|habilitacao|habilitado|"
+            r"credenciamento|documento|documentos|upload|identificacao)\b",
+            lower,
+        )
+        or "envio de documentos" in lower
+        or "aceite das regras" in lower
+        or "aceitar as condicoes" in lower
+    )
+
+
+def _has_online_closing_rule(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "encerramento",
+            "fechamento",
+            "termino",
+            "prazo final",
+            "prorrogacao",
+            "prorroga",
+            "tempo extra",
+            "novo lance",
+            "lance automatico",
+            "lance programado",
+            "auto lance",
+        )
+    )
+
+
+def _requires_representative_proxy(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "procuracao",
+            "procurador",
+            "representante",
+            "firma reconhecida",
+            "poderes especificos",
+        )
+    )
+
+
 def _course_antibodies(
     url: str,
     text: str,
@@ -375,6 +539,8 @@ def _course_antibodies(
 ) -> list[dict[str, str]]:
     lower = search_text(" ".join([url, text]))
     found: list[str] = []
+    auction_like = _is_auction_like_source(url, lower)
+    execution_modality = _execution_modality_flags(lower)
 
     judicial_like = bool(
         re.search(
@@ -506,6 +672,25 @@ def _course_antibodies(
         )
     ):
         found.append("failed_auction_liquidity_alert")
+
+    if auction_like and not any(execution_modality.values()):
+        found.append("auction_modality_unclear")
+
+    if auction_like and _requires_bidder_registration(lower):
+        found.append("bidder_registration_unproven")
+
+    if auction_like and (
+        execution_modality["online"] or execution_modality["hybrid"]
+    ) and not _has_online_closing_rule(lower):
+        found.append("online_closing_rule_unproven")
+
+    if auction_like and execution_modality["hybrid"]:
+        found.append("hybrid_competition_risk")
+
+    if auction_like and (
+        execution_modality["presencial"] or execution_modality["hybrid"]
+    ) and _requires_representative_proxy(lower):
+        found.append("representative_proxy_unproven")
 
     return [_course_antibody(key) for key in dict.fromkeys(found)]
 
@@ -875,6 +1060,43 @@ def _append_course_antibodies(analysis: dict[str, Any], evidence: dict[str, Any]
     return current_course_keys
 
 
+def _remove_irrelevant_execution_readiness(analysis: dict[str, Any]) -> None:
+    pending = analysis.get("pending_items")
+    pending_items = (
+        [item for item in pending if isinstance(item, dict)]
+        if isinstance(pending, list)
+        else []
+    )
+    analysis["pending_items"] = [
+        item
+        for item in pending_items
+        if str(item.get("key") or "") not in EXECUTION_READINESS_ANTIBODY_KEYS
+    ]
+    result = analysis.get("diligence_result")
+    if not isinstance(result, dict):
+        return
+    result["course_antibodies"] = [
+        key
+        for key in result.get("course_antibodies", [])
+        if key not in EXECUTION_READINESS_ANTIBODY_KEYS
+    ]
+    result["remaining_p0_keys"] = [
+        str(item.get("key") or "")
+        for item in analysis.get("pending_items", [])
+        if isinstance(item, dict) and str(item.get("priority") or "").upper() == "P0"
+    ]
+    evidence = result.get("evidence")
+    if isinstance(evidence, dict) and isinstance(evidence.get("course_antibodies"), list):
+        evidence["course_antibodies"] = [
+            item
+            for item in evidence["course_antibodies"]
+            if not (
+                isinstance(item, dict)
+                and str(item.get("key") or "") in EXECUTION_READINESS_ANTIBODY_KEYS
+            )
+        ]
+
+
 def _is_first_operation(row: dict[str, Any], analysis: dict[str, Any]) -> bool:
     candidate = analysis.get("candidate") if isinstance(analysis.get("candidate"), dict) else {}
     values = [
@@ -1079,6 +1301,7 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
         row["planned_exit_at"] = ""
         row["moment_result_pct"] = 0.0
     elif occupied_without_plan:
+        _remove_irrelevant_execution_readiness(analysis)
         analysis["suggested_status"] = "Descartado"
         analysis["next_action"] = "Fechar candidato: imóvel ocupado sem plano aprovado"
         row["status"] = "Fechada"
