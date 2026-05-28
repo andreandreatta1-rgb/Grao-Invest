@@ -266,6 +266,55 @@ def test_course_antibodies_flag_hybrid_risk_and_presential_proxy_requirement() -
     assert "auction_modality_unclear" not in antibody_keys
 
 
+def test_course_antibodies_flag_labor_auction_specific_risks() -> None:
+    html = """
+    <html><body>
+      <h1>Hasta publica unificada da Justica do Trabalho - TRT 2</h1>
+      <p>Vara do Trabalho de Sao Paulo. Processo 1001234-56.2024.5.02.0001.</p>
+      <p>Lote 12 com sala comercial e equipamentos da executada.</p>
+      <p>Leilao online com cadastro previo no site do leiloeiro.</p>
+      <p>Lance minimo R$ 250.000,00.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.trt2.jus.br/leiloes/hasta-publica-unificada/lote-12",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "labor_auction_core_terms_unproven" in antibody_keys
+    assert "labor_auction_debt_responsibility_unproven" in antibody_keys
+    assert "labor_auction_payment_terms_unproven" in antibody_keys
+    assert "labor_lot_unit_sale_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_complete_labor_auction_terms() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial trabalhista - TRT 2</h1>
+      <p>Vara do Trabalho de Sao Paulo. Processo 1001234-56.2024.5.02.0001.</p>
+      <p>Lote 12 - Matricula 81.237 do 13o CRI de Sao Paulo/SP.</p>
+      <p>Avaliacao R$ 500.000,00. Lance minimo R$ 250.000,00.</p>
+      <p>IPTU sub-roga no preco da arrematacao conforme artigo 130 do CTN.</p>
+      <p>Condominio e demais debitos ficam a cargo do arrematante.</p>
+      <p>Comissao do leiloeiro de 5%, sinal de 20% e deposito judicial do saldo em 24 horas.</p>
+      <p>Leilao online com cadastro previo, habilitacao e encerramento com prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.trt2.jus.br/leiloes/hasta-publica-unificada/lote-12",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "labor_auction_core_terms_unproven" not in antibody_keys
+    assert "labor_auction_debt_responsibility_unproven" not in antibody_keys
+    assert "labor_auction_payment_terms_unproven" not in antibody_keys
+    assert "labor_lot_unit_sale_unproven" not in antibody_keys
+
+
 def test_market_registration_text_does_not_trigger_execution_antibodies() -> None:
     html = """
     <html><body>

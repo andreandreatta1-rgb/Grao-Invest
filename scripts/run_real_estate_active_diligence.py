@@ -145,6 +145,38 @@ COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
             "e reconhecimento exigidos para participacao presencial."
         ),
     },
+    "labor_auction_core_terms_unproven": {
+        "title": "Conciliar TRT/processo/lote/matricula",
+        "priority": "P0",
+        "action": (
+            "Em leilao trabalhista, confirmar TRT, vara, processo, lote, matricula, "
+            "avaliacao e lance minimo no edital/fonte oficial antes de tratar como oportunidade."
+        ),
+    },
+    "labor_auction_debt_responsibility_unproven": {
+        "title": "Provar debitos no leilao trabalhista",
+        "priority": "P0",
+        "action": (
+            "Confirmar se IPTU, condominio e demais onus sub-rogam no preco, serao "
+            "quitados ou ficam a cargo do arrematante."
+        ),
+    },
+    "labor_auction_payment_terms_unproven": {
+        "title": "Provar pagamento/comissao trabalhista",
+        "priority": "P0",
+        "action": (
+            "Ler comissao do leiloeiro, sinal, deposito judicial, prazo de saldo, "
+            "parcelamento permitido e penalidades por inadimplencia."
+        ),
+    },
+    "labor_lot_unit_sale_unproven": {
+        "title": "Provar venda individualizada do lote",
+        "priority": "P0",
+        "action": (
+            "Quando o lote trabalhista mistura imovel e outros bens, confirmar se o "
+            "imovel pode ser arrematado individualmente ou se ha preferencia pelo lote inteiro."
+        ),
+    },
 }
 
 EXECUTION_READINESS_ANTIBODY_KEYS = {
@@ -533,6 +565,132 @@ def _requires_representative_proxy(lower: str) -> bool:
     )
 
 
+def _is_labor_auction_like(url: str, lower: str) -> bool:
+    host = urlparse(url).netloc.lower()
+    return bool(
+        "justica do trabalho" in lower
+        or "vara do trabalho" in lower
+        or "reclamacao trabalhista" in lower
+        or "execucao trabalhista" in lower
+        or "tribunal regional do trabalho" in lower
+        or ("hasta publica" in lower and "trt" in lower)
+        or ("asta publica" in lower and "trt" in lower)
+        or re.search(r"\btrt\s*\d+\b", lower)
+        or re.search(r"\btrt\d+\.jus\.br\b", host)
+    )
+
+
+def _labor_core_terms_proven(
+    lower: str,
+    links: list[tuple[str, str]],
+    minimum_bid: float | None,
+) -> bool:
+    has_trt_context = any(
+        marker in lower
+        for marker in (
+            "trt",
+            "vara do trabalho",
+            "justica do trabalho",
+            "tribunal regional do trabalho",
+        )
+    )
+    has_lot = bool(re.search(r"\blote\s+(?:n[ou]mero\s+)?[a-z0-9.-]+", lower))
+    has_registration = "matricula" in lower
+    has_appraisal = any(
+        marker in lower
+        for marker in (
+            "avaliacao",
+            "valor avaliado",
+            "avaliado em",
+            "laudo de avaliacao",
+        )
+    )
+    has_process = _has_process_number(lower) or _has_process_link(links)
+    return bool(
+        has_trt_context
+        and has_process
+        and has_lot
+        and has_registration
+        and has_appraisal
+        and minimum_bid is not None
+    )
+
+
+def _labor_debt_responsibility_proven(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "artigo 130 do ctn",
+            "art. 130 do ctn",
+            "ctn",
+            "sub-roga no preco",
+            "subrogam no preco",
+            "sub-rogam no preco",
+            "condominio e iptu serao quitados",
+            "debitos serao quitados",
+            "debitos serao pagos",
+            "debitos ficam a cargo do arrematante",
+            "debitos a cargo do arrematante",
+            "condominio e demais debitos ficam a cargo do arrematante",
+            "responsabilidade do arrematante",
+        )
+    )
+
+
+def _labor_payment_terms_proven(lower: str) -> bool:
+    has_commission = "comissao" in lower or "5%" in lower or "5 por 100" in lower
+    has_deadline_or_installment = any(
+        marker in lower
+        for marker in (
+            "24 horas",
+            "primeiro dia util",
+            "deposito judicial",
+            "saldo",
+            "parcelamento",
+            "parcelado",
+            "parcelas",
+            "30%",
+            "30 por 100",
+            "20%",
+            "20 por 100",
+        )
+    )
+    return has_commission and has_deadline_or_installment
+
+
+def _labor_multi_asset_lot(lower: str) -> bool:
+    multi_asset_terms = (
+        "grupo de bens",
+        "mais de um bem",
+        "diversos bens",
+        "bens moveis",
+        "equipamentos",
+        "maquinas",
+        "veiculos",
+        "carros",
+        "moveis",
+    )
+    return (
+        bool(re.search(r"\blote\s+\w+\s+com\b", lower))
+        and any(term in lower for term in multi_asset_terms)
+    ) or any(term in lower for term in ("imovel e equipamentos", "imoveis e equipamentos"))
+
+
+def _labor_unit_sale_proven(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "venda individualizada",
+            "arrematacao individualizada",
+            "arrematado individualmente",
+            "venda unitaria",
+            "cada bem",
+            "desmembramento autorizado",
+            "desmembrar o lote",
+        )
+    )
+
+
 def _course_antibodies(
     url: str,
     text: str,
@@ -565,6 +723,16 @@ def _course_antibodies(
     )
     if judicial_like and not any(term in lower for term in post_auction_terms):
         found.append("judicial_post_auction_plan")
+
+    labor_like = auction_like and _is_labor_auction_like(url, lower)
+    if labor_like and not _labor_core_terms_proven(lower, links, minimum_bid):
+        found.append("labor_auction_core_terms_unproven")
+    if labor_like and not _labor_debt_responsibility_proven(lower):
+        found.append("labor_auction_debt_responsibility_unproven")
+    if labor_like and not _labor_payment_terms_proven(lower):
+        found.append("labor_auction_payment_terms_unproven")
+    if labor_like and _labor_multi_asset_lot(lower) and not _labor_unit_sale_proven(lower):
+        found.append("labor_lot_unit_sale_unproven")
 
     fiduciary_like = any(
         marker in lower
