@@ -465,6 +465,67 @@ def test_run_active_diligence_accepts_utf8_bom_seed(tmp_path: Path) -> None:
     assert json.loads(seed_path.read_text(encoding="utf-8"))
 
 
+def test_closes_out_of_scope_city_rows_without_fetching(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4101,
+                        "thesis_id": "IM-OUT",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+                        "source_validation_status": "valid",
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "occupancy", "title": "Confirmar ocupacao", "priority": "P0", "status": "aberta"},
+                                {"key": "sale_comparables", "title": "Buscar 3 comparaveis de venda", "priority": "P1", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Bauru", "neighborhood": "Vila Aviacao"},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8-sig",
+    )
+
+    def _raiser(_: str) -> str:
+        raise AssertionError("fetcher nao deveria ser chamado em close_out_of_scope_only")
+
+    summary = diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=_raiser,
+        close_out_of_scope_only=True,
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    row = updated["thesis_open_operations"][0]
+    analysis = row["real_estate_analysis"]
+
+    assert summary["investigated_count"] == 1
+    assert summary["closed_count"] == 1
+    assert row["is_open"] is False
+    assert row["status"] == "Fechada"
+    assert row["outcome"] == "Fora do escopo"
+    assert "fora do escopo" in str(row.get("exit_rule") or "").lower()
+    assert analysis["suggested_status"] == "Descartado"
+    assert analysis["next_action"] == "Fechar candidato: fora do escopo (SP capital + Campinas)"
+    assert {item["key"] for item in analysis["pending_items"]} == {"sale_comparables"}
+    assert report_json.exists()
+    assert "IM-OUT" in report_md.read_text(encoding="utf-8")
+
+
 def test_applies_diligence_to_open_seed_and_closes_occupied_first_operation(tmp_path: Path) -> None:
     seed_path = tmp_path / "dashboard_seed.json"
     report_json = tmp_path / "diligence.json"

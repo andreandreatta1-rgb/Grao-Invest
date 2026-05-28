@@ -38,6 +38,8 @@ RESOLVABLE_P0_KEYS = {
     "edital",
 }
 
+OWNER_SCOPE_CITIES = {"sao paulo", "campinas"}
+
 COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
     "judicial_process_access": {
         "title": "Abrir processo judicial/autos",
@@ -969,6 +971,61 @@ def active_p0_rows(seed: dict[str, Any]) -> list[dict[str, Any]]:
     return sorted(selected, key=lambda item: int(item.get("thesis_number") or 0))
 
 
+def _normalize_text(value: str) -> str:
+    normalized = unicodedata.normalize("NFKD", value)
+    without_accents = "".join(char for char in normalized if not unicodedata.combining(char))
+    return without_accents.strip().lower()
+
+
+def _candidate_city(row: dict[str, Any]) -> str:
+    analysis = row.get("real_estate_analysis") if isinstance(row.get("real_estate_analysis"), dict) else {}
+    candidate = analysis.get("candidate") if isinstance(analysis.get("candidate"), dict) else {}
+    return str(candidate.get("city") or "").strip()
+
+
+def _discard_out_of_scope_city_row(row: dict[str, Any], checked_at: str, *, city: str) -> dict[str, Any]:
+    analysis = row.setdefault("real_estate_analysis", {})
+    if not isinstance(analysis, dict):
+        analysis = {}
+        row["real_estate_analysis"] = analysis
+    reason = f"Cidade fora do escopo atual do radar (SP capital + Campinas): {city}."
+    resolved_p0: list[str] = []
+    pending = analysis.get("pending_items")
+    pending_items = [item for item in pending if isinstance(item, dict)] if isinstance(pending, list) else []
+    kept_pending: list[dict[str, Any]] = []
+    for item in pending_items:
+        if str(item.get("priority") or "").upper() == "P0":
+            item["status"] = "resolvida_por_descarte"
+            item["resolution"] = "out_of_scope_city_discard"
+            if item.get("key"):
+                resolved_p0.append(str(item["key"]))
+            continue
+        kept_pending.append(item)
+    analysis["pending_items"] = kept_pending
+    _replace_or_append_clarified(
+        analysis,
+        _clarified_item("scope", "Fora do escopo do radar", reason),
+    )
+    analysis["suggested_status"] = "Descartado"
+    analysis["next_action"] = "Fechar candidato: fora do escopo (SP capital + Campinas)"
+    row["status"] = "Fechada"
+    row["outcome"] = "Fora do escopo"
+    row["is_open"] = False
+    row["exit_rule"] = reason
+    row["learning_note"] = f"Owner: {reason}"
+    row["planned_exit_at"] = ""
+    row["moment_result_pct"] = 0.0
+    analysis["diligence_result"] = {
+        "checked_at": checked_at,
+        "status": "fora_do_escopo",
+        "resolved_p0_keys": sorted(set(resolved_p0)),
+        "course_antibodies": [],
+        "remaining_p0_keys": [],
+        "evidence": {"status": "fora_do_escopo", "city": city, "reason": reason},
+    }
+    return analysis["diligence_result"]
+
+
 def _clarified_item(key: str, title: str, detail: str) -> dict[str, str]:
     return {"key": key, "title": title, "detail": detail}
 
@@ -1389,10 +1446,29 @@ def run_active_diligence(
     report_json_path: Path,
     report_md_path: Path,
     fetcher: Fetcher | None = None,
+    limit: int | None = None,
+    close_out_of_scope_only: bool = False,
 ) -> dict[str, Any]:
     checked_at = utc_now()
     seed = json.loads(seed_path.read_text(encoding="utf-8-sig"))
     rows = active_p0_rows(seed)
+    rows = sorted(
+        rows,
+        key=lambda row: (
+            0
+            if (_normalize_text(_candidate_city(row)) and _normalize_text(_candidate_city(row)) not in OWNER_SCOPE_CITIES)
+            else 1,
+            int(row.get("thesis_number") or 0),
+        ),
+    )
+    if close_out_of_scope_only:
+        rows = [
+            row
+            for row in rows
+            if (_normalize_text(_candidate_city(row)) and _normalize_text(_candidate_city(row)) not in OWNER_SCOPE_CITIES)
+        ]
+    if limit is not None and limit > 0:
+        rows = rows[:limit]
     fetch = fetcher or default_fetcher
     items: list[dict[str, Any]] = []
     closed_count = 0
@@ -1403,6 +1479,33 @@ def run_active_diligence(
         thesis_number = int(row.get("thesis_number") or 0)
         title = str(row.get("action") or row.get("asset") or row.get("thesis_id") or thesis_number)
         source_url = str(row.get("source_url") or "").strip()
+        city_raw = _candidate_city(row)
+        city_norm = _normalize_text(city_raw)
+        if city_norm and city_norm not in OWNER_SCOPE_CITIES:
+            result = _discard_out_of_scope_city_row(row, checked_at, city=city_raw)
+            closed_count += 1
+            items.append(
+                {
+                    "thesis_number": thesis_number,
+                    "thesis_id": row.get("thesis_id"),
+                    "title": title,
+                    "status": "fora_do_escopo",
+                    "decision": row.get("outcome") or row.get("status"),
+                    "source_url": source_url,
+                    "official_url": "",
+                    "edital_url": "",
+                    "occupancy_status": "desconhecido",
+                    "matricula": "",
+                    "resolved_p0_keys": result.get("resolved_p0_keys", []) if isinstance(result, dict) else [],
+                    "course_antibodies": result.get("course_antibodies", []) if isinstance(result, dict) else [],
+                    "remaining_p0_keys": [],
+                    "next_action": (row.get("real_estate_analysis") or {}).get("next_action")
+                    if isinstance(row.get("real_estate_analysis"), dict)
+                    else "",
+                    "evidence": {"status": "fora_do_escopo", "city": city_raw, "reason": row.get("exit_rule") or ""},
+                }
+            )
+            continue
         if not source_url:
             evidence = {
                 "status": "ambiguo",
@@ -1491,6 +1594,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--seed-path", default="data/dashboard_seed.json")
     parser.add_argument("--report-json", default="")
     parser.add_argument("--report-md", default="")
+    parser.add_argument("--limit", type=int, default=0, help="Limita quantos itens investigar (0 = sem limite).")
+    parser.add_argument(
+        "--close-out-of-scope-only",
+        action="store_true",
+        help="Fecha apenas candidatos fora do escopo (SP capital + Campinas) sem tentar abrir fontes.",
+    )
     return parser.parse_args(argv)
 
 
@@ -1513,6 +1622,8 @@ def main(argv: list[str] | None = None) -> int:
         seed_path=seed_path,
         report_json_path=report_json,
         report_md_path=report_md,
+        limit=args.limit if args.limit > 0 else None,
+        close_out_of_scope_only=args.close_out_of_scope_only,
     )
     latest_json = repo_root / "data" / "reports" / "active_real_estate_diligence_latest.json"
     latest_md = repo_root / "data" / "reports" / "active_real_estate_diligence_latest.md"

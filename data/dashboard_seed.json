@@ -78974,19 +78974,19 @@
       "entry_price_brl": 320000.0,
       "current_price_brl": 429600.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
-      "planned_exit_at": "2026-06-06",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "planned_exit_at": "",
+      "exit_rule": "Cidade fora do escopo atual do radar (SP capital + Campinas): Sorocaba.",
+      "status": "Fechada",
+      "outcome": "Fora do escopo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 6,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Owner: Cidade fora do escopo atual do radar (SP capital + Campinas): Sorocaba.",
       "real_estate_analysis": {
         "score": 69,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechar candidato: fora do escopo (SP capital + Campinas)",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -79129,34 +79129,6 @@
         ],
         "pending_items": [
           {
-            "key": "source_validation",
-            "title": "Validar fonte do candidato",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "A app ainda nao confirmou se o link individual esta vivo."
-          },
-          {
-            "key": "occupancy",
-            "title": "Confirmar ocupacao",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Validar com fonte oficial, corretor ou responsavel pelo edital."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "condo_debt",
-            "title": "Confirmar divida de condominio",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Levantar valor vencido, limite de responsabilidade e acordo possivel."
-          },
-          {
             "key": "iptu_debt",
             "title": "Confirmar divida de IPTU",
             "priority": "P1",
@@ -79195,6 +79167,11 @@
             "title": "Plano B informado",
             "status": "esclarecido",
             "detail": "Plano B de aluguel compacto perto do eixo Iguatemi/Tauste se revenda demorar."
+          },
+          {
+            "key": "scope",
+            "title": "Fora do escopo do radar",
+            "detail": "Cidade fora do escopo atual do radar (SP capital + Campinas): Sorocaba."
           }
         ],
         "scenarios": {
@@ -79285,42 +79262,24 @@
         },
         "visit_evidence": [],
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
-          "status": "ambiguo",
-          "resolved_p0_keys": [],
-          "course_antibodies": [],
-          "remaining_p0_keys": [
-            "source_validation",
+          "checked_at": "2026-05-28T23:43:47+00:00",
+          "status": "fora_do_escopo",
+          "resolved_p0_keys": [
+            "condo_debt",
             "occupancy",
             "registration",
-            "condo_debt"
+            "source_validation"
           ],
+          "course_antibodies": [],
+          "remaining_p0_keys": [],
           "evidence": {
-            "status": "ambiguo",
-            "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
-            "opened_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
-            "aggregator_url": "",
-            "official_url": "",
-            "edital_url": "",
-            "pdf_urls": [],
-            "leiloeiro": "",
-            "occupancy_status": "desconhecido",
-            "occupancy_evidence": "",
-            "registration": {},
-            "debts": {},
-            "minimum_bid_brl": null,
-            "course_antibodies": [],
-            "attempted_paths": [
-              "abrir fonte inicial",
-              "extrair links de edital/PDF/leiloeiro",
-              "ler texto publico da pagina",
-              "extrair ocupacao, matricula e debitos"
-            ],
-            "text_excerpt": "Apartamento com 2 quartos na Rua Augusto Lippel, 1900, Parque Campolim, Sorocaba - SP - ID: 37153369 | Chaves na Mão Imóveis Veículos Anuncie Favoritos Area útil/total: Quartos: Suites: Garagens: Banheiros: Home Brasil SP Sorocaba Parque Campolim Rua Augusto Lippel Venda R$ 320.000 Ver parcelas Condomínio R$ 400/mês IPTU R$ 22 Apartamento Rua Augusto Lippel , 1900 , Parque Campolim , Sorocaba / SP Área útil 48 m² Perguntas rápidas para o anunciante Faça perguntas rápidas ao anunciante ou simplesmente escreva a sua própria pergunta. Proximidades do imóvel Descubra o que há de melhor ao redor deste apartamento no Parque Campolim , em Sorocaba . Proximidades Conheça o entorno do imóvel Ver no mapa Cuidados a serem tomados: Nunca faça nenhum pagamento antecipado. O Portal serve apenas como divulgação, sendo assim não se responsabiliza pelas negociações feitas. Não pedimos PINs, senhas, proto"
+            "status": "fora_do_escopo",
+            "city": "Sorocaba",
+            "reason": "Cidade fora do escopo atual do radar (SP capital + Campinas): Sorocaba."
           }
         }
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -79351,19 +79310,19 @@
       "entry_price_brl": 180000.0,
       "current_price_brl": 180000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
-      "planned_exit_at": "2026-06-06",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "planned_exit_at": "",
+      "exit_rule": "Cidade fora do escopo atual do radar (SP capital + Campinas): Bauru.",
+      "status": "Fechada",
+      "outcome": "Fora do escopo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 6,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Owner: Cidade fora do escopo atual do radar (SP capital + Campinas): Bauru.",
       "real_estate_analysis": {
         "score": 54,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechar candidato: fora do escopo (SP capital + Campinas)",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -79506,46 +79465,11 @@
         ],
         "pending_items": [
           {
-            "key": "source_validation",
-            "title": "Validar fonte do candidato",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "A app ainda nao confirmou se o link individual esta vivo."
-          },
-          {
-            "key": "occupancy",
-            "title": "Confirmar ocupacao",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Validar com fonte oficial, corretor ou responsavel pelo edital."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "condo_debt",
-            "title": "Confirmar divida de condominio",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Levantar valor vencido, limite de responsabilidade e acordo possivel."
-          },
-          {
             "key": "iptu_debt",
             "title": "Confirmar divida de IPTU",
             "priority": "P1",
             "status": "aberta",
             "action": "Checar debitos municipais antes de calcular lucro."
-          },
-          {
-            "key": "exit_value_validation",
-            "title": "Validar valor de saida",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Nao usar media de bairro como valor de revenda; buscar comparaveis do mesmo predio ou unidades equivalentes."
           },
           {
             "key": "sale_comparables",
@@ -79579,6 +79503,11 @@
             "title": "Plano B informado",
             "status": "esclarecido",
             "detail": "Se risco juridico for alto, usar apenas como calibracao de leilao para Vila Aviacao."
+          },
+          {
+            "key": "scope",
+            "title": "Fora do escopo do radar",
+            "detail": "Cidade fora do escopo atual do radar (SP capital + Campinas): Bauru."
           }
         ],
         "scenarios": {
@@ -79680,43 +79609,25 @@
         },
         "visit_evidence": [],
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
-          "status": "ambiguo",
-          "resolved_p0_keys": [],
-          "course_antibodies": [],
-          "remaining_p0_keys": [
-            "source_validation",
+          "checked_at": "2026-05-28T23:43:47+00:00",
+          "status": "fora_do_escopo",
+          "resolved_p0_keys": [
+            "condo_debt",
+            "exit_value_validation",
             "occupancy",
             "registration",
-            "condo_debt",
-            "exit_value_validation"
+            "source_validation"
           ],
+          "course_antibodies": [],
+          "remaining_p0_keys": [],
           "evidence": {
-            "status": "ambiguo",
-            "source_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
-            "opened_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
-            "aggregator_url": "",
-            "official_url": "",
-            "edital_url": "",
-            "pdf_urls": [],
-            "leiloeiro": "",
-            "occupancy_status": "desconhecido",
-            "occupancy_evidence": "",
-            "registration": {},
-            "debts": {},
-            "minimum_bid_brl": null,
-            "course_antibodies": [],
-            "attempted_paths": [
-              "abrir fonte inicial",
-              "extrair links de edital/PDF/leiloeiro",
-              "ler texto publico da pagina",
-              "extrair ocupacao, matricula e debitos"
-            ],
-            "text_excerpt": "Just a moment... Enable JavaScript and cookies to continue"
+            "status": "fora_do_escopo",
+            "city": "Bauru",
+            "reason": "Cidade fora do escopo atual do radar (SP capital + Campinas): Bauru."
           }
         }
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -79747,19 +79658,19 @@
       "entry_price_brl": 370000.0,
       "current_price_brl": 370000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
-      "planned_exit_at": "2026-06-06",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "planned_exit_at": "",
+      "exit_rule": "Cidade fora do escopo atual do radar (SP capital + Campinas): Ribeirao Preto.",
+      "status": "Fechada",
+      "outcome": "Fora do escopo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 6,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Owner: Cidade fora do escopo atual do radar (SP capital + Campinas): Ribeirao Preto.",
       "real_estate_analysis": {
         "score": 55,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechar candidato: fora do escopo (SP capital + Campinas)",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -79902,46 +79813,11 @@
         ],
         "pending_items": [
           {
-            "key": "source_validation",
-            "title": "Validar fonte do candidato",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "A app ainda nao confirmou se o link individual esta vivo."
-          },
-          {
-            "key": "occupancy",
-            "title": "Confirmar ocupacao",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Validar com fonte oficial, corretor ou responsavel pelo edital."
-          },
-          {
-            "key": "registration",
-            "title": "Buscar matricula atualizada",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Conferir propriedade, onus, restricoes e averbacoes relevantes."
-          },
-          {
-            "key": "condo_debt",
-            "title": "Confirmar divida de condominio",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Levantar valor vencido, limite de responsabilidade e acordo possivel."
-          },
-          {
             "key": "iptu_debt",
             "title": "Confirmar divida de IPTU",
             "priority": "P1",
             "status": "aberta",
             "action": "Checar debitos municipais antes de calcular lucro."
-          },
-          {
-            "key": "exit_value_validation",
-            "title": "Validar valor de saida",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Nao usar media de bairro como valor de revenda; buscar comparaveis do mesmo predio ou unidades equivalentes."
           },
           {
             "key": "sale_comparables",
@@ -79975,6 +79851,11 @@
             "title": "Plano B informado",
             "status": "esclarecido",
             "detail": "Manter como renda compacta se aluguel local sustentar carregamento."
+          },
+          {
+            "key": "scope",
+            "title": "Fora do escopo do radar",
+            "detail": "Cidade fora do escopo atual do radar (SP capital + Campinas): Ribeirao Preto."
           }
         ],
         "scenarios": {
@@ -80076,43 +79957,25 @@
         },
         "visit_evidence": [],
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
-          "status": "ambiguo",
-          "resolved_p0_keys": [],
-          "course_antibodies": [],
-          "remaining_p0_keys": [
-            "source_validation",
+          "checked_at": "2026-05-28T23:43:47+00:00",
+          "status": "fora_do_escopo",
+          "resolved_p0_keys": [
+            "condo_debt",
+            "exit_value_validation",
             "occupancy",
             "registration",
-            "condo_debt",
-            "exit_value_validation"
+            "source_validation"
           ],
+          "course_antibodies": [],
+          "remaining_p0_keys": [],
           "evidence": {
-            "status": "ambiguo",
-            "source_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
-            "opened_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
-            "aggregator_url": "",
-            "official_url": "",
-            "edital_url": "",
-            "pdf_urls": [],
-            "leiloeiro": "",
-            "occupancy_status": "desconhecido",
-            "occupancy_evidence": "",
-            "registration": {},
-            "debts": {},
-            "minimum_bid_brl": null,
-            "course_antibodies": [],
-            "attempted_paths": [
-              "abrir fonte inicial",
-              "extrair links de edital/PDF/leiloeiro",
-              "ler texto publico da pagina",
-              "extrair ocupacao, matricula e debitos"
-            ],
-            "text_excerpt": "Just a moment... Enable JavaScript and cookies to continue"
+            "status": "fora_do_escopo",
+            "city": "Ribeirao Preto",
+            "reason": "Cidade fora do escopo atual do radar (SP capital + Campinas): Ribeirao Preto."
           }
         }
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
