@@ -81416,7 +81416,7 @@
       "source_validation": {
         "status": "valid",
         "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-28T23:45:18+00:00",
         "url": "https://www.webleiloes.com.br",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
         "official_url": "https://www.webleiloes.com.br",
@@ -81426,7 +81426,7 @@
       },
       "source_validation_status": "valid",
       "source_validation_reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-28T23:45:18+00:00",
       "asset": "REAL TARGET - Pinheiros Capote Valente 33m 1q",
       "action": "REAL TARGET - Pinheiros Capote Valente 33m 1q",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Capote Valente, 134. Score 65/100, confianca 43/100.",
@@ -81740,7 +81740,7 @@
         "source_validation": {
           "status": "valid",
           "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-28T23:45:18+00:00",
           "url": "https://www.webleiloes.com.br",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
           "official_url": "https://www.webleiloes.com.br",
@@ -81785,7 +81785,7 @@
           "source_validation": {
             "status": "valid",
             "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-28T23:45:18+00:00",
             "url": "https://www.webleiloes.com.br",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
             "official_url": "https://www.webleiloes.com.br",
@@ -81818,7 +81818,7 @@
         },
         "has_edital": true,
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-28T23:45:18+00:00",
           "status": "validado",
           "resolved_p0_keys": [
             "condo_debt",
