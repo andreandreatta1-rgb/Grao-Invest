@@ -534,6 +534,7 @@ function officialDocumentationBlockersFor(row, candidate, analysis, sourceUrl) {
 
 function debtCostBlockersFor(row, candidate, analysis, sourceUrl) {
   if (!isAuctionLikeCandidate(row, candidate, analysis, sourceUrl)) return [];
+  const reading = analysis?.listing_reading || analysis?.listingReading || candidate?.listing_reading || candidate?.listingReading || {};
   const pendingText = searchText(
     asArray(analysis?.pending_items || analysis?.pendingItems)
       .map((item) => compactText([item?.key, item?.title, item?.action, item?.detail]))
@@ -554,15 +555,25 @@ function debtCostBlockersFor(row, candidate, analysis, sourceUrl) {
     row?.iptu_debt_known,
     row?.iptuDebtKnown,
   );
+  const blockers = [];
+  const hasAmbiguousDebtResponsibility = Boolean(
+    reading.debt_responsibility_ambiguous
+    || reading.debtResponsibilityAmbiguous
+  ) || pendingText.includes("debt_responsibility_ambiguous")
+    || pendingText.includes("responsabilidade por debitos")
+    || pendingText.includes("debitos ambigua");
+  if (hasAmbiguousDebtResponsibility) {
+    blockers.push("responsabilidade por debitos ambigua");
+  }
   if (
     condoKnown === false
     || iptuKnown === false
     || pendingText.includes("debt_total")
     || pendingText.includes("custo total de debitos")
   ) {
-    return ["debitos sem custo total"];
+    blockers.push("debitos sem custo total");
   }
-  return [];
+  return [...new Set(blockers)];
 }
 
 function possessionBlockersFor(row, candidate, analysis) {

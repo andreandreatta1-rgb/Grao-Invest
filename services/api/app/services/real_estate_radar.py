@@ -446,6 +446,8 @@ def _auction_listing_reading(payload: dict[str, Any]) -> dict[str, Any]:
         reading["auction_modality"] = "venda_direta"
     elif "caixa" in normalized or "banco do brasil" in normalized:
         reading["auction_modality"] = "banco"
+    if _has_ambiguous_debt_responsibility(normalized):
+        reading["debt_responsibility_ambiguous"] = True
     if _has_fiduciary_auction_nullity_action(normalized):
         reading["fiduciary_auction_nullity_action"] = True
         process_match = re.search(r"\b\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}\b", normalized)
@@ -535,6 +537,70 @@ def _has_fiduciary_auction_nullity_action(normalized: str) -> bool:
     ):
         return True
     return "liminar" in normalized and "leilao" in normalized and "extrajudicial" in normalized
+
+
+def _has_ambiguous_debt_responsibility(normalized: str) -> bool:
+    debt_terms = (
+        "debito",
+        "debitos",
+        "divida",
+        "dividas",
+        "obrigacao",
+        "obrigacoes",
+        "saldo devedor",
+        "iptu",
+        "condominio",
+        "onus",
+        "tributo",
+        "tributos",
+    )
+    if not any(term in normalized for term in debt_terms):
+        return False
+
+    ambiguity_terms = (
+        "nao fala explicitamente",
+        "nao informa",
+        "nao consta",
+        "sem informacao",
+        "responsabilidade nao definida",
+        "responsabilidade a confirmar",
+        "debitos a confirmar",
+        "duvidas e esclarecimentos",
+        "solicitar informacao",
+        "solicitar esclarecimento",
+    )
+    if any(term in normalized for term in ambiguity_terms):
+        return True
+
+    explicit_resolution_terms = (
+        "serao quitados com o produto da arrematacao",
+        "serao pagos com o produto da arrematacao",
+        "sub-rogam-se no preco",
+        "subrogam-se no preco",
+        "nao cabera ao arrematante",
+        "arrematante nao responde",
+        "comprador nao responde",
+        "adquirente nao responde",
+        "responde apenas pelas despesas vencidas apos",
+        "responde apenas a partir",
+    )
+    if any(term in normalized for term in explicit_resolution_terms):
+        return False
+
+    explicit_assumption_terms = (
+        "arrematante assumira",
+        "arrematante responde",
+        "cabera ao arrematante",
+        "responsabilidade do arrematante",
+        "por conta do arrematante",
+        "comprador assumira",
+        "adquirente assumira",
+        "por conta do adquirente",
+    )
+    if any(term in normalized for term in explicit_assumption_terms):
+        return False
+
+    return False
 
 
 def _weak_neighborhood_benchmark_evidence(
@@ -1924,6 +1990,17 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             title="Buscar matricula atualizada",
             priority="P0",
             action="Conferir propriedade, onus, restricoes e averbacoes relevantes.",
+        )
+    if listing_reading.get("debt_responsibility_ambiguous"):
+        _add_pending(
+            pending_items,
+            key="debt_responsibility_ambiguous",
+            title="Confirmar responsabilidade por debitos",
+            priority="P0",
+            action=(
+                "Obter confirmacao escrita do leiloeiro, cartorio, banco ou contato oficial "
+                "do edital sobre quais debitos ficam com o arrematante antes de qualquer lance."
+            ),
         )
     if is_auction_like and (
         not _bool(payload, "condo_debt_known") or not _bool(payload, "iptu_debt_known")

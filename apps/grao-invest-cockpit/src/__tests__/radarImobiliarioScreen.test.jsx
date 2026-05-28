@@ -1864,6 +1864,67 @@ describe("Radar Imobiliário screen", () => {
     expect(screen.queryByTestId("radar-imobiliario-watchlist")).not.toBeInTheDocument();
   });
 
+  it("blocks auction candidates when debt responsibility is ambiguous", () => {
+    const data = {
+      thesisRows: [
+        {
+          id: "4041",
+          thesisId: "IM-RADAR-TARGET-DEBT-AMB",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Sao Paulo / Leilao com debito ambiguo",
+          operation: "Leilao judicial com responsabilidade por debitos ambigua",
+          sourceUrl: "https://www.leiloeiro.example/lote/123",
+          entryPrice: 600000,
+          currentPrice: 1050000,
+          targetPrice: 1050000,
+          realEstateAnalysis: {
+            score: 82,
+            confidence: 78,
+            max_purchase_price: 720000,
+            source_validation: { status: "valid", reason: "Edital oficial validado." },
+            valuation_evidence: { sale_comparables_count: 3 },
+            listing_reading: {
+              auction_modality: "judicial",
+              debt_responsibility_ambiguous: true,
+            },
+            scenarios: {
+              base: { sale_price: 1050000, net_profit: 200000, roi_pct: 25 },
+              conservative: { sale_price: 950000, net_profit: 90000, roi_pct: 12 },
+            },
+            pending_items: [
+              {
+                key: "debt_responsibility_ambiguous",
+                priority: "P0",
+                title: "Confirmar responsabilidade por debitos",
+                action: "Obter confirmacao escrita do leiloeiro ou cartorio antes de lance.",
+              },
+            ],
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Centro",
+              street: "Rua Exemplo, 100",
+              occupancy_status: "desocupado",
+              has_registration: true,
+              has_edital: true,
+              condo_debt_known: true,
+              iptu_debt_known: true,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const blocked = screen.getByTestId("radar-imobiliario-bloqueados");
+    expect(within(blocked).getAllByText(/debito ambiguo/i).length).toBeGreaterThan(0);
+    expect(within(blocked).getAllByText(/responsabilidade por debitos ambigua/i).length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("radar-imobiliario-avancar")).not.toBeInTheDocument();
+  });
+
   it("keeps overview and active candidate counts scoped to the same open radar queue", () => {
     const data = {
       thesisRows: [

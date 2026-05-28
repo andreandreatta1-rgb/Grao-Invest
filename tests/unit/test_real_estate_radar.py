@@ -1283,6 +1283,87 @@ def test_occupied_fiduciary_auction_without_nullity_action_can_remain_legal_watc
     assert any(item["key"] == "eviction_risk" for item in analysis["pending_items"])
 
 
+def test_ambiguous_debt_responsibility_blocks_auction_until_written_confirmation() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Leiloeiro oficial",
+            "strategy": "Leilao judicial com margem aparente",
+            "source_url": "https://www.leiloeiro.example/lote/123",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Edital oficial aberto.",
+            "listing_description": (
+                "Leilao judicial. Debitos e obrigacoes: em caso de arrematacao, "
+                "o edital nao fala explicitamente que o arrematante assumira o saldo devedor "
+                "junto ao credor fiduciario. Duvidas e esclarecimentos devem ser solicitados "
+                "perante o oficio judicial ou ao escritorio do leiloeiro por email oficial."
+            ),
+            "asking_price": 600000.0,
+            "market_value_estimate": 1050000.0,
+            "estimated_sale_conservative": 950000.0,
+            "estimated_sale_base": 1050000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 40000.0,
+            "cash_needed": 720000.0,
+            "occupancy_status": "desocupado",
+            "first_operation": False,
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 3,
+            "financing_validated": True,
+            "plan_b": "Revenda abaixo do valor base se a divida for esclarecida.",
+        }
+    )
+
+    assert analysis["listing_reading"]["debt_responsibility_ambiguous"] is True
+    assert analysis["suggested_status"] == "Aberto com pendencias"
+    assert analysis["next_action"] == "Confirmar responsabilidade por debitos"
+    assert any(
+        item["key"] == "debt_responsibility_ambiguous" and item["priority"] == "P0"
+        for item in analysis["pending_items"]
+    )
+    assert analysis["sourcing"]["tier"] == "bloqueado_por_p0"
+
+
+def test_explicit_debt_responsibility_does_not_create_ambiguous_debt_blocker() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Leiloeiro oficial",
+            "strategy": "Leilao judicial com debitos esclarecidos",
+            "source_url": "https://www.leiloeiro.example/lote/124",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Edital oficial aberto.",
+            "listing_description": (
+                "Leilao judicial. Os debitos de IPTU anteriores serao quitados com o produto "
+                "da arrematacao. O arrematante responde apenas pelas despesas vencidas apos "
+                "a imissao na posse."
+            ),
+            "asking_price": 600000.0,
+            "market_value_estimate": 1050000.0,
+            "estimated_sale_conservative": 950000.0,
+            "estimated_sale_base": 1050000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 40000.0,
+            "cash_needed": 720000.0,
+            "occupancy_status": "desocupado",
+            "first_operation": False,
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 3,
+            "financing_validated": True,
+            "plan_b": "Revenda abaixo do valor base.",
+        }
+    )
+
+    assert "debt_responsibility_ambiguous" not in analysis["listing_reading"]
+    assert not any(item["key"] == "debt_responsibility_ambiguous" for item in analysis["pending_items"])
+
+
 def test_priscila_backlog_adds_modality_condition_and_exit_plan_pending_items() -> None:
     analysis = build_candidate_analysis(
         {
