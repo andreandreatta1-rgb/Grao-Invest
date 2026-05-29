@@ -1,4 +1,7 @@
-from scripts.run_real_estate_triage_implacavel import _triage_decision
+import json
+
+import scripts.run_real_estate_triage_implacavel as triage
+from scripts.run_real_estate_triage_implacavel import _summarize_real_estate, _triage_decision
 
 
 def _row(**overrides):
@@ -151,3 +154,59 @@ def test_triage_discards_base_roi_below_target_even_when_optimistic_is_positive(
 
     assert decision is not None
     assert decision["reason_code"] == "base_roi_below_target"
+
+
+def test_summary_buckets_access_required_cases_separately() -> None:
+    row = _row(
+        outcome="Bloqueado por acesso",
+        source_validation_status="access_required",
+        real_estate_analysis={
+            "candidate": {"city": "Sao Paulo"},
+            "listing_reading": {},
+            "scenarios": {"optimistic": {"roi_pct": 30.0}},
+            "valuation_evidence": {},
+            "source_validation": {"status": "access_required"},
+            "pending_items": [
+                {"key": "source_validation", "priority": "P0"},
+                {"key": "occupancy", "priority": "P0"},
+            ],
+        },
+    )
+
+    summary = _summarize_real_estate({"thesis_open_operations": [row]})
+
+    assert summary["categories"]["access_blocked"]["open"] == 1
+    assert summary["p0_access_blocked"] == 2
+    assert summary["p0_actionable_auction"] == 0
+
+
+def test_weekly_owner_report_evidence_names_access_blocked_p0(tmp_path, monkeypatch) -> None:
+    weekly_path = tmp_path / "weekly_owner_report_latest.json"
+    weekly_path.write_text(
+        json.dumps(
+            {
+                "owner_scorecard": [{"area": "Radar Imobiliario"}],
+                "whatsapp_message": "",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(triage, "WEEKLY_OWNER_PATH", weekly_path)
+
+    triage._update_weekly_owner_report(
+        {
+            "open": 5,
+            "p0_total": 32,
+            "p0_actionable_auction": 12,
+            "p0_access_blocked": 20,
+        },
+        "2026-05-29T20:14:41-03:00",
+        [],
+    )
+
+    payload = json.loads(weekly_path.read_text(encoding="utf-8"))
+    scorecard = payload["owner_scorecard"][0]
+
+    assert "20 P0 bloqueados por acesso" in scorecard["evidence"]
+    assert "20 P0 bloqueados por acesso" in payload["whatsapp_message"]

@@ -326,6 +326,14 @@ def _apply_decision(row: dict[str, Any], decision: dict[str, Any], checked_at: s
 
 
 def _category(row: dict[str, Any]) -> str:
+    analysis = _analysis(row)
+    source_validation = analysis.get("source_validation") if isinstance(analysis, dict) else {}
+    source_status = _text(row.get("source_validation_status")).lower()
+    if isinstance(source_validation, dict) and not source_status:
+        source_status = _text(source_validation.get("status")).lower()
+    if _text(row.get("outcome")).lower() == "bloqueado por acesso" or source_status == "access_required":
+        return "access_blocked"
+
     url = _source_url(row).lower()
     if not url:
         return "other"
@@ -574,10 +582,12 @@ def _update_weekly_owner_report(summary: dict[str, Any], checked_at: str, decisi
     payload["generated_at"] = checked_at
     payload["real_estate"] = summary
     closed_count = len(decisions)
+    access_blocked_p0 = int(summary.get("p0_access_blocked") or 0)
     evidence = (
         f"{summary['open']} casos abertos; {summary['p0_total']} P0 em abertos; "
         f"{closed_count} descartes objetivos nesta triagem; "
-        f"{summary['p0_actionable_auction']} P0 acionaveis em leilao."
+        f"{summary['p0_actionable_auction']} P0 acionaveis em leilao; "
+        f"{access_blocked_p0} P0 bloqueados por acesso."
     )
     scorecard = payload.get("owner_scorecard")
     if isinstance(scorecard, list):
@@ -587,8 +597,8 @@ def _update_weekly_owner_report(summary: dict[str, Any], checked_at: str, decisi
                 item["status"] = "triagem_implacavel_aplicada"
                 item["evidence"] = evidence
                 item["owner_action"] = (
-                    "Atacar agora a fila remanescente por P0 de maior impacto: fonte, ocupacao, "
-                    "debitos e valor de saida equivalente."
+                    "Atacar agora a fila remanescente por P0 de maior impacto: obter acesso aos "
+                    "leiloeiros bloqueados, fonte, ocupacao, debitos e valor de saida equivalente."
                 )
                 found = True
         if not found:
@@ -603,7 +613,8 @@ def _update_weekly_owner_report(summary: dict[str, Any], checked_at: str, decisi
     payload["whatsapp_message"] = (
         f"Reporte owner Grao Invest atualizado em {checked_at}. Radar Imobiliario passou por triagem "
         f"implacavel: {closed_count} descartes objetivos, {summary['open']} casos ainda abertos e "
-        f"{summary['p0_total']} P0 em abertos. O ganho nao e cosmetico: direitos sobre imovel, duplicidade, "
+        f"{summary['p0_total']} P0 em abertos, sendo {access_blocked_p0} P0 bloqueados por acesso. "
+        "O ganho nao e cosmetico: direitos sobre imovel, duplicidade, "
         "fonte ausente, benchmark/agregador e ROI otimista abaixo do alvo sairam da fila. Proximo foco: "
         "resolver fonte/ocupacao/debitos dos candidatos restantes e promover apenas caso com prova primaria."
     )
