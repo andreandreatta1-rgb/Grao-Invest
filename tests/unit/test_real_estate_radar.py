@@ -248,8 +248,72 @@ def test_unknown_debt_responsibility_blocks_cost_total_before_margin() -> None:
     assert analysis["next_action"] == "Confirmar custo total de debitos"
     debt_items = [item for item in analysis["pending_items"] if item["key"] == "debt_total"]
     assert debt_items and debt_items[0]["priority"] == "P0"
+    assert "Consultar prefeitura" in " ".join(debt_items[0]["validation_route"])
+    assert "custo total" in debt_items[0]["validation_exit_criteria"]
     iptu_items = [item for item in analysis["pending_items"] if item["key"] == "iptu_debt"]
     assert iptu_items and iptu_items[0]["priority"] == "P0"
+
+
+def test_registration_pdf_without_text_requires_ocr_before_confidence() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Mega Leiloes",
+            "strategy": "Leilao judicial + diligencia",
+            "asking_price": 980000.0,
+            "market_value_estimate": 1500000.0,
+            "estimated_sale_conservative": 1350000.0,
+            "estimated_sale_base": 1470000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 35000.0,
+            "cash_needed": 0.0,
+            "occupancy_status": "desocupado",
+            "has_registration": True,
+            "registration_text_status": "empty_text",
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 0,
+            "financing_validated": True,
+            "plan_b": "Locacao se revenda atrasar.",
+        }
+    )
+
+    assert analysis["suggested_status"] == "Aberto com pendencias"
+    assert analysis["next_action"] == "Validar matricula (OCR se necessario)"
+    registration_items = [item for item in analysis["pending_items"] if item["key"] == "registration_ocr"]
+    assert registration_items and registration_items[0]["priority"] == "P0"
+
+
+def test_registration_pdf_error_status_requires_ocr_before_confidence() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Mega Leiloes",
+            "strategy": "Leilao judicial + diligencia",
+            "asking_price": 980000.0,
+            "market_value_estimate": 1500000.0,
+            "estimated_sale_conservative": 1350000.0,
+            "estimated_sale_base": 1470000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 35000.0,
+            "cash_needed": 0.0,
+            "occupancy_status": "desocupado",
+            "has_registration": True,
+            "registration_text_status": "error:PdfReadError",
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 0,
+            "financing_validated": True,
+            "plan_b": "Locacao se revenda atrasar.",
+        }
+    )
+
+    assert analysis["suggested_status"] == "Aberto com pendencias"
+    assert analysis["next_action"] == "Validar matricula (OCR se necessario)"
+    registration_items = [item for item in analysis["pending_items"] if item["key"] == "registration_ocr"]
+    assert registration_items and registration_items[0]["priority"] == "P0"
 
 
 def test_occupied_with_buyer_eviction_responsibility_is_discarded_without_approved_plan() -> None:
@@ -319,6 +383,37 @@ def test_listing_reading_marks_desocupado_without_false_occupied_flag() -> None:
     assert analysis["listing_reading"]["private_area_m2"] == 74.14
     occupancy_items = [item for item in analysis["confidence_breakdown"] if item["key"] == "occupancy"]
     assert occupancy_items and occupancy_items[0]["points"] == 15
+
+
+def test_listing_reading_extracts_private_area_from_mojibake_pdf_excerpt() -> None:
+    mojibake = b"\xc3\x81rea real privativa 56,540m\xc2\xb2".decode("latin-1")
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Mega Leiloes",
+            "strategy": "Leilao judicial + diligencia",
+            "asking_price": 355144.07,
+            "market_value_estimate": 0.0,
+            "estimated_sale_conservative": 545000.0,
+            "estimated_sale_base": 595000.0,
+            "estimated_sale_optimistic": 645000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 20000.0,
+            "carrying_months": 8,
+            "monthly_carrying_cost": 3000.0,
+            "acquisition_costs": 28411.53,
+            "selling_commission_pct": 6.0,
+            "cash_needed": 0.0,
+            "occupancy_status": "desconhecido",
+            "has_registration": True,
+            "condo_debt_known": False,
+            "iptu_debt_known": False,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 0,
+            "auction_description": f"Apartamento. {mojibake}.",
+        }
+    )
+
+    assert analysis["listing_reading"]["private_area_m2"] == 56.54
 
 
 def test_listing_reading_occupancy_conflict_does_not_override_source_signal() -> None:
@@ -749,6 +844,9 @@ def test_access_required_source_becomes_user_credential_p0() -> None:
     assert source_item["priority"] == "P0"
     assert source_item["title"] == "Acesso ao leiloeiro necessario"
     assert "www.webleiloes.com.br.credentials.json" in source_item["action"]
+    assert source_item["requires_user_access"] is True
+    assert "cadastro/login" in " ".join(source_item["validation_route"])
+    assert source_item["validation_method"] == "investigador_implacavel_aula_3"
     assert analysis["next_action"] == "Acesso ao leiloeiro necessario"
     assert analysis["source_validation"]["requires_user_action"] is True
     assert (

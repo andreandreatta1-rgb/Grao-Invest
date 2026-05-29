@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import html as html_lib
 import io
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import unicodedata
 from dataclasses import dataclass
@@ -29,6 +32,7 @@ from app.services.real_estate_source_validation import validate_real_estate_sour
 REPORTS_DIR = ROOT / "data" / "reports"
 MEGA_BASE = "https://www.megaleiloes.com.br"
 CHAVES_BASE = "https://www.chavesnamao.com.br"
+WIN_FETCH_PS1 = ROOT / "scripts" / "win_fetch_url.ps1"
 
 SCOPE = {
     "cities": ["Sao Paulo", "Campinas"],
@@ -39,10 +43,12 @@ MEGA_INDEXES_BY_CITY: dict[str, list[str]] = {
     "Campinas": [
         f"{MEGA_BASE}/imoveis/apartamentos/sp/campinas/",
         f"{MEGA_BASE}/imoveis/casas/sp/campinas/",
+        f"{MEGA_BASE}/imoveis/imoveis-comerciais/sp/campinas/",
     ],
     "Sao Paulo": [
         f"{MEGA_BASE}/imoveis/apartamentos/sp/sao-paulo/",
         f"{MEGA_BASE}/imoveis/casas/sp/sao-paulo/",
+        f"{MEGA_BASE}/imoveis/imoveis-comerciais/sp/sao-paulo/",
     ],
 }
 
@@ -51,10 +57,45 @@ DEFAULT_NEXT_TARGETS = [
     "OCR opcional/flag para PDFs de matricula escaneados (onus/ocupacao/dividas).",
 ]
 
+HELP_TEXT = """Radar Imobiliário — Maturação
+
+Uso:
+  python scripts/run_real_estate_radar_maturation_cycle.py
+
+Observações:
+  - Este script roda um ciclo completo (1 candidato Campinas + 1 candidato São Paulo),
+    valida fontes e gera relatórios em data/reports/.
+  - Este script não aceita argumentos (apenas -h/--help).
+
+Env vars úteis:
+  - RADAR_MATURATION_PIN_CAMPINAS_URL: fixa a URL do candidato de Campinas
+  - RADAR_MATURATION_PIN_SAO_PAULO_URL: fixa a URL do candidato de São Paulo
+  - RADAR_MATURATION_REUSE_COOLDOWN_HOURS: cooldown de reuso (default=12)
+  - RADAR_MATURATION_CLOSEOUT_JSON: JSON com listas para closeout (fragilities/fixes/tests/next_targets)
+"""
+
 CHAVES_INDEX_BY_CITY: dict[str, str] = {
     "Campinas": f"{CHAVES_BASE}/apartamentos-a-venda/sp-campinas/",
     "Sao Paulo": f"{CHAVES_BASE}/apartamentos-a-venda/sp-sao-paulo/",
 }
+
+CHAVES_SALE_INDEX_BY_CITY_AND_KIND: dict[str, dict[str, str]] = {
+    "Campinas": {
+        "residential": f"{CHAVES_BASE}/apartamentos-a-venda/sp-campinas/",
+        "commercial": f"{CHAVES_BASE}/imoveis-comerciais-a-venda/sp-campinas/",
+    },
+    "Sao Paulo": {
+        "residential": f"{CHAVES_BASE}/apartamentos-a-venda/sp-sao-paulo/",
+        "commercial": f"{CHAVES_BASE}/imoveis-comerciais-a-venda/sp-sao-paulo/",
+    },
+}
+
+
+def _guess_chaves_kind(property_type: str) -> str:
+    kind = (property_type or "").strip().lower()
+    if "comercial" in kind or "galp" in kind or "loja" in kind or "sala" in kind:
+        return "commercial"
+    return "residential"
 
 
 def _now_utc() -> str:
@@ -93,6 +134,8 @@ def _format_brl(value: float) -> str:
 
 
 def _http_client(timeout_s: float) -> httpx.Client:
+    if os.name == "nt" and WIN_FETCH_PS1.exists() and shutil.which("powershell"):
+        return _WinInetClient(timeout_s=timeout_s)
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -125,11 +168,288 @@ def _get_with_retries(client: httpx.Client, url: str, *, retries: int = 3) -> ht
     raise last_exc or RuntimeError("Unexpected retry loop termination.")
 
 
+def _response_text_utf8(response: httpx.Response) -> str:
+    text = response.text
+    if not text:
+        return text
+    if ("Ã" not in text and "Â" not in text) or not getattr(response, "content", b""):
+        return text
+    try:
+        repaired = response.content.decode("utf-8")
+    except Exception:
+        return text
+    bad_before = text.count("Ã") + text.count("Â")
+    bad_after = repaired.count("Ã") + repaired.count("Â")
+    return repaired if bad_after < bad_before else text
+
+
+class ConnectTimeout(Exception):
+    pass
+
+
+class ConnectError(Exception):
+    pass
+
+
+@dataclass(frozen=True)
+class _WinFetchPayload:
+    ok: bool
+    status: int
+    final_url: str
+    content_type: str
+    error: str
+
+
+class _WinResponse:
+    def __init__(self, *, status_code: int, url: str, content: bytes, text: str) -> None:
+        self.status_code = status_code
+        self.url = url
+        self.content = content
+        self.text = text
+
+    def iter_bytes(self) -> bytes:
+        chunk = 64 * 1024
+        for idx in range(0, len(self.content), chunk):
+            yield self.content[idx : idx + chunk]
+
+    def __enter__(self) -> "_WinResponse":
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+        return None
+
+
+class _WinInetClient:
+    def __init__(self, *, timeout_s: float) -> None:
+        self._timeout_s = float(timeout_s or 18.0)
+        self.headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+        }
+
+    def __enter__(self) -> "_WinInetClient":
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+        return None
+
+    def stream(self, method: str, url: str) -> _WinResponse:
+        _ = method
+        return self.get(url)
+
+    def fetcher(self, url: str, timeout: float) -> _WinResponse:
+        return self.get(url, timeout_s=timeout)
+
+    def get(self, url: str, *, timeout_s: float | None = None) -> _WinResponse:
+        timeout = float(timeout_s) if timeout_s is not None else self._timeout_s
+        payload, content = _powershell_fetch_bytes(
+            url,
+            timeout_s=timeout,
+            user_agent=str(self.headers.get("User-Agent") or ""),
+            accept_language=str(self.headers.get("Accept-Language") or ""),
+        )
+        if not payload.ok and payload.status <= 0:
+            message = (payload.error or "").strip()
+            lower = message.lower()
+            if "tempo limite" in lower or "timed out" in lower or "timeout" in lower:
+                raise ConnectTimeout(message or "timed out")
+            raise ConnectError(message or "connect_failed")
+
+        text = _decode_best_effort_text(content, hint=payload.content_type)
+        text = _repair_mojibake_text(text)
+        return _WinResponse(status_code=int(payload.status or 0), url=payload.final_url or url, content=content, text=text)
+
+
+def _decode_best_effort_text(raw: bytes, *, hint: str = "") -> str:
+    if not raw:
+        return ""
+    hint_lower = (hint or "").lower()
+    if "charset=" in hint_lower:
+        charset = hint_lower.split("charset=", 1)[1].split(";", 1)[0].strip().strip('"').strip("'")
+        if charset:
+            try:
+                return raw.decode(charset, errors="replace")
+            except Exception:
+                pass
+    for enc in ("utf-8", "cp1252", "latin-1"):
+        try:
+            return raw.decode(enc, errors="replace")
+        except Exception:
+            continue
+    return raw.decode("utf-8", errors="replace")
+
+
+def _powershell_fetch_bytes(
+    url: str,
+    *,
+    timeout_s: float,
+    user_agent: str,
+    accept_language: str,
+    max_bytes: int = 18_000_000,
+) -> tuple[_WinFetchPayload, bytes]:
+    target = (url or "").strip()
+    if not target:
+        return _WinFetchPayload(False, 0, "", "", "missing_url"), b""
+
+    if os.name != "nt" or not WIN_FETCH_PS1.exists() or not shutil.which("powershell"):
+        return _WinFetchPayload(False, 0, target, "", "powershell_fetch_unavailable"), b""
+
+    out_dir = Path(tempfile.mkdtemp(prefix="grao_win_fetch_"))
+    out_file = out_dir / "payload.bin"
+    try:
+        cmd = [
+            "powershell",
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(WIN_FETCH_PS1),
+            "-Url",
+            target,
+            "-OutFile",
+            str(out_file),
+            "-TimeoutSec",
+            str(max(3, int(timeout_s))),
+            "-UserAgent",
+            user_agent or "",
+            "-AcceptLanguage",
+            accept_language or "",
+        ]
+        completed = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=max(10, int(timeout_s) + 12),
+            check=False,
+        )
+        raw_stdout = (completed.stdout or "").strip()
+        payload_dict: dict[str, Any] = {}
+        if raw_stdout:
+            try:
+                payload_dict = json.loads(raw_stdout)
+            except json.JSONDecodeError:
+                payload_dict = {"ok": False, "status": 0, "final_url": target, "error": f"bad_ps_json: {raw_stdout[:220]}"}
+        else:
+            payload_dict = {
+                "ok": False,
+                "status": 0,
+                "final_url": target,
+                "error": (completed.stderr or "").strip() or f"ps_rc={completed.returncode}",
+            }
+
+        payload = _WinFetchPayload(
+            ok=bool(payload_dict.get("ok")),
+            status=int(payload_dict.get("status") or 0),
+            final_url=str(payload_dict.get("final_url") or target),
+            content_type=str(payload_dict.get("content_type") or ""),
+            error=str(payload_dict.get("error") or ""),
+        )
+        if out_file.exists():
+            if out_file.stat().st_size > max_bytes:
+                return _WinFetchPayload(False, payload.status, payload.final_url, payload.content_type, "too_large"), b""
+            content = out_file.read_bytes()
+        else:
+            content = b""
+        return payload, content
+    finally:
+        try:
+            if out_file.exists():
+                out_file.unlink()
+        except Exception:
+            pass
+        try:
+            out_dir.rmdir()
+        except Exception:
+            pass
+
+def _repair_mojibake_text(value: str) -> str:
+    raw = value or ""
+    if not raw:
+        return raw
+    if "Ã" not in raw and "Â" not in raw:
+        return raw
+    try:
+        repaired = raw.encode("latin-1").decode("utf-8")
+    except Exception:
+        try:
+            repaired = raw.encode("latin-1", errors="ignore").decode("utf-8", errors="ignore")
+        except Exception:
+            return raw
+    bad_before = raw.count("Ã") + raw.count("Â")
+    bad_after = repaired.count("Ã") + repaired.count("Â")
+    return repaired if repaired and bad_after < bad_before else raw
+
+
 def _searchable_text(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value or "")
     normalized = "".join(ch for ch in normalized if not unicodedata.combining(ch))
     normalized = re.sub(r"\s+", " ", normalized).strip().lower()
     return normalized
+
+
+def _extract_html_title(html: str) -> str:
+    raw = html or ""
+    match = re.search(r"<title[^>]*>(?P<title>.*?)</title>", raw, flags=re.I | re.S)
+    if not match:
+        return ""
+    title = html_lib.unescape(match.group("title") or "")
+    title = re.sub(r"\s+", " ", title).strip()
+    return title
+
+
+def _focus_pdf_text_for_extracted_location(*, raw: str, extracted: dict[str, Any]) -> str:
+    hay = _searchable_text(raw or "")
+    if not hay:
+        return ""
+    location = extracted.get("location") if isinstance(extracted.get("location"), dict) else {}
+    street = str(location.get("street") or "").strip()
+    if not street:
+        return hay
+    base = street.split(",", 1)[0].strip()
+    base = re.sub(r"^(rua|avenida|alameda|travessa|estrada)\s+", "", base, flags=re.I).strip()
+    if len(base) < 8:
+        return hay
+    needle = _searchable_text(base)
+    idx = hay.find(needle)
+    if idx < 0:
+        return hay
+    lot_markers = list(re.finditer(r"\blote\s+\d{1,3}\b", hay, flags=re.I))
+    prev_lot = None
+    next_lot = None
+    for marker in lot_markers:
+        if marker.start() < idx:
+            prev_lot = marker
+            continue
+        if marker.start() > idx:
+            next_lot = marker
+            break
+    if prev_lot:
+        start = prev_lot.start()
+        end = next_lot.start() if next_lot else len(hay)
+        return hay[start:end]
+    radius = 1800
+    return hay[max(0, idx - radius) : idx + radius]
+
+
+def _extract_occupancy_status_from_signals_text(text: str) -> str:
+    lower = _searchable_text(text or "")
+    if not lower:
+        return ""
+    if (
+        re.search(r"\bdesocupad[oa]s?\b", lower)
+        or "imovel vago" in lower
+        or "sem ocupantes" in lower
+        or "sem ocupacao" in lower
+    ):
+        return "desocupado"
+    if re.search(r"\bocupad[oa]s?\b", lower) or "locatar" in lower or "sem visitacao" in lower:
+        return "ocupado"
+    return ""
 
 
 def _first_money_after(pattern: str, text: str) -> float:
@@ -143,6 +463,22 @@ def _first_money_after(pattern: str, text: str) -> float:
     if not match:
         return 0.0
     return _money_to_float(match.group(1))
+
+
+def _extract_appraisal_value_from_pdf_text(text: str) -> float:
+    if not text:
+        return 0.0
+    normalized = _searchable_text(text)
+    patterns = (
+        r"valor\s+da\s+avaliac[aã]o(?:\s+do\s+im[oó]vel)?",
+        r"valor\s+de\s+avaliac[aã]o(?:\s+do\s+im[oó]vel)?",
+        r"avaliac[aã]o\s+do\s+im[oó]vel",
+    )
+    for pattern in patterns:
+        value = _first_money_after(pattern, normalized) or _first_money_after(pattern, text)
+        if value > 0:
+            return value
+    return 0.0
 
 
 def _extract_pdf_text(
@@ -199,9 +535,44 @@ def _extract_pdf_text(
             return "", "dependency_missing"
         return "", f"error:{type(exc).__name__}"
 
+    text = _repair_mojibake_text(text)
+
     if len(_searchable_text(text)) < 80:
         return text, "empty_text"
     return text, "ok"
+
+
+def _area_token_to_m2(token: str) -> float:
+    value = (token or "").strip()
+    if not value:
+        return 0.0
+    value = value.replace(".", "").replace(",", ".")
+    try:
+        parsed = float(value)
+    except ValueError:
+        return 0.0
+    return parsed if parsed > 0 else 0.0
+
+
+def _extract_private_area_m2_from_pdf_text(text: str) -> float:
+    if not text:
+        return 0.0
+    normalized = _searchable_text(text)
+    match = re.search(
+        r"area\s+(?:real\s+)?privativa\s+(?:de\s+)?([0-9]+(?:[.,][0-9]+)?)\s*m",
+        normalized,
+        flags=re.I,
+    )
+    if match:
+        return _area_token_to_m2(match.group(1))
+    match = re.search(
+        r"area\s+util(?:\s+ou\s+privativa)?\s+(?:de\s+)?([0-9]+(?:[.,][0-9]+)?)\s*m",
+        normalized,
+        flags=re.I,
+    )
+    if match:
+        return _area_token_to_m2(match.group(1))
+    return 0.0
 
 
 def _enrich_mega_extracted_with_pdf_signals(*, extracted: dict[str, Any], client: httpx.Client) -> None:
@@ -233,52 +604,77 @@ def _enrich_mega_extracted_with_pdf_signals(*, extracted: dict[str, Any], client
     if not edital_text:
         return
 
-    def _focus_signals_text(raw: str) -> str:
-        hay = _searchable_text(raw)
-        location = extracted.get("location") if isinstance(extracted.get("location"), dict) else {}
-        street = str(location.get("street") or "").strip()
-        if not street:
-            return hay
-        base = street.split(",", 1)[0].strip()
-        base = re.sub(r"^(rua|avenida|alameda|travessa|estrada)\s+", "", base, flags=re.I).strip()
-        if len(base) < 8:
-            return hay
-        needle = _searchable_text(base)
-        idx = hay.find(needle)
-        if idx < 0:
-            return hay
-        radius = 1800
-        return hay[max(0, idx - radius) : idx + radius]
+    focused = _focus_pdf_text_for_extracted_location(raw=edital_text, extracted=extracted)
+    focused_or_all = focused or edital_text
+
+    appraisal_pdf = _extract_appraisal_value_from_pdf_text(edital_text)
+    if appraisal_pdf > 0:
+        auction = extracted.get("auction") if isinstance(extracted.get("auction"), dict) else {}
+        auction_dict = dict(auction)
+        current_appraisal = float(auction_dict.get("appraisal_value") or 0.0)
+        if current_appraisal <= 0 or appraisal_pdf > current_appraisal * 1.01:
+            auction_dict["appraisal_value"] = round(appraisal_pdf, 2)
+            extracted["auction"] = auction_dict
 
     if "occupancy_status" not in extracted:
         laudo_text = texts.get("laudo") or ""
         if laudo_text:
-            laudo_lower = _searchable_text(laudo_text)
-            if "desocupad" in laudo_lower or "imovel vago" in laudo_lower or "sem ocupantes" in laudo_lower:
-                extracted["occupancy_status"] = "desocupado"
-            elif "ocupad" in laudo_lower or "sem visitacao" in laudo_lower:
-                extracted["occupancy_status"] = "ocupado"
+            status = _extract_occupancy_status_from_signals_text(laudo_text)
+            if status:
+                extracted["occupancy_status"] = status
 
     if "occupancy_status" not in extracted:
-        lower = _focus_signals_text(edital_text)
-        if "desocupad" in lower or "imovel vago" in lower or "sem ocupantes" in lower:
-            extracted["occupancy_status"] = "desocupado"
-        elif "ocupad" in lower or "sem visitacao" in lower:
-            extracted["occupancy_status"] = "ocupado"
+        status = _extract_occupancy_status_from_signals_text(focused_or_all)
+        if status:
+            extracted["occupancy_status"] = status
+
+    private_area_pdf = _extract_private_area_m2_from_pdf_text(focused_or_all)
+    if private_area_pdf > 0:
+        current_private = float(extracted.get("area_private_m2") or 0.0)
+        current_total = float(extracted.get("area_total_m2") or 0.0)
+        current_basis = str(extracted.get("area_basis") or "").strip().lower()
+        should_override = (
+            current_private <= 0
+            or current_basis in {"title", "url", "url_overrode_html", "url_overrode_noisy_html"}
+            or (current_total > 0 and abs(current_total - private_area_pdf) <= max(0.5, current_total * 0.02))
+            or private_area_pdf > current_private * 1.02
+        )
+        if should_override:
+            extracted["area_private_m2"] = round(private_area_pdf, 2)
+            if current_total <= 0:
+                extracted["area_total_m2"] = round(private_area_pdf, 2)
+            extracted["area_basis"] = "pdf_privativa"
 
     debts = extracted.get("debts")
     debts_dict = debts if isinstance(debts, dict) else {}
 
-    condo = _first_money_after(r"condom[ií]nio|condominio", edital_text)
-    iptu = _first_money_after(r"\biptu\b|tribut[aá]rios|tributarios", edital_text)
+    condo = _first_money_after(
+        r"d[eé]bitos?\s+(?:de\s+)?condom[ií]nio|d[eé]bito\s+(?:de\s+)?condom[ií]nio",
+        edital_text,
+    )
+    iptu = _first_money_after(
+        r"d[eé]bitos?\s+(?:de\s+)?iptu|d[eé]bito\s+(?:de\s+)?iptu|\biptu\s*[:=]",
+        edital_text,
+    )
     active_debt = _first_money_after(r"d[ií]vida\s+ativa|divida\s+ativa", edital_text)
     tributary = _first_money_after(r"d[eé]bitos?\s+tribut[aá]rios|d[eé]bito\s+tribut[aá]rio", edital_text)
 
-    searchable = _focus_signals_text(edital_text)
-    condo = condo or _first_money_after(r"condominio", searchable)
-    iptu = iptu or _first_money_after(r"\biptu\b|tributarios", searchable)
-    active_debt = active_debt or _first_money_after(r"divida\s+ativa", searchable)
-    tributary = tributary or _first_money_after(r"debitos?\s+tributarios|debito\s+tributario", searchable)
+    searchable = _searchable_text(edital_text)
+    condo = _first_money_after(r"debitos?\s+de\s+condominio|debito\s+de\s+condominio|condominio\s*[:=]", searchable) or condo
+    iptu = _first_money_after(r"debitos?\s+de\s+iptu|debito\s+de\s+iptu|\biptu\s*[:=]", searchable) or iptu
+    active_debt = _first_money_after(r"divida\s+ativa", searchable) or active_debt
+    tributary = _first_money_after(r"debitos?\s+tributarios|debito\s+tributario", searchable) or tributary
+
+    if appraisal_pdf > 0 and iptu > 0 and abs(iptu - appraisal_pdf) <= max(1.0, appraisal_pdf * 0.012):
+        iptu = 0.0
+
+    if re.search(r"nao\s+ha\s+debitos?\s+(?:de\s+)?iptu", searchable):
+        iptu = 0.0
+        debts_dict["iptu_confirmed_clear"] = True
+
+    if re.search(r"nao\s+ha\s+debitos?\s+inscritos?\s+na\s+divida\s+ativa", searchable):
+        active_debt = 0.0
+        debts_dict["active_debt_confirmed_clear"] = True
 
     if condo > 0:
         debts_dict["condo_amount"] = round(condo, 2)
@@ -401,7 +797,7 @@ def _find_location_from_jsonld(objects: list[dict[str, Any]]) -> tuple[str, str,
         neighborhood = str(address.get("addressRegion") or "").strip()
         if street or city:
             break
-    return street, neighborhood, city
+    return _repair_mojibake_text(street), _repair_mojibake_text(neighborhood), _repair_mojibake_text(city)
 
 
 def _find_location_from_html(html: str) -> tuple[str, str, str]:
@@ -421,6 +817,7 @@ def _find_location_from_html(html: str) -> tuple[str, str, str]:
     if not m:
         return "", "", ""
     raw = re.sub(r"\s+", " ", m.group("value") or "").strip()
+    raw = _repair_mojibake_text(raw)
     if not raw:
         return "", "", ""
     parts = [p.strip() for p in raw.split(",") if p.strip()]
@@ -605,6 +1002,8 @@ def _mega_property_type_from_url(url: str) -> str:
     url_lower = (url or "").lower()
     if "/imoveis/casas/" in url_lower:
         return "Casa"
+    if "/imoveis/imoveis-comerciais/" in url_lower or "/imoveis/galpoes/" in url_lower:
+        return "Comercial"
     if "/imoveis/terrenos" in url_lower or "/imoveis/terrenos-e-lotes/" in url_lower:
         return "Lote"
     return "Apartamento"
@@ -612,8 +1011,9 @@ def _mega_property_type_from_url(url: str) -> str:
 
 def _extract_mega_candidate_listing(url: str, client: httpx.Client) -> dict[str, Any]:
     response = _get_with_retries(client, url, retries=3)
-    html = response.text
+    html = _response_text_utf8(response)
     jsonld = _extract_jsonld_objects(html)
+    listing_title = _extract_html_title(html)
     street, neighborhood, city_jsonld = _find_location_from_jsonld(jsonld)
     if not (street and neighborhood and city_jsonld):
         street2, neighborhood2, city2 = _find_location_from_html(html)
@@ -652,6 +1052,7 @@ def _extract_mega_candidate_listing(url: str, client: httpx.Client) -> dict[str,
     return {
         "final_url": str(response.url),
         "http_status": int(response.status_code or 0),
+        "listing_title": listing_title,
         "auction_code": _extract_mega_code(url),
         "process_number": process_number,
         "location": {
@@ -720,7 +1121,7 @@ def _discover_one_mega_candidate(city: str, used_urls: set[str], client: httpx.C
         for page in range(1, max_pages + 1):
             page_url = base if page == 1 else f"{base}?pagina={page}"
             try:
-                index_html = _get_with_retries(client, page_url, retries=3).text
+                index_html = _response_text_utf8(_get_with_retries(client, page_url, retries=3))
             except Exception:
                 continue
             page_urls = _extract_mega_listing_urls(index_html)
@@ -735,6 +1136,7 @@ def _discover_one_mega_candidate(city: str, used_urls: set[str], client: httpx.C
                 break
 
         reuse_pool: list[tuple[datetime, str]] = []
+        cooldown_pool: list[tuple[datetime, str]] = []
         for url in urls[:90]:
             normalized = url.rstrip("/")
             if normalized in used_urls or (normalized + "/") in used_urls:
@@ -743,8 +1145,10 @@ def _discover_one_mega_candidate(city: str, used_urls: set[str], client: httpx.C
                     age_s = (datetime.now(UTC) - seen_at).total_seconds()
                     if age_s >= reuse_after_s:
                         reuse_pool.append((seen_at, url))
+                    else:
+                        cooldown_pool.append((seen_at, url))
                 continue
-            validation = validate_real_estate_source_url(url)
+            validation = validate_real_estate_source_url(url, fetcher=getattr(client, "fetcher", None))
             if validation.status != "valid":
                 continue
             extracted = _extract_mega_candidate_listing(url, client)
@@ -757,12 +1161,29 @@ def _discover_one_mega_candidate(city: str, used_urls: set[str], client: httpx.C
         if reuse_pool:
             reuse_pool.sort(key=lambda item: item[0])
             seen_at, url = reuse_pool[0]
-            validation = validate_real_estate_source_url(url)
+            validation = validate_real_estate_source_url(url, fetcher=getattr(client, "fetcher", None))
             if validation.status != "valid":
                 continue
             extracted = _extract_mega_candidate_listing(url, client)
             extracted["source_validation"] = validation.as_payload()
             extracted["radar_maturation_reused"] = True
+            extracted["radar_maturation_last_seen_at"] = seen_at.replace(microsecond=0).isoformat()
+            min_bid = float((extracted.get("auction") or {}).get("minimum_bid") or 0.0)
+            if min_bid <= 0:
+                continue
+            return url, extracted
+
+        if cooldown_pool:
+            cooldown_pool.sort(key=lambda item: item[0])
+            seen_at, url = cooldown_pool[0]
+            validation = validate_real_estate_source_url(url, fetcher=getattr(client, "fetcher", None))
+            if validation.status != "valid":
+                continue
+            extracted = _extract_mega_candidate_listing(url, client)
+            extracted["source_validation"] = validation.as_payload()
+            extracted["radar_maturation_reused"] = True
+            extracted["radar_maturation_reused_force"] = True
+            extracted["radar_maturation_reuse_reason"] = "cooldown_force"
             extracted["radar_maturation_last_seen_at"] = seen_at.replace(microsecond=0).isoformat()
             min_bid = float((extracted.get("auction") or {}).get("minimum_bid") or 0.0)
             if min_bid <= 0:
@@ -828,7 +1249,7 @@ def _discover_one_chaves_candidate(
         normalized = url.rstrip("/")
         if normalized in used_urls or (normalized + "/") in used_urls:
             continue
-        validation = validate_real_estate_source_url(url)
+        validation = validate_real_estate_source_url(url, fetcher=getattr(client, "fetcher", None))
         if validation.status != "valid":
             continue
         extracted = _extract_chaves_candidate_listing(url, city=city)
@@ -881,14 +1302,17 @@ def _discover_chaves_sale_comparables(
 ) -> list[dict[str, Any]]:
     city_slug = "sp-sao-paulo" if city.lower().startswith("sao") else "sp-campinas"
     neighborhood_slug = _slug(neighborhood) or "centro"
-    if property_type.lower().startswith("casa"):
+    kind = _guess_chaves_kind(property_type)
+    if kind == "commercial":
+        category = "imoveis-comerciais-a-venda"
+    elif property_type.lower().startswith("casa"):
         category = "casas-a-venda"
     else:
         category = "apartamentos-a-venda"
 
     def _collect_listing_urls(url: str) -> list[str]:
         try:
-            html = _get_with_retries(client, url, retries=3).text
+            html = _response_text_utf8(_get_with_retries(client, url, retries=3))
         except Exception:
             return []
         found: list[str] = []
@@ -906,7 +1330,8 @@ def _discover_chaves_sale_comparables(
 
     exclude_norm = (exclude_url or "").rstrip("/")
 
-    candidates: list[tuple[float, float, str]] = []
+    target_norm = _slug(neighborhood)
+    candidates: list[tuple[bool, float, float, str, str]] = []
     for url in urls[: max(80, desired * 30)]:
         if not url:
             continue
@@ -915,26 +1340,36 @@ def _discover_chaves_sale_comparables(
         price, area = _parse_chaves_price_area_from_url(url)
         if price <= 0 or area <= 0:
             continue
-        candidates.append((area, price, url))
+        found_neighborhood = _chaves_neighborhood_from_url(url, city=city)
+        found_norm = _slug(found_neighborhood)
+        same_neighborhood = bool(target_norm and found_norm and target_norm == found_norm)
+        candidates.append((same_neighborhood, area, price, url, found_neighborhood))
 
     if target_area_m2 > 0:
-        tight = [c for c in candidates if target_area_m2 * 0.6 <= c[0] <= target_area_m2 * 1.6]
+        tight = [c for c in candidates if target_area_m2 * 0.6 <= c[1] <= target_area_m2 * 1.6]
         if len(tight) >= desired:
             candidates = tight
         else:
-            wide = [c for c in candidates if target_area_m2 * 0.45 <= c[0] <= target_area_m2 * 2.2]
+            wide = [c for c in candidates if target_area_m2 * 0.45 <= c[1] <= target_area_m2 * 2.2]
             candidates = wide or candidates
 
-    candidates.sort(key=lambda item: abs(item[0] - target_area_m2) if target_area_m2 > 0 else item[0])
+    candidates.sort(
+        key=lambda item: (
+            not item[0],
+            abs(item[1] - target_area_m2) if target_area_m2 > 0 else item[1],
+        )
+    )
     comparables: list[dict[str, Any]] = []
-    for area, price, url in candidates[:desired]:
+    for same_neighborhood, area, price, url, found_neighborhood in candidates[:desired]:
         comparables.append(
             {
                 "source": "ChavesNaMao",
                 "source_url": url,
                 "price": round(price, 2),
                 "area_m2": round(area, 2),
-                "evidence_type": "same_neighborhood_listing",
+                "neighborhood": found_neighborhood,
+                "same_neighborhood": same_neighborhood,
+                "evidence_type": "same_neighborhood_listing" if same_neighborhood else "asking_listing",
                 "note": f"{city}/{neighborhood}",
             }
         )
@@ -953,6 +1388,7 @@ def _candidate_payload_from_mega(
     auction = extracted.get("auction") if isinstance(extracted.get("auction"), dict) else {}
     min_bid = float(auction.get("minimum_bid") or 0.0)
     appraisal = float(auction.get("appraisal_value") or 0.0)
+    listing_title = str(extracted.get("listing_title") or "").strip()
     location = extracted.get("location") if isinstance(extracted.get("location"), dict) else {}
     neighborhood = str(location.get("neighborhood") or "").strip()
     street = str(location.get("street") or "").strip()
@@ -964,9 +1400,14 @@ def _candidate_payload_from_mega(
     )
     occupancy_status = str(extracted.get("occupancy_status") or "").strip() or "desconhecido"
     pdf_evidence = extracted.get("pdf_evidence") if isinstance(extracted.get("pdf_evidence"), dict) else {}
+    matricula_evidence = pdf_evidence.get("matricula") if isinstance(pdf_evidence.get("matricula"), dict) else {}
+    registration_text_status = (
+        str(matricula_evidence.get("text_status") or "").strip().lower() or "unknown"
+    )
     edital_excerpt = str((pdf_evidence.get("edital") or {}).get("text_excerpt") or "").strip()
     condo_amount = float(debts.get("condo_amount") or 0.0)
     iptu_amount = float(debts.get("iptu_amount") or 0.0)
+    iptu_confirmed_clear = bool(debts.get("iptu_confirmed_clear"))
     known_debts = (
         float(debts.get("condo_amount") or 0.0)
         + float(debts.get("iptu_amount") or 0.0)
@@ -977,6 +1418,7 @@ def _candidate_payload_from_mega(
         "title": title,
         "origin": "Mega Leiloes",
         "strategy": "Leilao judicial + diligencia",
+        "listing_description": listing_title,
         "source_url": source_url,
         "source_validation": source_validation,
         "source_validation_status": str(source_validation.get("status") or "").strip(),
@@ -997,10 +1439,10 @@ def _candidate_payload_from_mega(
         "has_edital": bool(attachments.get("edital")),
         "edital_url": str(attachments.get("edital") or ""),
         "has_registration": bool(attachments.get("matricula")),
-        "registration_text_status": "unknown",
+        "registration_text_status": registration_text_status,
         "condo_debt_known": condo_amount > 0,
         "condo_debt_amount_brl": round(condo_amount, 2),
-        "iptu_debt_known": iptu_amount > 0,
+        "iptu_debt_known": iptu_confirmed_clear or iptu_amount > 0,
         "iptu_debt_amount_brl": round(iptu_amount, 2),
         "known_debt_costs_brl": round(known_debts, 2),
         "auction_description": edital_excerpt,
@@ -1077,7 +1519,17 @@ def _candidate_payload_from_chaves(
 
 def _decision_from_analysis(analysis: dict[str, Any]) -> str:
     status = str(analysis.get("suggested_status") or "").strip().lower()
+    scenarios = analysis.get("scenarios") if isinstance(analysis.get("scenarios"), dict) else {}
+    base = scenarios.get("base") if isinstance(scenarios.get("base"), dict) else {}
+    base_roi_pct = float(base.get("roi_pct") or 0.0)
+    pending_items = analysis.get("pending_items") if isinstance(analysis.get("pending_items"), list) else []
+    has_rights_over = any(
+        isinstance(item, dict) and str(item.get("key") or "").strip().lower() == "rights_over_asset"
+        for item in pending_items
+    )
     if "descart" in status:
+        if has_rights_over and base_roi_pct >= 35.0:
+            return "travado"
         if "trava" in status or "rever" in status or " ou " in status:
             return "travado"
         return "sai"
@@ -1184,6 +1636,12 @@ def _render_markdown(run_date: str, json_path: Path, candidates: list[Candidate]
         lines.append(f"### {idx}) {cand.city} - {neighborhood} - {cand.title}")
         lines.append("")
         lines.append(f"- ID (app): `{cand.id}`")
+        if extracted.get("radar_maturation_reused_force"):
+            last_seen_at = str(extracted.get("radar_maturation_last_seen_at") or "").strip()
+            lines.append(f"- Reuso (ciclo): `forcado` (last_seen={last_seen_at or 'n/a'})")
+        elif extracted.get("radar_maturation_reused"):
+            last_seen_at = str(extracted.get("radar_maturation_last_seen_at") or "").strip()
+            lines.append(f"- Reuso (ciclo): `sim` (last_seen={last_seen_at or 'n/a'})")
         lines.append(f"- Fonte (imóvel/lote individual): {cand.source_url}")
         if attachments.get("edital"):
             lines.append(f"- Edital (PDF): {attachments.get('edital')}")
@@ -1253,6 +1711,19 @@ def _render_markdown(run_date: str, json_path: Path, candidates: list[Candidate]
             lines.append(f"- Financeiro (base): ROI `{roi:.1f}%` · lucro líquido `{_format_brl(profit)}`")
         lines.append(f"- Score/Confiança (app): `{analysis.get('score')}` / `{analysis.get('confidence')}`")
         if pending_labels:
+            validation_notes: list[str] = []
+            for item in pending[:3]:
+                if not isinstance(item, dict):
+                    continue
+                route = item.get("validation_route") if isinstance(item.get("validation_route"), list) else []
+                exit_criteria = str(item.get("validation_exit_criteria") or "").strip()
+                first_step = str(route[0] if route else item.get("action") or "").strip()
+                if first_step:
+                    validation_notes.append(f"Como validar `{item.get('title')}`: {first_step}")
+                if exit_criteria:
+                    validation_notes.append(f"Criterio de fechamento `{item.get('title')}`: {exit_criteria}")
+            for note in validation_notes:
+                lines.append(f"  - {note}")
             lines.append("- Pendências (app): " + "; ".join(pending_labels[:10]))
         lines.append(f"- Próxima ação (app): {analysis.get('next_action')}")
         lines.append(f"- Decisão: **{cand.decision}**")
@@ -1291,6 +1762,14 @@ def _render_markdown(run_date: str, json_path: Path, candidates: list[Candidate]
 
 
 def main() -> None:
+    args = sys.argv[1:]
+    if any(a in {"-h", "--help"} for a in args):
+        print(HELP_TEXT)
+        return
+    if args:
+        print(f"Unexpected args: {' '.join(args)}\n\n{HELP_TEXT}", file=sys.stderr)
+        raise SystemExit(2)
+
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     used = _used_source_urls()
     run_date = datetime.now().date().isoformat()
@@ -1329,7 +1808,7 @@ def main() -> None:
             if pinned_url:
                 source_url = pinned_url
                 origin = "Mega" if "megaleiloes.com.br" in pinned_url.lower() else "ChavesNaMao"
-                validation = validate_real_estate_source_url(source_url)
+                validation = validate_real_estate_source_url(source_url, fetcher=getattr(client, "fetcher", None))
                 if validation.status != "valid":
                     closeout["fragilities"].append(
                         f"PIN {city}: URL invalida ({validation.status}): {validation.reason}"

@@ -41,6 +41,13 @@ def _text(payload: dict[str, Any], key: str, default: str = "") -> str:
 
 
 def _normalize_text(value: str) -> str:
+    if "Ã" in value or "Â" in value:
+        try:
+            repaired = value.encode("latin-1").decode("utf-8")
+        except Exception:
+            repaired = value
+        if repaired and (repaired.count("Ã") + repaired.count("Â")) < (value.count("Ã") + value.count("Â")):
+            value = repaired
     normalized = unicodedata.normalize("NFKD", value)
     ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
     return ascii_text.lower()
@@ -381,7 +388,7 @@ def _auction_listing_reading(payload: dict[str, Any]) -> dict[str, Any]:
 
     reading: dict[str, Any] = {}
     private_area = re.search(
-        r"area\s+privativa\s+(?:de\s+)?([0-9]+(?:[.,][0-9]+)?)\s*m",
+        r"area\s+(?:real\s+)?privativa\s+(?:de\s+)?([0-9]+(?:[.,][0-9]+)?)\s*m",
         normalized,
     )
     useful_area = re.search(
@@ -1226,7 +1233,7 @@ def _clarified_item(*, key: str, title: str, detail: str) -> dict[str, str]:
 
 
 def _add_pending(
-    items: list[dict[str, str]],
+    items: list[dict[str, Any]],
     *,
     key: str,
     title: str,
@@ -1242,6 +1249,168 @@ def _add_pending(
             "action": action,
         }
     )
+
+
+def _unique_steps(*groups: list[str]) -> list[str]:
+    steps: list[str] = []
+    seen: set[str] = set()
+    for group in groups:
+        for raw in group:
+            step = str(raw or "").strip()
+            if not step:
+                continue
+            marker = _normalize_text(step)
+            if marker in seen:
+                continue
+            seen.add(marker)
+            steps.append(step)
+    return steps
+
+
+def _pending_validation_route(item: dict[str, Any]) -> tuple[list[str], str]:
+    key = str(item.get("key") or "").strip().lower()
+    title = _normalize_text(str(item.get("title") or ""))
+    action = str(item.get("action") or "").strip()
+
+    source_chain = [
+        "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+        "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+        "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+        "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+    ]
+    documents_chain = [
+        "Anexar edital, matricula e laudo quando existirem.",
+        "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+        "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+    ]
+    liquidity_chain = [
+        "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+        "Validar liquidez com preco, metragem, vaga, estado interno e tempo de anuncio.",
+        "Quando possivel, confirmar com corretor local se o ativo gira naquele preco.",
+    ]
+
+    if key in {"source_validation", "source_access", "source_payment_risk", "edital"}:
+        return (
+            _unique_steps(
+                source_chain,
+                [action],
+            ),
+            "Resolvida quando a fonte primaria, edital/anexos, leiloeiro oficial e dados de pagamento estiverem coerentes; se exigir login, fica bloqueada por acesso do usuario, nao por desistência da app.",
+        )
+
+    if key in {"registration", "registration_ocr"} or "matricula" in title:
+        return (
+            _unique_steps(
+                [
+                    "Localizar matricula anexada na pagina do lote, edital ou cartorio.",
+                    "Validar texto legivel; se for scan/imagem, rodar OCR ou obter segunda via.",
+                    "Checar propriedade, onus, penhoras, indisponibilidade, usufruto, area e vaga.",
+                ],
+                [action],
+            ),
+            "Resolvida quando a matricula legivel confirma objeto, titularidade e restricoes materiais para a tese.",
+        )
+
+    if key in {"occupancy", "occupied_first_operation", "eviction_risk"} or "ocup" in title:
+        return (
+            _unique_steps(
+                [
+                    "Ler edital, laudo e matricula procurando ocupado, desocupado, locatario, visitas e imissao.",
+                    "Confirmar com leiloeiro/corretor/administradora se ha ocupante e se existe visita ou fotos atuais.",
+                    "Se ocupado, estimar prazo, custo juridico e plano de posse antes de qualquer proposta.",
+                ],
+                [action],
+            ),
+            "Resolvida quando ocupacao, responsavel pela desocupacao, prazo e custo estiverem documentados ou o candidato for descartado.",
+        )
+
+    if key in {"rights_over_asset", "fractional_interest", "bare_ownership"}:
+        return (
+            _unique_steps(
+                [
+                    "Ler edital e matricula para identificar se o objeto e propriedade plena, direitos, fracao ideal ou nua propriedade.",
+                    "Confirmar com leiloeiro/cartorio se ha cessao possivel, restricao de transferencia e efeito no registro.",
+                    "Submeter a advogado apenas se houver margem extraordinaria; caso contrario fechar fora do radar padrao.",
+                ],
+                [action],
+            ),
+            "Resolvida quando o objeto vendido permite propriedade plena liquidavel; se for direito/fracao/nua propriedade sem tese juridica, fechar.",
+        )
+
+    if key in {"debt_total", "condo_debt", "iptu_debt", "debt_responsibility_ambiguous"} or any(
+        token in title for token in ("debito", "condominio", "iptu", "divida")
+    ):
+        return (
+            _unique_steps(
+                [
+                    "Extrair do edital quem paga condominio, IPTU, taxas, comissao, ITBI e cartorio.",
+                    "Consultar prefeitura para IPTU/divida ativa e administradora/sindico para condominio.",
+                    "Obter confirmacao escrita do leiloeiro/banco/cartorio quando a responsabilidade por debitos for ambigua.",
+                ],
+                [action],
+            ),
+            "Resolvida quando o custo total e a responsabilidade por debitos entram na conta de margem ou geram descarte.",
+        )
+
+    if key in {"exit_value_dispersion", "exit_value_validation", "exit_value_missing", "sale_comparables", "local_buyer_demand"} or any(
+        token in title for token in ("saida", "comparave", "demanda", "liquidez")
+    ):
+        return (
+            _unique_steps(liquidity_chain, [action]),
+            "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador.",
+        )
+
+    if key == "financing_dependency":
+        return (
+            _unique_steps(
+                [
+                    "Ler edital e regra do banco para pagamento a vista, parcelamento, FGTS e financiamento.",
+                    "Separar cenario a vista do financiado e validar credito antes de tratar o lance como executavel.",
+                ],
+                [action],
+            ),
+            "Resolvida quando edital, banco e comprador permitem a estrutura financeira usada na tese.",
+        )
+
+    if key in {"physical_condition", "renovation_budget"}:
+        return (
+            _unique_steps(
+                [
+                    "Buscar fotos recentes, laudo, visita ou vistoria.",
+                    "Orcar reforma por estado interno real e separar maquiagem, leve, retrofit ou obra pesada.",
+                ],
+                [action],
+            ),
+            "Resolvida quando reforma e estado fisico entram no custo com evidencia visual ou orcamento.",
+        )
+
+    if key in {"auction_modality", "purchase_price"}:
+        return (
+            _unique_steps(source_chain, documents_chain, [action]),
+            "Resolvida quando modalidade, praca, lance minimo e condicoes oficiais estiverem extraidos da fonte primaria.",
+        )
+
+    return (
+        _unique_steps(source_chain, documents_chain, liquidity_chain[:1], [action]),
+        "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito.",
+    )
+
+
+def _enrich_pending_validation_routes(items: list[dict[str, Any]]) -> None:
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        route, exit_criteria = _pending_validation_route(item)
+        item.setdefault("validation_method", "investigador_implacavel_aula_3")
+        item.setdefault("validation_route", route)
+        item.setdefault("validation_exit_criteria", exit_criteria)
+        key = str(item.get("key") or "").strip().lower()
+        if key == "source_access":
+            item.setdefault("requires_user_access", True)
+            item.setdefault(
+                "user_access_instruction",
+                "Pedir ao usuario cadastro/login ou arquivo de credenciais e retomar a diligencia.",
+            )
 
 
 def _known_debt_costs(payload: dict[str, Any]) -> float:
@@ -1277,7 +1446,7 @@ def _sourcing_profile(
     is_auction_like: bool,
     minimum_reserve_after_bid: float,
     operational_text: str,
-    pending_items: list[dict[str, str]],
+    pending_items: list[dict[str, Any]],
     purchase_price: float,
     renovation_budget: float,
     sale_comparables_count: int,
@@ -1864,7 +2033,7 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         if str(item).strip()
     ]
     legal_ownership_blocker_text = ", ".join(legal_ownership_blockers)
-    pending_items: list[dict[str, str]] = []
+    pending_items: list[dict[str, Any]] = []
     if purchase_price <= 0:
         _add_pending(
             pending_items,
@@ -2016,6 +2185,22 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             priority="P0",
             action="Conferir propriedade, onus, restricoes e averbacoes relevantes.",
         )
+    else:
+        registration_text_status = _text(payload, "registration_text_status").strip().lower()
+        if (
+            registration_text_status in {"empty_text", "error", "dependency_missing"}
+            or registration_text_status.startswith("error:")
+        ):
+            _add_pending(
+                pending_items,
+                key="registration_ocr",
+                title="Validar matricula (OCR se necessario)",
+                priority="P0",
+                action=(
+                    "Matrícula anexada sem texto legivel (scan/cripto). Rodar OCR ou obter via "
+                    "cartorio/leiloeiro para checar onus, averbacoes e ocupacao antes de simular risco."
+                ),
+            )
     if listing_reading.get("debt_responsibility_ambiguous"):
         _add_pending(
             pending_items,
@@ -2153,6 +2338,9 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             priority="P1",
             action="Projetar sensibilidade de IPCA e juros antes de usar parcelamento longo na tese.",
         )
+
+    _enrich_pending_validation_routes(pending_items)
+
     sourcing = _sourcing_profile(
         payload,
         auction_modality=auction_modality,

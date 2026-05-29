@@ -1155,13 +1155,38 @@ function P0Diligence({ item }) {
         Enquanto estes pontos não forem comprovados, a tese não vira compra. A tela mostra o próximo passo prático para transformar dúvida em evidência.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-        {actions.map((pending, index) => (
-          <div key={pending.title} style={{ background: C.card, border: `1px solid ${withAlpha(C.coral, alpha.border)}`, borderLeft: `3px solid ${C.coral}`, borderRadius: 12, padding: 12 }}>
-            <div style={{ color: C.coral, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", marginBottom: 6, textTransform: "uppercase" }}>P0-{index + 1} · {pending.title}</div>
-            <div style={{ color: C.text, fontSize: 12, fontWeight: 800, lineHeight: 1.45, marginBottom: 5 }}>Como confirmar</div>
-            <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.55, margin: 0 }}>{pending.action}</p>
-          </div>
-        ))}
+        {actions.map((pending, index) => {
+          const validationRoute = Array.isArray(pending.validationRoute) ? pending.validationRoute.filter(Boolean) : [];
+          return (
+            <div key={pending.title} style={{ background: C.card, border: `1px solid ${withAlpha(C.coral, alpha.border)}`, borderLeft: `3px solid ${C.coral}`, borderRadius: 12, padding: 12 }}>
+              <div style={{ color: C.coral, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.08em", marginBottom: 6, textTransform: "uppercase" }}>P0-{index + 1} · {pending.title}</div>
+              <div style={{ color: C.text, fontSize: 12, fontWeight: 800, lineHeight: 1.45, marginBottom: 5 }}>Como confirmar</div>
+              <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.55, margin: 0 }}>{pending.action}</p>
+              {validationRoute.length > 0 && (
+                <div style={{ borderTop: `1px solid ${C.line}`, display: "grid", gap: 5, marginTop: 9, paddingTop: 9 }}>
+                  <div style={{ color: C.gold, fontFamily: mono, fontSize: 8, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Roteiro de validacao
+                  </div>
+                  {validationRoute.slice(0, 4).map((step, stepIndex) => (
+                    <div key={`${pending.title}-${stepIndex}`} style={{ color: C.muted, fontSize: 10, lineHeight: 1.45 }}>
+                      {stepIndex + 1}. {step}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {pending.validationExitCriteria && (
+                <div style={{ background: withAlpha(C.green, "08"), border: `1px solid ${withAlpha(C.green, alpha.border)}`, borderRadius: 9, color: C.text, fontSize: 10, fontWeight: 800, lineHeight: 1.45, marginTop: 9, padding: "7px 8px" }}>
+                  Criterio de fechamento: {pending.validationExitCriteria}
+                </div>
+              )}
+              {pending.requiresUserAccess && (
+                <div style={{ background: withAlpha(C.gold, "10"), border: `1px solid ${withAlpha(C.gold, alpha.border)}`, borderRadius: 9, color: C.gold, fontSize: 10, fontWeight: 900, lineHeight: 1.45, marginTop: 9, padding: "7px 8px" }}>
+                  Se pedir cadastro/login, a app deve solicitar acesso ao usuario e continuar.
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

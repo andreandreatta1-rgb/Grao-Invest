@@ -234,7 +234,13 @@ describe("Jornada da Tese investor demo", () => {
       salePriceLabel: "Saída base",
       salePriceNote: "comparável anunciado",
       p0: ["Confirmar ocupação"],
-      p0Actions: [{ title: "Confirmar ocupação", action: "Validar ocupação e desocupação." }],
+      p0Actions: [{
+        title: "Confirmar ocupação",
+        action: "Validar ocupação e desocupação.",
+        validationRoute: ["Abrir edital e laudo.", "Confirmar com leiloeiro."],
+        validationExitCriteria: "Ocupacao comprovada ou candidato fechado.",
+        requiresUserAccess: true,
+      }],
       quote: "Ainda não é compra. É candidato vivo enquanto a prova melhora a confiança.",
       isLiveCandidate: true,
       isRealCandidate: true,
@@ -249,6 +255,9 @@ describe("Jornada da Tese investor demo", () => {
     expect(within(portfolio).getByText("R$ 493.622")).toBeInTheDocument();
     expect(within(portfolio).getByText("R$ 106.378")).toBeInTheDocument();
     expect(within(portfolio).getByText(/21,6%/i)).toBeInTheDocument();
+    expect(within(portfolio).getByText("Roteiro de validacao")).toBeInTheDocument();
+    expect(within(portfolio).getByText(/Abrir edital e laudo/i)).toBeInTheDocument();
+    expect(within(portfolio).getByText(/Se pedir cadastro\/login/i)).toBeInTheDocument();
     expect(within(portfolio).queryByText("R$ 512.779")).not.toBeInTheDocument();
     expect(within(portfolio).queryByText("R$ 12.378")).not.toBeInTheDocument();
   });

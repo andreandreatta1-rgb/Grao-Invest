@@ -325,6 +325,15 @@ def test_target_seed_preserves_existing_historical_thesis_numbers(tmp_path, monk
     assert rows_by_id["IM-RADAR-TARGET-PIN-01"]["thesis_number"] == 3970
     assert rows_by_id["IM-RADAR-TARGET-PER-01"]["thesis_number"] == 3999
     assert rows_by_id["IM-RADAR-TARGET-CAM-99"]["thesis_number"] == 4001
+    real_estate_overview = payload["front_overview"]["real_estate"]
+    assert real_estate_overview["radar_total"] == len(rows_by_id)
+    assert real_estate_overview["open_count"] == sum(
+        1 for row in rows_by_id.values() if row["is_open"] is True
+    )
+    assert real_estate_overview["closed_count"] == sum(
+        1 for row in rows_by_id.values() if row["is_open"] is not True
+    )
+    assert real_estate_overview["counting_policy"] == "radar_candidates"
     retained_collision = next(
         row
         for row in payload["thesis_open_operations"]

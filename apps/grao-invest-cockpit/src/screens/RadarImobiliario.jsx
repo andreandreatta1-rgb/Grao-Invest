@@ -1247,6 +1247,9 @@ function liveStoryFromRow(row, index) {
     p0Actions: p0Items.map((item) => ({
       title: compactText(item?.title || item?.key || "Diligência"),
       action: compactText(item?.action || item?.detail || nextAction),
+      validationRoute: asArray(item?.validation_route || item?.validationRoute).map(compactText).filter(Boolean),
+      validationExitCriteria: compactText(item?.validation_exit_criteria || item?.validationExitCriteria),
+      requiresUserAccess: Boolean(item?.requires_user_access || item?.requiresUserAccess),
     })),
     quote: firstText(row?.janeMessage, analysis.jane_message, row?.learning, isOpen ? "Ainda não é compra. É candidato vivo enquanto a prova melhora a confiança." : "O descarte também é produto: ele ensina preço teto, P0 e limite de risco."),
     firstPriceLabel: "Preço entrada",

@@ -2242,6 +2242,7 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
     _restore_partial_debt_pending_items(analysis, evidence.get("debts"))
     resolved_keys = _remove_resolved_pending_items(analysis, evidence)
     course_antibody_keys = _append_course_antibodies(analysis, evidence)
+    _enrich_analysis_pending_validation_routes(analysis)
     analysis["diligence_result"] = {
         "checked_at": checked_at,
         "status": evidence.get("status"),
@@ -2308,6 +2309,35 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
             row["is_open"] = True
 
     return analysis["diligence_result"]
+
+
+def _enrich_analysis_pending_validation_routes(analysis: dict[str, Any]) -> None:
+    pending = analysis.get("pending_items")
+    pending_items = [item for item in pending if isinstance(item, dict)] if isinstance(pending, list) else []
+    if not pending_items:
+        analysis["pending_items"] = pending_items
+        return
+
+    repo_root = Path(__file__).resolve().parents[1]
+    api_root = repo_root / "services" / "api"
+    if str(api_root) not in sys.path:
+        sys.path.insert(0, str(api_root))
+
+    from app.services.real_estate_radar import _enrich_pending_validation_routes  # noqa: PLC2701
+
+    _enrich_pending_validation_routes(pending_items)
+    analysis["pending_items"] = pending_items
+
+
+def _enrich_seed_pending_validation_routes(seed: dict[str, Any]) -> None:
+    operations = seed.get("thesis_open_operations")
+    rows = operations if isinstance(operations, list) else []
+    for row in rows:
+        if not isinstance(row, dict) or str(row.get("front") or "") != "imoveis":
+            continue
+        analysis = row.get("real_estate_analysis")
+        if isinstance(analysis, dict):
+            _enrich_analysis_pending_validation_routes(analysis)
 
 
 def _write_json(path: Path, payload: Any) -> None:
@@ -2494,6 +2524,7 @@ def run_active_diligence(
         "still_open_with_p0_count": still_open_with_p0_count,
         "items": items,
     }
+    _enrich_seed_pending_validation_routes(seed)
     _refresh_real_estate_front_overview(seed, checked_at=checked_at)
     _write_json(seed_path, seed)
     _write_json(report_json_path, report)
@@ -2511,6 +2542,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--close-out-of-scope-only",
         action="store_true",
         help="Fecha apenas candidatos fora do escopo (SP capital + Campinas) sem tentar abrir fontes.",
+    )
+    parser.add_argument(
+        "--enrich-pending-routes-only",
+        action="store_true",
+        help="Apenas adiciona roteiros de validacao nas pendencias existentes, sem abrir fontes externas.",
     )
     return parser.parse_args(argv)
 
@@ -2530,6 +2566,22 @@ def main(argv: list[str] | None = None) -> int:
         if args.report_md
         else repo_root / "data" / "reports" / f"active_real_estate_diligence_{stamp}.md"
     )
+    if args.enrich_pending_routes_only:
+        seed = json.loads(seed_path.read_text(encoding="utf-8-sig"))
+        _enrich_seed_pending_validation_routes(seed)
+        _refresh_real_estate_front_overview(seed, checked_at=utc_now())
+        _write_json(seed_path, seed)
+        print(
+            json.dumps(
+                {
+                    "status": "enriched_pending_routes",
+                    "seed_path": str(seed_path),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
     report = run_active_diligence(
         seed_path=seed_path,
         report_json_path=report_json,

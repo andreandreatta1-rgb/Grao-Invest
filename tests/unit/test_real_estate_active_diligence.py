@@ -6,6 +6,34 @@ from pathlib import Path
 import scripts.run_real_estate_active_diligence as diligence
 
 
+def test_enriches_existing_p0_with_validation_route() -> None:
+    seed = {
+        "thesis_open_operations": [
+            {
+                "front": "imoveis",
+                "real_estate_analysis": {
+                    "pending_items": [
+                        {
+                            "key": "source_access",
+                            "title": "Acesso ao leiloeiro necessario",
+                            "priority": "P0",
+                            "status": "aberta",
+                            "action": "Criar cadastro/login no leiloeiro.",
+                        }
+                    ]
+                },
+            }
+        ]
+    }
+
+    diligence._enrich_seed_pending_validation_routes(seed)
+
+    item = seed["thesis_open_operations"][0]["real_estate_analysis"]["pending_items"][0]
+    assert item["validation_method"] == "investigador_implacavel_aula_3"
+    assert item["requires_user_access"] is True
+    assert any("cadastro/login" in step for step in item["validation_route"])
+
+
 def test_extracts_primary_evidence_from_frazao_lot_page() -> None:
     html = """
     <html><body>

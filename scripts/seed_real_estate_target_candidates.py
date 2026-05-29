@@ -197,6 +197,58 @@ def _operation_row(lead: dict[str, Any], thesis_number: int) -> dict[str, Any]:
     }
 
 
+def _is_real_estate_row(row: dict[str, Any]) -> bool:
+    return str(row.get("front") or "").strip().lower() == "imoveis" or isinstance(
+        row.get("real_estate_analysis"),
+        dict,
+    )
+
+
+def _p0_count(row: dict[str, Any]) -> int:
+    analysis = row.get("real_estate_analysis")
+    if not isinstance(analysis, dict):
+        return 0
+    pending = analysis.get("pending_items")
+    if not isinstance(pending, list):
+        return 0
+    return sum(
+        1
+        for item in pending
+        if isinstance(item, dict) and str(item.get("priority") or "").strip().upper() == "P0"
+    )
+
+
+def _refresh_real_estate_front_overview(payload: dict[str, Any]) -> None:
+    operations = payload.get("thesis_open_operations")
+    rows = operations if isinstance(operations, list) else []
+    real_estate_rows = [row for row in rows if isinstance(row, dict) and _is_real_estate_row(row)]
+    open_rows = [row for row in real_estate_rows if row.get("is_open") is True]
+    closed_count = max(len(real_estate_rows) - len(open_rows), 0)
+    p0_count = sum(_p0_count(row) for row in open_rows)
+
+    front_overview = payload.setdefault("front_overview", {})
+    if not isinstance(front_overview, dict):
+        front_overview = {}
+        payload["front_overview"] = front_overview
+    existing = front_overview.get("real_estate")
+    item = dict(existing) if isinstance(existing, dict) else {}
+    item.update(
+        {
+            "total_tested": len(real_estate_rows),
+            "resolved_count": closed_count,
+            "mapped_count": len(real_estate_rows),
+            "radar_total": len(real_estate_rows),
+            "open_count": len(open_rows),
+            "closed_count": closed_count,
+            "p0_count": p0_count,
+            "counting_policy": "radar_candidates",
+        }
+    )
+    item.setdefault("success_rate_pct", 0)
+    item.setdefault("success_count", 0)
+    front_overview["real_estate"] = item
+
+
 def seed_target_candidates() -> int:
     payload = json.loads(SEED_PATH.read_text(encoding="utf-8"))
     leads = json.loads(LEADS_PATH.read_text(encoding="utf-8"))
@@ -261,6 +313,7 @@ def seed_target_candidates() -> int:
         next_thesis_number = max(next_thesis_number, thesis_number + 1)
         generated.append(_operation_row(lead, thesis_number))
     payload["thesis_open_operations"] = retained + generated
+    _refresh_real_estate_front_overview(payload)
     SEED_PATH.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
