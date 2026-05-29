@@ -321,6 +321,42 @@ def test_listing_reading_marks_desocupado_without_false_occupied_flag() -> None:
     assert occupancy_items and occupancy_items[0]["points"] == 15
 
 
+def test_listing_reading_occupancy_conflict_does_not_override_source_signal() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Mega Leiloes",
+            "strategy": "Leilao judicial + diligencia",
+            "asking_price": 500000.0,
+            "market_value_estimate": 700000.0,
+            "estimated_sale_conservative": 650000.0,
+            "estimated_sale_base": 700000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 20000.0,
+            "carrying_months": 6,
+            "monthly_carrying_cost": 2500.0,
+            "acquisition_costs": 25000.0,
+            "selling_commission_pct": 6.0,
+            "cash_needed": 0.0,
+            "occupancy_status": "desocupado",
+            "first_operation": True,
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": False,
+            "iptu_debt_known": False,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 0,
+            "listing_description": "Imovel ocupado conforme informado no edital.",
+        }
+    )
+
+    assert analysis["listing_reading"]["occupancy_status"] == "ocupado"
+    assert analysis["listing_reading"]["occupancy_conflict"] is True
+
+    pending_keys = {item["key"] for item in analysis["pending_items"]}
+    assert "occupancy" in pending_keys
+    assert "occupied_first_operation" not in pending_keys
+
+
 def test_listing_reading_flags_rights_over_asset_and_adds_p0_pending() -> None:
     analysis = build_candidate_analysis(
         {
@@ -1199,6 +1235,74 @@ def test_suspicious_auction_payment_instruction_discards_candidate() -> None:
     assert analysis["suggested_status"] == "Descartado"
     assert analysis["next_action"] == "Fechar candidato: fonte/pagamento nao oficial"
     assert any(item["key"] == "source_payment_risk" and item["priority"] == "P0" for item in analysis["pending_items"])
+
+
+def test_anti_fraud_warning_does_not_trigger_suspicious_payment_instruction() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Leilao judicial",
+            "strategy": "Revenda rapida",
+            "source_url": "https://leilao-exemplo.com/lote-456",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Fonte oficial com edital.",
+            "auction_description": (
+                "ATENCAO: NAO EFETUE PAGAMENTOS VIA PIX PARA TERCEIROS FORA DO EDITAL. "
+                "O ARREMATANTE DEVE CONFERIR A CONTA OFICIAL ANTES DE QUALQUER TRANSFERENCIA."
+            ),
+            "asking_price": 240000.0,
+            "market_value_estimate": 390000.0,
+            "estimated_sale_conservative": 360000.0,
+            "estimated_sale_base": 390000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 12000.0,
+            "cash_needed": 240000.0,
+            "occupancy_status": "desocupado",
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 3,
+            "financing_validated": True,
+            "plan_b": "Revender; alugar se a venda demorar.",
+        }
+    )
+
+    assert analysis["listing_reading"].get("suspicious_payment_instruction") is not True
+    assert analysis["next_action"] != "Fechar candidato: fonte/pagamento nao oficial"
+
+
+def test_area_divergence_and_por_conta_text_does_not_trigger_suspicious_payment_instruction() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Mega Leiloes",
+            "strategy": "Leilao extrajudicial",
+            "source_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-exemplo-x000001",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Fonte oficial com edital.",
+            "auction_description": (
+                "Obs.: (i) Imovel ocupado por locatario. Desocupacao por conta do arrematante; "
+                "(ii) Encargos perante os orgaos competentes de eventual divergencia da area privativa/util."
+            ),
+            "asking_price": 240000.0,
+            "estimated_sale_base": 390000.0,
+            "estimated_sale_conservative": 360000.0,
+            "renovation_type": "leve",
+            "renovation_budget": 12000.0,
+            "cash_needed": 240000.0,
+            "occupancy_status": "ocupado",
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 3,
+            "financing_validated": True,
+            "plan_b": "Revender; alugar se a venda demorar.",
+        }
+    )
+
+    assert analysis["listing_reading"].get("suspicious_payment_instruction") is not True
 
 
 def test_fiduciary_auction_nullity_action_discards_candidate_from_standard_radar() -> None:

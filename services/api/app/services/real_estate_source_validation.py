@@ -90,14 +90,16 @@ GENERIC_SEARCH_PATH_MARKERS = [
 ]
 
 ACCESS_TEXT_MARKERS = [
-    "login",
-    "cadastro",
-    "cadastre-se",
     "captcha",
     "recaptcha",
     "acesso restrito",
     "area restrita",
     "faca seu cadastro",
+    "cadastro necessario",
+    "cadastro necessário",
+    "faca login",
+    "faça login",
+    "fazer login",
     "entre para continuar",
 ]
 

@@ -964,6 +964,85 @@ def test_closes_out_of_scope_city_rows_without_fetching(tmp_path: Path) -> None:
     assert "IM-OUT" in report_md.read_text(encoding="utf-8")
 
 
+def test_active_diligence_refreshes_real_estate_front_overview_counts(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "front_overview": {
+                    "real_estate": {
+                        "radar_total": 2,
+                        "total_tested": 2,
+                        "mapped_count": 2,
+                        "open_count": 2,
+                        "closed_count": 0,
+                        "resolved_count": 0,
+                        "p0_count": 99,
+                        "counting_policy": "radar_candidates",
+                    }
+                },
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4101,
+                        "thesis_id": "IM-OUT",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": "https://www.imovelweb.com.br/bauru.html",
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "occupancy", "title": "Confirmar ocupacao", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Bauru"},
+                        },
+                    },
+                    {
+                        "thesis_number": 4102,
+                        "thesis_id": "IM-SP",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": "",
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "occupancy", "title": "Confirmar ocupacao", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Sao Paulo"},
+                        },
+                    },
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: "",
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    real_estate = updated["front_overview"]["real_estate"]
+
+    assert real_estate["radar_total"] == 2
+    assert real_estate["total_tested"] == 2
+    assert real_estate["mapped_count"] == 2
+    assert real_estate["open_count"] == 1
+    assert real_estate["closed_count"] == 1
+    assert real_estate["resolved_count"] == 1
+    assert real_estate["p0_count"] == 1
+    assert real_estate["counting_policy"] == "radar_candidates"
+
+
 def test_applies_diligence_to_open_seed_and_closes_occupied_first_operation(tmp_path: Path) -> None:
     seed_path = tmp_path / "dashboard_seed.json"
     report_json = tmp_path / "diligence.json"

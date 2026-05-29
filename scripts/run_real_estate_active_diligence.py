@@ -1756,6 +1756,49 @@ def active_p0_rows(seed: dict[str, Any]) -> list[dict[str, Any]]:
     return sorted(selected, key=lambda item: int(item.get("thesis_number") or 0))
 
 
+def _is_real_estate_row(row: dict[str, Any]) -> bool:
+    front = _normalize_text(str(row.get("front") or ""))
+    return front in {"imoveis", "real_estate", "real estate", "real-estate"} or isinstance(
+        row.get("real_estate_analysis"),
+        dict,
+    )
+
+
+def _refresh_real_estate_front_overview(seed: dict[str, Any], *, checked_at: str) -> None:
+    rows = seed.get("thesis_open_operations")
+    real_estate_rows = [
+        row
+        for row in rows
+        if isinstance(row, dict) and _is_real_estate_row(row)
+    ] if isinstance(rows, list) else []
+    open_rows = [row for row in real_estate_rows if row.get("is_open") is True]
+    closed_count = max(len(real_estate_rows) - len(open_rows), 0)
+    p0_count = sum(len(_p0_items(row)) for row in open_rows)
+
+    front_overview = seed.setdefault("front_overview", {})
+    if not isinstance(front_overview, dict):
+        front_overview = {}
+        seed["front_overview"] = front_overview
+    existing = front_overview.get("real_estate")
+    item = dict(existing) if isinstance(existing, dict) else {}
+    item.update(
+        {
+            "total_tested": len(real_estate_rows),
+            "resolved_count": closed_count,
+            "mapped_count": len(real_estate_rows),
+            "radar_total": len(real_estate_rows),
+            "open_count": len(open_rows),
+            "closed_count": closed_count,
+            "p0_count": p0_count,
+            "updated_at": checked_at,
+            "counting_policy": "radar_candidates",
+        }
+    )
+    item.setdefault("success_rate_pct", 0)
+    item.setdefault("success_count", 0)
+    front_overview["real_estate"] = item
+
+
 def _normalize_text(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value)
     without_accents = "".join(char for char in normalized if not unicodedata.combining(char))
@@ -2451,6 +2494,7 @@ def run_active_diligence(
         "still_open_with_p0_count": still_open_with_p0_count,
         "items": items,
     }
+    _refresh_real_estate_front_overview(seed, checked_at=checked_at)
     _write_json(seed_path, seed)
     _write_json(report_json_path, report)
     _write_markdown(report_md_path, report)

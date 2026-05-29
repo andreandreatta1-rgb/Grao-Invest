@@ -453,17 +453,36 @@ def _auction_listing_reading(payload: dict[str, Any]) -> dict[str, Any]:
         process_match = re.search(r"\b\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}\b", normalized)
         if process_match:
             reading["judicial_process_number"] = process_match.group(0)
-    if (
-        ("pix" in normalized or "boleto" in normalized or "conta" in normalized)
-        and (
-            "terceiro" in normalized
-            or "fora do edital" in normalized
-            or "diverge" in normalized
-            or "divergente" in normalized
-            or "site falso" in normalized
-            or "nao oficial" in normalized
+    has_payment_channel = "pix" in normalized or "boleto" in normalized
+    if not has_payment_channel and "conta" in normalized:
+        has_payment_channel = any(
+            marker in normalized
+            for marker in (
+                "conta bancaria",
+                "conta banc",
+                "conta corrente",
+                "agencia",
+                "deposit",
+                "transfer",
+                "pagamento",
+                "pagamentos",
+            )
         )
-    ):
+    has_payment_risk_marker = any(
+        marker in normalized
+        for marker in (
+            "terceiro",
+            "fora do edital",
+            "site falso",
+            "nao oficial",
+        )
+    )
+    anti_fraud_warning = bool(
+        re.search(r"\b(?:nao|nunca|jamais)\s+(?:efetue|realize|faca|pague)\b", normalized)
+        or re.search(r"\b(?:nao|nunca|jamais)\s+realize\s+nenhum\s+pagamento\b", normalized)
+        or re.search(r"\bnao\s+efetue\s+pagamentos?\b", normalized)
+    )
+    if has_payment_channel and has_payment_risk_marker and not anti_fraud_warning:
         reading["suspicious_payment_instruction"] = True
 
     source_text = _normalize_text(
@@ -1373,7 +1392,13 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             if current_area <= 0 or inferred_area > current_area or current_matches_inferred_total:
                 payload["private_area_m2"] = inferred_area
         if listing_reading.get("occupancy_status"):
-            payload["occupancy_status"] = listing_reading["occupancy_status"]
+            current_occupancy = _text(payload, "occupancy_status", "desconhecido").lower()
+            inferred_occupancy = str(listing_reading["occupancy_status"] or "").strip().lower()
+            if current_occupancy == "desconhecido":
+                payload["occupancy_status"] = inferred_occupancy
+            elif inferred_occupancy and inferred_occupancy != current_occupancy:
+                payload["occupancy_status"] = "desconhecido"
+                listing_reading["occupancy_conflict"] = True
     is_auction_like = _auction_like_payload(payload)
     has_approved_eviction_plan = _has_approved_eviction_plan(payload)
     operational_text = _normalize_text(

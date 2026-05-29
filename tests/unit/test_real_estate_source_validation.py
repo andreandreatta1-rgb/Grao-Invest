@@ -98,6 +98,22 @@ def test_source_validation_accepts_mega_leiloes_x_series_detail_pages() -> None:
     assert result.status == "valid"
 
 
+def test_source_validation_does_not_flag_login_header_as_access_required() -> None:
+    result = validate_real_estate_source_url(
+        (
+            "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/"
+            "apartamento-127-m2-paraiso-do-morumbi-sao-paulo-sp-x124760"
+        ),
+        fetcher=lambda url, timeout: _Response(
+            200,
+            "Login Cadastre-se. Area privativa 74m2. Matricula 123. Lance minimo R$ 100.000,00.",
+            url,
+        ),
+    )
+
+    assert result.status == "valid"
+
+
 def test_source_validation_follows_leilaoimovel_edital_to_official_leiloeiro() -> None:
     aggregator_url = "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apto-pinheiros-2803839"
     edital_url = "https://suporteleiloes.com.br/editais/2803839-edital.pdf"
