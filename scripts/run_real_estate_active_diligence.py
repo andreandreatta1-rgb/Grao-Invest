@@ -217,6 +217,40 @@ COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
             "financiamento/FGTS, credito pre-aprovado, entrada e capacidade de pagamento."
         ),
     },
+    "property_debt_priority_unproven": {
+        "title": "Provar prioridade dos debitos do imovel",
+        "priority": "P0",
+        "action": (
+            "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou "
+            "onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou "
+            "responsabilidade do arrematante antes de tratar a margem como real."
+        ),
+    },
+    "municipal_debt_clearance_unproven": {
+        "title": "Provar baixa de debitos municipais",
+        "priority": "P0",
+        "action": (
+            "Abrir prefeitura/CND/consulta oficial ou clausula expressa do edital para "
+            "confirmar IPTU, ITU, ITR, divida ativa e taxas municipais remanescentes."
+        ),
+    },
+    "condo_debt_priority_unproven": {
+        "title": "Provar responsabilidade condominial",
+        "priority": "P0",
+        "action": (
+            "Confirmar no edital, processo, condominio ou leiloeiro se debitos "
+            "condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor "
+            "ou assumidos pelo arrematante."
+        ),
+    },
+    "construction_regularization_debt_unproven": {
+        "title": "Provar CND/regularizacao de obra",
+        "priority": "P0",
+        "action": (
+            "Quando houver INSS de obra, construcao irregular, habite-se ou direitos "
+            "sobre edificacao, provar CND, averbacao/regularizacao e custo antes de lance."
+        ),
+    },
 }
 
 EXECUTION_READINESS_ANTIBODY_KEYS = {
@@ -1000,6 +1034,206 @@ def _has_caixa_financing_readiness(lower: str) -> bool:
     return any(term in lower for term in readiness_terms)
 
 
+def _has_positive_marker(lower: str, markers: tuple[str, ...]) -> bool:
+    for marker in markers:
+        start = lower.find(marker)
+        while start >= 0:
+            preceding = lower[max(0, start - 70) : start]
+            if not re.search(
+                r"\b(?:nao|sem|falta|faltam|ausente|pendente|pendentes|"
+                r"inexistente|inexistem|nao informa|nao consta)\b",
+                preceding,
+            ):
+                return True
+            start = lower.find(marker, start + 1)
+    return False
+
+
+def _mentions_property_debt(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "debito do imovel",
+            "debitos do imovel",
+            "divida do imovel",
+            "dividas do imovel",
+            "onus do imovel",
+            "iptu",
+            "itu ",
+            "itr ",
+            "tributo municipal",
+            "tributos municipais",
+            "taxa municipal",
+            "taxas municipais",
+            "divida ativa",
+            "aforamento",
+            "laudemio",
+            "condominio",
+            "condominial",
+            "saldo de financiamento",
+            "debito de financiamento",
+            "debitos de financiamento",
+            "financiamento em atraso",
+            "inss de obra",
+            "inss da obra",
+        )
+    )
+
+
+def _has_property_debt_priority_proof(lower: str) -> bool:
+    return _has_positive_marker(
+        lower,
+        (
+            "sub-roga no preco",
+            "subroga no preco",
+            "sub-rogam no preco",
+            "subrogam no preco",
+            "sub-rogados no preco",
+            "subrogados no preco",
+            "produto da arrematacao",
+            "serao pagos com o produto",
+            "serao quitados com o produto",
+            "debitos serao quitados",
+            "debitos serao pagos",
+            "quitados pelo vendedor",
+            "quitados pela caixa",
+            "regularizacao dos debitos",
+            "responsabilidade do arrematante",
+            "a cargo do arrematante",
+            "a cargo do comprador",
+            "ordem de preferencia",
+            "ordem de pagamento",
+            "concurso de credores definido",
+            "sem debitos",
+            "nada consta",
+            "certidao negativa",
+        ),
+    )
+
+
+def _mentions_municipal_debt(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "iptu",
+            "itu ",
+            "itr ",
+            "tributo municipal",
+            "tributos municipais",
+            "taxa municipal",
+            "taxas municipais",
+            "divida ativa",
+            "prefeitura",
+            "municipio",
+        )
+    )
+
+
+def _has_municipal_debt_clearance(lower: str) -> bool:
+    return bool(
+        _has_positive_marker(
+            lower,
+            (
+                "cnd municipal",
+                "certidao negativa municipal",
+                "prefeitura emitiu cnd",
+                "consulta oficial sem divida ativa",
+                "sem divida ativa",
+                "nada consta municipal",
+                "quitacao de iptu",
+                "iptu sera quitado",
+                "iptu serao quitados",
+                "iptu e tributos municipais sub-rogam",
+                "tributos municipais sub-rogam",
+                "tributos sub-rogam",
+            ),
+        )
+        or re.search(r"\biptu\b.{0,80}\bsub-?roga", lower)
+        or re.search(r"\bsub-?roga.{0,80}\biptu\b", lower)
+        or re.search(r"\btributos?\b.{0,80}\bsub-?roga", lower)
+        or re.search(r"\bsub-?roga.{0,80}\btributos?\b", lower)
+        or re.search(r"\bprefeitura\b.{0,80}\bcnd\b", lower)
+        or re.search(r"\bcnd\b.{0,80}\bprefeitura\b", lower)
+    )
+
+
+def _mentions_condo_debt(lower: str) -> bool:
+    return "condominio" in lower or "condominial" in lower or "condominiais" in lower
+
+
+def _has_condo_debt_priority(lower: str) -> bool:
+    return bool(
+        _has_positive_marker(
+            lower,
+            (
+                "condominio sera pago",
+                "condominio serao pagos",
+                "condominio sera quitado",
+                "condominio serao quitados",
+                "condominio e iptu serao quitados",
+                "debitos condominiais serao pagos",
+                "debitos condominiais serao quitados",
+                "condominio fica a cargo",
+                "condominio ficam a cargo",
+                "debitos condominiais ficam a cargo",
+                "debitos condominiais a cargo",
+                "extrato condominial",
+                "declaracao do sindico",
+                "produto da arrematacao",
+            ),
+        )
+        or re.search(r"\bcondomini\w*\b.{0,90}\bproduto da arrematacao\b", lower)
+        or re.search(r"\bproduto da arrematacao\b.{0,90}\bcondomini\w*\b", lower)
+    )
+
+
+def _mentions_construction_regularization_debt(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "inss de obra",
+            "inss da obra",
+            "inss de construcao",
+            "cnd de obra",
+            "cnd da obra",
+            "cnd de construcao",
+            "construcao irregular",
+            "obra irregular",
+            "predio irregular",
+            "habite-se",
+            "averbacao de construcao",
+            "regularizacao de obra",
+            "regularizacao da obra",
+            "direitos sobre construcao",
+            "direitos sobre edificacao",
+            "direitos sobre propriedade",
+        )
+    )
+
+
+def _has_construction_regularization_proof(lower: str) -> bool:
+    return _has_positive_marker(
+        lower,
+        (
+            "cnd de obra",
+            "cnd da obra",
+            "cnd de inss",
+            "cnd previdenciaria",
+            "cnd de construcao",
+            "habite-se emitido",
+            "obra averbada",
+            "construcao averbada",
+            "averbada na matricula",
+            "regularizacao aprovada",
+            "regularizacao ja aprovada",
+            "prefeitura aprovou regularizacao",
+            "sem debito de construcao",
+            "nao ha debito de construcao",
+            "sem debito de inss de obra",
+        ),
+    )
+
+
 def _course_antibodies(
     url: str,
     text: str,
@@ -1065,6 +1299,30 @@ def _course_antibodies(
         and not _has_caixa_financing_readiness(lower)
     ):
         found.append("caixa_financing_readiness_unproven")
+
+    if (
+        auction_like
+        and _mentions_property_debt(lower)
+        and not _has_property_debt_priority_proof(lower)
+    ):
+        found.append("property_debt_priority_unproven")
+
+    if (
+        auction_like
+        and _mentions_municipal_debt(lower)
+        and not _has_municipal_debt_clearance(lower)
+    ):
+        found.append("municipal_debt_clearance_unproven")
+
+    if auction_like and _mentions_condo_debt(lower) and not _has_condo_debt_priority(lower):
+        found.append("condo_debt_priority_unproven")
+
+    if (
+        auction_like
+        and _mentions_construction_regularization_debt(lower)
+        and not _has_construction_regularization_proof(lower)
+    ):
+        found.append("construction_regularization_debt_unproven")
 
     fiduciary_like = any(
         marker in lower

@@ -477,6 +477,91 @@ def test_course_antibodies_respect_caixa_financing_readiness() -> None:
     assert "caixa_financing_readiness_unproven" not in antibody_keys
 
 
+def test_course_antibodies_flag_property_debt_priority_gaps() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial online - apartamento em Pinheiros</h1>
+      <p>Processo 1001234-56.2024.8.26.0100. Lance minimo R$ 520.000,00.</p>
+      <p>Ha debitos de IPTU e ITU em aberto, divida ativa municipal, saldo de financiamento e debitos condominiais.</p>
+      <p>O edital nao informa prioridade, sub-rogacao, concurso de credores ou quem paga os debitos.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "property_debt_priority_unproven" in antibody_keys
+    assert "municipal_debt_clearance_unproven" in antibody_keys
+    assert "condo_debt_priority_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_property_debt_priority_proofs() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial online - apartamento em Pinheiros</h1>
+      <p>Processo 1001234-56.2024.8.26.0100. Lance minimo R$ 520.000,00.</p>
+      <p>Edital oficial: IPTU, ITU e tributos municipais sub-rogam no preco da arrematacao conforme art. 130 do CTN.</p>
+      <p>Condominio sera pago com o produto da arrematacao, antes da expedicao da carta.</p>
+      <p>Prefeitura emitiu CND municipal atualizada e consulta oficial sem divida ativa remanescente.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "property_debt_priority_unproven" not in antibody_keys
+    assert "municipal_debt_clearance_unproven" not in antibody_keys
+    assert "condo_debt_priority_unproven" not in antibody_keys
+
+
+def test_course_antibodies_flag_construction_regularization_debt_gap() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - direitos sobre casa em Campinas</h1>
+      <p>Processo 1001234-56.2024.8.26.0114. Lance minimo R$ 430.000,00.</p>
+      <p>Venda de direitos sobre propriedade com construcao irregular e possivel debito de INSS de obra.</p>
+      <p>Sem CND de construcao, sem habite-se e sem plano de regularizacao aprovado.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "construction_regularization_debt_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_construction_regularization_proof() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - casa regularizada em Campinas</h1>
+      <p>Processo 1001234-56.2024.8.26.0114. Lance minimo R$ 430.000,00.</p>
+      <p>Obra averbada na matricula, habite-se emitido e CND de obra/INSS atualizada.</p>
+      <p>Prefeitura aprovou regularizacao e nao ha debito de construcao remanescente.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "construction_regularization_debt_unproven" not in antibody_keys
+
+
 def test_market_registration_text_does_not_trigger_execution_antibodies() -> None:
     html = """
     <html><body>
