@@ -383,7 +383,10 @@ def _auction_listing_reading(payload: dict[str, Any]) -> dict[str, Any]:
         "source_validation_reason",
     )
     normalized = _normalize_text(raw_text)
-    if not normalized:
+    source_text = _normalize_text(
+        _combined_text(payload, "origin", "strategy", "source_url", "source_validation_reason")
+    )
+    if not normalized and not source_text:
         return {}
 
     reading: dict[str, Any] = {}
@@ -417,13 +420,19 @@ def _auction_listing_reading(payload: dict[str, Any]) -> dict[str, Any]:
     elif "ocupado" in normalized:
         reading["occupancy_status"] = "ocupado"
     legal_ownership_blockers: list[str] = []
+    ownership_text = re.sub(
+        r"[-_/]+",
+        " ",
+        " ".join(text for text in (normalized, source_text) if text),
+    )
     if (
-        "direito sobre" in normalized
-        or "direitos sobre" in normalized
-        or "direito aquisitivo" in normalized
-        or "direitos aquisitivos" in normalized
-        or "cessao de direitos" in normalized
-        or "cessao dos direitos" in normalized
+        "direito sobre" in ownership_text
+        or "direitos sobre" in ownership_text
+        or "direito aquisitivo" in ownership_text
+        or "direitos aquisitivos" in ownership_text
+        or "cessao de direitos" in ownership_text
+        or "cessao dos direitos" in ownership_text
+        or re.search(r"\bdireitos?\s+(?:apto|apartamento|imovel|casa|unidade)\b", ownership_text)
     ):
         reading["rights_over_asset"] = True
         legal_ownership_blockers.append("direitos sobre")
@@ -492,9 +501,6 @@ def _auction_listing_reading(payload: dict[str, Any]) -> dict[str, Any]:
     if has_payment_channel and has_payment_risk_marker and not anti_fraud_warning:
         reading["suspicious_payment_instruction"] = True
 
-    source_text = _normalize_text(
-        _combined_text(payload, "origin", "strategy", "source_url", "source_validation_reason")
-    )
     mentions_auction = "leilao" in source_text or "praca" in normalized
     mentions_market_reference = (
         "valor de referencia publicado" in normalized

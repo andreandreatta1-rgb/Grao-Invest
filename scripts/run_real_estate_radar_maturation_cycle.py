@@ -53,7 +53,7 @@ MEGA_INDEXES_BY_CITY: dict[str, list[str]] = {
 }
 
 DEFAULT_NEXT_TARGETS = [
-    "Capturar datas do leilao (1o/2o leilao) quando disponiveis no HTML.",
+    "Capturar datas do leilao (1o/2o leilao) quando disponiveis no HTML ou PDF.",
     "OCR opcional/flag para PDFs de matricula escaneados (onus/ocupacao/dividas).",
 ]
 
@@ -260,7 +260,6 @@ class _WinInetClient:
             raise ConnectError(message or "connect_failed")
 
         text = _decode_best_effort_text(content, hint=payload.content_type)
-        text = _repair_mojibake_text(text)
         return _WinResponse(status_code=int(payload.status or 0), url=payload.final_url or url, content=content, text=text)
 
 
@@ -382,6 +381,27 @@ def _repair_mojibake_text(value: str) -> str:
             return raw
     bad_before = raw.count("Ã") + raw.count("Â")
     bad_after = repaired.count("Ã") + repaired.count("Â")
+    return repaired if repaired and bad_after < bad_before else raw
+
+
+def _repair_mojibake_text_v2(value: str) -> str:
+    raw = value or ""
+    if not raw:
+        return raw
+    # Only attempt the latin-1 -> utf-8 repair when we see strong mojibake markers.
+    # Using broader markers (like "â") can over-trigger on valid content and corrupt HTML.
+    markers = ("\u00c3", "\u00c2")  # Ã, Â
+    if not any(marker in raw for marker in markers):
+        return raw
+    try:
+        repaired = raw.encode("latin-1").decode("utf-8")
+    except Exception:
+        try:
+            repaired = raw.encode("latin-1", errors="ignore").decode("utf-8", errors="ignore")
+        except Exception:
+            return raw
+    bad_before = sum(raw.count(marker) for marker in markers)
+    bad_after = sum(repaired.count(marker) for marker in markers)
     return repaired if repaired and bad_after < bad_before else raw
 
 
@@ -535,7 +555,9 @@ def _extract_pdf_text(
             return "", "dependency_missing"
         return "", f"error:{type(exc).__name__}"
 
-    text = _repair_mojibake_text(text)
+    repaired = _repair_mojibake_text_v2(text)
+    if repaired and len(repaired) >= len(text) * 0.99:
+        text = repaired
 
     if len(_searchable_text(text)) < 80:
         return text, "empty_text"
@@ -572,7 +594,90 @@ def _extract_private_area_m2_from_pdf_text(text: str) -> float:
     )
     if match:
         return _area_token_to_m2(match.group(1))
+    match = re.search(
+        r"\butil\s+de\s+([0-9]+(?:[.,][0-9]+)?)\s*m",
+        normalized,
+        flags=re.I,
+    )
+    if match:
+        return _area_token_to_m2(match.group(1))
     return 0.0
+
+
+def _extract_auction_schedule_from_pdf_text(text: str) -> dict[str, str]:
+    normalized = _searchable_text(text or "")
+    if not normalized:
+        return {}
+
+    normalized = normalized.replace("\ufffd", " ")
+
+    def _as_brt_iso(date_ddmmyyyy: str, time_hhmm: str) -> str:
+        parts = (date_ddmmyyyy or "").split("/")
+        if len(parts) != 3:
+            return ""
+        dd, mm, yyyy = parts
+        if ":" not in (time_hhmm or ""):
+            return ""
+        hh, mi = (time_hhmm or "").split(":", 1)
+        if not (dd.isdigit() and mm.isdigit() and yyyy.isdigit() and hh.isdigit() and mi.isdigit()):
+            return ""
+        return f"{int(yyyy):04d}-{int(mm):02d}-{int(dd):02d}T{int(hh):02d}:{int(mi):02d}-03:00"
+
+    schedule: dict[str, str] = {}
+
+    match = re.search(
+        r"\b1.{0,90}?in[ií]cio\s+no\s+dia\s+(\d{2}/\d{2}/\d{4})\s+as\s+(\d{1,2}:\d{2})"
+        r".{0,260}?encerrar[aá]\w*(?:\s+no)?\s+dia\s+(\d{2}/\d{2}/\d{4})\s+as\s+(\d{1,2}:\d{2})",
+        normalized,
+        flags=re.I,
+    )
+    if match:
+        schedule["first_start_brt"] = _as_brt_iso(match.group(1), match.group(2))
+        schedule["first_end_brt"] = _as_brt_iso(match.group(3), match.group(4))
+
+    match = re.search(
+        r"\b2.{0,120}?in[ií]cio\s+no\s+dia\s+(\d{2}/\d{2}/\d{4})\s+as\s+(\d{1,2}:\d{2})"
+        r".{0,260}?encerrar[aá]\w*(?:\s+no)?\s+dia\s+(\d{2}/\d{2}/\d{4})\s+as\s+(\d{1,2}:\d{2})",
+        normalized,
+        flags=re.I,
+    )
+    if match:
+        schedule["second_start_brt"] = _as_brt_iso(match.group(1), match.group(2))
+        schedule["second_end_brt"] = _as_brt_iso(match.group(3), match.group(4))
+
+    month_map = {
+        "janeiro": 1,
+        "fevereiro": 2,
+        "marco": 3,
+        "março": 3,
+        "abril": 4,
+        "maio": 5,
+        "junho": 6,
+        "julho": 7,
+        "agosto": 8,
+        "setembro": 9,
+        "outubro": 10,
+        "novembro": 11,
+        "dezembro": 12,
+    }
+    match = re.search(
+        r"\bdata:\s*(\d{1,2})\s+de\s+([a-zç]+)\s+de\s+(20\d{2}),\s*as\s*(\d{1,2}:\d{2})",
+        normalized,
+        flags=re.I,
+    )
+    if match:
+        dd = int(match.group(1))
+        month = str(match.group(2) or "").strip().lower()
+        yyyy = int(match.group(3))
+        hhmm = str(match.group(4) or "").strip()
+        mm = month_map.get(month) or 0
+        if mm:
+            schedule["event_datetime_brt"] = _as_brt_iso(f"{dd:02d}/{mm:02d}/{yyyy:04d}", hhmm)
+
+    schedule = {k: v for k, v in schedule.items() if v}
+    if schedule:
+        schedule["basis"] = "pdf"
+    return schedule
 
 
 def _enrich_mega_extracted_with_pdf_signals(*, extracted: dict[str, Any], client: httpx.Client) -> None:
@@ -629,6 +734,8 @@ def _enrich_mega_extracted_with_pdf_signals(*, extracted: dict[str, Any], client
             extracted["occupancy_status"] = status
 
     private_area_pdf = _extract_private_area_m2_from_pdf_text(focused_or_all)
+    if private_area_pdf <= 0:
+        private_area_pdf = _extract_private_area_m2_from_pdf_text(edital_text)
     if private_area_pdf > 0:
         current_private = float(extracted.get("area_private_m2") or 0.0)
         current_total = float(extracted.get("area_total_m2") or 0.0)
@@ -643,7 +750,12 @@ def _enrich_mega_extracted_with_pdf_signals(*, extracted: dict[str, Any], client
             extracted["area_private_m2"] = round(private_area_pdf, 2)
             if current_total <= 0:
                 extracted["area_total_m2"] = round(private_area_pdf, 2)
-            extracted["area_basis"] = "pdf_privativa"
+            extracted["area_basis"] = "pdf_area"
+
+    if "auction_schedule" not in extracted:
+        schedule = _extract_auction_schedule_from_pdf_text(edital_text)
+        if schedule:
+            extracted["auction_schedule"] = schedule
 
     debts = extracted.get("debts")
     debts_dict = debts if isinstance(debts, dict) else {}
@@ -797,7 +909,11 @@ def _find_location_from_jsonld(objects: list[dict[str, Any]]) -> tuple[str, str,
         neighborhood = str(address.get("addressRegion") or "").strip()
         if street or city:
             break
-    return _repair_mojibake_text(street), _repair_mojibake_text(neighborhood), _repair_mojibake_text(city)
+    return (
+        _repair_mojibake_text_v2(street),
+        _repair_mojibake_text_v2(neighborhood),
+        _repair_mojibake_text_v2(city),
+    )
 
 
 def _find_location_from_html(html: str) -> tuple[str, str, str]:
@@ -817,13 +933,15 @@ def _find_location_from_html(html: str) -> tuple[str, str, str]:
     if not m:
         return "", "", ""
     raw = re.sub(r"\s+", " ", m.group("value") or "").strip()
-    raw = _repair_mojibake_text(raw)
+    raw = _repair_mojibake_text_v2(raw)
     if not raw:
         return "", "", ""
     parts = [p.strip() for p in raw.split(",") if p.strip()]
-    street = parts[0] if parts else ""
-    neighborhood = parts[2] if len(parts) >= 3 else ""
-    city = parts[3] if len(parts) >= 4 else ""
+    if parts and re.fullmatch(r"[A-Za-z]{2}", parts[-1]):
+        parts.pop()
+    city = parts.pop() if parts else ""
+    neighborhood = parts.pop() if parts else ""
+    street = ", ".join(parts).strip()
     return street, neighborhood, city
 
 
@@ -921,6 +1039,59 @@ def _find_mega_area_v2(html: str) -> tuple[float, float, str]:
     return 0.0, 0.0, ""
 
 
+def _find_mega_area_v3(html: str) -> tuple[float, float, str]:
+    compact = re.sub(r"\s+", " ", html or "")
+    title = _extract_mega_og_title(compact)
+    title_private, title_total, title_basis = _find_mega_area_from_title(title)
+
+    hay = _searchable_text(compact)
+    private = 0.0
+    total = 0.0
+
+    private_match = re.search(
+        r"area\s+privativa[^0-9]{0,40}([0-9]+(?:[.,][0-9]+)?)\s*m",
+        hay,
+        flags=re.I,
+    )
+    if private_match:
+        private = float(private_match.group(1).replace(",", "."))
+    if private <= 0:
+        util_match = re.search(
+            r"area\s+util(?:\s+ou\s+privativa)?[^0-9]{0,40}([0-9]+(?:[.,][0-9]+)?)\s*m",
+            hay,
+            flags=re.I,
+        )
+        if util_match:
+            private = float(util_match.group(1).replace(",", "."))
+
+    total_match = re.search(
+        r"area\s+total[^0-9]{0,40}([0-9]+(?:[.,][0-9]+)?)\s*m",
+        hay,
+        flags=re.I,
+    )
+    if total_match:
+        total = float(total_match.group(1).replace(",", "."))
+
+    reference = title_total or title_private
+    if reference and (private or total):
+        candidates = [v for v in (private, total) if v > 0]
+        if candidates and max(candidates) > reference * 1.35:
+            if title_private > 0:
+                return title_private, title_private, title_basis
+            if title_total > 0:
+                return 0.0, title_total, title_basis
+
+    if private > 0:
+        return private, max(total, private), "privativa"
+    if total > 0:
+        return total, total, "total"
+    if title_private > 0:
+        return title_private, title_private, title_basis
+    if title_total > 0:
+        return 0.0, title_total, title_basis
+    return 0.0, 0.0, ""
+
+
 def _find_mega_minimum_bid(html: str) -> float:
     patterns = (
         r"lance\s+m.{0,6}nimo[^0-9]{0,60}r\$\s*([0-9\.,]+)",
@@ -954,6 +1125,12 @@ def _find_mega_minimum_bid(html: str) -> float:
 def _find_mega_appraisal(html: str) -> float:
     m = re.search(r"Avalia(?:ç|c)[aã]o[^R]{0,80}R\$\s*([0-9\.,]+)", html, flags=re.I)
     return _money_to_float(m.group(1)) if m else 0.0
+
+
+def _find_mega_appraisal_v2(html: str) -> float:
+    hay = _searchable_text(html or "")
+    value = _first_money_after(r"valor\\s+de\\s+avaliacao|valor\\s+da\\s+avaliacao|avaliacao", hay)
+    return value if value > 0 else 0.0
 
 
 def _extract_mega_code(url: str) -> str:
@@ -1020,7 +1197,7 @@ def _extract_mega_candidate_listing(url: str, client: httpx.Client) -> dict[str,
         street = street or street2
         neighborhood = neighborhood or neighborhood2
         city_jsonld = city_jsonld or city2
-    private_area, total_area, basis = _find_mega_area_v2(html)
+    private_area, total_area, basis = _find_mega_area_v3(html)
     url_area_value = 0.0
     url_area = re.search(r"-(?P<area>[0-9]+(?:[.,][0-9]+)?)-m2", url, flags=re.I)
     if url_area:
@@ -1041,7 +1218,7 @@ def _extract_mega_candidate_listing(url: str, client: httpx.Client) -> dict[str,
             private_area = url_area_value
             basis = "url_overrode_noisy_html"
     minimum_bid = _find_mega_minimum_bid(html)
-    appraisal = _find_mega_appraisal(html)
+    appraisal = _find_mega_appraisal_v2(html)
     attachments = _find_mega_attachments(html)
     process_number = ""
     proc = re.search(r"([0-9]{6,7}-[0-9]{2}\\.[0-9]{4}\\.[0-9]\\.[0-9]{2}\\.[0-9]{4})", html)
@@ -1528,8 +1705,6 @@ def _decision_from_analysis(analysis: dict[str, Any]) -> str:
         for item in pending_items
     )
     if "descart" in status:
-        if has_rights_over and base_roi_pct >= 35.0:
-            return "travado"
         if "trava" in status or "rever" in status or " ou " in status:
             return "travado"
         return "sai"
@@ -1649,6 +1824,20 @@ def _render_markdown(run_date: str, json_path: Path, candidates: list[Candidate]
             lines.append(f"- Matrícula (PDF): {attachments.get('matricula')}")
         if attachments.get("laudo"):
             lines.append(f"- Laudo (PDF): {attachments.get('laudo')}")
+        schedule = extracted.get("auction_schedule") if isinstance(extracted.get("auction_schedule"), dict) else {}
+        if schedule:
+            first_start = str(schedule.get("first_start_brt") or "").strip()
+            first_end = str(schedule.get("first_end_brt") or "").strip()
+            second_start = str(schedule.get("second_start_brt") or "").strip()
+            second_end = str(schedule.get("second_end_brt") or "").strip()
+            event_dt = str(schedule.get("event_datetime_brt") or "").strip()
+            if first_start and first_end:
+                summary = f"1º `{first_start}` → `{first_end}`"
+                if second_start and second_end:
+                    summary += f" · 2º `{second_start}` → `{second_end}`"
+                lines.append(f"- Leilão (datas): {summary}")
+            elif event_dt:
+                lines.append(f"- Leilão (data): `{event_dt}`")
         lines.append(f"- Área (na fonte): `~{area:.2f}m²` (basis={extracted.get('area_basis') or 'n/a'})")
         lines.append(f"- Preço: valor mínimo `{_format_brl(min_bid)}`")
         occupancy = str(extracted.get("occupancy_status") or "").strip()

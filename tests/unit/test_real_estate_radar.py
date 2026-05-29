@@ -503,6 +503,39 @@ def test_listing_reading_flags_rights_over_asset_and_adds_p0_pending() -> None:
     assert "direitos" in analysis["next_action"].lower()
 
 
+def test_listing_reading_flags_rights_over_asset_from_source_slug() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "origin": "Leilao Imovel",
+            "strategy": "Leilao judicial + diligencia",
+            "title": "Apartamento em leilao no Paraiso",
+            "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
+            "asking_price": 748411.66,
+            "market_value_estimate": 1247352.77,
+            "estimated_sale_conservative": 1120000.0,
+            "estimated_sale_base": 1247352.77,
+            "private_area_m2": 101.0,
+            "renovation_type": "leve",
+            "renovation_budget": 35000.0,
+            "carrying_months": 8,
+            "monthly_carrying_cost": 4000.0,
+            "acquisition_costs": 60000.0,
+            "selling_commission_pct": 6.0,
+            "cash_needed": 850000.0,
+            "occupancy_status": "desconhecido",
+            "has_registration": True,
+            "condo_debt_known": False,
+            "iptu_debt_known": False,
+            "sale_comparables_count": 3,
+            "rent_comparables_count": 1,
+            "plan_b": "Nao avancar sem propriedade plena.",
+        }
+    )
+
+    assert analysis["listing_reading"]["rights_over_asset"] is True
+    assert analysis["suggested_status"] == "Descartado"
+
+
 def test_fractional_interest_candidate_is_discarded_as_legal_blocker() -> None:
     analysis = build_candidate_analysis(
         {

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-29T18:32:20+00:00",
+  "generated_at": "2026-05-29T19:56:45-03:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -80581,18 +80581,18 @@
       "current_price_brl": 2866823.71,
       "latest_price_at": "2026-05-23T21:16:43+00:00",
       "planned_exit_at": "2026-06-12",
-      "exit_rule": "Confirmar custo total de debitos",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: duplicado do candidato 4180 / IM-RADAR-TARGET-PIN-06; manter fonte oficial Zuk/Bradesco.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 6,
-      "learning_note": "Antes de proposta: Confirmar custo total de debitos. Pendencias principais: Confirmar custo total de debitos, Confirmar divida de condominio, Confirmar divida de IPTU.",
+      "learning_note": "Descartado: duplicado do candidato 4180 / IM-RADAR-TARGET-PIN-06; manter fonte oficial Zuk/Bradesco.",
       "real_estate_analysis": {
         "score": 61,
         "confidence": 63,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar custo total de debitos",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: duplicado do candidato 4180 / IM-RADAR-TARGET-PIN-06; manter fonte oficial Zuk/Bradesco.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -80987,9 +80987,26 @@
             "http_status": 200
           }
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "hard_filters": [
+          "duplicate_candidate"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "duplicate_candidate",
+          "evidence": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-casa-a-venda-em-leilao-imovel-bradesco-2844902",
+          "action": "descartar",
+          "exit_rule": "Descartado: duplicado do candidato 4180 / IM-RADAR-TARGET-PIN-06; manter fonte oficial Zuk/Bradesco."
+        }
       },
-      "is_open": true
+      "is_open": false,
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "duplicate_candidate",
+        "evidence": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-casa-a-venda-em-leilao-imovel-bradesco-2844902",
+        "action": "descartar",
+        "exit_rule": "Descartado: duplicado do candidato 4180 / IM-RADAR-TARGET-PIN-06; manter fonte oficial Zuk/Bradesco."
+      }
     },
     {
       "phase": "pos_go_live",
@@ -81787,18 +81804,18 @@
       "current_price_brl": 152000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-12",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 12,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
       "real_estate_analysis": {
         "score": 62,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -82168,9 +82185,26 @@
             "http_status": null
           }
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "hard_filters": [
+          "benchmark_not_candidate"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "benchmark_not_candidate",
+          "evidence": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+          "action": "descartar",
+          "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+        }
       },
-      "is_open": true
+      "is_open": false,
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "benchmark_not_candidate",
+        "evidence": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+        "action": "descartar",
+        "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+      }
     },
     {
       "phase": "pos_go_live",
@@ -82198,18 +82232,18 @@
       "current_price_brl": 360000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-12",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 12,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
       "real_estate_analysis": {
         "score": 55,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -82579,9 +82613,26 @@
             "http_status": null
           }
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "hard_filters": [
+          "benchmark_not_candidate"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "benchmark_not_candidate",
+          "evidence": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+          "action": "descartar",
+          "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+        }
       },
-      "is_open": true
+      "is_open": false,
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "benchmark_not_candidate",
+        "evidence": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+        "action": "descartar",
+        "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+      }
     },
     {
       "phase": "pos_go_live",
@@ -84067,18 +84118,18 @@
       "current_price_brl": 328000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-06-12",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 12,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
       "real_estate_analysis": {
         "score": 55,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -84450,9 +84501,26 @@
             "http_status": null
           }
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "hard_filters": [
+          "benchmark_not_candidate"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "benchmark_not_candidate",
+          "evidence": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+          "action": "descartar",
+          "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+        }
       },
-      "is_open": true
+      "is_open": false,
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "benchmark_not_candidate",
+        "evidence": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+        "action": "descartar",
+        "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+      }
     },
     {
       "phase": "pos_go_live",
@@ -84480,18 +84548,18 @@
       "current_price_brl": 120000.0,
       "latest_price_at": "2026-05-05T17:11:00+00:00",
       "planned_exit_at": "2026-06-12",
-      "exit_rule": "Confirmar ocupacao",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado de entrada: candidato sem fonte individual; o Radar nao mantem tese sem cadeia de prova.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 24,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar divida de condominio.",
+      "learning_note": "Descartado de entrada: candidato sem fonte individual; o Radar nao mantem tese sem cadeia de prova.",
       "real_estate_analysis": {
         "score": 57,
         "confidence": 15,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado de entrada: candidato sem fonte individual; o Radar nao mantem tese sem cadeia de prova.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -84849,9 +84917,26 @@
             "http_status": null
           }
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "hard_filters": [
+          "missing_source"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "missing_source",
+          "evidence": "source_url vazio",
+          "action": "descartar",
+          "exit_rule": "Descartado de entrada: candidato sem fonte individual; o Radar nao mantem tese sem cadeia de prova."
+        }
       },
-      "is_open": true
+      "is_open": false,
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "missing_source",
+        "evidence": "source_url vazio",
+        "action": "descartar",
+        "exit_rule": "Descartado de entrada: candidato sem fonte individual; o Radar nao mantem tese sem cadeia de prova."
+      }
     },
     {
       "phase": "pos_go_live",
@@ -86647,19 +86732,19 @@
       "current_price_brl": 490928.97,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 55,
         "confidence": 43,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -87053,7 +87138,24 @@
             "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "hard_filters": [
+          "base_roi_below_target"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "base_roi_below_target",
+          "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
+          "action": "descartar",
+          "exit_rule": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        }
+      },
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "base_roi_below_target",
+        "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
+        "action": "descartar",
+        "exit_rule": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
       }
     },
     {
@@ -87531,19 +87633,19 @@
       "current_price_brl": 980137.5,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Classificar modalidade do leilao.",
-      "is_open": true,
+      "learning_note": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 48,
         "confidence": 13,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -87986,7 +88088,24 @@
             "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "hard_filters": [
+          "benchmark_not_candidate"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "benchmark_not_candidate",
+          "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+          "action": "descartar",
+          "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+        }
+      },
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "benchmark_not_candidate",
+        "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+        "action": "descartar",
+        "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
       }
     },
     {
@@ -88015,19 +88134,19 @@
       "current_price_brl": 793242.14,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar custo total de debitos, Confirmar divida de condominio.",
-      "is_open": true,
+      "learning_note": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 64,
         "confidence": 58,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -88411,7 +88530,24 @@
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "hard_filters": [
+          "base_roi_below_target"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "base_roi_below_target",
+          "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
+          "action": "descartar",
+          "exit_rule": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        }
+      },
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "base_roi_below_target",
+        "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
+        "action": "descartar",
+        "exit_rule": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
       }
     },
     {
@@ -88976,19 +89112,19 @@
       "current_price_brl": 885000.0,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 62,
         "confidence": 43,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -89381,7 +89517,24 @@
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "hard_filters": [
+          "base_roi_below_target"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "base_roi_below_target",
+          "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
+          "action": "descartar",
+          "exit_rule": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        }
+      },
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "base_roi_below_target",
+        "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
+        "action": "descartar",
+        "exit_rule": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
       }
     },
     {
@@ -90331,27 +90484,27 @@
       "current_price_brl": 1247352.76,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado de entrada: direitos sobre imovel nao entram no Radar Imobiliario padrao.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Descartado de entrada: direitos sobre imovel nao entram no Radar Imobiliario padrao.",
+      "is_open": false,
       "real_estate_analysis": {
-        "score": 62,
+        "score": 58,
         "confidence": 43,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado de entrada: direitos sobre imovel nao entram no Radar Imobiliario padrao.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
             "label": "Liquidez/localizacao",
-            "points": 16,
+            "points": 12,
             "max_points": 20,
             "status": "calculado",
-            "detail": "Indice informado/estimado: 82.0/100. Demanda local aceitavel: Antes de avancar, provar que existe comprador real nessa faixa e nesse raio."
+            "detail": "Indice informado/estimado: 60.0/100."
           },
           {
             "key": "discount",
@@ -90517,6 +90670,21 @@
             "validation_exit_criteria": "Resolvida quando ocupacao, responsavel pela desocupacao, prazo e custo estiverem documentados ou o candidato for descartado."
           },
           {
+            "key": "rights_over_asset",
+            "title": "Confirmar natureza dos direitos",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Quando a oferta e de direitos e nao da propriedade plena, confirmar se ha cessao de direitos, financiamento/alienacao fiduciaria, restricoes de cessao e como isso afeta liquidez, preco e prazo de revenda.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Ler edital e matricula para identificar se o objeto e propriedade plena, direitos, fracao ideal ou nua propriedade.",
+              "Confirmar com leiloeiro/cartorio se ha cessao possivel, restricao de transferencia e efeito no registro.",
+              "Submeter a advogado apenas se houver margem extraordinaria; caso contrario fechar fora do radar padrao.",
+              "Quando a oferta e de direitos e nao da propriedade plena, confirmar se ha cessao de direitos, financiamento/alienacao fiduciaria, restricoes de cessao e como isso afeta liquidez, preco e prazo de revenda."
+            ],
+            "validation_exit_criteria": "Resolvida quando o objeto vendido permite propriedade plena liquidavel; se for direito/fracao/nua propriedade sem tese juridica, fechar."
+          },
+          {
             "key": "debt_total",
             "title": "Confirmar custo total de debitos",
             "priority": "P0",
@@ -90671,21 +90839,12 @@
           "caveat": "Valor de leilao/1a praca ou avaliacao nao comprova revenda; precisa ser substituido por comparaveis reais do ativo.",
           "required_action": "Buscar anuncios ou vendas equivalentes por endereco, area privativa e vaga antes de manter a tese ativa."
         },
-        "local_demand_evidence": {
-          "status": "pendente",
-          "risk_level": "baixo",
-          "status_label": "Demanda local aceitavel",
-          "buyer_profile": "Publico comprador a validar por comparaveis de venda e aluguel.",
-          "signals": [
-            "0/3 comparaveis de venda equivalentes."
-          ],
-          "sale_comparables_count": 0,
-          "rent_comparables_count": 0,
-          "caveat": "Antes de avancar, provar que existe comprador real nessa faixa e nesse raio.",
-          "required_action": "Buscar 3 vendas equivalentes no mesmo predio ou raio curto e validar oferta concorrente.",
-          "should_discard": false
-        },
+        "local_demand_evidence": {},
         "listing_reading": {
+          "rights_over_asset": true,
+          "legal_ownership_blockers": [
+            "direitos sobre"
+          ],
           "auction_modality": "judicial",
           "auction_reference_not_resale": true
         },
@@ -90736,7 +90895,24 @@
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "hard_filters": [
+          "rights_over_asset"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "rights_over_asset",
+          "evidence": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
+          "action": "descartar",
+          "exit_rule": "Descartado de entrada: direitos sobre imovel nao entram no Radar Imobiliario padrao."
+        }
+      },
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "rights_over_asset",
+        "evidence": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
+        "action": "descartar",
+        "exit_rule": "Descartado de entrada: direitos sobre imovel nao entram no Radar Imobiliario padrao."
       }
     },
     {
@@ -92579,19 +92755,19 @@
       "current_price_brl": 950000.0,
       "latest_price_at": "2026-05-23T11:24:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Classificar modalidade do leilao.",
-      "is_open": true,
+      "learning_note": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 54,
         "confidence": 43,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -93019,7 +93195,24 @@
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "hard_filters": [
+          "base_roi_below_target"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "base_roi_below_target",
+          "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
+          "action": "descartar",
+          "exit_rule": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        }
+      },
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "base_roi_below_target",
+        "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
+        "action": "descartar",
+        "exit_rule": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
       }
     },
     {
@@ -93526,19 +93719,19 @@
       "current_price_brl": 1771338.16,
       "latest_price_at": "2026-05-23T11:24:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Confirmar custo total de debitos",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico.",
+      "status": "Fechada",
+      "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar custo total de debitos. Pendencias principais: Confirmar custo total de debitos, Confirmar divida de condominio, Validar valor de saida.",
-      "is_open": true,
+      "learning_note": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico.",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 53,
         "confidence": 58,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar custo total de debitos",
+        "suggested_status": "Descartado",
+        "next_action": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -93925,7 +94118,24 @@
             "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "hard_filters": [
+          "optimistic_roi_below_target"
+        ],
+        "owner_triage": {
+          "checked_at": "2026-05-29T19:56:45-03:00",
+          "reason_code": "optimistic_roi_below_target",
+          "evidence": "optimistic_roi_pct=16.67",
+          "action": "descartar",
+          "exit_rule": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico."
+        }
+      },
+      "owner_triage": {
+        "checked_at": "2026-05-29T19:56:45-03:00",
+        "reason_code": "optimistic_roi_below_target",
+        "evidence": "optimistic_roi_pct=16.67",
+        "action": "descartar",
+        "exit_rule": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico."
       }
     },
     {
@@ -94921,15 +95131,15 @@
     "real_estate": {
       "total_tested": 38,
       "success_rate_pct": 0,
-      "resolved_count": 21,
+      "resolved_count": 33,
       "success_count": 0,
       "updated_at": "2026-05-29T19:52:05+00:00",
       "counting_policy": "radar_candidates",
       "mapped_count": 38,
       "radar_total": 38,
-      "open_count": 17,
-      "closed_count": 21,
-      "p0_count": 87
+      "open_count": 5,
+      "closed_count": 33,
+      "p0_count": 26
     }
   },
   "data_quality_gate": {
