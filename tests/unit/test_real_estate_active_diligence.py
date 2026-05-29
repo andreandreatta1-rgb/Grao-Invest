@@ -31,6 +31,26 @@ def test_extracts_primary_evidence_from_frazao_lot_page() -> None:
     assert evidence["minimum_bid_brl"] == 388700.0
 
 
+def test_does_not_reuse_iptu_amount_as_condo_debt_when_condo_is_pending() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento Itaim Bibi</h1>
+      <p>Debitos Condominio: Informacao Pendente.</p>
+      <p>Debitos IPTU/Pref.: R$ 407,11 ate 06/04/2026.</p>
+      <p>Imovel Ocupado. Desocupacao por conta do Arrematante.</p>
+      <p>Matricula 48.136 do 4o CRI de Sao Paulo/SP.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
+        html,
+    )
+
+    assert "condo_debt_brl" not in evidence["debts"]
+    assert evidence["debts"]["iptu_debt_brl"] == 407.11
+
+
 def test_extracts_leilaoimovel_chain_to_edital_and_official_auctioneer() -> None:
     html = """
     <html><body>
@@ -650,6 +670,128 @@ def test_active_diligence_removes_stale_course_antibodies_when_chain_is_proven(t
     assert "fiduciary_chain_unproven" not in pending
     assert "eviction_risk" in pending
     assert analysis["diligence_result"]["course_antibodies"] == []
+
+
+def test_active_diligence_keeps_condo_and_total_debt_p0_when_only_iptu_is_known(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    source_url = "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 3986,
+                        "thesis_id": "IM-RADAR-TARGET-ITA-02",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": source_url,
+                        "real_estate_analysis": {
+                            "suggested_status": "Aberto com pendencias",
+                            "next_action": "Confirmar custo total de debitos",
+                            "pending_items": [
+                                {"key": "debt_total", "title": "Confirmar custo total de debitos", "priority": "P0", "status": "aberta"},
+                                {"key": "condo_debt", "title": "Confirmar divida de condominio", "priority": "P0", "status": "aberta"},
+                                {"key": "iptu_debt", "title": "Confirmar divida de IPTU", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    html_by_url = {
+        source_url: """
+        <html><body>
+          <p>Leilao judicial. Processo 0121306-46.2008.8.26.0004.</p>
+          <p>Debitos Condominio: Informacao Pendente.</p>
+          <p>Debitos IPTU/Pref.: R$ 407,11 ate 06/04/2026.</p>
+          <p>Matricula 48.136 do 4o CRI de Sao Paulo/SP.</p>
+        </body></html>
+        """,
+    }
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: html_by_url[url],
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    analysis = updated["thesis_open_operations"][0]["real_estate_analysis"]
+    pending = {item["key"]: item for item in analysis["pending_items"]}
+
+    assert "iptu_debt" not in pending
+    assert "condo_debt" in pending
+    assert "debt_total" in pending
+    assert {"debt_total", "condo_debt"} <= set(analysis["diligence_result"]["remaining_p0_keys"])
+
+
+def test_active_diligence_restores_missing_condo_and_total_debt_p0_after_partial_iptu_evidence(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    source_url = "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 3986,
+                        "thesis_id": "IM-RADAR-TARGET-ITA-02",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": source_url,
+                        "real_estate_analysis": {
+                            "suggested_status": "Aberto com pendencias",
+                            "next_action": "Validar valor de saida",
+                            "pending_items": [
+                                {"key": "exit_value_validation", "title": "Validar valor de saida", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    html_by_url = {
+        source_url: """
+        <html><body>
+          <p>Debitos Condominio: Informacao Pendente.</p>
+          <p>Debitos IPTU/Pref.: R$ 407,11 ate 06/04/2026.</p>
+          <p>Matricula 48.136 do 4o CRI de Sao Paulo/SP.</p>
+        </body></html>
+        """,
+    }
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: html_by_url[url],
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    analysis = updated["thesis_open_operations"][0]["real_estate_analysis"]
+    pending = {item["key"]: item for item in analysis["pending_items"]}
+
+    assert "iptu_debt" not in pending
+    assert pending["condo_debt"]["priority"] == "P0"
+    assert pending["debt_total"]["priority"] == "P0"
 
 
 def test_applies_course_antibodies_to_active_seed(tmp_path: Path) -> None:

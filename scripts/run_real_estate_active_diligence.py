@@ -366,6 +366,25 @@ def _first_money_after(pattern: str, text: str) -> float | None:
     return money_to_float(match.group(1))
 
 
+def _first_money_after_label_before(
+    pattern: str,
+    text: str,
+    *,
+    stop_pattern: str,
+) -> float | None:
+    match = re.search(pattern, text, flags=re.IGNORECASE)
+    if not match:
+        return None
+    tail = text[match.end() : match.end() + 120]
+    money_match = re.search(r"R\$\s*([\d.]+,\d{2})", tail, flags=re.IGNORECASE)
+    if not money_match:
+        return None
+    stop_match = re.search(stop_pattern, tail, flags=re.IGNORECASE)
+    if stop_match and stop_match.start() < money_match.start():
+        return None
+    return money_to_float(money_match.group(1))
+
+
 def _official_leiloeiro_url(url: str) -> bool:
     parsed = urlparse(url)
     host = parsed.netloc.lower()
@@ -478,10 +497,18 @@ def _extract_debts(text: str) -> dict[str, Any]:
     action_debt = _first_money_after(r"d[eé]bitos?\s+da\s+a[cç][aã]o|debito\s+da\s+acao", text)
     if action_debt is not None:
         debts["action_debt_brl"] = action_debt
-    condo_value = _first_money_after(r"condom[ií]nio|condominio", text)
+    condo_value = _first_money_after_label_before(
+        r"condom[ií]nio|condominio",
+        text,
+        stop_pattern=r"\biptu\b|tribut[aá]rios|tributarios|prefeitura|pref\.",
+    )
     if condo_value is not None:
         debts["condo_debt_brl"] = condo_value
-    iptu_value = _first_money_after(r"iptu|tribut[aá]rios|tributarios", text)
+    iptu_value = _first_money_after_label_before(
+        r"iptu|tribut[aá]rios|tributarios",
+        text,
+        stop_pattern=r"condom[ií]nio|condominio",
+    )
     if iptu_value is not None:
         debts["iptu_debt_brl"] = iptu_value
     if (
@@ -1796,6 +1823,65 @@ def _replace_or_append_clarified(analysis: dict[str, Any], item: dict[str, str])
     analysis["clarified_items"] = clarified
 
 
+DEBT_PENDING_DEFINITIONS: dict[str, dict[str, str]] = {
+    "debt_total": {
+        "title": "Confirmar custo total de debitos",
+        "action": (
+            "Levantar IPTU, condominio, comissao, ITBI, cartorio e responsabilidade por "
+            "debitos antes de calcular margem ou teto de lance."
+        ),
+    },
+    "condo_debt": {
+        "title": "Confirmar divida de condominio",
+        "action": "Levantar valor vencido, limite de responsabilidade e acordo possivel.",
+    },
+    "iptu_debt": {
+        "title": "Confirmar divida de IPTU",
+        "action": "Checar debitos municipais antes de calcular lucro.",
+    },
+}
+
+
+def _append_missing_p0(analysis: dict[str, Any], key: str) -> None:
+    current = analysis.get("pending_items")
+    pending_items = [item for item in current if isinstance(item, dict)] if isinstance(current, list) else []
+    if any(item.get("key") == key for item in pending_items):
+        analysis["pending_items"] = pending_items
+        return
+    definition = DEBT_PENDING_DEFINITIONS[key]
+    pending_items.append(
+        {
+            "key": key,
+            "title": definition["title"],
+            "priority": "P0",
+            "status": "aberta",
+            "action": definition["action"],
+        }
+    )
+    analysis["pending_items"] = pending_items
+
+
+def _restore_partial_debt_pending_items(analysis: dict[str, Any], debts: Any) -> None:
+    if not isinstance(debts, dict) or not debts:
+        return
+    condo_known = bool(
+        debts.get("condo_debt_brl")
+        or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+    )
+    iptu_known = bool(
+        debts.get("iptu_debt_brl")
+        or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+        or debts.get("tax_debts_subrogated_in_bid_price")
+    )
+    total_known = bool(debts.get("action_debt_brl") or (condo_known and iptu_known))
+    if not total_known:
+        _append_missing_p0(analysis, "debt_total")
+    if not condo_known:
+        _append_missing_p0(analysis, "condo_debt")
+    if not iptu_known:
+        _append_missing_p0(analysis, "iptu_debt")
+
+
 def _remove_resolved_pending_items(analysis: dict[str, Any], evidence: dict[str, Any]) -> list[str]:
     pending = analysis.get("pending_items")
     pending_items = [item for item in pending if isinstance(item, dict)] if isinstance(pending, list) else []
@@ -1808,7 +1894,21 @@ def _remove_resolved_pending_items(analysis: dict[str, Any], evidence: dict[str,
         resolved.add("registration")
     debts = evidence.get("debts")
     if isinstance(debts, dict) and debts:
-        resolved.update({"debts", "debt_total", "condo_debt", "iptu_debt"})
+        condo_resolved = bool(
+            debts.get("condo_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+        )
+        iptu_resolved = bool(
+            debts.get("iptu_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+            or debts.get("tax_debts_subrogated_in_bid_price")
+        )
+        if condo_resolved:
+            resolved.add("condo_debt")
+        if iptu_resolved:
+            resolved.add("iptu_debt")
+        if debts.get("action_debt_brl") or (condo_resolved and iptu_resolved):
+            resolved.update({"debts", "debt_total"})
 
     analysis["pending_items"] = [
         item
@@ -2040,10 +2140,19 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
         )
     debts = evidence.get("debts")
     if isinstance(debts, dict) and debts:
-        analysis["condo_debt_known"] = True
-        analysis["iptu_debt_known"] = True
-        candidate["condo_debt_known"] = True
-        candidate["iptu_debt_known"] = True
+        condo_known = bool(
+            debts.get("condo_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+        )
+        iptu_known = bool(
+            debts.get("iptu_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+            or debts.get("tax_debts_subrogated_in_bid_price")
+        )
+        analysis["condo_debt_known"] = condo_known
+        analysis["iptu_debt_known"] = iptu_known
+        candidate["condo_debt_known"] = condo_known
+        candidate["iptu_debt_known"] = iptu_known
         analysis["debt_evidence"] = debts
         candidate["debt_evidence"] = debts
         detail_parts = []
@@ -2087,6 +2196,7 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
             merged_course_antibodies[str(raw_item["key"])] = raw_item
     evidence["course_antibodies"] = list(merged_course_antibodies.values())
 
+    _restore_partial_debt_pending_items(analysis, evidence.get("debts"))
     resolved_keys = _remove_resolved_pending_items(analysis, evidence)
     course_antibody_keys = _append_course_antibodies(analysis, evidence)
     analysis["diligence_result"] = {
