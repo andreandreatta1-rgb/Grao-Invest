@@ -1600,6 +1600,13 @@ def extract_evidence(url: str, html_text: str) -> dict[str, Any]:
             "cadastro necessario",
             "entre para continuar",
             "login para continuar",
+            "403 forbidden",
+            "403 proibido",
+            "acesso negado",
+            "access denied",
+            "nao e robo",
+            "nao sou um robo",
+            "verifique que voce nao e robo",
         )
     )
 
@@ -1754,6 +1761,40 @@ def active_p0_rows(seed: dict[str, Any]) -> list[dict[str, Any]]:
         if _p0_items(row):
             selected.append(row)
     return sorted(selected, key=lambda item: int(item.get("thesis_number") or 0))
+
+
+def _normalize_thesis_numbers(values: set[int] | list[int] | tuple[int, ...] | None) -> set[int]:
+    if not values:
+        return set()
+    selected: set[int] = set()
+    for value in values:
+        try:
+            selected.add(int(value))
+        except (TypeError, ValueError):
+            continue
+    return selected
+
+
+def _normalize_thesis_ids(values: set[str] | list[str] | tuple[str, ...] | None) -> set[str]:
+    if not values:
+        return set()
+    return {str(value).strip() for value in values if str(value).strip()}
+
+
+def _parse_thesis_numbers(value: str) -> set[int]:
+    selected: set[int] = set()
+    for chunk in re.split(r"[,;\s]+", value or ""):
+        if not chunk:
+            continue
+        try:
+            selected.add(int(chunk))
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"thesis_number invalido: {chunk}") from None
+    return selected
+
+
+def _parse_thesis_ids(value: str) -> set[str]:
+    return {chunk.strip() for chunk in re.split(r"[,;\s]+", value or "") if chunk.strip()}
 
 
 def _is_real_estate_row(row: dict[str, Any]) -> bool:
@@ -2289,7 +2330,13 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
             for item in analysis.get("pending_items", [])
             if isinstance(item, dict) and str(item.get("priority") or "").upper() == "P0"
         ]
-        if remaining_p0:
+        if evidence.get("status") == "bloqueado_por_acesso":
+            analysis["suggested_status"] = "Aberto com pendencias"
+            analysis["next_action"] = "Acesso ao leiloeiro necessario"
+            row["status"] = "Aberta - Atencao"
+            row["outcome"] = "Bloqueado por acesso"
+            row["is_open"] = True
+        elif remaining_p0:
             analysis["suggested_status"] = "Aberto com pendencias"
             analysis["next_action"] = str(remaining_p0[0].get("title") or "Resolver P0 restante")
             row["status"] = "Aberta - Atencao"
@@ -2300,12 +2347,6 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
             analysis["next_action"] = "Revisar comparaveis e proposta conservadora"
             row["status"] = "Aberta - Diligencia"
             row["outcome"] = "Evidencias P0 esclarecidas"
-            row["is_open"] = True
-        elif evidence.get("status") == "bloqueado_por_acesso":
-            analysis["suggested_status"] = "Aberto com pendencias"
-            analysis["next_action"] = "Acesso ao leiloeiro necessario"
-            row["status"] = "Aberta - Atencao"
-            row["outcome"] = "Bloqueado por acesso"
             row["is_open"] = True
 
     return analysis["diligence_result"]
@@ -2359,6 +2400,8 @@ def _write_markdown(path: Path, report: dict[str, Any]) -> None:
         "",
     ]
     for item in report["items"]:
+        evidence = item.get("evidence") if isinstance(item.get("evidence"), dict) else {}
+        access_request = evidence.get("access_request") if isinstance(evidence, dict) else {}
         lines.extend(
             [
                 f"### {item['thesis_number']} - {item['title']}",
@@ -2374,9 +2417,17 @@ def _write_markdown(path: Path, report: dict[str, Any]) -> None:
                 f"- P0 resolvidos: {', '.join(item.get('resolved_p0_keys') or []) or 'nenhum'}",
                 f"- P0 restantes: {', '.join(item.get('remaining_p0_keys') or []) or 'nenhum'}",
                 f"- Proximo passo: {item.get('next_action') or 'n/d'}",
-                "",
             ]
         )
+        if isinstance(access_request, dict) and access_request:
+            lines.extend(
+                [
+                    f"- Bloqueio: {access_request.get('blocker_type') or 'n/d'}",
+                    f"- Credencial/arquivo esperado: {access_request.get('credential_file_hint') or 'n/d'}",
+                    f"- Por que importa: {access_request.get('why_it_matters') or 'n/d'}",
+                ]
+            )
+        lines.append("")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -2389,10 +2440,24 @@ def run_active_diligence(
     fetcher: Fetcher | None = None,
     limit: int | None = None,
     close_out_of_scope_only: bool = False,
+    thesis_numbers: set[int] | list[int] | tuple[int, ...] | None = None,
+    thesis_ids: set[str] | list[str] | tuple[str, ...] | None = None,
+    fetch_timeout_seconds: int = 35,
 ) -> dict[str, Any]:
     checked_at = utc_now()
     seed = json.loads(seed_path.read_text(encoding="utf-8-sig"))
     rows = active_p0_rows(seed)
+    target_thesis_numbers = _normalize_thesis_numbers(thesis_numbers)
+    target_thesis_ids = _normalize_thesis_ids(thesis_ids)
+    if target_thesis_numbers or target_thesis_ids:
+        rows = [
+            row
+            for row in rows
+            if (
+                int(row.get("thesis_number") or 0) in target_thesis_numbers
+                or str(row.get("thesis_id") or "").strip() in target_thesis_ids
+            )
+        ]
     rows = sorted(
         rows,
         key=lambda row: (
@@ -2410,7 +2475,7 @@ def run_active_diligence(
         ]
     if limit is not None and limit > 0:
         rows = rows[:limit]
-    fetch = fetcher or default_fetcher
+    fetch = fetcher or (lambda url: default_fetcher(url, timeout_seconds=fetch_timeout_seconds))
     items: list[dict[str, Any]] = []
     closed_count = 0
     access_blocked_count = 0
@@ -2518,6 +2583,9 @@ def run_active_diligence(
     report = {
         "generated_at": checked_at,
         "seed_path": str(seed_path),
+        "target_thesis_numbers": sorted(target_thesis_numbers),
+        "target_thesis_ids": sorted(target_thesis_ids),
+        "fetch_timeout_seconds": fetch_timeout_seconds,
         "investigated_count": len(rows),
         "closed_count": closed_count,
         "access_blocked_count": access_blocked_count,
@@ -2538,6 +2606,37 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--report-json", default="")
     parser.add_argument("--report-md", default="")
     parser.add_argument("--limit", type=int, default=0, help="Limita quantos itens investigar (0 = sem limite).")
+    parser.add_argument(
+        "--thesis-number",
+        action="append",
+        type=int,
+        default=[],
+        help="Investiga apenas este numero de tese; pode ser repetido.",
+    )
+    parser.add_argument(
+        "--thesis-numbers",
+        type=_parse_thesis_numbers,
+        default=set(),
+        help="Lista de numeros de tese separados por virgula/espaco.",
+    )
+    parser.add_argument(
+        "--thesis-id",
+        action="append",
+        default=[],
+        help="Investiga apenas este thesis_id; pode ser repetido.",
+    )
+    parser.add_argument(
+        "--thesis-ids",
+        type=_parse_thesis_ids,
+        default=set(),
+        help="Lista de thesis_id separados por virgula/espaco.",
+    )
+    parser.add_argument(
+        "--fetch-timeout",
+        type=int,
+        default=35,
+        help="Timeout por fonte externa, em segundos.",
+    )
     parser.add_argument(
         "--close-out-of-scope-only",
         action="store_true",
@@ -2588,6 +2687,9 @@ def main(argv: list[str] | None = None) -> int:
         report_md_path=report_md,
         limit=args.limit if args.limit > 0 else None,
         close_out_of_scope_only=args.close_out_of_scope_only,
+        thesis_numbers=set(args.thesis_number or []) | set(args.thesis_numbers or []),
+        thesis_ids=set(args.thesis_id or []) | set(args.thesis_ids or []),
+        fetch_timeout_seconds=max(int(args.fetch_timeout or 35), 1),
     )
     latest_json = repo_root / "data" / "reports" / "active_real_estate_diligence_latest.json"
     latest_md = repo_root / "data" / "reports" / "active_real_estate_diligence_latest.md"
@@ -2600,6 +2702,9 @@ def main(argv: list[str] | None = None) -> int:
                 "closed_count": report["closed_count"],
                 "still_open_with_p0_count": report["still_open_with_p0_count"],
                 "access_blocked_count": report["access_blocked_count"],
+                "target_thesis_numbers": report["target_thesis_numbers"],
+                "target_thesis_ids": report["target_thesis_ids"],
+                "fetch_timeout_seconds": report["fetch_timeout_seconds"],
                 "report_json": str(report_json),
                 "report_md": str(report_md),
             },

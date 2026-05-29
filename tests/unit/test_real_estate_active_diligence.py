@@ -136,6 +136,23 @@ def test_rejects_static_assets_and_404_pages_as_official_evidence() -> None:
     assert not evidence["official_url"]
 
 
+def test_forbidden_source_page_is_access_blocked() -> None:
+    html = """
+    <html><body>
+      <h1>403 Proibido</h1>
+      <p>Acesso negado. Faca login ou confirme que voce nao e robo para continuar.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apartamento-2797706",
+        html,
+    )
+
+    assert evidence["status"] == "bloqueado_por_acesso"
+    assert evidence["access_request"]["blocker_type"] == "login/cadastro/captcha"
+
+
 def test_course_antibodies_flag_judicial_without_process_access() -> None:
     html = """
     <html><body>
@@ -990,6 +1007,236 @@ def test_closes_out_of_scope_city_rows_without_fetching(tmp_path: Path) -> None:
     assert {item["key"] for item in analysis["pending_items"]} == {"sale_comparables"}
     assert report_json.exists()
     assert "IM-OUT" in report_md.read_text(encoding="utf-8")
+
+
+def test_run_active_diligence_can_target_specific_thesis_numbers(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    target_url = "https://www.frazaoleiloes.com.br/Auction/LotDetails/4177"
+    skipped_url = "https://www.frazaoleiloes.com.br/Auction/LotDetails/4172"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4172,
+                        "thesis_id": "IM-SKIPPED",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "source_url": skipped_url,
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "source_validation", "title": "Validar fonte", "priority": "P0", "status": "aberta"}
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Sao Paulo"},
+                        },
+                    },
+                    {
+                        "thesis_number": 4177,
+                        "thesis_id": "IM-TARGET",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "source_url": target_url,
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "source_validation", "title": "Validar fonte", "priority": "P0", "status": "aberta"}
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Sao Paulo"},
+                        },
+                    },
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    fetched_urls: list[str] = []
+
+    def _fetcher(url: str) -> str:
+        fetched_urls.append(url)
+        return "<html><body><p>Matricula 1 do 1o CRI de Sao Paulo/SP.</p></body></html>"
+
+    summary = diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=_fetcher,
+        thesis_numbers={4177},
+    )
+
+    assert summary["investigated_count"] == 1
+    assert fetched_urls == [target_url]
+    assert summary["target_thesis_numbers"] == [4177]
+
+
+def test_run_active_diligence_can_target_specific_thesis_ids(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    target_url = "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/target-2832112"
+    skipped_url = "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/skipped-2797706"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 3980,
+                        "thesis_id": "IM-RADAR-TARGET-PAR-02",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "source_url": skipped_url,
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "source_validation", "title": "Validar fonte", "priority": "P0", "status": "aberta"}
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Sao Paulo"},
+                        },
+                    },
+                    {
+                        "thesis_number": 3985,
+                        "thesis_id": "IM-RADAR-TARGET-CAM-05",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "source_url": target_url,
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "source_validation", "title": "Validar fonte", "priority": "P0", "status": "aberta"}
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Sao Paulo"},
+                        },
+                    },
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    fetched_urls: list[str] = []
+
+    def _fetcher(url: str) -> str:
+        fetched_urls.append(url)
+        return "<html><body><h1>403 Proibido</h1><p>Acesso negado.</p></body></html>"
+
+    summary = diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=_fetcher,
+        thesis_ids={"IM-RADAR-TARGET-CAM-05"},
+    )
+
+    assert summary["investigated_count"] == 1
+    assert fetched_urls == [target_url]
+    assert summary["target_thesis_ids"] == ["IM-RADAR-TARGET-CAM-05"]
+
+
+def test_run_active_diligence_passes_fetch_timeout_to_default_fetcher(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    source_url = "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apartamento-2797706"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4172,
+                        "thesis_id": "IM-TIMEOUT",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "source_url": source_url,
+                        "real_estate_analysis": {
+                            "pending_items": [
+                                {"key": "source_validation", "title": "Validar fonte", "priority": "P0", "status": "aberta"}
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Sao Paulo"},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    calls: list[tuple[str, int]] = []
+
+    def _fake_default_fetcher(url: str, timeout_seconds: int = 35) -> str:
+        calls.append((url, timeout_seconds))
+        raise TimeoutError("timeout controlado")
+
+    monkeypatch.setattr(diligence, "default_fetcher", _fake_default_fetcher)
+
+    summary = diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        thesis_numbers={4172},
+        fetch_timeout_seconds=7,
+    )
+
+    assert calls == [(source_url, 7)]
+    assert summary["access_blocked_count"] == 1
+
+
+def test_access_blocked_diligence_prioritizes_access_next_action(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    source_url = "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/apartamento-2797706"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 4172,
+                        "thesis_id": "IM-ACCESS",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "source_url": source_url,
+                        "real_estate_analysis": {
+                            "next_action": "Validar fonte manualmente",
+                            "pending_items": [
+                                {"key": "source_validation", "title": "Validar fonte manualmente", "priority": "P0", "status": "aberta"},
+                                {"key": "occupancy", "title": "Confirmar ocupacao", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {"city": "Sao Paulo"},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda _: (_ for _ in ()).throw(TimeoutError("timeout controlado")),
+        thesis_ids={"IM-ACCESS"},
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    row = updated["thesis_open_operations"][0]
+    analysis = row["real_estate_analysis"]
+
+    assert row["outcome"] == "Bloqueado por acesso"
+    assert analysis["next_action"] == "Acesso ao leiloeiro necessario"
+    report_text = report_md.read_text(encoding="utf-8")
+    assert "Bloqueio: TimeoutError" in report_text
+    assert "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json" in report_text
 
 
 def test_active_diligence_refreshes_real_estate_front_overview_counts(tmp_path: Path) -> None:

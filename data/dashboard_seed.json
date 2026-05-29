@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-29T19:56:45-03:00",
+  "generated_at": "2026-05-29T20:09:56-03:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -90923,14 +90923,24 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Fonte individual do Leilao Imovel; site bloqueia validacao automatica e exige leitura manual de edital, ocupacao e dividas.",
-        "checked_at": "2026-05-20T21:00:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706"
+        "status": "access_required",
+        "reason": "Investigador ainda nao comprovou a cadeia primaria.",
+        "checked_at": "2026-05-29T23:06:34+00:00",
+        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+        "aggregator_url": "",
+        "official_url": "",
+        "edital_url": "",
+        "investigation_status": "bloqueado_por_acesso",
+        "investigation_policy": "investigador_implacavel",
+        "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+        "blocker_type": "RuntimeError",
+        "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+        "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json",
+        "requires_user_action": true
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Fonte individual do Leilao Imovel; site bloqueia validacao automatica e exige leitura manual de edital, ocupacao e dividas.",
-      "source_checked_at": "2026-05-20T21:00:00-03:00",
+      "source_validation_status": "access_required",
+      "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
+      "source_checked_at": "2026-05-29T23:06:34+00:00",
       "asset": "REAL TARGET - Paraiso Rafael de Barros 120m",
       "action": "REAL TARGET - Paraiso Rafael de Barros 120m",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Paraiso / Rua Rafael de Barros, 174. Score 49/100, confianca 28/100.",
@@ -90943,7 +90953,7 @@
       "planned_exit_at": "2026-06-03",
       "exit_rule": "Validar fonte manualmente",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Bloqueado por acesso",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
@@ -90953,7 +90963,7 @@
         "score": 49,
         "confidence": 28,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "next_action": "Acesso ao leiloeiro necessario",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -91230,6 +91240,106 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "judicial_process_access",
+            "title": "Abrir processo judicial/autos",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Identificar processo, vara/tribunal, edital oficial, partes, onus, recursos visiveis e etapa antes de tratar o lote judicial como oportunidade.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Identificar processo, vara/tribunal, edital oficial, partes, onus, recursos visiveis e etapa antes de tratar o lote judicial como oportunidade."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
+          },
+          {
+            "key": "judicial_post_auction_plan",
+            "title": "Modelar pos-arrematacao judicial",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
+          },
+          {
+            "key": "auction_modality_unclear",
+            "title": "Provar modalidade operacional do leilao",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -91250,6 +91360,11 @@
             "title": "Plano B informado",
             "status": "esclarecido",
             "detail": "Apenas seguir se comparaveis mostrarem liquidez na micro-regiao."
+          },
+          {
+            "key": "course_antibodies",
+            "title": "Anticorpos do curso aplicados",
+            "detail": "judicial_process_access, judicial_post_auction_plan, remote_valuation_triangulation_unproven, streetview_condition_unchecked, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -91324,10 +91439,20 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Fonte individual do Leilao Imovel; site bloqueia validacao automatica e exige leitura manual de edital, ocupacao e dividas.",
-          "checked_at": "2026-05-20T21:00:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706"
+          "status": "access_required",
+          "reason": "Investigador ainda nao comprovou a cadeia primaria.",
+          "checked_at": "2026-05-29T23:06:34+00:00",
+          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+          "aggregator_url": "",
+          "official_url": "",
+          "edital_url": "",
+          "investigation_status": "bloqueado_por_acesso",
+          "investigation_policy": "investigador_implacavel",
+          "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+          "blocker_type": "RuntimeError",
+          "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+          "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json",
+          "requires_user_action": true
         },
         "candidate": {
           "strategy": "Leilao judicial + desconto nominal",
@@ -91360,17 +91485,108 @@
           "estimated_sale_optimistic": 1233183.01,
           "plan_b": "Apenas seguir se comparaveis mostrarem liquidez na micro-regiao.",
           "notes": "Garimpo alvo: Paraiso / Rua Rafael de Barros, 174. Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta.",
-          "source_validation_status": "ambiguous",
-          "source_validation_reason": "Fonte individual do Leilao Imovel; site bloqueia validacao automatica e exige leitura manual de edital, ocupacao e dividas.",
+          "source_validation_status": "access_required",
+          "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
           "source_checked_at": "2026-05-20T21:00:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Fonte individual do Leilao Imovel; site bloqueia validacao automatica e exige leitura manual de edital, ocupacao e dividas.",
-            "checked_at": "2026-05-20T21:00:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706"
+            "status": "access_required",
+            "reason": "Investigador ainda nao comprovou a cadeia primaria.",
+            "checked_at": "2026-05-29T23:06:34+00:00",
+            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+            "aggregator_url": "",
+            "official_url": "",
+            "edital_url": "",
+            "investigation_status": "bloqueado_por_acesso",
+            "investigation_policy": "investigador_implacavel",
+            "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+            "blocker_type": "RuntimeError",
+            "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+            "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json",
+            "requires_user_action": true
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "diligence_result": {
+          "checked_at": "2026-05-29T23:06:34+00:00",
+          "status": "bloqueado_por_acesso",
+          "resolved_p0_keys": [],
+          "course_antibodies": [
+            "judicial_process_access",
+            "judicial_post_auction_plan",
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
+            "auction_modality_unclear"
+          ],
+          "remaining_p0_keys": [
+            "source_validation",
+            "occupancy",
+            "registration",
+            "debt_total",
+            "condo_debt",
+            "iptu_debt",
+            "exit_value_validation",
+            "judicial_process_access",
+            "judicial_post_auction_plan",
+            "remote_valuation_triangulation_unproven",
+            "auction_modality_unclear"
+          ],
+          "evidence": {
+            "status": "bloqueado_por_acesso",
+            "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+            "opened_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+            "occupancy_status": "desconhecido",
+            "registration": {},
+            "debts": {},
+            "course_antibodies": [
+              {
+                "key": "judicial_process_access",
+                "title": "Abrir processo judicial/autos",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Identificar processo, vara/tribunal, edital oficial, partes, onus, recursos visiveis e etapa antes de tratar o lote judicial como oportunidade."
+              },
+              {
+                "key": "judicial_post_auction_plan",
+                "title": "Modelar pos-arrematacao judicial",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
+              },
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
+              {
+                "key": "auction_modality_unclear",
+                "title": "Provar modalidade operacional do leilao",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+              }
+            ],
+            "attempted_paths": [
+              "abrir fonte inicial com perfil de navegador"
+            ],
+            "access_request": {
+              "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+              "blocker_type": "RuntimeError",
+              "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+              "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json"
+            },
+            "error": "% Total    % Received % Xferd  Average Speed  Time    Time    Time   Current\r\n                                 Dload  Upload  Total   Spent   Left   Speed\r\n\r  0      0   0      0   0      0      0      0                              0\r  0      0   0      0   0      0      0      0           00:01              0\r  0      0   0      0   0      0      0      0           00:02              0\r  0      0   0      0   0      0      0      0           00:03              0\r  0      0   0      0   0      0      0      0           00:04              0\r  0      0   0      0   0      0      0      0           00:05              0\r  0      0   0      0   0      0      0      0           00:06              0\r  0      0   0      0   0      0      0      0           00:07              0\r\ncurl: (28) Connection timed out after 8005 milliseconds",
+            "text_excerpt": ""
+          }
+        }
       }
     },
     {
@@ -93223,14 +93439,24 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Fonte individual do Leilao Imovel, porem modalidade PGFN precisa leitura documental antes de proposta.",
-        "checked_at": "2026-05-23T11:24:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112"
+        "status": "access_required",
+        "reason": "Investigador ainda nao comprovou a cadeia primaria.",
+        "checked_at": "2026-05-29T23:06:34+00:00",
+        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+        "aggregator_url": "",
+        "official_url": "",
+        "edital_url": "",
+        "investigation_status": "bloqueado_por_acesso",
+        "investigation_policy": "investigador_implacavel",
+        "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+        "blocker_type": "RuntimeError",
+        "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+        "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json",
+        "requires_user_action": true
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Fonte individual do Leilao Imovel, porem modalidade PGFN precisa leitura documental antes de proposta.",
-      "source_checked_at": "2026-05-23T11:24:00-03:00",
+      "source_validation_status": "access_required",
+      "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
+      "source_checked_at": "2026-05-29T23:06:34+00:00",
       "asset": "Sao Paulo / Campo Belo / Rua Sebastiao Paes / Entrada 315K Saida 700K",
       "action": "Sao Paulo / Campo Belo / Rua Sebastiao Paes / Entrada 315K Saida 700K",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Campo Belo / Rua Sebastiao Paes, 389. Score 52/100, confianca 40/100.",
@@ -93243,7 +93469,7 @@
       "planned_exit_at": "2026-06-03",
       "exit_rule": "Validar fonte manualmente",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Bloqueado por acesso",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
@@ -93253,7 +93479,7 @@
         "score": 52,
         "confidence": 40,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "next_action": "Acesso ao leiloeiro necessario",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -93550,6 +93776,66 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
+          },
+          {
+            "key": "auction_modality_unclear",
+            "title": "Provar modalidade operacional do leilao",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -93570,6 +93856,11 @@
             "title": "Plano B informado",
             "status": "esclarecido",
             "detail": "So evoluir se a PGFN permitir compra limpa e houver 3 comparaveis no raio imediato."
+          },
+          {
+            "key": "course_antibodies",
+            "title": "Anticorpos do curso aplicados",
+            "detail": "remote_valuation_triangulation_unproven, streetview_condition_unchecked, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -93644,10 +93935,20 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Fonte individual do Leilao Imovel, porem modalidade PGFN precisa leitura documental antes de proposta.",
-          "checked_at": "2026-05-23T11:24:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112"
+          "status": "access_required",
+          "reason": "Investigador ainda nao comprovou a cadeia primaria.",
+          "checked_at": "2026-05-29T23:06:34+00:00",
+          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+          "aggregator_url": "",
+          "official_url": "",
+          "edital_url": "",
+          "investigation_status": "bloqueado_por_acesso",
+          "investigation_policy": "investigador_implacavel",
+          "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+          "blocker_type": "RuntimeError",
+          "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+          "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json",
+          "requires_user_action": true
         },
         "candidate": {
           "strategy": "Comprei PGFN + desconto nominal alto",
@@ -93680,17 +93981,90 @@
           "estimated_sale_optimistic": 735000.0,
           "plan_b": "So evoluir se a PGFN permitir compra limpa e houver 3 comparaveis no raio imediato.",
           "notes": "Garimpo alvo: Campo Belo / Rua Sebastiao Paes, 389. Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta.",
-          "source_validation_status": "ambiguous",
-          "source_validation_reason": "Fonte individual do Leilao Imovel, porem modalidade PGFN precisa leitura documental antes de proposta.",
+          "source_validation_status": "access_required",
+          "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
           "source_checked_at": "2026-05-23T11:24:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Fonte individual do Leilao Imovel, porem modalidade PGFN precisa leitura documental antes de proposta.",
-            "checked_at": "2026-05-23T11:24:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112"
+            "status": "access_required",
+            "reason": "Investigador ainda nao comprovou a cadeia primaria.",
+            "checked_at": "2026-05-29T23:06:34+00:00",
+            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+            "aggregator_url": "",
+            "official_url": "",
+            "edital_url": "",
+            "investigation_status": "bloqueado_por_acesso",
+            "investigation_policy": "investigador_implacavel",
+            "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+            "blocker_type": "RuntimeError",
+            "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+            "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json",
+            "requires_user_action": true
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
+        "diligence_result": {
+          "checked_at": "2026-05-29T23:06:34+00:00",
+          "status": "bloqueado_por_acesso",
+          "resolved_p0_keys": [],
+          "course_antibodies": [
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
+            "auction_modality_unclear"
+          ],
+          "remaining_p0_keys": [
+            "source_validation",
+            "occupancy",
+            "edital",
+            "debt_total",
+            "condo_debt",
+            "iptu_debt",
+            "exit_value_validation",
+            "remote_valuation_triangulation_unproven",
+            "auction_modality_unclear"
+          ],
+          "evidence": {
+            "status": "bloqueado_por_acesso",
+            "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+            "opened_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+            "occupancy_status": "desconhecido",
+            "registration": {},
+            "debts": {},
+            "course_antibodies": [
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
+              {
+                "key": "auction_modality_unclear",
+                "title": "Provar modalidade operacional do leilao",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+              }
+            ],
+            "attempted_paths": [
+              "abrir fonte inicial com perfil de navegador"
+            ],
+            "access_request": {
+              "site": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+              "blocker_type": "RuntimeError",
+              "why_it_matters": "Sem abrir a fonte, a app nao consegue comprovar a cadeia primaria.",
+              "credential_file_hint": "data/secure/real_estate_sources/www.leilaoimovel.com.br.credentials.json"
+            },
+            "error": "% Total    % Received % Xferd  Average Speed  Time    Time    Time   Current\r\n                                 Dload  Upload  Total   Spent   Left   Speed\r\n\r  0      0   0      0   0      0      0      0                              0\r  0      0   0      0   0      0      0      0           00:01              0\r  0      0   0      0   0      0      0      0           00:02              0\r  0      0   0      0   0      0      0      0           00:03              0\r  0      0   0      0   0      0      0      0           00:04              0\r  0      0   0      0   0      0      0      0           00:05              0\r  0      0   0      0   0      0      0      0           00:06              0\r  0      0   0      0   0      0      0      0           00:07              0\r\ncurl: (28) Connection timed out after 8014 milliseconds",
+            "text_excerpt": ""
+          }
+        }
       }
     },
     {
@@ -95133,13 +95507,13 @@
       "success_rate_pct": 0,
       "resolved_count": 33,
       "success_count": 0,
-      "updated_at": "2026-05-29T19:52:05+00:00",
+      "updated_at": "2026-05-29T23:06:34+00:00",
       "counting_policy": "radar_candidates",
       "mapped_count": 38,
       "radar_total": 38,
       "open_count": 5,
       "closed_count": 33,
-      "p0_count": 26
+      "p0_count": 32
     }
   },
   "data_quality_gate": {
