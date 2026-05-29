@@ -315,6 +315,84 @@ def test_course_antibodies_respect_complete_labor_auction_terms() -> None:
     assert "labor_lot_unit_sale_unproven" not in antibody_keys
 
 
+def test_course_antibodies_flag_remote_valuation_and_streetview_gaps() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - apartamento em Pinheiros</h1>
+      <p>Lance minimo R$ 520.000,00.</p>
+      <p>Valor de mercado estimado em R$ 780.000,00 e saida projetada em R$ 720.000,00.</p>
+      <p>A tese usa um anuncio avulso como referencia de preco.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "remote_valuation_triangulation_unproven" in antibody_keys
+    assert "streetview_condition_unchecked" in antibody_keys
+
+
+def test_course_antibodies_respect_triangulated_remote_valuation() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - apartamento em Pinheiros</h1>
+      <p>Lance minimo R$ 520.000,00.</p>
+      <p>Valor de mercado validado por Viva Real, DataZap e comparaveis do mesmo condominio.</p>
+      <p>Google Street View confirma fachada, entorno, conservacao da rua e acesso.</p>
+      <p>Matricula atualizada e certidao de onus foram abertas no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "remote_valuation_triangulation_unproven" not in antibody_keys
+    assert "streetview_condition_unchecked" not in antibody_keys
+
+
+def test_course_antibodies_flag_sensitive_person_data_review() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - casa em Campinas</h1>
+      <p>Lance minimo R$ 450.000,00. Valor de mercado validado por DataZap e Viva Real.</p>
+      <p>Investigacao por Procob, Consulta Facil, CPF do executado, telefones, parentes e Facebook.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "sensitive_person_data_minimization" in antibody_keys
+
+
+def test_course_antibodies_respect_public_source_minimization() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - casa em Campinas</h1>
+      <p>Lance minimo R$ 450.000,00. Valor de mercado validado por DataZap e Viva Real.</p>
+      <p>Facebook e telefone foram citados apenas como fontes publicas permitidas.</p>
+      <p>LGPD aplicada: nao armazenar CPF, telefone ou dado pessoal bruto; registrar apenas conclusao operacional.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "sensitive_person_data_minimization" not in antibody_keys
+
+
 def test_market_registration_text_does_not_trigger_execution_antibodies() -> None:
     html = """
     <html><body>

@@ -177,6 +177,30 @@ COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
             "imovel pode ser arrematado individualmente ou se ha preferencia pelo lote inteiro."
         ),
     },
+    "remote_valuation_triangulation_unproven": {
+        "title": "Triangular valor remoto do imovel",
+        "priority": "P0",
+        "action": (
+            "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, "
+            "estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+        ),
+    },
+    "streetview_condition_unchecked": {
+        "title": "Checar entorno e estado pelo Street View",
+        "priority": "P1",
+        "action": (
+            "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, "
+            "pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+        ),
+    },
+    "sensitive_person_data_minimization": {
+        "title": "Minimizar dados pessoais na investigacao",
+        "priority": "P0",
+        "action": (
+            "Se usar CPF, telefone, redes sociais ou ferramentas privadas, limitar a "
+            "fontes licitas e registrar apenas conclusao operacional, sem dado pessoal bruto."
+        ),
+    },
 }
 
 EXECUTION_READINESS_ANTIBODY_KEYS = {
@@ -691,6 +715,138 @@ def _labor_unit_sale_proven(lower: str) -> bool:
     )
 
 
+def _needs_remote_valuation(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "valor de mercado",
+            "preco de mercado",
+            "valor de saida",
+            "saida projetada",
+            "saida estimada",
+            "preco de venda",
+            "valor estimado",
+            "margem",
+            "lucratividade",
+            "comparavel",
+            "comparaveis",
+        )
+    )
+
+
+def _valuation_source_categories(lower: str) -> set[str]:
+    categories: set[str] = set()
+    if any(
+        marker in lower
+        for marker in (
+            "viva real",
+            "zap",
+            "datazap",
+            "data zap",
+            "imovelweb",
+            "chaves na mao",
+            "olx",
+            "quintoandar",
+            "portal de imoveis",
+        )
+    ):
+        categories.add("portal")
+    if any(
+        marker in lower
+        for marker in (
+            "comparavel",
+            "comparaveis",
+            "mesmo condominio",
+            "mesmo predio",
+            "metro quadrado",
+            "m2",
+            "valor medio",
+        )
+    ):
+        categories.add("comparables")
+    if _has_streetview_condition_check(lower):
+        categories.add("streetview")
+    if any(
+        marker in lower
+        for marker in (
+            "matricula",
+            "certidao",
+            "certidao de onus",
+            "cartorio",
+            "onr",
+            "registradores",
+            "registro de imoveis",
+        )
+    ):
+        categories.add("registry")
+    return categories
+
+
+def _has_remote_valuation_triangulation(lower: str) -> bool:
+    categories = _valuation_source_categories(lower)
+    return len(categories) >= 3 and bool(categories & {"portal", "comparables"})
+
+
+def _has_streetview_condition_check(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "street view",
+            "streetview",
+            "google maps",
+            "fachada",
+            "entorno",
+            "conservacao da rua",
+            "estado de conservacao",
+            "pichacao",
+            "pichacoes",
+            "acesso",
+            "vizinho",
+            "vizinhos",
+            "porteiro",
+            "sindico",
+        )
+    )
+
+
+def _uses_sensitive_person_investigation(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "procob",
+            "consulta facil",
+            "cpf do executado",
+            "cpf do reu",
+            "telefone",
+            "telefones",
+            "celular",
+            "celulares",
+            "parentes",
+            "perfil socioeconomico",
+            "facebook",
+            "linkedin",
+            "rede social",
+            "redes sociais",
+        )
+    )
+
+
+def _personal_data_minimized(lower: str) -> bool:
+    minimization_terms = (
+        "lgpd",
+        "fontes publicas",
+        "fonte publica",
+        "nao armazenar cpf",
+        "nao armazenar telefone",
+        "sem dado pessoal bruto",
+        "sem dados pessoais brutos",
+        "apenas conclusao operacional",
+        "somente conclusao operacional",
+        "minimizacao",
+    )
+    return any(term in lower for term in minimization_terms)
+
+
 def _course_antibodies(
     url: str,
     text: str,
@@ -733,6 +889,19 @@ def _course_antibodies(
         found.append("labor_auction_payment_terms_unproven")
     if labor_like and _labor_multi_asset_lot(lower) and not _labor_unit_sale_proven(lower):
         found.append("labor_lot_unit_sale_unproven")
+
+    if auction_like and _needs_remote_valuation(lower):
+        if not _has_remote_valuation_triangulation(lower):
+            found.append("remote_valuation_triangulation_unproven")
+        if not _has_streetview_condition_check(lower):
+            found.append("streetview_condition_unchecked")
+
+    if (
+        auction_like
+        and _uses_sensitive_person_investigation(lower)
+        and not _personal_data_minimized(lower)
+    ):
+        found.append("sensitive_person_data_minimization")
 
     fiduciary_like = any(
         marker in lower
