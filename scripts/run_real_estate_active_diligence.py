@@ -145,6 +145,112 @@ COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
             "e reconhecimento exigidos para participacao presencial."
         ),
     },
+    "labor_auction_core_terms_unproven": {
+        "title": "Conciliar TRT/processo/lote/matricula",
+        "priority": "P0",
+        "action": (
+            "Em leilao trabalhista, confirmar TRT, vara, processo, lote, matricula, "
+            "avaliacao e lance minimo no edital/fonte oficial antes de tratar como oportunidade."
+        ),
+    },
+    "labor_auction_debt_responsibility_unproven": {
+        "title": "Provar debitos no leilao trabalhista",
+        "priority": "P0",
+        "action": (
+            "Confirmar se IPTU, condominio e demais onus sub-rogam no preco, serao "
+            "quitados ou ficam a cargo do arrematante."
+        ),
+    },
+    "labor_auction_payment_terms_unproven": {
+        "title": "Provar pagamento/comissao trabalhista",
+        "priority": "P0",
+        "action": (
+            "Ler comissao do leiloeiro, sinal, deposito judicial, prazo de saldo, "
+            "parcelamento permitido e penalidades por inadimplencia."
+        ),
+    },
+    "labor_lot_unit_sale_unproven": {
+        "title": "Provar venda individualizada do lote",
+        "priority": "P0",
+        "action": (
+            "Quando o lote trabalhista mistura imovel e outros bens, confirmar se o "
+            "imovel pode ser arrematado individualmente ou se ha preferencia pelo lote inteiro."
+        ),
+    },
+    "remote_valuation_triangulation_unproven": {
+        "title": "Triangular valor remoto do imovel",
+        "priority": "P0",
+        "action": (
+            "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, "
+            "estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+        ),
+    },
+    "streetview_condition_unchecked": {
+        "title": "Checar entorno e estado pelo Street View",
+        "priority": "P1",
+        "action": (
+            "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, "
+            "pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+        ),
+    },
+    "sensitive_person_data_minimization": {
+        "title": "Minimizar dados pessoais na investigacao",
+        "priority": "P0",
+        "action": (
+            "Se usar CPF, telefone, redes sociais ou ferramentas privadas, limitar a "
+            "fontes licitas e registrar apenas conclusao operacional, sem dado pessoal bruto."
+        ),
+    },
+    "market_rotation_map_unproven": {
+        "title": "Provar mapa de liquidez local",
+        "priority": "P0",
+        "action": (
+            "Antes de chamar de melhor oferta, validar bairro/condominio, rotatividade, "
+            "tempo real de venda e rede local de corretores/imobiliarias."
+        ),
+    },
+    "caixa_financing_readiness_unproven": {
+        "title": "Provar credito/entrada para Caixa",
+        "priority": "P0",
+        "action": (
+            "Quando a tese Caixa depende de pouco capital, confirmar modalidade permite "
+            "financiamento/FGTS, credito pre-aprovado, entrada e capacidade de pagamento."
+        ),
+    },
+    "property_debt_priority_unproven": {
+        "title": "Provar prioridade dos debitos do imovel",
+        "priority": "P0",
+        "action": (
+            "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou "
+            "onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou "
+            "responsabilidade do arrematante antes de tratar a margem como real."
+        ),
+    },
+    "municipal_debt_clearance_unproven": {
+        "title": "Provar baixa de debitos municipais",
+        "priority": "P0",
+        "action": (
+            "Abrir prefeitura/CND/consulta oficial ou clausula expressa do edital para "
+            "confirmar IPTU, ITU, ITR, divida ativa e taxas municipais remanescentes."
+        ),
+    },
+    "condo_debt_priority_unproven": {
+        "title": "Provar responsabilidade condominial",
+        "priority": "P0",
+        "action": (
+            "Confirmar no edital, processo, condominio ou leiloeiro se debitos "
+            "condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor "
+            "ou assumidos pelo arrematante."
+        ),
+    },
+    "construction_regularization_debt_unproven": {
+        "title": "Provar CND/regularizacao de obra",
+        "priority": "P0",
+        "action": (
+            "Quando houver INSS de obra, construcao irregular, habite-se ou direitos "
+            "sobre edificacao, provar CND, averbacao/regularizacao e custo antes de lance."
+        ),
+    },
 }
 
 EXECUTION_READINESS_ANTIBODY_KEYS = {
@@ -260,6 +366,25 @@ def _first_money_after(pattern: str, text: str) -> float | None:
     return money_to_float(match.group(1))
 
 
+def _first_money_after_label_before(
+    pattern: str,
+    text: str,
+    *,
+    stop_pattern: str,
+) -> float | None:
+    match = re.search(pattern, text, flags=re.IGNORECASE)
+    if not match:
+        return None
+    tail = text[match.end() : match.end() + 120]
+    money_match = re.search(r"R\$\s*([\d.]+,\d{2})", tail, flags=re.IGNORECASE)
+    if not money_match:
+        return None
+    stop_match = re.search(stop_pattern, tail, flags=re.IGNORECASE)
+    if stop_match and stop_match.start() < money_match.start():
+        return None
+    return money_to_float(money_match.group(1))
+
+
 def _official_leiloeiro_url(url: str) -> bool:
     parsed = urlparse(url)
     host = parsed.netloc.lower()
@@ -372,10 +497,18 @@ def _extract_debts(text: str) -> dict[str, Any]:
     action_debt = _first_money_after(r"d[eé]bitos?\s+da\s+a[cç][aã]o|debito\s+da\s+acao", text)
     if action_debt is not None:
         debts["action_debt_brl"] = action_debt
-    condo_value = _first_money_after(r"condom[ií]nio|condominio", text)
+    condo_value = _first_money_after_label_before(
+        r"condom[ií]nio|condominio",
+        text,
+        stop_pattern=r"\biptu\b|tribut[aá]rios|tributarios|prefeitura|pref\.",
+    )
     if condo_value is not None:
         debts["condo_debt_brl"] = condo_value
-    iptu_value = _first_money_after(r"iptu|tribut[aá]rios|tributarios", text)
+    iptu_value = _first_money_after_label_before(
+        r"iptu|tribut[aá]rios|tributarios",
+        text,
+        stop_pattern=r"condom[ií]nio|condominio",
+    )
     if iptu_value is not None:
         debts["iptu_debt_brl"] = iptu_value
     if (
@@ -533,6 +666,601 @@ def _requires_representative_proxy(lower: str) -> bool:
     )
 
 
+def _is_labor_auction_like(url: str, lower: str) -> bool:
+    host = urlparse(url).netloc.lower()
+    return bool(
+        "justica do trabalho" in lower
+        or "vara do trabalho" in lower
+        or "reclamacao trabalhista" in lower
+        or "execucao trabalhista" in lower
+        or "tribunal regional do trabalho" in lower
+        or ("hasta publica" in lower and "trt" in lower)
+        or ("asta publica" in lower and "trt" in lower)
+        or re.search(r"\btrt\s*\d+\b", lower)
+        or re.search(r"\btrt\d+\.jus\.br\b", host)
+    )
+
+
+def _labor_core_terms_proven(
+    lower: str,
+    links: list[tuple[str, str]],
+    minimum_bid: float | None,
+) -> bool:
+    has_trt_context = any(
+        marker in lower
+        for marker in (
+            "trt",
+            "vara do trabalho",
+            "justica do trabalho",
+            "tribunal regional do trabalho",
+        )
+    )
+    has_lot = bool(re.search(r"\blote\s+(?:n[ou]mero\s+)?[a-z0-9.-]+", lower))
+    has_registration = "matricula" in lower
+    has_appraisal = any(
+        marker in lower
+        for marker in (
+            "avaliacao",
+            "valor avaliado",
+            "avaliado em",
+            "laudo de avaliacao",
+        )
+    )
+    has_process = _has_process_number(lower) or _has_process_link(links)
+    return bool(
+        has_trt_context
+        and has_process
+        and has_lot
+        and has_registration
+        and has_appraisal
+        and minimum_bid is not None
+    )
+
+
+def _labor_debt_responsibility_proven(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "artigo 130 do ctn",
+            "art. 130 do ctn",
+            "ctn",
+            "sub-roga no preco",
+            "subrogam no preco",
+            "sub-rogam no preco",
+            "condominio e iptu serao quitados",
+            "debitos serao quitados",
+            "debitos serao pagos",
+            "debitos ficam a cargo do arrematante",
+            "debitos a cargo do arrematante",
+            "condominio e demais debitos ficam a cargo do arrematante",
+            "responsabilidade do arrematante",
+        )
+    )
+
+
+def _labor_payment_terms_proven(lower: str) -> bool:
+    has_commission = "comissao" in lower or "5%" in lower or "5 por 100" in lower
+    has_deadline_or_installment = any(
+        marker in lower
+        for marker in (
+            "24 horas",
+            "primeiro dia util",
+            "deposito judicial",
+            "saldo",
+            "parcelamento",
+            "parcelado",
+            "parcelas",
+            "30%",
+            "30 por 100",
+            "20%",
+            "20 por 100",
+        )
+    )
+    return has_commission and has_deadline_or_installment
+
+
+def _labor_multi_asset_lot(lower: str) -> bool:
+    multi_asset_terms = (
+        "grupo de bens",
+        "mais de um bem",
+        "diversos bens",
+        "bens moveis",
+        "equipamentos",
+        "maquinas",
+        "veiculos",
+        "carros",
+        "moveis",
+    )
+    return (
+        bool(re.search(r"\blote\s+\w+\s+com\b", lower))
+        and any(term in lower for term in multi_asset_terms)
+    ) or any(term in lower for term in ("imovel e equipamentos", "imoveis e equipamentos"))
+
+
+def _labor_unit_sale_proven(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "venda individualizada",
+            "arrematacao individualizada",
+            "arrematado individualmente",
+            "venda unitaria",
+            "cada bem",
+            "desmembramento autorizado",
+            "desmembrar o lote",
+        )
+    )
+
+
+def _needs_remote_valuation(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "valor de mercado",
+            "preco de mercado",
+            "valor de saida",
+            "saida projetada",
+            "saida estimada",
+            "preco de venda",
+            "valor estimado",
+            "margem",
+            "lucratividade",
+            "comparavel",
+            "comparaveis",
+        )
+    )
+
+
+def _valuation_source_categories(lower: str) -> set[str]:
+    categories: set[str] = set()
+    if any(
+        marker in lower
+        for marker in (
+            "viva real",
+            "zap",
+            "datazap",
+            "data zap",
+            "imovelweb",
+            "chaves na mao",
+            "olx",
+            "quintoandar",
+            "portal de imoveis",
+        )
+    ):
+        categories.add("portal")
+    if any(
+        marker in lower
+        for marker in (
+            "comparavel",
+            "comparaveis",
+            "mesmo condominio",
+            "mesmo predio",
+            "metro quadrado",
+            "m2",
+            "valor medio",
+        )
+    ):
+        categories.add("comparables")
+    if _has_streetview_condition_check(lower):
+        categories.add("streetview")
+    if any(
+        marker in lower
+        for marker in (
+            "matricula",
+            "certidao",
+            "certidao de onus",
+            "cartorio",
+            "onr",
+            "registradores",
+            "registro de imoveis",
+        )
+    ):
+        categories.add("registry")
+    return categories
+
+
+def _has_remote_valuation_triangulation(lower: str) -> bool:
+    categories = _valuation_source_categories(lower)
+    return len(categories) >= 3 and bool(categories & {"portal", "comparables"})
+
+
+def _has_streetview_condition_check(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "street view",
+            "streetview",
+            "google maps",
+            "fachada",
+            "entorno",
+            "conservacao da rua",
+            "estado de conservacao",
+            "pichacao",
+            "pichacoes",
+            "acesso",
+            "vizinho",
+            "vizinhos",
+            "porteiro",
+            "sindico",
+        )
+    )
+
+
+def _uses_sensitive_person_investigation(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "procob",
+            "consulta facil",
+            "cpf do executado",
+            "cpf do reu",
+            "telefone",
+            "telefones",
+            "celular",
+            "celulares",
+            "parentes",
+            "perfil socioeconomico",
+            "facebook",
+            "linkedin",
+            "rede social",
+            "redes sociais",
+        )
+    )
+
+
+def _personal_data_minimized(lower: str) -> bool:
+    minimization_terms = (
+        "lgpd",
+        "fontes publicas",
+        "fonte publica",
+        "nao armazenar cpf",
+        "nao armazenar telefone",
+        "sem dado pessoal bruto",
+        "sem dados pessoais brutos",
+        "apenas conclusao operacional",
+        "somente conclusao operacional",
+        "minimizacao",
+    )
+    return any(term in lower for term in minimization_terms)
+
+
+def _needs_market_rotation_map(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "melhor oferta",
+            "melhores ofertas",
+            "boa oferta",
+            "otima oferta",
+            "oportunidade",
+            "revenda",
+            "revender",
+            "vender em",
+            "venda em",
+            "lucro",
+            "lucratividade",
+            "margem",
+            "retorno",
+            "roi",
+        )
+    )
+
+
+def _market_rotation_map_categories(lower: str) -> set[str]:
+    categories: set[str] = set()
+    if any(
+        marker in lower
+        for marker in (
+            "bairro",
+            "microregiao",
+            "micro-regiao",
+            "regiao especifica",
+            "condominio",
+            "comarca",
+            "cidade",
+            "mesmo predio",
+            "mesmo condominio",
+        )
+    ):
+        categories.add("territory")
+    if any(
+        marker in lower
+        for marker in (
+            "rotatividade",
+            "giro",
+            "liquidez",
+            "venda rapida",
+            "vender rapido",
+            "tempo de venda",
+            "meses para vender",
+            "dias para vender",
+            "ultimo imovel vendido",
+            "vendido em",
+            "vendeu em",
+        )
+    ):
+        categories.add("rotation")
+    if any(
+        marker in lower
+        for marker in (
+            "corretor local",
+            "corretores locais",
+            "imobiliaria local",
+            "imobiliarias locais",
+            "imobiliarias pequenas",
+            "rede local",
+            "relacionamento com corretor",
+            "relacionamento com leiloeiro",
+        )
+    ):
+        categories.add("local_network")
+    if any(
+        marker in lower
+        for marker in (
+            "mapa do investimento",
+            "tese de saida",
+            "plano de saida",
+            "prazo esperado",
+            "quanto vou investir",
+            "capital alocado",
+        )
+    ):
+        categories.add("investment_map")
+    return categories
+
+
+def _has_market_rotation_map(lower: str) -> bool:
+    categories = _market_rotation_map_categories(lower)
+    return "rotation" in categories and "territory" in categories and len(categories) >= 3
+
+
+def _needs_caixa_financing_readiness(lower: str) -> bool:
+    caixa_like = "venda-imoveis.caixa.gov.br" in lower or any(
+        marker in lower
+        for marker in (
+            "imovel caixa",
+            "imoveis caixa",
+            "caixa economica",
+            "venda direta caixa",
+            "venda direta online caixa",
+            "leilao sfi caixa",
+            "licitacao aberta caixa",
+            "retomada da caixa",
+        )
+    )
+    financing_like = any(
+        marker in lower
+        for marker in (
+            "sem dinheiro",
+            "pouca entrada",
+            "pouco de entrada",
+            "quase nada de entrada",
+            "financiamento",
+            "financiar",
+            "fgts",
+            "credito bancario",
+            "credito imobiliario",
+        )
+    )
+    return caixa_like and financing_like
+
+
+def _has_caixa_financing_readiness(lower: str) -> bool:
+    readiness_terms = (
+        "credito aprovado",
+        "credito pre-aprovado",
+        "pre-aprovacao de credito",
+        "pre aprovacao de credito",
+        "simulacao aprovada",
+        "financiamento aprovado",
+        "fgts confirmado",
+        "entrada reservada",
+        "capacidade de pagamento confirmada",
+        "renda validada",
+    )
+    return any(term in lower for term in readiness_terms)
+
+
+def _has_positive_marker(lower: str, markers: tuple[str, ...]) -> bool:
+    for marker in markers:
+        start = lower.find(marker)
+        while start >= 0:
+            preceding = lower[max(0, start - 70) : start]
+            if not re.search(
+                r"\b(?:nao|sem|falta|faltam|ausente|pendente|pendentes|"
+                r"inexistente|inexistem|nao informa|nao consta)\b",
+                preceding,
+            ):
+                return True
+            start = lower.find(marker, start + 1)
+    return False
+
+
+def _mentions_property_debt(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "debito do imovel",
+            "debitos do imovel",
+            "divida do imovel",
+            "dividas do imovel",
+            "onus do imovel",
+            "iptu",
+            "itu ",
+            "itr ",
+            "tributo municipal",
+            "tributos municipais",
+            "taxa municipal",
+            "taxas municipais",
+            "divida ativa",
+            "aforamento",
+            "laudemio",
+            "condominio",
+            "condominial",
+            "saldo de financiamento",
+            "debito de financiamento",
+            "debitos de financiamento",
+            "financiamento em atraso",
+            "inss de obra",
+            "inss da obra",
+        )
+    )
+
+
+def _has_property_debt_priority_proof(lower: str) -> bool:
+    return _has_positive_marker(
+        lower,
+        (
+            "sub-roga no preco",
+            "subroga no preco",
+            "sub-rogam no preco",
+            "subrogam no preco",
+            "sub-rogados no preco",
+            "subrogados no preco",
+            "produto da arrematacao",
+            "serao pagos com o produto",
+            "serao quitados com o produto",
+            "debitos serao quitados",
+            "debitos serao pagos",
+            "quitados pelo vendedor",
+            "quitados pela caixa",
+            "regularizacao dos debitos",
+            "responsabilidade do arrematante",
+            "a cargo do arrematante",
+            "a cargo do comprador",
+            "ordem de preferencia",
+            "ordem de pagamento",
+            "concurso de credores definido",
+            "sem debitos",
+            "nada consta",
+            "certidao negativa",
+        ),
+    )
+
+
+def _mentions_municipal_debt(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "iptu",
+            "itu ",
+            "itr ",
+            "tributo municipal",
+            "tributos municipais",
+            "taxa municipal",
+            "taxas municipais",
+            "divida ativa",
+            "prefeitura",
+            "municipio",
+        )
+    )
+
+
+def _has_municipal_debt_clearance(lower: str) -> bool:
+    return bool(
+        _has_positive_marker(
+            lower,
+            (
+                "cnd municipal",
+                "certidao negativa municipal",
+                "prefeitura emitiu cnd",
+                "consulta oficial sem divida ativa",
+                "sem divida ativa",
+                "nada consta municipal",
+                "quitacao de iptu",
+                "iptu sera quitado",
+                "iptu serao quitados",
+                "iptu e tributos municipais sub-rogam",
+                "tributos municipais sub-rogam",
+                "tributos sub-rogam",
+            ),
+        )
+        or re.search(r"\biptu\b.{0,80}\bsub-?roga", lower)
+        or re.search(r"\bsub-?roga.{0,80}\biptu\b", lower)
+        or re.search(r"\btributos?\b.{0,80}\bsub-?roga", lower)
+        or re.search(r"\bsub-?roga.{0,80}\btributos?\b", lower)
+        or re.search(r"\bprefeitura\b.{0,80}\bcnd\b", lower)
+        or re.search(r"\bcnd\b.{0,80}\bprefeitura\b", lower)
+    )
+
+
+def _mentions_condo_debt(lower: str) -> bool:
+    return "condominio" in lower or "condominial" in lower or "condominiais" in lower
+
+
+def _has_condo_debt_priority(lower: str) -> bool:
+    return bool(
+        _has_positive_marker(
+            lower,
+            (
+                "condominio sera pago",
+                "condominio serao pagos",
+                "condominio sera quitado",
+                "condominio serao quitados",
+                "condominio e iptu serao quitados",
+                "debitos condominiais serao pagos",
+                "debitos condominiais serao quitados",
+                "condominio fica a cargo",
+                "condominio ficam a cargo",
+                "debitos condominiais ficam a cargo",
+                "debitos condominiais a cargo",
+                "extrato condominial",
+                "declaracao do sindico",
+                "produto da arrematacao",
+            ),
+        )
+        or re.search(r"\bcondomini\w*\b.{0,90}\bproduto da arrematacao\b", lower)
+        or re.search(r"\bproduto da arrematacao\b.{0,90}\bcondomini\w*\b", lower)
+    )
+
+
+def _mentions_construction_regularization_debt(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "inss de obra",
+            "inss da obra",
+            "inss de construcao",
+            "cnd de obra",
+            "cnd da obra",
+            "cnd de construcao",
+            "construcao irregular",
+            "obra irregular",
+            "predio irregular",
+            "habite-se",
+            "averbacao de construcao",
+            "regularizacao de obra",
+            "regularizacao da obra",
+            "direitos sobre construcao",
+            "direitos sobre edificacao",
+            "direitos sobre propriedade",
+        )
+    )
+
+
+def _has_construction_regularization_proof(lower: str) -> bool:
+    return _has_positive_marker(
+        lower,
+        (
+            "cnd de obra",
+            "cnd da obra",
+            "cnd de inss",
+            "cnd previdenciaria",
+            "cnd de construcao",
+            "habite-se emitido",
+            "obra averbada",
+            "construcao averbada",
+            "averbada na matricula",
+            "regularizacao aprovada",
+            "regularizacao ja aprovada",
+            "prefeitura aprovou regularizacao",
+            "sem debito de construcao",
+            "nao ha debito de construcao",
+            "sem debito de inss de obra",
+        ),
+    )
+
+
 def _course_antibodies(
     url: str,
     text: str,
@@ -565,6 +1293,63 @@ def _course_antibodies(
     )
     if judicial_like and not any(term in lower for term in post_auction_terms):
         found.append("judicial_post_auction_plan")
+
+    labor_like = auction_like and _is_labor_auction_like(url, lower)
+    if labor_like and not _labor_core_terms_proven(lower, links, minimum_bid):
+        found.append("labor_auction_core_terms_unproven")
+    if labor_like and not _labor_debt_responsibility_proven(lower):
+        found.append("labor_auction_debt_responsibility_unproven")
+    if labor_like and not _labor_payment_terms_proven(lower):
+        found.append("labor_auction_payment_terms_unproven")
+    if labor_like and _labor_multi_asset_lot(lower) and not _labor_unit_sale_proven(lower):
+        found.append("labor_lot_unit_sale_unproven")
+
+    if auction_like and _needs_remote_valuation(lower):
+        if not _has_remote_valuation_triangulation(lower):
+            found.append("remote_valuation_triangulation_unproven")
+        if not _has_streetview_condition_check(lower):
+            found.append("streetview_condition_unchecked")
+
+    if (
+        auction_like
+        and _uses_sensitive_person_investigation(lower)
+        and not _personal_data_minimized(lower)
+    ):
+        found.append("sensitive_person_data_minimization")
+
+    if auction_like and _needs_market_rotation_map(lower) and not _has_market_rotation_map(lower):
+        found.append("market_rotation_map_unproven")
+
+    if (
+        auction_like
+        and _needs_caixa_financing_readiness(lower)
+        and not _has_caixa_financing_readiness(lower)
+    ):
+        found.append("caixa_financing_readiness_unproven")
+
+    if (
+        auction_like
+        and _mentions_property_debt(lower)
+        and not _has_property_debt_priority_proof(lower)
+    ):
+        found.append("property_debt_priority_unproven")
+
+    if (
+        auction_like
+        and _mentions_municipal_debt(lower)
+        and not _has_municipal_debt_clearance(lower)
+    ):
+        found.append("municipal_debt_clearance_unproven")
+
+    if auction_like and _mentions_condo_debt(lower) and not _has_condo_debt_priority(lower):
+        found.append("condo_debt_priority_unproven")
+
+    if (
+        auction_like
+        and _mentions_construction_regularization_debt(lower)
+        and not _has_construction_regularization_proof(lower)
+    ):
+        found.append("construction_regularization_debt_unproven")
 
     fiduciary_like = any(
         marker in lower
@@ -1038,6 +1823,65 @@ def _replace_or_append_clarified(analysis: dict[str, Any], item: dict[str, str])
     analysis["clarified_items"] = clarified
 
 
+DEBT_PENDING_DEFINITIONS: dict[str, dict[str, str]] = {
+    "debt_total": {
+        "title": "Confirmar custo total de debitos",
+        "action": (
+            "Levantar IPTU, condominio, comissao, ITBI, cartorio e responsabilidade por "
+            "debitos antes de calcular margem ou teto de lance."
+        ),
+    },
+    "condo_debt": {
+        "title": "Confirmar divida de condominio",
+        "action": "Levantar valor vencido, limite de responsabilidade e acordo possivel.",
+    },
+    "iptu_debt": {
+        "title": "Confirmar divida de IPTU",
+        "action": "Checar debitos municipais antes de calcular lucro.",
+    },
+}
+
+
+def _append_missing_p0(analysis: dict[str, Any], key: str) -> None:
+    current = analysis.get("pending_items")
+    pending_items = [item for item in current if isinstance(item, dict)] if isinstance(current, list) else []
+    if any(item.get("key") == key for item in pending_items):
+        analysis["pending_items"] = pending_items
+        return
+    definition = DEBT_PENDING_DEFINITIONS[key]
+    pending_items.append(
+        {
+            "key": key,
+            "title": definition["title"],
+            "priority": "P0",
+            "status": "aberta",
+            "action": definition["action"],
+        }
+    )
+    analysis["pending_items"] = pending_items
+
+
+def _restore_partial_debt_pending_items(analysis: dict[str, Any], debts: Any) -> None:
+    if not isinstance(debts, dict) or not debts:
+        return
+    condo_known = bool(
+        debts.get("condo_debt_brl")
+        or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+    )
+    iptu_known = bool(
+        debts.get("iptu_debt_brl")
+        or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+        or debts.get("tax_debts_subrogated_in_bid_price")
+    )
+    total_known = bool(debts.get("action_debt_brl") or (condo_known and iptu_known))
+    if not total_known:
+        _append_missing_p0(analysis, "debt_total")
+    if not condo_known:
+        _append_missing_p0(analysis, "condo_debt")
+    if not iptu_known:
+        _append_missing_p0(analysis, "iptu_debt")
+
+
 def _remove_resolved_pending_items(analysis: dict[str, Any], evidence: dict[str, Any]) -> list[str]:
     pending = analysis.get("pending_items")
     pending_items = [item for item in pending if isinstance(item, dict)] if isinstance(pending, list) else []
@@ -1050,7 +1894,21 @@ def _remove_resolved_pending_items(analysis: dict[str, Any], evidence: dict[str,
         resolved.add("registration")
     debts = evidence.get("debts")
     if isinstance(debts, dict) and debts:
-        resolved.update({"debts", "debt_total", "condo_debt", "iptu_debt"})
+        condo_resolved = bool(
+            debts.get("condo_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+        )
+        iptu_resolved = bool(
+            debts.get("iptu_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+            or debts.get("tax_debts_subrogated_in_bid_price")
+        )
+        if condo_resolved:
+            resolved.add("condo_debt")
+        if iptu_resolved:
+            resolved.add("iptu_debt")
+        if debts.get("action_debt_brl") or (condo_resolved and iptu_resolved):
+            resolved.update({"debts", "debt_total"})
 
     analysis["pending_items"] = [
         item
@@ -1282,10 +2140,19 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
         )
     debts = evidence.get("debts")
     if isinstance(debts, dict) and debts:
-        analysis["condo_debt_known"] = True
-        analysis["iptu_debt_known"] = True
-        candidate["condo_debt_known"] = True
-        candidate["iptu_debt_known"] = True
+        condo_known = bool(
+            debts.get("condo_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+        )
+        iptu_known = bool(
+            debts.get("iptu_debt_brl")
+            or debts.get("seller_pays_condo_iptu_until_possession_transfer")
+            or debts.get("tax_debts_subrogated_in_bid_price")
+        )
+        analysis["condo_debt_known"] = condo_known
+        analysis["iptu_debt_known"] = iptu_known
+        candidate["condo_debt_known"] = condo_known
+        candidate["iptu_debt_known"] = iptu_known
         analysis["debt_evidence"] = debts
         candidate["debt_evidence"] = debts
         detail_parts = []
@@ -1329,6 +2196,7 @@ def apply_evidence_to_row(row: dict[str, Any], evidence: dict[str, Any], checked
             merged_course_antibodies[str(raw_item["key"])] = raw_item
     evidence["course_antibodies"] = list(merged_course_antibodies.values())
 
+    _restore_partial_debt_pending_items(analysis, evidence.get("debts"))
     resolved_keys = _remove_resolved_pending_items(analysis, evidence)
     course_antibody_keys = _append_course_antibodies(analysis, evidence)
     analysis["diligence_result"] = {

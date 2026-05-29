@@ -31,6 +31,26 @@ def test_extracts_primary_evidence_from_frazao_lot_page() -> None:
     assert evidence["minimum_bid_brl"] == 388700.0
 
 
+def test_does_not_reuse_iptu_amount_as_condo_debt_when_condo_is_pending() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento Itaim Bibi</h1>
+      <p>Debitos Condominio: Informacao Pendente.</p>
+      <p>Debitos IPTU/Pref.: R$ 407,11 ate 06/04/2026.</p>
+      <p>Imovel Ocupado. Desocupacao por conta do Arrematante.</p>
+      <p>Matricula 48.136 do 4o CRI de Sao Paulo/SP.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
+        html,
+    )
+
+    assert "condo_debt_brl" not in evidence["debts"]
+    assert evidence["debts"]["iptu_debt_brl"] == 407.11
+
+
 def test_extracts_leilaoimovel_chain_to_edital_and_official_auctioneer() -> None:
     html = """
     <html><body>
@@ -266,6 +286,302 @@ def test_course_antibodies_flag_hybrid_risk_and_presential_proxy_requirement() -
     assert "auction_modality_unclear" not in antibody_keys
 
 
+def test_course_antibodies_flag_labor_auction_specific_risks() -> None:
+    html = """
+    <html><body>
+      <h1>Hasta publica unificada da Justica do Trabalho - TRT 2</h1>
+      <p>Vara do Trabalho de Sao Paulo. Processo 1001234-56.2024.5.02.0001.</p>
+      <p>Lote 12 com sala comercial e equipamentos da executada.</p>
+      <p>Leilao online com cadastro previo no site do leiloeiro.</p>
+      <p>Lance minimo R$ 250.000,00.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.trt2.jus.br/leiloes/hasta-publica-unificada/lote-12",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "labor_auction_core_terms_unproven" in antibody_keys
+    assert "labor_auction_debt_responsibility_unproven" in antibody_keys
+    assert "labor_auction_payment_terms_unproven" in antibody_keys
+    assert "labor_lot_unit_sale_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_complete_labor_auction_terms() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial trabalhista - TRT 2</h1>
+      <p>Vara do Trabalho de Sao Paulo. Processo 1001234-56.2024.5.02.0001.</p>
+      <p>Lote 12 - Matricula 81.237 do 13o CRI de Sao Paulo/SP.</p>
+      <p>Avaliacao R$ 500.000,00. Lance minimo R$ 250.000,00.</p>
+      <p>IPTU sub-roga no preco da arrematacao conforme artigo 130 do CTN.</p>
+      <p>Condominio e demais debitos ficam a cargo do arrematante.</p>
+      <p>Comissao do leiloeiro de 5%, sinal de 20% e deposito judicial do saldo em 24 horas.</p>
+      <p>Leilao online com cadastro previo, habilitacao e encerramento com prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.trt2.jus.br/leiloes/hasta-publica-unificada/lote-12",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "labor_auction_core_terms_unproven" not in antibody_keys
+    assert "labor_auction_debt_responsibility_unproven" not in antibody_keys
+    assert "labor_auction_payment_terms_unproven" not in antibody_keys
+    assert "labor_lot_unit_sale_unproven" not in antibody_keys
+
+
+def test_course_antibodies_flag_remote_valuation_and_streetview_gaps() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - apartamento em Pinheiros</h1>
+      <p>Lance minimo R$ 520.000,00.</p>
+      <p>Valor de mercado estimado em R$ 780.000,00 e saida projetada em R$ 720.000,00.</p>
+      <p>A tese usa um anuncio avulso como referencia de preco.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "remote_valuation_triangulation_unproven" in antibody_keys
+    assert "streetview_condition_unchecked" in antibody_keys
+
+
+def test_course_antibodies_respect_triangulated_remote_valuation() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - apartamento em Pinheiros</h1>
+      <p>Lance minimo R$ 520.000,00.</p>
+      <p>Valor de mercado validado por Viva Real, DataZap e comparaveis do mesmo condominio.</p>
+      <p>Google Street View confirma fachada, entorno, conservacao da rua e acesso.</p>
+      <p>Matricula atualizada e certidao de onus foram abertas no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "remote_valuation_triangulation_unproven" not in antibody_keys
+    assert "streetview_condition_unchecked" not in antibody_keys
+
+
+def test_course_antibodies_flag_sensitive_person_data_review() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - casa em Campinas</h1>
+      <p>Lance minimo R$ 450.000,00. Valor de mercado validado por DataZap e Viva Real.</p>
+      <p>Investigacao por Procob, Consulta Facil, CPF do executado, telefones, parentes e Facebook.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "sensitive_person_data_minimization" in antibody_keys
+
+
+def test_course_antibodies_respect_public_source_minimization() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - casa em Campinas</h1>
+      <p>Lance minimo R$ 450.000,00. Valor de mercado validado por DataZap e Viva Real.</p>
+      <p>Facebook e telefone foram citados apenas como fontes publicas permitidas.</p>
+      <p>LGPD aplicada: nao armazenar CPF, telefone ou dado pessoal bruto; registrar apenas conclusao operacional.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "sensitive_person_data_minimization" not in antibody_keys
+
+
+def test_course_antibodies_flag_missing_market_selection_map() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento em Vila Mariana</h1>
+      <p>Lance minimo R$ 510.000,00.</p>
+      <p>A tese projeta revenda em 3 meses, lucro de 35% e diz que e uma das melhores ofertas.</p>
+      <p>Valor de mercado validado por Viva Real, DataZap e comparaveis do mesmo condominio.</p>
+      <p>Google Street View confirma fachada, entorno, conservacao da rua e acesso.</p>
+      <p>Matricula atualizada e certidao de onus foram abertas no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-vila-mariana",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "market_rotation_map_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_market_selection_map() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento em Vila Mariana</h1>
+      <p>Lance minimo R$ 510.000,00.</p>
+      <p>Revenda em 3 meses validada no mapa do investimento.</p>
+      <p>Bairro e microregiao conhecidos, condominio com rotatividade alta e ultimo imovel vendido em 45 dias.</p>
+      <p>Corretor local e imobiliarias pequenas confirmaram demanda e preco de saida.</p>
+      <p>Valor de mercado validado por Viva Real, DataZap e comparaveis do mesmo condominio.</p>
+      <p>Google Street View confirma fachada, entorno, conservacao da rua e acesso.</p>
+      <p>Matricula atualizada e certidao de onus foram abertas no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-vila-mariana",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "market_rotation_map_unproven" not in antibody_keys
+
+
+def test_course_antibodies_flag_caixa_financing_readiness_gap() -> None:
+    html = """
+    <html><body>
+      <h1>Imovel Caixa em venda direta online</h1>
+      <p>Casa retomada da Caixa com venda direta, FGTS e financiamento.</p>
+      <p>E uma tese para arrematar sem dinheiro, com pouca entrada e credito bancario.</p>
+      <p>Valor de mercado validado por DataZap, Viva Real e comparaveis do mesmo bairro.</p>
+      <p>Google Maps confirma fachada, entorno e acesso. Matricula atualizada aberta no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnImovel=123",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "caixa_financing_readiness_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_caixa_financing_readiness() -> None:
+    html = """
+    <html><body>
+      <h1>Imovel Caixa em venda direta online</h1>
+      <p>Casa retomada da Caixa com venda direta, FGTS e financiamento permitidos pela regra oficial.</p>
+      <p>Credito pre-aprovado, simulacao aprovada, FGTS confirmado e entrada reservada.</p>
+      <p>Valor de mercado validado por DataZap, Viva Real e comparaveis do mesmo bairro.</p>
+      <p>Google Maps confirma fachada, entorno e acesso. Matricula atualizada aberta no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnImovel=123",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "caixa_financing_readiness_unproven" not in antibody_keys
+
+
+def test_course_antibodies_flag_property_debt_priority_gaps() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial online - apartamento em Pinheiros</h1>
+      <p>Processo 1001234-56.2024.8.26.0100. Lance minimo R$ 520.000,00.</p>
+      <p>Ha debitos de IPTU e ITU em aberto, divida ativa municipal, saldo de financiamento e debitos condominiais.</p>
+      <p>O edital nao informa prioridade, sub-rogacao, concurso de credores ou quem paga os debitos.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "property_debt_priority_unproven" in antibody_keys
+    assert "municipal_debt_clearance_unproven" in antibody_keys
+    assert "condo_debt_priority_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_property_debt_priority_proofs() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial online - apartamento em Pinheiros</h1>
+      <p>Processo 1001234-56.2024.8.26.0100. Lance minimo R$ 520.000,00.</p>
+      <p>Edital oficial: IPTU, ITU e tributos municipais sub-rogam no preco da arrematacao conforme art. 130 do CTN.</p>
+      <p>Condominio sera pago com o produto da arrematacao, antes da expedicao da carta.</p>
+      <p>Prefeitura emitiu CND municipal atualizada e consulta oficial sem divida ativa remanescente.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-pinheiros",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "property_debt_priority_unproven" not in antibody_keys
+    assert "municipal_debt_clearance_unproven" not in antibody_keys
+    assert "condo_debt_priority_unproven" not in antibody_keys
+
+
+def test_course_antibodies_flag_construction_regularization_debt_gap() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - direitos sobre casa em Campinas</h1>
+      <p>Processo 1001234-56.2024.8.26.0114. Lance minimo R$ 430.000,00.</p>
+      <p>Venda de direitos sobre propriedade com construcao irregular e possivel debito de INSS de obra.</p>
+      <p>Sem CND de construcao, sem habite-se e sem plano de regularizacao aprovado.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "construction_regularization_debt_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_construction_regularization_proof() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao online - casa regularizada em Campinas</h1>
+      <p>Processo 1001234-56.2024.8.26.0114. Lance minimo R$ 430.000,00.</p>
+      <p>Obra averbada na matricula, habite-se emitido e CND de obra/INSS atualizada.</p>
+      <p>Prefeitura aprovou regularizacao e nao ha debito de construcao remanescente.</p>
+      <p>Participacao online com encerramento e prorrogacao por novo lance.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/casa-campinas",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "construction_regularization_debt_unproven" not in antibody_keys
+
+
 def test_market_registration_text_does_not_trigger_execution_antibodies() -> None:
     html = """
     <html><body>
@@ -354,6 +670,128 @@ def test_active_diligence_removes_stale_course_antibodies_when_chain_is_proven(t
     assert "fiduciary_chain_unproven" not in pending
     assert "eviction_risk" in pending
     assert analysis["diligence_result"]["course_antibodies"] == []
+
+
+def test_active_diligence_keeps_condo_and_total_debt_p0_when_only_iptu_is_known(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    source_url = "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 3986,
+                        "thesis_id": "IM-RADAR-TARGET-ITA-02",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": source_url,
+                        "real_estate_analysis": {
+                            "suggested_status": "Aberto com pendencias",
+                            "next_action": "Confirmar custo total de debitos",
+                            "pending_items": [
+                                {"key": "debt_total", "title": "Confirmar custo total de debitos", "priority": "P0", "status": "aberta"},
+                                {"key": "condo_debt", "title": "Confirmar divida de condominio", "priority": "P0", "status": "aberta"},
+                                {"key": "iptu_debt", "title": "Confirmar divida de IPTU", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    html_by_url = {
+        source_url: """
+        <html><body>
+          <p>Leilao judicial. Processo 0121306-46.2008.8.26.0004.</p>
+          <p>Debitos Condominio: Informacao Pendente.</p>
+          <p>Debitos IPTU/Pref.: R$ 407,11 ate 06/04/2026.</p>
+          <p>Matricula 48.136 do 4o CRI de Sao Paulo/SP.</p>
+        </body></html>
+        """,
+    }
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: html_by_url[url],
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    analysis = updated["thesis_open_operations"][0]["real_estate_analysis"]
+    pending = {item["key"]: item for item in analysis["pending_items"]}
+
+    assert "iptu_debt" not in pending
+    assert "condo_debt" in pending
+    assert "debt_total" in pending
+    assert {"debt_total", "condo_debt"} <= set(analysis["diligence_result"]["remaining_p0_keys"])
+
+
+def test_active_diligence_restores_missing_condo_and_total_debt_p0_after_partial_iptu_evidence(tmp_path: Path) -> None:
+    seed_path = tmp_path / "dashboard_seed.json"
+    report_json = tmp_path / "diligence.json"
+    report_md = tmp_path / "diligence.md"
+    source_url = "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
+    seed_path.write_text(
+        json.dumps(
+            {
+                "thesis_open_operations": [
+                    {
+                        "thesis_number": 3986,
+                        "thesis_id": "IM-RADAR-TARGET-ITA-02",
+                        "front": "imoveis",
+                        "is_open": True,
+                        "status": "Aberta - Atencao",
+                        "outcome": "Pendencias abertas",
+                        "source_url": source_url,
+                        "real_estate_analysis": {
+                            "suggested_status": "Aberto com pendencias",
+                            "next_action": "Validar valor de saida",
+                            "pending_items": [
+                                {"key": "exit_value_validation", "title": "Validar valor de saida", "priority": "P0", "status": "aberta"},
+                            ],
+                            "clarified_items": [],
+                            "candidate": {},
+                        },
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    html_by_url = {
+        source_url: """
+        <html><body>
+          <p>Debitos Condominio: Informacao Pendente.</p>
+          <p>Debitos IPTU/Pref.: R$ 407,11 ate 06/04/2026.</p>
+          <p>Matricula 48.136 do 4o CRI de Sao Paulo/SP.</p>
+        </body></html>
+        """,
+    }
+
+    diligence.run_active_diligence(
+        seed_path=seed_path,
+        report_json_path=report_json,
+        report_md_path=report_md,
+        fetcher=lambda url: html_by_url[url],
+    )
+
+    updated = json.loads(seed_path.read_text(encoding="utf-8"))
+    analysis = updated["thesis_open_operations"][0]["real_estate_analysis"]
+    pending = {item["key"]: item for item in analysis["pending_items"]}
+
+    assert "iptu_debt" not in pending
+    assert pending["condo_debt"]["priority"] == "P0"
+    assert pending["debt_total"]["priority"] == "P0"
 
 
 def test_applies_course_antibodies_to_active_seed(tmp_path: Path) -> None:

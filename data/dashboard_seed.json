@@ -80448,7 +80448,7 @@
       "source_validation": {
         "status": "valid",
         "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-        "checked_at": "2026-05-28T23:45:18+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.webleiloes.com.br",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
         "official_url": "https://www.webleiloes.com.br",
@@ -80458,7 +80458,7 @@
       },
       "source_validation_status": "valid",
       "source_validation_reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-      "source_checked_at": "2026-05-28T23:45:18+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "REAL TARGET - Pinheiros Capote Valente 33m 1q",
       "action": "REAL TARGET - Pinheiros Capote Valente 33m 1q",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Capote Valente, 134. Score 65/100, confianca 43/100.",
@@ -80657,6 +80657,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -80695,7 +80709,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "fiduciary_chain_unproven, auction_modality_unclear"
+            "detail": "remote_valuation_triangulation_unproven, streetview_condition_unchecked, fiduciary_chain_unproven, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -80772,7 +80786,7 @@
         "source_validation": {
           "status": "valid",
           "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-          "checked_at": "2026-05-28T23:45:18+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.webleiloes.com.br",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
           "official_url": "https://www.webleiloes.com.br",
@@ -80817,7 +80831,7 @@
           "source_validation": {
             "status": "valid",
             "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-            "checked_at": "2026-05-28T23:45:18+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.webleiloes.com.br",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
             "official_url": "https://www.webleiloes.com.br",
@@ -80850,7 +80864,7 @@
         },
         "has_edital": true,
         "diligence_result": {
-          "checked_at": "2026-05-28T23:45:18+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "validado",
           "resolved_p0_keys": [
             "condo_debt",
@@ -80863,6 +80877,8 @@
             "source_validation"
           ],
           "course_antibodies": [
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
             "fiduciary_chain_unproven",
             "auction_modality_unclear"
           ],
@@ -80870,7 +80886,8 @@
             "occupancy",
             "exit_value_validation",
             "fiduciary_chain_unproven",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "validado",
@@ -80896,6 +80913,20 @@
             },
             "minimum_bid_brl": 339845.69,
             "course_antibodies": [
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
               {
                 "key": "fiduciary_chain_unproven",
                 "title": "Provar cadeia fiduciaria",
@@ -82531,7 +82562,7 @@
       "source_validation": {
         "status": "ambiguous",
         "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
         "aggregator_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
         "official_url": "",
@@ -82541,7 +82572,7 @@
       },
       "source_validation_status": "ambiguous",
       "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "REAL TARGET - Perdizes Caiowaa lote alto risco",
       "action": "REAL TARGET - Perdizes Caiowaa lote alto risco",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Perdizes / Rua Caiowaa, 117. Score 48/100, confianca 13/100.",
@@ -82789,6 +82820,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -82812,7 +82857,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "judicial_process_access, judicial_post_auction_plan, failed_auction_liquidity_alert, auction_modality_unclear"
+            "detail": "judicial_process_access, judicial_post_auction_plan, remote_valuation_triangulation_unproven, streetview_condition_unchecked, failed_auction_liquidity_alert, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -82888,7 +82933,7 @@
         "source_validation": {
           "status": "ambiguous",
           "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
           "aggregator_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
           "official_url": "",
@@ -82933,7 +82978,7 @@
           "source_validation": {
             "status": "ambiguous",
             "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
             "aggregator_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
             "official_url": "",
@@ -82952,7 +82997,7 @@
           "condo_debt_brl": 307936.39
         },
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "ambiguo",
           "resolved_p0_keys": [
             "condo_debt",
@@ -82963,6 +83008,8 @@
           "course_antibodies": [
             "judicial_process_access",
             "judicial_post_auction_plan",
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
             "failed_auction_liquidity_alert",
             "auction_modality_unclear"
           ],
@@ -82973,7 +83020,8 @@
             "exit_value_validation",
             "judicial_process_access",
             "judicial_post_auction_plan",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "ambiguo",
@@ -83005,6 +83053,20 @@
                 "priority": "P0",
                 "status": "aberta",
                 "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
+              },
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
               },
               {
                 "key": "failed_auction_liquidity_alert",
@@ -83042,7 +83104,7 @@
       "source_validation": {
         "status": "valid",
         "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://venda-imoveis.caixa.gov.br",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
         "official_url": "https://venda-imoveis.caixa.gov.br",
@@ -83052,7 +83114,7 @@
       },
       "source_validation_status": "valid",
       "source_validation_reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "REAL TARGET - Campo Belo Viaza 78m Caixa",
       "action": "REAL TARGET - Campo Belo Viaza 78m Caixa",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Campo Belo / Rua Viaza, 975. Score 64/100, confianca 58/100.",
@@ -83265,6 +83327,34 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+          },
+          {
+            "key": "property_debt_priority_unproven",
+            "title": "Provar prioridade dos debitos do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou responsabilidade do arrematante antes de tratar a margem como real."
+          },
+          {
+            "key": "condo_debt_priority_unproven",
+            "title": "Provar responsabilidade condominial",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Confirmar no edital, processo, condominio ou leiloeiro se debitos condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor ou assumidos pelo arrematante."
           }
         ],
         "clarified_items": [
@@ -83304,7 +83394,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "caixa_debt_regularization_proof, auction_modality_unclear"
+            "detail": "remote_valuation_triangulation_unproven, streetview_condition_unchecked, property_debt_priority_unproven, condo_debt_priority_unproven, caixa_debt_regularization_proof, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -83381,7 +83471,7 @@
         "source_validation": {
           "status": "valid",
           "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://venda-imoveis.caixa.gov.br",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
           "official_url": "https://venda-imoveis.caixa.gov.br",
@@ -83426,7 +83516,7 @@
           "source_validation": {
             "status": "valid",
             "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://venda-imoveis.caixa.gov.br",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
             "official_url": "https://venda-imoveis.caixa.gov.br",
@@ -83447,7 +83537,7 @@
         },
         "has_edital": true,
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "validado",
           "resolved_p0_keys": [
             "edital",
@@ -83456,6 +83546,10 @@
             "source_validation"
           ],
           "course_antibodies": [
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
+            "property_debt_priority_unproven",
+            "condo_debt_priority_unproven",
             "caixa_debt_regularization_proof",
             "auction_modality_unclear"
           ],
@@ -83465,7 +83559,10 @@
             "iptu_debt",
             "exit_value_validation",
             "caixa_debt_regularization_proof",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven",
+            "property_debt_priority_unproven",
+            "condo_debt_priority_unproven"
           ],
           "evidence": {
             "status": "validado",
@@ -83488,6 +83585,34 @@
             "debts": {},
             "minimum_bid_brl": 793000.0,
             "course_antibodies": [
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
+              {
+                "key": "property_debt_priority_unproven",
+                "title": "Provar prioridade dos debitos do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou responsabilidade do arrematante antes de tratar a margem como real."
+              },
+              {
+                "key": "condo_debt_priority_unproven",
+                "title": "Provar responsabilidade condominial",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Confirmar no edital, processo, condominio ou leiloeiro se debitos condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor ou assumidos pelo arrematante."
+              },
               {
                 "key": "caixa_debt_regularization_proof",
                 "title": "Provar regra Caixa para debitos",
@@ -83978,7 +84103,7 @@
       "source_validation": {
         "status": "valid",
         "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.vendasjudiciais.com.br",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
         "official_url": "https://www.vendasjudiciais.com.br",
@@ -83988,7 +84113,7 @@
       },
       "source_validation_status": "valid",
       "source_validation_reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "REAL TARGET - Campo Belo Vieira de Morais 96m",
       "action": "REAL TARGET - Campo Belo Vieira de Morais 96m",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Campo Belo / Rua Vieira de Morais, 601. Score 62/100, confianca 43/100.",
@@ -84215,6 +84340,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -84248,7 +84387,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "judicial_process_access, judicial_post_auction_plan, auction_modality_unclear"
+            "detail": "judicial_process_access, judicial_post_auction_plan, remote_valuation_triangulation_unproven, streetview_condition_unchecked, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -84325,7 +84464,7 @@
         "source_validation": {
           "status": "valid",
           "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.vendasjudiciais.com.br",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
           "official_url": "https://www.vendasjudiciais.com.br",
@@ -84370,7 +84509,7 @@
           "source_validation": {
             "status": "valid",
             "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.vendasjudiciais.com.br",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
             "official_url": "https://www.vendasjudiciais.com.br",
@@ -84391,7 +84530,7 @@
         },
         "has_edital": true,
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "validado",
           "resolved_p0_keys": [
             "edital",
@@ -84402,6 +84541,8 @@
           "course_antibodies": [
             "judicial_process_access",
             "judicial_post_auction_plan",
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
             "auction_modality_unclear"
           ],
           "remaining_p0_keys": [
@@ -84412,7 +84553,8 @@
             "exit_value_validation",
             "judicial_process_access",
             "judicial_post_auction_plan",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "validado",
@@ -84448,6 +84590,20 @@
                 "priority": "P0",
                 "status": "aberta",
                 "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
+              },
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
               },
               {
                 "key": "auction_modality_unclear",
@@ -84869,7 +85025,7 @@
       "source_validation": {
         "status": "ambiguous",
         "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
         "official_url": "",
@@ -84879,7 +85035,7 @@
       },
       "source_validation_status": "ambiguous",
       "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "REAL TARGET - Itaim Bibi Joaquim Floriano 76m",
       "action": "REAL TARGET - Itaim Bibi Joaquim Floriano 76m",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Itaim Bibi / Rua Joaquim Floriano, 892. Score 59/100, confianca 58/100.",
@@ -85099,6 +85255,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -85135,7 +85305,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "auction_modality_unclear"
+            "detail": "remote_valuation_triangulation_unproven, streetview_condition_unchecked, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -85212,7 +85382,7 @@
         "source_validation": {
           "status": "ambiguous",
           "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
           "official_url": "",
@@ -85258,7 +85428,7 @@
           "source_validation": {
             "status": "ambiguous",
             "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
             "official_url": "",
@@ -85269,10 +85439,12 @@
         },
         "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "ambiguo",
           "resolved_p0_keys": [],
           "course_antibodies": [
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
             "auction_modality_unclear"
           ],
           "remaining_p0_keys": [
@@ -85281,7 +85453,8 @@
             "condo_debt",
             "iptu_debt",
             "exit_value_validation",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "ambiguo",
@@ -85298,6 +85471,20 @@
             "debts": {},
             "minimum_bid_brl": null,
             "course_antibodies": [
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
               {
                 "key": "auction_modality_unclear",
                 "title": "Provar modalidade operacional do leilao",
@@ -85327,7 +85514,7 @@
       "source_validation": {
         "status": "ambiguous",
         "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
         "official_url": "",
@@ -85337,7 +85524,7 @@
       },
       "source_validation_status": "ambiguous",
       "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "REAL TARGET - Paraiso Abilio Soares 101m",
       "action": "REAL TARGET - Paraiso Abilio Soares 101m",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Paraiso / Rua Abilio Soares, 639. Score 62/100, confianca 43/100.",
@@ -85571,6 +85758,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -85601,7 +85802,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "judicial_process_access, judicial_post_auction_plan, auction_modality_unclear"
+            "detail": "judicial_process_access, judicial_post_auction_plan, remote_valuation_triangulation_unproven, streetview_condition_unchecked, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -85678,7 +85879,7 @@
         "source_validation": {
           "status": "ambiguous",
           "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
           "official_url": "",
@@ -85723,7 +85924,7 @@
           "source_validation": {
             "status": "ambiguous",
             "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
             "official_url": "",
@@ -85734,12 +85935,14 @@
         },
         "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "ambiguo",
           "resolved_p0_keys": [],
           "course_antibodies": [
             "judicial_process_access",
             "judicial_post_auction_plan",
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
             "auction_modality_unclear"
           ],
           "remaining_p0_keys": [
@@ -85751,7 +85954,8 @@
             "exit_value_validation",
             "judicial_process_access",
             "judicial_post_auction_plan",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "ambiguo",
@@ -85783,6 +85987,20 @@
                 "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
               },
               {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
+              {
                 "key": "auction_modality_unclear",
                 "title": "Provar modalidade operacional do leilao",
                 "priority": "P0",
@@ -85811,7 +86029,7 @@
       "source_validation": {
         "status": "ambiguous",
         "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
         "official_url": "",
@@ -85821,7 +86039,7 @@
       },
       "source_validation_status": "ambiguous",
       "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "REAL TARGET - Paraiso Rafael de Barros 120m",
       "action": "REAL TARGET - Paraiso Rafael de Barros 120m",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Paraiso / Rua Rafael de Barros, 174. Score 49/100, confianca 28/100.",
@@ -86069,6 +86287,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -86093,7 +86325,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "judicial_process_access, judicial_post_auction_plan, auction_modality_unclear"
+            "detail": "judicial_process_access, judicial_post_auction_plan, remote_valuation_triangulation_unproven, streetview_condition_unchecked, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -86170,7 +86402,7 @@
         "source_validation": {
           "status": "ambiguous",
           "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
           "official_url": "",
@@ -86215,7 +86447,7 @@
           "source_validation": {
             "status": "ambiguous",
             "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
             "official_url": "",
@@ -86226,12 +86458,14 @@
         },
         "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "ambiguo",
           "resolved_p0_keys": [],
           "course_antibodies": [
             "judicial_process_access",
             "judicial_post_auction_plan",
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
             "auction_modality_unclear"
           ],
           "remaining_p0_keys": [
@@ -86244,7 +86478,8 @@
             "exit_value_validation",
             "judicial_process_access",
             "judicial_post_auction_plan",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "ambiguo",
@@ -86274,6 +86509,20 @@
                 "priority": "P0",
                 "status": "aberta",
                 "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
+              },
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
               },
               {
                 "key": "auction_modality_unclear",
@@ -87469,7 +87718,7 @@
       "source_validation": {
         "status": "ambiguous",
         "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997",
         "official_url": "",
@@ -87479,7 +87728,7 @@
       },
       "source_validation_status": "ambiguous",
       "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "Sao Paulo / Perdizes / Rua Ministro Godoy / Entrada 615K Saida 950K",
       "action": "Sao Paulo / Perdizes / Rua Ministro Godoy / Entrada 615K Saida 950K",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Perdizes / Rua Ministro Godoy, 478. Score 54/100, confianca 43/100.",
@@ -87727,6 +87976,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -87757,7 +88020,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "judicial_process_access, judicial_post_auction_plan, auction_modality_unclear"
+            "detail": "auction_modality_unclear, judicial_process_access, judicial_post_auction_plan, remote_valuation_triangulation_unproven, streetview_condition_unchecked"
           }
         ],
         "scenarios": {
@@ -87834,7 +88097,7 @@
         "source_validation": {
           "status": "ambiguous",
           "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997",
           "official_url": "",
@@ -87880,7 +88143,7 @@
           "source_validation": {
             "status": "ambiguous",
             "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997",
             "official_url": "",
@@ -87891,13 +88154,15 @@
         },
         "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "ambiguo",
           "resolved_p0_keys": [],
           "course_antibodies": [
+            "auction_modality_unclear",
             "judicial_process_access",
             "judicial_post_auction_plan",
-            "auction_modality_unclear"
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked"
           ],
           "remaining_p0_keys": [
             "source_validation",
@@ -87908,7 +88173,8 @@
             "exit_value_validation",
             "judicial_process_access",
             "judicial_post_auction_plan",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "ambiguo",
@@ -87926,6 +88192,13 @@
             "minimum_bid_brl": null,
             "course_antibodies": [
               {
+                "key": "auction_modality_unclear",
+                "title": "Provar modalidade operacional do leilao",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+              },
+              {
                 "key": "judicial_process_access",
                 "title": "Abrir processo judicial/autos",
                 "priority": "P0",
@@ -87940,11 +88213,18 @@
                 "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
               },
               {
-                "key": "auction_modality_unclear",
-                "title": "Provar modalidade operacional do leilao",
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
                 "priority": "P0",
                 "status": "aberta",
-                "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
               }
             ],
             "attempted_paths": [
@@ -87953,7 +88233,7 @@
               "ler texto publico da pagina",
               "extrair ocupacao, matricula e debitos"
             ],
-            "text_excerpt": "Leilão de imóveis em São Paulo/SP. Apartamentos, casas, terrenos, imóveis rurais e comerciais com até 99% de desconto - Leilão Imóvel Parceiro search Imóveis Caixa Financiamento Leiloeiros Parceiros Creci Fale Conosco download Planilha Caixa Login Cadastre-se Login Cadastre-se Login Cadastre-se Filtros Localidade Selecione as localidades Selecione o bairro Tipos de imóvel Agência (22) Apartamento (18952) Área Industrial (130) Área Rural (1993) Casa (13911) Comercial (1993) Galpão (269) Garagem (232) Não Identificado (103) Outros (1522) Terreno (5354) Preço Desconto (%) Forma de Pagamento FGTS(21127) Financiamento(2976) Imóveis Caixa Compra Direta (19945) Leilão SFI Caixa (5051) Licitação Aberta Caixa (1009) Venda Online (999) Imóveis Caixa - Débito Condomínio Arrematante Paga (5051) Arrematante paga até 10% da avaliação (21953) Modalidade Comprei PGFN (2194) Extrajudicial (3808) Judicial"
+            "text_excerpt": "Just a moment... Enable JavaScript and cookies to continue"
           }
         }
       }
@@ -87968,7 +88248,7 @@
       "source_validation": {
         "status": "ambiguous",
         "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
         "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
         "official_url": "",
@@ -87978,7 +88258,7 @@
       },
       "source_validation_status": "ambiguous",
       "source_validation_reason": "Investigador ainda nao comprovou a cadeia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "Sao Paulo / Campo Belo / Rua Sebastiao Paes / Entrada 315K Saida 700K",
       "action": "Sao Paulo / Campo Belo / Rua Sebastiao Paes / Entrada 315K Saida 700K",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Campo Belo / Rua Sebastiao Paes, 389. Score 52/100, confianca 40/100.",
@@ -88219,6 +88499,20 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
           }
         ],
         "clarified_items": [
@@ -88243,7 +88537,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "auction_modality_unclear"
+            "detail": "auction_modality_unclear, remote_valuation_triangulation_unproven, streetview_condition_unchecked"
           }
         ],
         "scenarios": {
@@ -88320,7 +88614,7 @@
         "source_validation": {
           "status": "ambiguous",
           "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
           "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
           "official_url": "",
@@ -88365,7 +88659,7 @@
           "source_validation": {
             "status": "ambiguous",
             "reason": "Investigador ainda nao comprovou a cadeia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
             "aggregator_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
             "official_url": "",
@@ -88376,11 +88670,13 @@
         },
         "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "ambiguo",
           "resolved_p0_keys": [],
           "course_antibodies": [
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked"
           ],
           "remaining_p0_keys": [
             "source_validation",
@@ -88390,7 +88686,8 @@
             "condo_debt",
             "iptu_debt",
             "exit_value_validation",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven"
           ],
           "evidence": {
             "status": "ambiguo",
@@ -88413,6 +88710,20 @@
                 "priority": "P0",
                 "status": "aberta",
                 "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+              },
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
               }
             ],
             "attempted_paths": [
@@ -88421,7 +88732,7 @@
               "ler texto publico da pagina",
               "extrair ocupacao, matricula e debitos"
             ],
-            "text_excerpt": "Leilão de imóveis em São Paulo/SP. Apartamentos, casas, terrenos, imóveis rurais e comerciais com até 99% de desconto - Leilão Imóvel Parceiro search Imóveis Caixa Financiamento Leiloeiros Parceiros Creci Fale Conosco download Planilha Caixa Login Cadastre-se Login Cadastre-se Login Cadastre-se Filtros Localidade Selecione as localidades Selecione o bairro Tipos de imóvel Agência (22) Apartamento (18952) Área Industrial (130) Área Rural (1993) Casa (13911) Comercial (1993) Galpão (269) Garagem (232) Não Identificado (103) Outros (1522) Terreno (5354) Preço Desconto (%) Forma de Pagamento FGTS(21127) Financiamento(2976) Imóveis Caixa Compra Direta (19945) Leilão SFI Caixa (5051) Licitação Aberta Caixa (1009) Venda Online (999) Imóveis Caixa - Débito Condomínio Arrematante Paga (5051) Arrematante paga até 10% da avaliação (21953) Modalidade Comprei PGFN (2194) Extrajudicial (3808) Judicial"
+            "text_excerpt": "Just a moment... Enable JavaScript and cookies to continue"
           }
         }
       }
@@ -88436,7 +88747,7 @@
       "source_validation": {
         "status": "valid",
         "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
         "aggregator_url": "",
         "official_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
@@ -88446,7 +88757,7 @@
       },
       "source_validation_status": "valid",
       "source_validation_reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "Sao Paulo / Itaim Bibi / Rua Bandeira Paulista / Entrada 1.240M Saida 1.771M",
       "action": "Sao Paulo / Itaim Bibi / Rua Bandeira Paulista / Entrada 1.240M Saida 1.771M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Itaim Bibi / Rua Bandeira Paulista, 292. Score 53/100, confianca 58/100.",
@@ -88652,6 +88963,41 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+          },
+          {
+            "key": "property_debt_priority_unproven",
+            "title": "Provar prioridade dos debitos do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou responsabilidade do arrematante antes de tratar a margem como real."
+          },
+          {
+            "key": "municipal_debt_clearance_unproven",
+            "title": "Provar baixa de debitos municipais",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Abrir prefeitura/CND/consulta oficial ou clausula expressa do edital para confirmar IPTU, ITU, ITR, divida ativa e taxas municipais remanescentes."
+          },
+          {
+            "key": "condo_debt_priority_unproven",
+            "title": "Provar responsabilidade condominial",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Confirmar no edital, processo, condominio ou leiloeiro se debitos condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor ou assumidos pelo arrematante."
           }
         ],
         "clarified_items": [
@@ -88701,7 +89047,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "judicial_process_access, judicial_post_auction_plan, auction_modality_unclear"
+            "detail": "judicial_process_access, judicial_post_auction_plan, remote_valuation_triangulation_unproven, streetview_condition_unchecked, property_debt_priority_unproven, municipal_debt_clearance_unproven, condo_debt_priority_unproven, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -88782,7 +89128,7 @@
         "source_validation": {
           "status": "valid",
           "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
           "aggregator_url": "",
           "official_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
@@ -88830,7 +89176,7 @@
           "source_validation": {
             "status": "valid",
             "reason": "Investigador abriu a cadeia publica e extraiu evidencia primaria.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
             "aggregator_url": "",
             "official_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
@@ -88862,7 +89208,7 @@
         },
         "has_edital": true,
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "validado",
           "resolved_p0_keys": [
             "condo_debt",
@@ -88880,13 +89226,22 @@
           "course_antibodies": [
             "judicial_process_access",
             "judicial_post_auction_plan",
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
+            "property_debt_priority_unproven",
+            "municipal_debt_clearance_unproven",
+            "condo_debt_priority_unproven",
             "auction_modality_unclear"
           ],
           "remaining_p0_keys": [
             "exit_value_validation",
             "judicial_post_auction_plan",
             "judicial_process_access",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven",
+            "property_debt_priority_unproven",
+            "municipal_debt_clearance_unproven",
+            "condo_debt_priority_unproven"
           ],
           "evidence": {
             "status": "validado",
@@ -88924,6 +89279,41 @@
                 "priority": "P0",
                 "status": "aberta",
                 "action": "Validar auto de arrematacao, homologacao/assinaturas, carta, registro e imissao/posse antes de proposta."
+              },
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
+              {
+                "key": "property_debt_priority_unproven",
+                "title": "Provar prioridade dos debitos do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou responsabilidade do arrematante antes de tratar a margem como real."
+              },
+              {
+                "key": "municipal_debt_clearance_unproven",
+                "title": "Provar baixa de debitos municipais",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Abrir prefeitura/CND/consulta oficial ou clausula expressa do edital para confirmar IPTU, ITU, ITR, divida ativa e taxas municipais remanescentes."
+              },
+              {
+                "key": "condo_debt_priority_unproven",
+                "title": "Provar responsabilidade condominial",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Confirmar no edital, processo, condominio ou leiloeiro se debitos condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor ou assumidos pelo arrematante."
               },
               {
                 "key": "auction_modality_unclear",
@@ -89349,7 +89739,7 @@
       "source_validation": {
         "status": "valid",
         "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital, matricula 22.175 e consolidacao da propriedade analisados.",
-        "checked_at": "2026-05-28T23:32:33+00:00",
+        "checked_at": "2026-05-29T01:47:00+00:00",
         "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
         "aggregator_url": "",
         "official_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
@@ -89359,7 +89749,7 @@
       },
       "source_validation_status": "valid",
       "source_validation_reason": "Fonte oficial Zuk/Banco Bradesco validada; edital, matricula 22.175 e consolidacao da propriedade analisados.",
-      "source_checked_at": "2026-05-28T23:32:33+00:00",
+      "source_checked_at": "2026-05-29T01:47:00+00:00",
       "asset": "Sao Paulo / Pinheiros / Rua Padre Carvalho Casa 5 / Entrada 1.611M Saida 2.955M",
       "action": "Sao Paulo / Pinheiros / Rua Padre Carvalho Casa 5 / Entrada 1.611M Saida 2.955M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Padre Carvalho, 129 - Casa 5. Score 70/100, confianca 83/100.",
@@ -89544,6 +89934,41 @@
             "priority": "P0",
             "status": "aberta",
             "action": "Confirmar em edital, leiloeiro ou plataforma se a participacao e presencial, online ou hibrida antes de classificar como acionavel."
+          },
+          {
+            "key": "remote_valuation_triangulation_unproven",
+            "title": "Triangular valor remoto do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+          },
+          {
+            "key": "streetview_condition_unchecked",
+            "title": "Checar entorno e estado pelo Street View",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+          },
+          {
+            "key": "market_rotation_map_unproven",
+            "title": "Provar mapa de liquidez local",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Antes de chamar de melhor oferta, validar bairro/condominio, rotatividade, tempo real de venda e rede local de corretores/imobiliarias."
+          },
+          {
+            "key": "property_debt_priority_unproven",
+            "title": "Provar prioridade dos debitos do imovel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou responsabilidade do arrematante antes de tratar a margem como real."
+          },
+          {
+            "key": "condo_debt_priority_unproven",
+            "title": "Provar responsabilidade condominial",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "Confirmar no edital, processo, condominio ou leiloeiro se debitos condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor ou assumidos pelo arrematante."
           }
         ],
         "clarified_items": [
@@ -89600,7 +90025,7 @@
           {
             "key": "course_antibodies",
             "title": "Anticorpos do curso aplicados",
-            "detail": "auction_modality_unclear"
+            "detail": "remote_valuation_triangulation_unproven, streetview_condition_unchecked, market_rotation_map_unproven, property_debt_priority_unproven, condo_debt_priority_unproven, auction_modality_unclear"
           }
         ],
         "scenarios": {
@@ -89750,7 +90175,7 @@
         "source_validation": {
           "status": "valid",
           "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital, matricula 22.175 e consolidacao da propriedade analisados.",
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
           "aggregator_url": "",
           "official_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
@@ -89833,7 +90258,7 @@
           "source_validation": {
             "status": "valid",
             "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital, matricula 22.175 e consolidacao da propriedade analisados.",
-            "checked_at": "2026-05-28T23:32:33+00:00",
+            "checked_at": "2026-05-29T01:47:00+00:00",
             "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
             "aggregator_url": "",
             "official_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
@@ -89855,7 +90280,7 @@
         },
         "has_edital": true,
         "diligence_result": {
-          "checked_at": "2026-05-28T23:32:33+00:00",
+          "checked_at": "2026-05-29T01:47:00+00:00",
           "status": "validado",
           "resolved_p0_keys": [
             "edital",
@@ -89867,11 +90292,20 @@
             "source_validation"
           ],
           "course_antibodies": [
+            "remote_valuation_triangulation_unproven",
+            "streetview_condition_unchecked",
+            "market_rotation_map_unproven",
+            "property_debt_priority_unproven",
+            "condo_debt_priority_unproven",
             "auction_modality_unclear"
           ],
           "remaining_p0_keys": [
             "eviction_risk",
-            "auction_modality_unclear"
+            "auction_modality_unclear",
+            "remote_valuation_triangulation_unproven",
+            "market_rotation_map_unproven",
+            "property_debt_priority_unproven",
+            "condo_debt_priority_unproven"
           ],
           "evidence": {
             "status": "validado",
@@ -89893,6 +90327,41 @@
             "debts": {},
             "minimum_bid_brl": 1610827.63,
             "course_antibodies": [
+              {
+                "key": "remote_valuation_triangulation_unproven",
+                "title": "Triangular valor remoto do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Nao aceitar valor de saida por uma unica fonte; cruzar comparaveis, estimativa online, matricula/certidao e evidencias do mesmo predio/regiao."
+              },
+              {
+                "key": "streetview_condition_unchecked",
+                "title": "Checar entorno e estado pelo Street View",
+                "priority": "P1",
+                "status": "aberta",
+                "action": "Abrir Google Street View/Maps para fachada, rua, acesso, conservacao, pichacao, comercio e sinais de depreciacao antes de validar preco remoto."
+              },
+              {
+                "key": "market_rotation_map_unproven",
+                "title": "Provar mapa de liquidez local",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Antes de chamar de melhor oferta, validar bairro/condominio, rotatividade, tempo real de venda e rede local de corretores/imobiliarias."
+              },
+              {
+                "key": "property_debt_priority_unproven",
+                "title": "Provar prioridade dos debitos do imovel",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Quando o lote menciona IPTU, condominio, divida ativa, financiamento ou onus, provar no edital/processo a prioridade, sub-rogacao, quitacao ou responsabilidade do arrematante antes de tratar a margem como real."
+              },
+              {
+                "key": "condo_debt_priority_unproven",
+                "title": "Provar responsabilidade condominial",
+                "priority": "P0",
+                "status": "aberta",
+                "action": "Confirmar no edital, processo, condominio ou leiloeiro se debitos condominiais serao pagos pelo produto da arrematacao, quitados pelo vendedor ou assumidos pelo arrematante."
+              },
               {
                 "key": "auction_modality_unclear",
                 "title": "Provar modalidade operacional do leilao",
