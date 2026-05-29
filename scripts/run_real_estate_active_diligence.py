@@ -201,6 +201,22 @@ COURSE_ANTIBODY_DEFINITIONS: dict[str, dict[str, str]] = {
             "fontes licitas e registrar apenas conclusao operacional, sem dado pessoal bruto."
         ),
     },
+    "market_rotation_map_unproven": {
+        "title": "Provar mapa de liquidez local",
+        "priority": "P0",
+        "action": (
+            "Antes de chamar de melhor oferta, validar bairro/condominio, rotatividade, "
+            "tempo real de venda e rede local de corretores/imobiliarias."
+        ),
+    },
+    "caixa_financing_readiness_unproven": {
+        "title": "Provar credito/entrada para Caixa",
+        "priority": "P0",
+        "action": (
+            "Quando a tese Caixa depende de pouco capital, confirmar modalidade permite "
+            "financiamento/FGTS, credito pre-aprovado, entrada e capacidade de pagamento."
+        ),
+    },
 }
 
 EXECUTION_READINESS_ANTIBODY_KEYS = {
@@ -847,6 +863,143 @@ def _personal_data_minimized(lower: str) -> bool:
     return any(term in lower for term in minimization_terms)
 
 
+def _needs_market_rotation_map(lower: str) -> bool:
+    return any(
+        marker in lower
+        for marker in (
+            "melhor oferta",
+            "melhores ofertas",
+            "boa oferta",
+            "otima oferta",
+            "oportunidade",
+            "revenda",
+            "revender",
+            "vender em",
+            "venda em",
+            "lucro",
+            "lucratividade",
+            "margem",
+            "retorno",
+            "roi",
+        )
+    )
+
+
+def _market_rotation_map_categories(lower: str) -> set[str]:
+    categories: set[str] = set()
+    if any(
+        marker in lower
+        for marker in (
+            "bairro",
+            "microregiao",
+            "micro-regiao",
+            "regiao especifica",
+            "condominio",
+            "comarca",
+            "cidade",
+            "mesmo predio",
+            "mesmo condominio",
+        )
+    ):
+        categories.add("territory")
+    if any(
+        marker in lower
+        for marker in (
+            "rotatividade",
+            "giro",
+            "liquidez",
+            "venda rapida",
+            "vender rapido",
+            "tempo de venda",
+            "meses para vender",
+            "dias para vender",
+            "ultimo imovel vendido",
+            "vendido em",
+            "vendeu em",
+        )
+    ):
+        categories.add("rotation")
+    if any(
+        marker in lower
+        for marker in (
+            "corretor local",
+            "corretores locais",
+            "imobiliaria local",
+            "imobiliarias locais",
+            "imobiliarias pequenas",
+            "rede local",
+            "relacionamento com corretor",
+            "relacionamento com leiloeiro",
+        )
+    ):
+        categories.add("local_network")
+    if any(
+        marker in lower
+        for marker in (
+            "mapa do investimento",
+            "tese de saida",
+            "plano de saida",
+            "prazo esperado",
+            "quanto vou investir",
+            "capital alocado",
+        )
+    ):
+        categories.add("investment_map")
+    return categories
+
+
+def _has_market_rotation_map(lower: str) -> bool:
+    categories = _market_rotation_map_categories(lower)
+    return "rotation" in categories and "territory" in categories and len(categories) >= 3
+
+
+def _needs_caixa_financing_readiness(lower: str) -> bool:
+    caixa_like = "venda-imoveis.caixa.gov.br" in lower or any(
+        marker in lower
+        for marker in (
+            "imovel caixa",
+            "imoveis caixa",
+            "caixa economica",
+            "venda direta caixa",
+            "venda direta online caixa",
+            "leilao sfi caixa",
+            "licitacao aberta caixa",
+            "retomada da caixa",
+        )
+    )
+    financing_like = any(
+        marker in lower
+        for marker in (
+            "sem dinheiro",
+            "pouca entrada",
+            "pouco de entrada",
+            "quase nada de entrada",
+            "financiamento",
+            "financiar",
+            "fgts",
+            "credito bancario",
+            "credito imobiliario",
+        )
+    )
+    return caixa_like and financing_like
+
+
+def _has_caixa_financing_readiness(lower: str) -> bool:
+    readiness_terms = (
+        "credito aprovado",
+        "credito pre-aprovado",
+        "pre-aprovacao de credito",
+        "pre aprovacao de credito",
+        "simulacao aprovada",
+        "financiamento aprovado",
+        "fgts confirmado",
+        "entrada reservada",
+        "capacidade de pagamento confirmada",
+        "renda validada",
+    )
+    return any(term in lower for term in readiness_terms)
+
+
 def _course_antibodies(
     url: str,
     text: str,
@@ -902,6 +1055,16 @@ def _course_antibodies(
         and not _personal_data_minimized(lower)
     ):
         found.append("sensitive_person_data_minimization")
+
+    if auction_like and _needs_market_rotation_map(lower) and not _has_market_rotation_map(lower):
+        found.append("market_rotation_map_unproven")
+
+    if (
+        auction_like
+        and _needs_caixa_financing_readiness(lower)
+        and not _has_caixa_financing_readiness(lower)
+    ):
+        found.append("caixa_financing_readiness_unproven")
 
     fiduciary_like = any(
         marker in lower

@@ -393,6 +393,90 @@ def test_course_antibodies_respect_public_source_minimization() -> None:
     assert "sensitive_person_data_minimization" not in antibody_keys
 
 
+def test_course_antibodies_flag_missing_market_selection_map() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento em Vila Mariana</h1>
+      <p>Lance minimo R$ 510.000,00.</p>
+      <p>A tese projeta revenda em 3 meses, lucro de 35% e diz que e uma das melhores ofertas.</p>
+      <p>Valor de mercado validado por Viva Real, DataZap e comparaveis do mesmo condominio.</p>
+      <p>Google Street View confirma fachada, entorno, conservacao da rua e acesso.</p>
+      <p>Matricula atualizada e certidao de onus foram abertas no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-vila-mariana",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "market_rotation_map_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_market_selection_map() -> None:
+    html = """
+    <html><body>
+      <h1>Leilao judicial - apartamento em Vila Mariana</h1>
+      <p>Lance minimo R$ 510.000,00.</p>
+      <p>Revenda em 3 meses validada no mapa do investimento.</p>
+      <p>Bairro e microregiao conhecidos, condominio com rotatividade alta e ultimo imovel vendido em 45 dias.</p>
+      <p>Corretor local e imobiliarias pequenas confirmaram demanda e preco de saida.</p>
+      <p>Valor de mercado validado por Viva Real, DataZap e comparaveis do mesmo condominio.</p>
+      <p>Google Street View confirma fachada, entorno, conservacao da rua e acesso.</p>
+      <p>Matricula atualizada e certidao de onus foram abertas no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://www.megaleiloes.com.br/leiloes/imoveis/apartamento-vila-mariana",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "market_rotation_map_unproven" not in antibody_keys
+
+
+def test_course_antibodies_flag_caixa_financing_readiness_gap() -> None:
+    html = """
+    <html><body>
+      <h1>Imovel Caixa em venda direta online</h1>
+      <p>Casa retomada da Caixa com venda direta, FGTS e financiamento.</p>
+      <p>E uma tese para arrematar sem dinheiro, com pouca entrada e credito bancario.</p>
+      <p>Valor de mercado validado por DataZap, Viva Real e comparaveis do mesmo bairro.</p>
+      <p>Google Maps confirma fachada, entorno e acesso. Matricula atualizada aberta no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnImovel=123",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "caixa_financing_readiness_unproven" in antibody_keys
+
+
+def test_course_antibodies_respect_caixa_financing_readiness() -> None:
+    html = """
+    <html><body>
+      <h1>Imovel Caixa em venda direta online</h1>
+      <p>Casa retomada da Caixa com venda direta, FGTS e financiamento permitidos pela regra oficial.</p>
+      <p>Credito pre-aprovado, simulacao aprovada, FGTS confirmado e entrada reservada.</p>
+      <p>Valor de mercado validado por DataZap, Viva Real e comparaveis do mesmo bairro.</p>
+      <p>Google Maps confirma fachada, entorno e acesso. Matricula atualizada aberta no cartorio.</p>
+    </body></html>
+    """
+
+    evidence = diligence.extract_evidence(
+        "https://venda-imoveis.caixa.gov.br/sistema/detalhe-imovel.asp?hdnImovel=123",
+        html,
+    )
+
+    antibody_keys = {item["key"] for item in evidence["course_antibodies"]}
+    assert "caixa_financing_readiness_unproven" not in antibody_keys
+
+
 def test_market_registration_text_does_not_trigger_execution_antibodies() -> None:
     html = """
     <html><body>
