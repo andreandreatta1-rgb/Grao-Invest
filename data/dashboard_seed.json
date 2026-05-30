@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-30T19:22:56-03:00",
+  "generated_at": "2026-05-30T20:57:57-03:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -96592,49 +96592,49 @@
       "phase": "pos_go_live",
       "thesis_number": 3968,
       "thesis_id": "IM-RADAR-TARGET-PIN-01",
-      "thesis_raised_at": "2026-05-20T21:00:00-03:00",
+      "thesis_raised_at": "2026-05-30T20:58:00-03:00",
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Lead veio de agregador; confirmar edital ou pagina oficial do leiloeiro antes de proposta.",
-        "checked_at": "2026-05-20T21:00:00-03:00",
+        "status": "valid",
+        "reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
+        "checked_at": "2026-05-30T20:58:00-03:00",
         "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839"
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Lead veio de agregador; confirmar edital ou pagina oficial do leiloeiro antes de proposta.",
-      "source_checked_at": "2026-05-20T21:00:00-03:00",
-      "asset": "REAL TARGET - Pinheiros Capote Valente 33m 1q",
-      "action": "REAL TARGET - Pinheiros Capote Valente 33m 1q",
-      "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Capote Valente, 134. Score 65/100, confianca 43/100.",
-      "expected_result_pct": 30.55,
-      "operation_plan": "Entrada R$ 339,845.69 | Saida base R$ 566,409.48 | Teto Halley R$ 340,276.59 | Caixa R$ 407,833.35 | Proximo passo: Validar fonte manualmente",
-      "structured_operation": "Leilao extrajudicial + HF leve | Leilao Imovel / lote individual | Apartamento | Teto a validar",
-      "entry_price_brl": 339845.69,
+      "source_validation_status": "valid",
+      "source_validation_reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
+      "source_checked_at": "2026-05-30T20:58:00-03:00",
+      "asset": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m / Entrada 343K Saida 566K",
+      "action": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m / Entrada 343K Saida 566K",
+      "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Capote Valente, 134 - Apto 124. Score 69/100, confianca 53/100.",
+      "expected_result_pct": 30.89,
+      "operation_plan": "Entrada R$ 342,870.31 | Saida base R$ 566,409.48 | Teto Halley R$ 344,592.28 | Caixa R$ 411,099.93 | Proximo passo: Confirmar ocupacao",
+      "structured_operation": "Leilao judicial WebLeiloes + studio Pinheiros com vaga/manobrista | Leilao Imovel / WebLeiloes / TJSP | Apartamento residencial | Teto a validar",
+      "entry_price_brl": 342870.31,
       "current_price_brl": 566409.48,
-      "latest_price_at": "2026-05-20T21:00:00-03:00",
+      "latest_price_at": "2026-05-30T20:58:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
+      "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
+      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Confirmar responsabilidade por debitos, Validar valor de saida.",
       "is_open": true,
       "real_estate_analysis": {
-        "score": 65,
-        "confidence": 43,
+        "score": 69,
+        "confidence": 53,
         "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "next_action": "Confirmar ocupacao",
         "score_breakdown": [
           {
             "key": "location_liquidity",
             "label": "Liquidez/localizacao",
-            "points": 17,
+            "points": 18,
             "max_points": 20,
             "status": "calculado",
-            "detail": "Indice informado/estimado: 86.0/100. Demanda local aceitavel: Antes de avancar, provar que existe comprador real nessa faixa e nesse raio."
+            "detail": "Indice informado/estimado: 90.0/100. Demanda local aceitavel: Antes de avancar, provar que existe comprador real nessa faixa e nesse raio."
           },
           {
             "key": "discount",
@@ -96642,7 +96642,7 @@
             "points": 6,
             "max_points": 15,
             "status": "pendente",
-            "detail": "Preco pedido R$ 339,845.69; valor referencia R$ 566,409.48. Benchmark de bairro sem comparaveis equivalentes; desconto capado."
+            "detail": "Preco pedido R$ 342,870.31; valor referencia R$ 566,409.48. Benchmark de bairro sem comparaveis equivalentes; desconto capado."
           },
           {
             "key": "value_creation",
@@ -96650,7 +96650,7 @@
             "points": 6,
             "max_points": 15,
             "status": "pendente",
-            "detail": "Lucro base sobre compra: 36.66%. Lucro depende de validar a saida no ativo, nao so no bairro."
+            "detail": "Lucro base sobre compra: 37.04%. Lucro depende de validar a saida no ativo, nao so no bairro."
           },
           {
             "key": "renovation",
@@ -96671,7 +96671,7 @@
           {
             "key": "legal",
             "label": "Risco documental/legal",
-            "points": 5,
+            "points": 8,
             "max_points": 10,
             "status": "calculado",
             "detail": "Ocupacao: desconhecido; matricula/debitos conforme campos informados."
@@ -96682,7 +96682,7 @@
             "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 407,833.35."
+            "detail": "Caixa estimado: R$ 411,099.93."
           },
           {
             "key": "plan_b",
@@ -96721,10 +96721,10 @@
           {
             "key": "debts",
             "label": "Dividas conhecidas",
-            "points": 0,
+            "points": 10,
             "max_points": 10,
-            "status": "pendente",
-            "detail": "Debitos ainda parciais."
+            "status": "esclarecido",
+            "detail": "Condominio e IPTU conhecidos."
           },
           {
             "key": "sale_comparables",
@@ -96769,22 +96769,6 @@
         ],
         "pending_items": [
           {
-            "key": "source_validation",
-            "title": "Validar fonte manualmente",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Lead veio de agregador; confirmar edital ou pagina oficial do leiloeiro antes de proposta.",
-            "validation_method": "investigador_implacavel_aula_3",
-            "validation_route": [
-              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
-              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
-              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
-              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
-              "Lead veio de agregador; confirmar edital ou pagina oficial do leiloeiro antes de proposta."
-            ],
-            "validation_exit_criteria": "Resolvida quando a fonte primaria, edital/anexos, leiloeiro oficial e dados de pagamento estiverem coerentes; se exigir login, fica bloqueada por acesso do usuario, nao por desistência da app."
-          },
-          {
             "key": "occupancy",
             "title": "Confirmar ocupacao",
             "priority": "P0",
@@ -96800,47 +96784,17 @@
             "validation_exit_criteria": "Resolvida quando ocupacao, responsavel pela desocupacao, prazo e custo estiverem documentados ou o candidato for descartado."
           },
           {
-            "key": "debt_total",
-            "title": "Confirmar custo total de debitos",
+            "key": "debt_responsibility_ambiguous",
+            "title": "Confirmar responsabilidade por debitos",
             "priority": "P0",
             "status": "aberta",
-            "action": "Levantar IPTU, condominio, comissao, ITBI, cartorio e responsabilidade por debitos antes de calcular margem ou teto de lance.",
+            "action": "Obter confirmacao escrita do leiloeiro, cartorio, banco ou contato oficial do edital sobre quais debitos ficam com o arrematante antes de qualquer lance.",
             "validation_method": "investigador_implacavel_aula_3",
             "validation_route": [
               "Extrair do edital quem paga condominio, IPTU, taxas, comissao, ITBI e cartorio.",
               "Consultar prefeitura para IPTU/divida ativa e administradora/sindico para condominio.",
               "Obter confirmacao escrita do leiloeiro/banco/cartorio quando a responsabilidade por debitos for ambigua.",
-              "Levantar IPTU, condominio, comissao, ITBI, cartorio e responsabilidade por debitos antes de calcular margem ou teto de lance."
-            ],
-            "validation_exit_criteria": "Resolvida quando o custo total e a responsabilidade por debitos entram na conta de margem ou geram descarte."
-          },
-          {
-            "key": "condo_debt",
-            "title": "Confirmar divida de condominio",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Levantar valor vencido, limite de responsabilidade e acordo possivel.",
-            "validation_method": "investigador_implacavel_aula_3",
-            "validation_route": [
-              "Extrair do edital quem paga condominio, IPTU, taxas, comissao, ITBI e cartorio.",
-              "Consultar prefeitura para IPTU/divida ativa e administradora/sindico para condominio.",
-              "Obter confirmacao escrita do leiloeiro/banco/cartorio quando a responsabilidade por debitos for ambigua.",
-              "Levantar valor vencido, limite de responsabilidade e acordo possivel."
-            ],
-            "validation_exit_criteria": "Resolvida quando o custo total e a responsabilidade por debitos entram na conta de margem ou geram descarte."
-          },
-          {
-            "key": "iptu_debt",
-            "title": "Confirmar divida de IPTU",
-            "priority": "P0",
-            "status": "aberta",
-            "action": "Checar debitos municipais antes de calcular lucro.",
-            "validation_method": "investigador_implacavel_aula_3",
-            "validation_route": [
-              "Extrair do edital quem paga condominio, IPTU, taxas, comissao, ITBI e cartorio.",
-              "Consultar prefeitura para IPTU/divida ativa e administradora/sindico para condominio.",
-              "Obter confirmacao escrita do leiloeiro/banco/cartorio quando a responsabilidade por debitos for ambigua.",
-              "Checar debitos municipais antes de calcular lucro."
+              "Obter confirmacao escrita do leiloeiro, cartorio, banco ou contato oficial do edital sobre quais debitos ficam com o arrematante antes de qualquer lance."
             ],
             "validation_exit_criteria": "Resolvida quando o custo total e a responsabilidade por debitos entram na conta de margem ou geram descarte."
           },
@@ -96873,9 +96827,29 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "physical_condition",
+            "title": "Validar vistoria, fotos e reforma",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Exigir fotos recentes, visita/vistoria ou orcamento antes de confiar no desconto.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Buscar fotos recentes, laudo, visita ou vistoria.",
+              "Orcar reforma por estado interno real e separar maquiagem, leve, retrofit ou obra pesada.",
+              "Exigir fotos recentes, visita/vistoria ou orcamento antes de confiar no desconto."
+            ],
+            "validation_exit_criteria": "Resolvida quando reforma e estado fisico entram no custo com evidencia visual ou orcamento."
           }
         ],
         "clarified_items": [
+          {
+            "key": "source_validation",
+            "title": "Fonte individual validada",
+            "status": "esclarecido",
+            "detail": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital."
+          },
           {
             "key": "registration",
             "title": "Matricula localizada",
@@ -96889,6 +96863,18 @@
             "detail": "Edital ou pagina oficial informado no radar."
           },
           {
+            "key": "condo_debt",
+            "title": "Divida de condominio esclarecida",
+            "status": "esclarecido",
+            "detail": "Campo de condominio marcado como conhecido."
+          },
+          {
+            "key": "iptu_debt",
+            "title": "Divida de IPTU esclarecida",
+            "status": "esclarecido",
+            "detail": "Campo de IPTU marcado como conhecido."
+          },
+          {
             "key": "renovation_budget",
             "title": "Orcamento de reforma informado",
             "status": "esclarecido",
@@ -96898,49 +96884,49 @@
             "key": "plan_b",
             "title": "Plano B informado",
             "status": "esclarecido",
-            "detail": "Locacao compacta em Pinheiros se a revenda atrasar."
+            "detail": "Locacao compacta em Pinheiros se a revenda atrasar, condicionada a confirmar ocupacao e custo condominial."
           }
         ],
         "scenarios": {
           "conservative": {
             "sale_price": 521096.72,
-            "net_profit": 81997.57,
-            "roi_pct": 20.11
+            "net_profit": 83941.95,
+            "roi_pct": 20.42
           },
           "base": {
             "sale_price": 566409.48,
-            "net_profit": 124591.56,
-            "roi_pct": 30.55
+            "net_profit": 126989.08,
+            "roi_pct": 30.89
           },
           "optimistic": {
             "sale_price": 594729.95,
-            "net_profit": 151212.8,
-            "roi_pct": 37.08
+            "net_profit": 153893.52,
+            "roi_pct": 37.43
           }
         },
-        "breakeven_sale_price": 433865.27,
-        "max_purchase_price": 340276.59,
-        "price_gap_to_ceiling": -430.9,
+        "breakeven_sale_price": 432736.77,
+        "max_purchase_price": 344592.28,
+        "price_gap_to_ceiling": -1721.97,
         "price_ceiling_status": "Teto a validar",
         "target_roi_pct": 20.0,
-        "cash_needed": 407833.35,
-        "base_profit_pct": 36.66,
-        "acquisition_costs": 27187.66,
+        "cash_needed": 411099.93,
+        "base_profit_pct": 37.04,
+        "acquisition_costs": 27429.62,
         "renovation_budget": 30000.0,
         "carrying_costs": 10800.0,
-        "selling_commission_pct": 6.0,
-        "selling_costs": 33984.57,
+        "selling_commission_pct": 5.0,
+        "selling_costs": 28320.47,
         "debt_costs_assumed_brl": 0.0,
         "commercial_terms": {},
         "sourcing": {
-          "score": 25,
+          "score": 40,
           "tier": "bloqueado_por_p0",
           "signals": [
+            "fonte oficial individual",
             "saida clara",
             "modalidade classificada"
           ],
           "gaps": [
-            "fonte oficial individual",
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
@@ -96960,6 +96946,7 @@
           "status_label": "Demanda local aceitavel",
           "buyer_profile": "Publico comprador a validar por comparaveis de venda e aluguel.",
           "signals": [
+            "Visita presencial do investidor em 30/05/2026 aprovou local e fachada do Edificio Saint Germain; micro-local em Pinheiros segue positivo, mas preco de saida ainda exige comparaveis do mesmo predio/rua.",
             "0/3 comparaveis de venda equivalentes."
           ],
           "sale_comparables_count": 0,
@@ -96969,53 +96956,61 @@
           "should_discard": false
         },
         "listing_reading": {
-          "auction_modality": "extrajudicial",
+          "private_area_m2": 33.5,
+          "total_area_m2": 92.75,
+          "auction_modality": "judicial",
+          "debt_responsibility_ambiguous": true,
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Lead veio de agregador; confirmar edital ou pagina oficial do leiloeiro antes de proposta.",
-          "checked_at": "2026-05-20T21:00:00-03:00",
+          "status": "valid",
+          "reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
+          "checked_at": "2026-05-30T20:58:00-03:00",
           "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839"
         },
         "candidate": {
-          "strategy": "Leilao extrajudicial + HF leve",
+          "strategy": "Leilao judicial WebLeiloes + studio Pinheiros com vaga/manobrista",
           "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
-          "origin": "Leilao Imovel / lote individual",
+          "origin": "Leilao Imovel / WebLeiloes / TJSP",
           "city": "Sao Paulo",
           "neighborhood": "Pinheiros",
-          "street": "Rua Capote Valente, 134",
-          "property_type": "Apartamento",
-          "asking_price": 339845.69,
+          "street": "Rua Capote Valente, 134 - Apto 124",
+          "property_type": "Apartamento residencial",
+          "asking_price": 342870.31,
           "market_value_estimate": 566409.48,
           "private_area_m2": 33.5,
           "bedrooms": 1,
-          "parking_spaces": 0,
+          "parking_spaces": 1,
           "occupancy_status": "desconhecido",
+          "first_operation": false,
           "has_registration": true,
           "has_edital": true,
-          "condo_debt_known": false,
-          "iptu_debt_known": false,
+          "condo_debt_known": true,
+          "iptu_debt_known": true,
+          "iptu_debt_amount": 0,
+          "known_debt_costs_brl": 0,
           "renovation_type": "leve",
           "renovation_budget": 30000,
           "sale_comparables_count": 0,
           "rent_comparables_count": 0,
           "carrying_months": 6,
           "monthly_carrying_cost": 1800,
-          "acquisition_costs": 27187.66,
-          "selling_commission_pct": 6.0,
+          "acquisition_costs": 27429.62,
+          "selling_commission_pct": 5.0,
           "estimated_sale_base": 566409.48,
           "estimated_sale_conservative": 521096.72,
           "estimated_sale_optimistic": 594729.95,
-          "plan_b": "Locacao compacta em Pinheiros se a revenda atrasar.",
-          "notes": "Garimpo alvo: Pinheiros / Rua Capote Valente, 134. Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta.",
-          "source_validation_status": "ambiguous",
-          "source_validation_reason": "Lead veio de agregador; confirmar edital ou pagina oficial do leiloeiro antes de proposta.",
-          "source_checked_at": "2026-05-20T21:00:00-03:00",
+          "listing_description": "Edital judicial WebLeiloes/TJSP: processo 1054685-33.2020.8.26.0100, 43a Vara Civel do Foro Central Civel de Sao Paulo. Apto 124, 12o andar, Condominio Edificio Saint Germain, Rua Capote Valente 134, Pinheiros/Jardim America, area privativa 33,500m2, area de garagem 30,090m2, uma vaga indeterminada no 1o ou 2o subsolo com manobrista, area total 92,755m2. Matricula 81.237 do 13o CRI/SP, contribuinte 013.016.0640-5. Debito dos autos R$ 137.372,04 em abril/2022. Nao constam debitos tributarios ate o edital; debitos tributarios sub-rogam no preco da arrematacao conforme art. 130 CTN. Avaliacao atualizada R$ 571.450,52 em maio/2026. 1a praca ate 03/08/2026 as 14:00 por R$ 571.450,52; 2a praca ate 25/08/2026 as 14:00, minimo 60%, R$ 342.870,31. Pagamento por guia judicial em 24h; comissao leiloeiro 5%; parcelamento possivel com 25% a vista e saldo em ate 30 meses, proposta a vista tem preferencia.",
+          "eviction_plan": "O edital nao informa ocupacao; antes de lance, confirmar com WebLeiloes/condominio se ocupado, se ha visita/fotos internas e se ha risco de imissao.",
+          "plan_b": "Locacao compacta em Pinheiros se a revenda atrasar, condicionada a confirmar ocupacao e custo condominial.",
+          "notes": "Garimpo alvo: Pinheiros / Rua Capote Valente, 134 - Apto 124. Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta. Edital local analisado: C:/Users/Andreatta/Downloads/sl-bem-16156-6a19e1e82c306-6a19e1e82d719.pdf. A app nao havia evoluido porque a extracao automatica do Leilao Imovel retornou pagina generica de busca sem link PDF; o usuario acessou a sessao com botao Edital e forneceu o arquivo. Visita presencial em 30/05/2026: investidor gostou do local e da fachada do predio. P0 remanescente: ocupacao e 3 comparaveis reais de venda/locacao.",
+          "source_validation_status": "valid",
+          "source_validation_reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
+          "source_checked_at": "2026-05-30T20:58:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Lead veio de agregador; confirmar edital ou pagina oficial do leiloeiro antes de proposta.",
-            "checked_at": "2026-05-20T21:00:00-03:00",
+            "status": "valid",
+            "reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
+            "checked_at": "2026-05-30T20:58:00-03:00",
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839"
           }
         },
@@ -98406,7 +98401,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T19:22:56-03:00",
+          "checked_at": "2026-05-30T20:57:57-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
           "action": "descartar",
@@ -98414,7 +98409,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T19:22:56-03:00",
+        "checked_at": "2026-05-30T20:57:57-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
         "action": "descartar",
@@ -99356,7 +99351,7 @@
           "benchmark_not_candidate"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T19:22:56-03:00",
+          "checked_at": "2026-05-30T20:57:57-03:00",
           "reason_code": "benchmark_not_candidate",
           "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
           "action": "descartar",
@@ -99364,7 +99359,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T19:22:56-03:00",
+        "checked_at": "2026-05-30T20:57:57-03:00",
         "reason_code": "benchmark_not_candidate",
         "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
         "action": "descartar",
@@ -99798,7 +99793,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T19:22:56-03:00",
+          "checked_at": "2026-05-30T20:57:57-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
           "action": "descartar",
@@ -99806,7 +99801,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T19:22:56-03:00",
+        "checked_at": "2026-05-30T20:57:57-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
         "action": "descartar",
@@ -100785,7 +100780,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T19:22:56-03:00",
+          "checked_at": "2026-05-30T20:57:57-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
           "action": "descartar",
@@ -100793,7 +100788,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T19:22:56-03:00",
+        "checked_at": "2026-05-30T20:57:57-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
         "action": "descartar",
@@ -104459,7 +104454,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T19:22:56-03:00",
+          "checked_at": "2026-05-30T20:57:57-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
           "action": "descartar",
@@ -104467,7 +104462,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T19:22:56-03:00",
+        "checked_at": "2026-05-30T20:57:57-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
         "action": "descartar",
@@ -105382,7 +105377,7 @@
           "optimistic_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T19:22:56-03:00",
+          "checked_at": "2026-05-30T20:57:57-03:00",
           "reason_code": "optimistic_roi_below_target",
           "evidence": "optimistic_roi_pct=16.67",
           "action": "descartar",
@@ -105390,7 +105385,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T19:22:56-03:00",
+        "checked_at": "2026-05-30T20:57:57-03:00",
         "reason_code": "optimistic_roi_below_target",
         "evidence": "optimistic_roi_pct=16.67",
         "action": "descartar",
@@ -107406,7 +107401,7 @@
       "radar_total": 40,
       "open_count": 7,
       "closed_count": 33,
-      "p0_count": 33
+      "p0_count": 30
     }
   },
   "data_quality_gate": {
