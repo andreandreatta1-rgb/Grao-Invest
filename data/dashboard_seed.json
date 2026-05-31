@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-30T20:57:57-03:00",
+  "generated_at": "2026-05-30T21:25:12-03:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -96607,8 +96607,8 @@
       "asset": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m / Entrada 343K Saida 566K",
       "action": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m / Entrada 343K Saida 566K",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Capote Valente, 134 - Apto 124. Score 69/100, confianca 53/100.",
-      "expected_result_pct": 30.89,
-      "operation_plan": "Entrada R$ 342,870.31 | Saida base R$ 566,409.48 | Teto Halley R$ 344,592.28 | Caixa R$ 411,099.93 | Proximo passo: Confirmar ocupacao",
+      "expected_result_pct": 32.5,
+      "operation_plan": "Entrada R$ 342,870.31 | Saida base R$ 566,409.48 | Teto Halley R$ 350,592.28 | Caixa R$ 406,099.93 | Proximo passo: Confirmar ocupacao",
       "structured_operation": "Leilao judicial WebLeiloes + studio Pinheiros com vaga/manobrista | Leilao Imovel / WebLeiloes / TJSP | Apartamento residencial | Teto a validar",
       "entry_price_brl": 342870.31,
       "current_price_brl": 566409.48,
@@ -96650,7 +96650,7 @@
             "points": 6,
             "max_points": 15,
             "status": "pendente",
-            "detail": "Lucro base sobre compra: 37.04%. Lucro depende de validar a saida no ativo, nao so no bairro."
+            "detail": "Lucro base sobre compra: 38.5%. Lucro depende de validar a saida no ativo, nao so no bairro."
           },
           {
             "key": "renovation",
@@ -96682,7 +96682,7 @@
             "points": 3,
             "max_points": 10,
             "status": "calculado",
-            "detail": "Caixa estimado: R$ 411,099.93."
+            "detail": "Caixa estimado: R$ 406,099.93."
           },
           {
             "key": "plan_b",
@@ -96748,7 +96748,7 @@
             "points": 15,
             "max_points": 15,
             "status": "esclarecido",
-            "detail": "Orcamento informado: R$ 30,000.00."
+            "detail": "Orcamento informado: R$ 25,000.00."
           },
           {
             "key": "financing",
@@ -96878,7 +96878,7 @@
             "key": "renovation_budget",
             "title": "Orcamento de reforma informado",
             "status": "esclarecido",
-            "detail": "Orcamento de R$ 30,000.00."
+            "detail": "Orcamento de R$ 25,000.00."
           },
           {
             "key": "plan_b",
@@ -96890,29 +96890,29 @@
         "scenarios": {
           "conservative": {
             "sale_price": 521096.72,
-            "net_profit": 83941.95,
-            "roi_pct": 20.42
+            "net_profit": 88941.95,
+            "roi_pct": 21.9
           },
           "base": {
             "sale_price": 566409.48,
-            "net_profit": 126989.08,
-            "roi_pct": 30.89
+            "net_profit": 131989.08,
+            "roi_pct": 32.5
           },
           "optimistic": {
             "sale_price": 594729.95,
-            "net_profit": 153893.52,
-            "roi_pct": 37.43
+            "net_profit": 158893.52,
+            "roi_pct": 39.13
           }
         },
-        "breakeven_sale_price": 432736.77,
-        "max_purchase_price": 344592.28,
-        "price_gap_to_ceiling": -1721.97,
+        "breakeven_sale_price": 427473.61,
+        "max_purchase_price": 350592.28,
+        "price_gap_to_ceiling": -7721.97,
         "price_ceiling_status": "Teto a validar",
         "target_roi_pct": 20.0,
-        "cash_needed": 411099.93,
-        "base_profit_pct": 37.04,
+        "cash_needed": 406099.93,
+        "base_profit_pct": 38.5,
         "acquisition_costs": 27429.62,
-        "renovation_budget": 30000.0,
+        "renovation_budget": 25000.0,
         "carrying_costs": 10800.0,
         "selling_commission_pct": 5.0,
         "selling_costs": 28320.47,
@@ -96927,7 +96927,8 @@
             "modalidade classificada"
           ],
           "gaps": [
-            "comparaveis de saida"
+            "comparaveis de saida",
+            "vistoria/fotos/orcamento"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
         },
@@ -96946,7 +96947,7 @@
           "status_label": "Demanda local aceitavel",
           "buyer_profile": "Publico comprador a validar por comparaveis de venda e aluguel.",
           "signals": [
-            "Visita presencial do investidor em 30/05/2026 aprovou local e fachada do Edificio Saint Germain; micro-local em Pinheiros segue positivo, mas preco de saida ainda exige comparaveis do mesmo predio/rua.",
+            "Visita presencial do investidor em 30/05/2026 aprovou local e fachada do Edificio Saint Germain; micro-local em Pinheiros segue positivo, mas preco de saida ainda exige comparaveis do mesmo predio/rua. Fonte lateral Leeilon com fotos internas fortalece validacao de estado de conservacao se confirmado que as imagens pertencem ao apto 124.",
             "0/3 comparaveis de venda equivalentes."
           ],
           "sale_comparables_count": 0,
@@ -96990,7 +96991,7 @@
           "iptu_debt_amount": 0,
           "known_debt_costs_brl": 0,
           "renovation_type": "leve",
-          "renovation_budget": 30000,
+          "renovation_budget": 25000,
           "sale_comparables_count": 0,
           "rent_comparables_count": 0,
           "carrying_months": 6,
@@ -97003,7 +97004,18 @@
           "listing_description": "Edital judicial WebLeiloes/TJSP: processo 1054685-33.2020.8.26.0100, 43a Vara Civel do Foro Central Civel de Sao Paulo. Apto 124, 12o andar, Condominio Edificio Saint Germain, Rua Capote Valente 134, Pinheiros/Jardim America, area privativa 33,500m2, area de garagem 30,090m2, uma vaga indeterminada no 1o ou 2o subsolo com manobrista, area total 92,755m2. Matricula 81.237 do 13o CRI/SP, contribuinte 013.016.0640-5. Debito dos autos R$ 137.372,04 em abril/2022. Nao constam debitos tributarios ate o edital; debitos tributarios sub-rogam no preco da arrematacao conforme art. 130 CTN. Avaliacao atualizada R$ 571.450,52 em maio/2026. 1a praca ate 03/08/2026 as 14:00 por R$ 571.450,52; 2a praca ate 25/08/2026 as 14:00, minimo 60%, R$ 342.870,31. Pagamento por guia judicial em 24h; comissao leiloeiro 5%; parcelamento possivel com 25% a vista e saldo em ate 30 meses, proposta a vista tem preferencia.",
           "eviction_plan": "O edital nao informa ocupacao; antes de lance, confirmar com WebLeiloes/condominio se ocupado, se ha visita/fotos internas e se ha risco de imissao.",
           "plan_b": "Locacao compacta em Pinheiros se a revenda atrasar, condicionada a confirmar ocupacao e custo condominial.",
-          "notes": "Garimpo alvo: Pinheiros / Rua Capote Valente, 134 - Apto 124. Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta. Edital local analisado: C:/Users/Andreatta/Downloads/sl-bem-16156-6a19e1e82c306-6a19e1e82d719.pdf. A app nao havia evoluido porque a extracao automatica do Leilao Imovel retornou pagina generica de busca sem link PDF; o usuario acessou a sessao com botao Edital e forneceu o arquivo. Visita presencial em 30/05/2026: investidor gostou do local e da fachada do predio. P0 remanescente: ocupacao e 3 comparaveis reais de venda/locacao.",
+          "notes": "Garimpo alvo: Pinheiros / Rua Capote Valente, 134 - Apto 124. Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta. Edital local analisado: C:/Users/Andreatta/Downloads/sl-bem-16156-6a19e1e82c306-6a19e1e82d719.pdf. A app nao havia evoluido porque a extracao automatica do Leilao Imovel retornou pagina generica de busca sem link PDF; o usuario acessou a sessao com botao Edital e forneceu o arquivo. Visita presencial em 30/05/2026: investidor gostou do local e da fachada do predio. P0 remanescente: ocupacao e 3 comparaveis reais de venda/locacao. Fonte lateral agregada: Leeilon 1287519, encontrada manualmente pelo usuario, com fotos internas do apto; lacuna de produto: app precisa busca asset-first por endereco/processo/matricula e captura visual.",
+          "visual_evidence": [
+            {
+              "source": "Leeilon",
+              "source_url": "https://www.leeilon.com.br/imovel-em-leilao/sp/sao-paulo/apartamento-3350m-pinheiros-sao-paulosp/1287519",
+              "evidence_type": "condition_photos_same_asset_user_found",
+              "role": "condition_photos",
+              "note": "Fonte lateral encontrada pelo usuario em 30/05/2026 para o mesmo ativo de Rua Capote Valente 134 / apto 33,50m2 em Pinheiros. Usuario reportou fotos internas do apartamento; usar para validar conservacao e orcamento de reforma, mantendo caveat ate captura automatica/visual das imagens pela app. Esta fonte nao substitui edital WebLeiloes/TJSP como prova juridica."
+            }
+          ],
+          "condition_evidence_status": "user_found_internal_photos_pending_capture",
+          "condition_evidence_reason": "Leeilon tem fotos internas segundo verificacao manual do usuario; a app deve capturar/analisar imagens e ajustar reforma/conservacao.",
           "source_validation_status": "valid",
           "source_validation_reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
           "source_checked_at": "2026-05-30T20:58:00-03:00",
@@ -98401,7 +98413,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T20:57:57-03:00",
+          "checked_at": "2026-05-30T21:25:12-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
           "action": "descartar",
@@ -98409,7 +98421,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T20:57:57-03:00",
+        "checked_at": "2026-05-30T21:25:12-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
         "action": "descartar",
@@ -99351,7 +99363,7 @@
           "benchmark_not_candidate"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T20:57:57-03:00",
+          "checked_at": "2026-05-30T21:25:12-03:00",
           "reason_code": "benchmark_not_candidate",
           "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
           "action": "descartar",
@@ -99359,7 +99371,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T20:57:57-03:00",
+        "checked_at": "2026-05-30T21:25:12-03:00",
         "reason_code": "benchmark_not_candidate",
         "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
         "action": "descartar",
@@ -99793,7 +99805,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T20:57:57-03:00",
+          "checked_at": "2026-05-30T21:25:12-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
           "action": "descartar",
@@ -99801,7 +99813,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T20:57:57-03:00",
+        "checked_at": "2026-05-30T21:25:12-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
         "action": "descartar",
@@ -100780,7 +100792,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T20:57:57-03:00",
+          "checked_at": "2026-05-30T21:25:12-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
           "action": "descartar",
@@ -100788,7 +100800,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T20:57:57-03:00",
+        "checked_at": "2026-05-30T21:25:12-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
         "action": "descartar",
@@ -104454,7 +104466,7 @@
           "base_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T20:57:57-03:00",
+          "checked_at": "2026-05-30T21:25:12-03:00",
           "reason_code": "base_roi_below_target",
           "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
           "action": "descartar",
@@ -104462,7 +104474,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T20:57:57-03:00",
+        "checked_at": "2026-05-30T21:25:12-03:00",
         "reason_code": "base_roi_below_target",
         "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
         "action": "descartar",
@@ -105377,7 +105389,7 @@
           "optimistic_roi_below_target"
         ],
         "owner_triage": {
-          "checked_at": "2026-05-30T20:57:57-03:00",
+          "checked_at": "2026-05-30T21:25:12-03:00",
           "reason_code": "optimistic_roi_below_target",
           "evidence": "optimistic_roi_pct=16.67",
           "action": "descartar",
@@ -105385,7 +105397,7 @@
         }
       },
       "owner_triage": {
-        "checked_at": "2026-05-30T20:57:57-03:00",
+        "checked_at": "2026-05-30T21:25:12-03:00",
         "reason_code": "optimistic_roi_below_target",
         "evidence": "optimistic_roi_pct=16.67",
         "action": "descartar",

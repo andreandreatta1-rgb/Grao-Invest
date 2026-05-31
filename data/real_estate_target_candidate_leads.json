@@ -20,7 +20,7 @@
     "condo_debt_known": true,
     "iptu_debt_known": true,
     "renovation_type": "leve",
-    "renovation_budget": 30000,
+    "renovation_budget": 25000,
     "carrying_months": 6,
     "monthly_carrying_cost": 1800,
     "location_liquidity_score": 90,
@@ -38,11 +38,22 @@
     "iptu_debt_amount": 0,
     "known_debt_costs_brl": 0,
     "selling_commission_pct": 5.0,
-    "local_demand_notes": "Visita presencial do investidor em 30/05/2026 aprovou local e fachada do Edificio Saint Germain; micro-local em Pinheiros segue positivo, mas preco de saida ainda exige comparaveis do mesmo predio/rua.",
+    "local_demand_notes": "Visita presencial do investidor em 30/05/2026 aprovou local e fachada do Edificio Saint Germain; micro-local em Pinheiros segue positivo, mas preco de saida ainda exige comparaveis do mesmo predio/rua. Fonte lateral Leeilon com fotos internas fortalece validacao de estado de conservacao se confirmado que as imagens pertencem ao apto 124.",
     "listing_description": "Edital judicial WebLeiloes/TJSP: processo 1054685-33.2020.8.26.0100, 43a Vara Civel do Foro Central Civel de Sao Paulo. Apto 124, 12o andar, Condominio Edificio Saint Germain, Rua Capote Valente 134, Pinheiros/Jardim America, area privativa 33,500m2, area de garagem 30,090m2, uma vaga indeterminada no 1o ou 2o subsolo com manobrista, area total 92,755m2. Matricula 81.237 do 13o CRI/SP, contribuinte 013.016.0640-5. Debito dos autos R$ 137.372,04 em abril/2022. Nao constam debitos tributarios ate o edital; debitos tributarios sub-rogam no preco da arrematacao conforme art. 130 CTN. Avaliacao atualizada R$ 571.450,52 em maio/2026. 1a praca ate 03/08/2026 as 14:00 por R$ 571.450,52; 2a praca ate 25/08/2026 as 14:00, minimo 60%, R$ 342.870,31. Pagamento por guia judicial em 24h; comissao leiloeiro 5%; parcelamento possivel com 25% a vista e saldo em ate 30 meses, proposta a vista tem preferencia.",
     "eviction_plan": "O edital nao informa ocupacao; antes de lance, confirmar com WebLeiloes/condominio se ocupado, se ha visita/fotos internas e se ha risco de imissao.",
-    "notes": "Edital local analisado: C:/Users/Andreatta/Downloads/sl-bem-16156-6a19e1e82c306-6a19e1e82d719.pdf. A app nao havia evoluido porque a extracao automatica do Leilao Imovel retornou pagina generica de busca sem link PDF; o usuario acessou a sessao com botao Edital e forneceu o arquivo. Visita presencial em 30/05/2026: investidor gostou do local e da fachada do predio. P0 remanescente: ocupacao e 3 comparaveis reais de venda/locacao.",
-    "source_checked_at": "2026-05-30T20:58:00-03:00"
+    "notes": "Edital local analisado: C:/Users/Andreatta/Downloads/sl-bem-16156-6a19e1e82c306-6a19e1e82d719.pdf. A app nao havia evoluido porque a extracao automatica do Leilao Imovel retornou pagina generica de busca sem link PDF; o usuario acessou a sessao com botao Edital e forneceu o arquivo. Visita presencial em 30/05/2026: investidor gostou do local e da fachada do predio. P0 remanescente: ocupacao e 3 comparaveis reais de venda/locacao. Fonte lateral agregada: Leeilon 1287519, encontrada manualmente pelo usuario, com fotos internas do apto; lacuna de produto: app precisa busca asset-first por endereco/processo/matricula e captura visual.",
+    "source_checked_at": "2026-05-30T20:58:00-03:00",
+    "visual_evidence": [
+      {
+        "source": "Leeilon",
+        "source_url": "https://www.leeilon.com.br/imovel-em-leilao/sp/sao-paulo/apartamento-3350m-pinheiros-sao-paulosp/1287519",
+        "evidence_type": "condition_photos_same_asset_user_found",
+        "role": "condition_photos",
+        "note": "Fonte lateral encontrada pelo usuario em 30/05/2026 para o mesmo ativo de Rua Capote Valente 134 / apto 33,50m2 em Pinheiros. Usuario reportou fotos internas do apartamento; usar para validar conservacao e orcamento de reforma, mantendo caveat ate captura automatica/visual das imagens pela app. Esta fonte nao substitui edital WebLeiloes/TJSP como prova juridica."
+      }
+    ],
+    "condition_evidence_status": "user_found_internal_photos_pending_capture",
+    "condition_evidence_reason": "Leeilon tem fotos internas segundo verificacao manual do usuario; a app deve capturar/analisar imagens e ajustar reforma/conservacao."
   },
   {
     "id_suffix": "PIN-02",
