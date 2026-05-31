@@ -765,6 +765,122 @@ AUCTIONEER_OFFICIAL_CONTACTS: list[dict[str, object]] = [
 ]
 
 
+ACTIVE_AUCTION_PORTAL_SOURCES: list[dict[str, object]] = [
+    {
+        "id": "portal-leeilon-pinheiros",
+        "portal": "Leeilon",
+        "source_url": "https://www.leeilon.com.br/imovel-em-leilao/SP/sao-paulo/apartamento-a-venda-em-leilao/1066258",
+        "territory_id": "pinheiros_higienopolis_consolacao",
+        "neighborhood": "Pinheiros",
+        "example_asset": "Rua Joao Moura, 1362 - Apartamento 32",
+        "source_role": "aggregator_clue",
+        "observed_signal": "pagina indexada de apartamento em leilao no bairro-alvo",
+        "next_search_queries": [
+            'site:leeilon.com.br/imovel-em-leilao/SP/sao-paulo Pinheiros apartamento leilao',
+            '"Pinheiros" "Leeilon" "Apartamento" "São Paulo"',
+        ],
+    },
+    {
+        "id": "portal-leeilon-hub-pinheiros",
+        "portal": "Leeilon",
+        "source_url": "https://www.leeilon.com.br/imovel-em-leilao/SP/sao-paulo/apartamento-n-2103-condominio-hub-pinheiros-r-dante-carraro-94-pinheiros-sao-paulo-sp/1176206",
+        "territory_id": "pinheiros_higienopolis_consolacao",
+        "neighborhood": "Pinheiros",
+        "example_asset": "Condominio Hub Pinheiros, Rua Dante Carraro, 94 - apto 2103",
+        "source_role": "aggregator_clue",
+        "observed_signal": "fonte lateral com identidade de condominio, unidade e endereco",
+        "next_search_queries": [
+            '"Condominio Hub Pinheiros" leilao',
+            '"Rua Dante Carraro, 94" "apartamento 2103"',
+        ],
+    },
+    {
+        "id": "portal-leeilon-perdizes-turiassu",
+        "portal": "Leeilon",
+        "source_url": "https://www.leeilon.com.br/imovel-em-leilao/SP/sao-paulo/apartamento-r-turiassu-com-9080m-com-vaga-de-garagem-sao-paulosp/1207113",
+        "territory_id": "pinheiros_higienopolis_consolacao",
+        "neighborhood": "Perdizes",
+        "example_asset": "Rua Turiassu, 362 - apartamento 90,80m2",
+        "source_role": "aggregator_clue",
+        "observed_signal": "mesmo endereco de candidato ja conhecido reaparece como fonte lateral",
+        "next_search_queries": [
+            '"Rua Turiassu 362" leilao apartamento',
+            'site:leeilon.com.br/imovel-em-leilao/SP/sao-paulo Perdizes Turiassu',
+        ],
+    },
+    {
+        "id": "portal-leeilon-perdizes-tucuna",
+        "portal": "Leeilon",
+        "source_url": "https://www.leeilon.com.br/imovel-em-leilao/SP/sao-paulo/apartamento-a-venda-em-leilao/952315",
+        "territory_id": "pinheiros_higienopolis_consolacao",
+        "neighborhood": "Perdizes",
+        "example_asset": "Edificio Perdizes First Class, Rua Tucuna, 913 - apartamento 47",
+        "source_role": "aggregator_clue",
+        "observed_signal": "pagina lateral com edificio e unidade em bairro-alvo",
+        "next_search_queries": [
+            '"Rua Tucuna, 913" leilao apartamento',
+            '"Perdizes First Class" leilao',
+        ],
+    },
+    {
+        "id": "portal-leilaoimovel-campo-belo-pascal",
+        "portal": "Leilao Imovel",
+        "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-sao-paulo-sp-campo-belo-apartamento-com-34m-residenciais-cod-do-leilao-01492-lote-001-imovel-2607257",
+        "territory_id": "moema_campo_belo_brooklin",
+        "neighborhood": "Campo Belo",
+        "example_asset": "Rua Pascal, 1777 - apto 125, Condominio Edificio Pascal",
+        "source_role": "aggregator_clue",
+        "observed_signal": "Leilao Imovel expõe endereco, area, vaga, ocupacao/desocupacao e debitos",
+        "next_search_queries": [
+            '"Rua Pascal, 1777" "Condominio Edificio Pascal"',
+            'site:leilaoimovel.com.br/imovel/sp/sao-paulo Campo Belo apartamento leilao',
+        ],
+    },
+    {
+        "id": "portal-leeilon-jardins",
+        "portal": "Leeilon",
+        "source_url": "https://www.leeilon.com.br/imovel-em-leilao/SP/sao-paulo/apto-res-at-93m-jardinssp/1104836",
+        "territory_id": "vila_mariana_aclimacao_ana_rosa",
+        "neighborhood": "Jardim Paulista",
+        "example_asset": "Apto residencial 93m2 - Jardins",
+        "source_role": "aggregator_clue",
+        "observed_signal": "bairro liquido adjacente aos alvos de alta renda",
+        "next_search_queries": [
+            'site:leeilon.com.br/imovel-em-leilao/SP/sao-paulo Jardins apartamento leilao',
+            '"Jardim Paulista" "Leeilon" "apartamento"',
+        ],
+    },
+    {
+        "id": "portal-projud-campinas-savoy",
+        "portal": "Projud Leiloes",
+        "source_url": "https://www.projudleiloes.com.br/arquivos/Leiloes/Docs/50d8735c-bf55-4b44-bdfb-255ab7d0ab5d.pdf",
+        "territory_id": "campinas-cambui-taquaral",
+        "neighborhood": "Campinas",
+        "example_asset": "Apartamento 32, Condominio Edificio Savoy, Campinas",
+        "source_role": "primary_legal",
+        "observed_signal": "PDF de edital judicial com leiloeiro e bem descrito",
+        "next_search_queries": [
+            'site:projudleiloes.com.br Campinas apartamento leilao edital',
+            '"Condominio Edificio Savoy" "Campinas" leilao',
+        ],
+    },
+    {
+        "id": "portal-silveira-campinas",
+        "portal": "Silveira Leiloes",
+        "source_url": "https://www.silveiraleiloes.com.br/previewleilao/207/170abaa8-bac8-4783-9527-7133c124d14e.pdf",
+        "territory_id": "campinas-cambui-taquaral",
+        "neighborhood": "Campinas",
+        "example_asset": "Apartamento em Campinas - edital extrajudicial",
+        "source_role": "primary_legal",
+        "observed_signal": "edital PDF de imovel em Campinas, util para monitoramento regional",
+        "next_search_queries": [
+            'site:silveiraleiloes.com.br Campinas apartamento leilao edital',
+            '"Silveira Leiloes" "Campinas" "Apartamento"',
+        ],
+    },
+]
+
+
 AUCTIONEER_OUTREACH_SENT_AT = "2026-05-19"
 AUCTIONEER_OUTREACH_NEXT_FOLLOW_UP_AT = "2026-05-22"
 AUCTIONEER_OUTREACH_SENT_IDS = {
@@ -1096,11 +1212,48 @@ def generate_auctioneer_sourcing_report() -> dict[str, Any]:
     }
 
 
+def generate_active_auction_portal_report() -> dict[str, Any]:
+    sources = [
+        {
+            **source,
+            "brief_type": "active_auction_portal_seed",
+            "trust_level": "public_search_result",
+            "next_action": (
+                "Abrir a pagina, extrair identidade do ativo, seguir fonte oficial/editais "
+                "e promover para candidato somente se preco, endereco e P0 forem utilizaveis."
+            ),
+        }
+        for source in ACTIVE_AUCTION_PORTAL_SOURCES
+    ]
+    by_portal: dict[str, int] = {}
+    by_role: dict[str, int] = {}
+    for source in sources:
+        portal = str(source.get("portal") or "desconhecido")
+        role = str(source.get("source_role") or "source_clue")
+        by_portal[portal] = by_portal.get(portal, 0) + 1
+        by_role[role] = by_role.get(role, 0) + 1
+    return {
+        "summary": {
+            "source_count": len(sources),
+            "portal_counts": by_portal,
+            "role_counts": by_role,
+            "scope": "Sao Paulo capital, bairros-alvo e Campinas",
+            "actionability": (
+                "Leeilon e Leilao Imovel devem entrar como coletores ativos de entrada. "
+                "Eles sao pistas publicas para descobrir candidatos; a aprovacao continua "
+                "dependendo de edital/fonte oficial, fotos/condicao e comparaveis."
+            ),
+        },
+        "sources": sources,
+    }
+
+
 def strategy_territory_report() -> dict[str, Any]:
     matrix = generate_strategy_territory_candidate_briefs()
     strategy_watchlist = generate_strategy_candidate_watchlist()
     watchlist = generate_condominium_requalification_watchlist()
     auctioneer_sourcing = generate_auctioneer_sourcing_report()
+    active_portal_discovery = generate_active_auction_portal_report()
     return {
         "generated_at": _utc_now(),
         "summary": {
@@ -1111,6 +1264,7 @@ def strategy_territory_report() -> dict[str, Any]:
             "source_confirmed_requalification_count": len(watchlist),
             "auctioneer_directory_count": auctioneer_sourcing["summary"]["official_directory_count"],
             "auctioneer_contact_count": auctioneer_sourcing["summary"]["official_contact_count"],
+            "active_auction_portal_source_count": active_portal_discovery["summary"]["source_count"],
             "actionability": (
                 "Briefs sao hipoteses de busca. Fontes listadas e sinais confirmados "
                 "ainda exigem unidade, preco, comparaveis, disponibilidade vigente, "
@@ -1123,6 +1277,7 @@ def strategy_territory_report() -> dict[str, Any]:
         "strategy_candidate_watchlist": strategy_watchlist,
         "condominium_requalification_watchlist": watchlist,
         "auctioneer_sourcing": auctioneer_sourcing,
+        "active_auction_portal_discovery": active_portal_discovery,
     }
 
 
@@ -1136,6 +1291,7 @@ def report_to_markdown(report: dict[str, Any]) -> str:
         f"- territorios: `{summary['territory_count']}`",
         f"- briefs de busca: `{summary['matrix_brief_count']}`",
         f"- fontes candidatas por estrategia: `{summary['source_candidate_count']}`",
+        f"- fontes ativas de portais de leilao: `{summary['active_auction_portal_source_count']}`",
         (
             "- sinais confirmados de condominio em requalificacao: "
             f"`{summary['source_confirmed_requalification_count']}`"

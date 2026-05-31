@@ -1044,6 +1044,7 @@ function liveStoryFromRow(row, index) {
   const analysis = analysisFor(row);
   const candidate = candidateFor(row);
   const valuationEvidence = analysis.valuation_evidence || analysis.valuationEvidence || candidate.valuation_evidence || candidate.valuationEvidence || {};
+  const assetFirstDiligence = analysis.asset_first_diligence || analysis.assetFirstDiligence || candidate.asset_first_diligence || candidate.assetFirstDiligence || {};
   const localDemandEvidence = analysis.local_demand_evidence || analysis.localDemandEvidence || candidate.local_demand_evidence || candidate.localDemandEvidence || {};
   const localDemandRisk = firstText(localDemandEvidence.risk_level, localDemandEvidence.riskLevel, candidate.local_demand_risk, candidate.localDemandRisk);
   const localDemandStatus = firstText(localDemandEvidence.status_label, localDemandEvidence.statusLabel, localDemandLabel(localDemandRisk));
@@ -1218,6 +1219,7 @@ function liveStoryFromRow(row, index) {
     localDemandBadge,
     localDemandBadgeType: localDemandBadgeType(localDemandRisk),
     commercialTerms,
+    assetFirstDiligence,
     sourcing,
     sourcingScore,
     sourcingTier,

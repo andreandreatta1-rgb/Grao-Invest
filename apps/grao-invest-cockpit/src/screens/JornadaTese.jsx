@@ -1192,6 +1192,113 @@ function P0Diligence({ item }) {
   );
 }
 
+function AssetFirstPill({ children, color = C.purple }) {
+  return (
+    <span
+      style={{
+        background: withAlpha(color, "12"),
+        border: `1px solid ${withAlpha(color, alpha.border)}`,
+        borderRadius: 999,
+        color,
+        display: "inline-flex",
+        fontSize: 10,
+        fontWeight: 800,
+        lineHeight: 1.35,
+        padding: "5px 8px",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function AssetFirstDiligencePanel({ item }) {
+  const diligence = item.assetFirstDiligence || item.asset_first_diligence || {};
+  const identity = diligence.asset_identity || diligence.assetIdentity || {};
+  const queries = asArray(diligence.lateral_search_queries || diligence.lateralSearchQueries);
+  const sources = asArray(diligence.existing_sources || diligence.existingSources);
+  const missingRoles = asArray(diligence.missing_source_roles || diligence.missingSourceRoles).map((role) => firstText(role)).filter(Boolean);
+  const nextActions = asArray(diligence.next_actions || diligence.nextActions).map((action) => firstText(action)).filter(Boolean);
+  const hasDiligence = Boolean(diligence.method || queries.length || sources.length || missingRoles.length);
+  if (!hasDiligence) return null;
+
+  const status = firstText(diligence.status, "queries_ready");
+  const isManualMiss = Boolean(diligence.product_failure_signal || diligence.productFailureSignal || status === "manual_source_found_app_missed");
+  const identityBits = [
+    firstText(identity.full_address, identity.fullAddress),
+    identity.condominium ? `Condominio: ${identity.condominium}` : "",
+    identity.unit ? `Unidade: ${identity.unit}` : "",
+    identity.process_number ? `Processo: ${identity.process_number}` : "",
+    identity.matricula ? `Matricula: ${identity.matricula}` : "",
+  ].filter(Boolean);
+
+  return (
+    <div
+      data-testid="asset-first-diligence"
+      style={{
+        background: withAlpha(C.purple, "08"),
+        border: `1px solid ${withAlpha(C.purple, alpha.border)}`,
+        borderRadius: 14,
+        display: "grid",
+        gap: 12,
+        padding: 16,
+      }}
+    >
+      <div style={{ alignItems: "center", display: "flex", justifyContent: "space-between", gap: 10 }}>
+        <div>
+          <div style={{ color: C.purple, fontFamily: mono, fontSize: 9, fontWeight: 900, letterSpacing: "0.1em", marginBottom: 5, textTransform: "uppercase" }}>Busca asset-first</div>
+          <div style={{ color: C.text, fontSize: 15, fontWeight: 900 }}>Identidade do ativo antes do link original</div>
+        </div>
+        <Badge label={isManualMiss ? "fonte manual perdida" : status.replace(/_/g, " ")} type={isManualMiss ? "danger" : "info"} />
+      </div>
+
+      {identityBits.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {identityBits.slice(0, 6).map((bit) => <AssetFirstPill key={bit} color={C.purple}>{bit}</AssetFirstPill>)}
+        </div>
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 10 }}>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12 }}>
+          <div style={{ color: C.gold, fontFamily: mono, fontSize: 8, fontWeight: 900, letterSpacing: "0.08em", marginBottom: 8, textTransform: "uppercase" }}>Consultas laterais</div>
+          <div style={{ display: "grid", gap: 7 }}>
+            {queries.slice(0, 5).map((query) => (
+              <div key={`${query.role}-${query.query}`} style={{ borderBottom: `1px solid ${C.line}`, paddingBottom: 7 }}>
+                <div style={{ color: C.text, fontFamily: mono, fontSize: 10, fontWeight: 900 }}>{query.query}</div>
+                <div style={{ color: C.muted, fontSize: 10, lineHeight: 1.45, marginTop: 3 }}>{query.role} · {query.reason}</div>
+              </div>
+            ))}
+            {!queries.length && <div style={{ color: C.muted, fontSize: 11 }}>Sem consulta lateral gerada.</div>}
+          </div>
+        </div>
+
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12 }}>
+          <div style={{ color: C.gold, fontFamily: mono, fontSize: 8, fontWeight: 900, letterSpacing: "0.08em", marginBottom: 8, textTransform: "uppercase" }}>Fontes e lacunas</div>
+          {sources.length > 0 && (
+            <div style={{ display: "grid", gap: 6, marginBottom: 10 }}>
+              {sources.slice(0, 4).map((source) => (
+                <div key={`${source.role}-${source.source}-${source.source_url}`} style={{ color: C.text, fontSize: 11, fontWeight: 800, lineHeight: 1.45 }}>
+                  {source.role}: <span style={{ color: C.muted }}>{source.source}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {missingRoles.length
+              ? missingRoles.map((role) => <Badge key={role} label={`falta ${role}`} type="warning" />)
+              : <Badge label="papéis mínimos iniciados" type="success" />}
+          </div>
+          {nextActions.length > 0 && (
+            <p style={{ color: C.muted, fontSize: 11, lineHeight: 1.55, margin: "10px 0 0" }}>
+              Próximo: {nextActions.slice(0, 2).join("; ")}.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CostLine({ label, value, color = C.text }) {
   return (
     <div style={{ borderBottom: `1px solid ${C.line}`, display: "grid", gap: 10, gridTemplateColumns: "minmax(0, 1fr) 118px", padding: "8px 0" }}>
@@ -1362,6 +1469,7 @@ function CaseDetailPackage({ item }) {
       <PropertyPhotoGallery item={item} />
       <CandidateScreeningNumbers item={item} />
       <CommercialTermsPanel item={item} />
+      <AssetFirstDiligencePanel item={item} />
       <ExitDemand item={item} />
 
       <div style={{ display: "grid", gap: 7 }}>

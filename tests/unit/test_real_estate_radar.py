@@ -1728,3 +1728,88 @@ def test_blocked_legal_candidate_cannot_become_positive_sourcing_target() -> Non
     assert analysis["suggested_status"] == "Descartado"
     assert analysis["sourcing"]["tier"] == "bloqueado_por_p0"
     assert analysis["sourcing"]["score"] <= 45
+
+
+def test_asset_first_diligence_builds_lateral_queries_and_photo_gap() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "title": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m",
+            "origin": "Leilao Imovel / WebLeiloes / TJSP",
+            "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+            "source_validation_status": "valid",
+            "source_validation_reason": "Edital judicial WebLeiloes/TJSP analisado.",
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Capote Valente, 134 - Apto 124",
+            "listing_description": (
+                "Processo 1054685-33.2020.8.26.0100. Condominio Edificio Saint Germain. "
+                "Matricula 81.237 do 13o CRI/SP. Contribuinte 013.016.0640-5."
+            ),
+            "strategy": "Leilao judicial com reforma leve e revenda",
+            "asking_price": 342870.31,
+            "market_value_estimate": 566409.48,
+            "estimated_sale_conservative": 521096.72,
+            "estimated_sale_base": 566409.48,
+            "renovation_type": "leve",
+            "renovation_budget": 25000,
+            "occupancy_status": "desconhecido",
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 0,
+            "plan_b": "Locacao compacta em Pinheiros.",
+        }
+    )
+
+    diligence = analysis["asset_first_diligence"]
+    assert diligence["method"] == "asset_first"
+    assert diligence["asset_identity"]["process_number"] == "1054685-33.2020.8.26.0100"
+    assert diligence["asset_identity"]["matricula"] == "81.237"
+    assert diligence["asset_identity"]["unit"] == "124"
+    assert "condition_photos" in diligence["missing_source_roles"]
+    assert "market_comparable" in diligence["missing_source_roles"]
+    assert any("Leeilon" in item["query"] for item in diligence["lateral_search_queries"])
+    assert any(item["key"] == "asset_first_condition_photos" for item in analysis["pending_items"])
+
+
+def test_asset_first_diligence_uses_manual_visual_source_as_product_failure_signal() -> None:
+    analysis = build_candidate_analysis(
+        {
+            "title": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m",
+            "origin": "Leilao Imovel / WebLeiloes / TJSP",
+            "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+            "source_validation_status": "valid",
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Capote Valente, 134 - Apto 124",
+            "strategy": "Leilao judicial com fotos internas",
+            "asking_price": 342870.31,
+            "market_value_estimate": 566409.48,
+            "estimated_sale_base": 566409.48,
+            "renovation_type": "leve",
+            "renovation_budget": 25000,
+            "occupancy_status": "desconhecido",
+            "has_registration": True,
+            "has_edital": True,
+            "condo_debt_known": True,
+            "iptu_debt_known": True,
+            "sale_comparables_count": 0,
+            "condition_evidence_status": "user_found_internal_photos_pending_capture",
+            "visual_evidence": [
+                {
+                    "source": "Leeilon",
+                    "source_url": "https://www.leeilon.com.br/imovel-em-leilao/sp/sao-paulo/apartamento-3350m-pinheiros-sao-paulosp/1287519",
+                    "role": "condition_photos",
+                }
+            ],
+            "plan_b": "Locacao compacta em Pinheiros.",
+        }
+    )
+
+    diligence = analysis["asset_first_diligence"]
+    assert diligence["status"] == "manual_source_found_app_missed"
+    assert diligence["product_failure_signal"] is True
+    assert "condition_photos" not in diligence["missing_source_roles"]
+    assert diligence["source_role_counts"]["condition_photos"] == 1
+    assert not any(item["key"] == "asset_first_condition_photos" for item in analysis["pending_items"])

@@ -147,6 +147,7 @@ def test_seed_includes_target_neighborhood_pipeline_for_tomorrow() -> None:
     assert any(row["is_open"] is True for row in rows)
     assert any(row["is_open"] is False for row in rows)
     assert all("real_estate_analysis" in row for row in rows)
+    assert all(row["real_estate_analysis"].get("asset_first_diligence", {}).get("method") == "asset_first" for row in rows)
 
 
 def test_seed_includes_new_master_neighborhood_candidate_batch() -> None:
@@ -233,6 +234,25 @@ def test_pinheiros_alves_guimaraes_uses_individual_lot_source_url() -> None:
     assert candidate["source_url"] == PINHEIROS_ALVES_GUIMARAES_SOURCE_URL
     assert candidate["source_validation"]["url"] == PINHEIROS_ALVES_GUIMARAES_SOURCE_URL
     assert "/leilao-de-imovel/sp/sao-paulo/pinheiros" not in row["source_url"]
+
+
+def test_capote_valente_candidate_preserves_asset_first_visual_evidence() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    row = next(
+        row
+        for row in payload.get("thesis_open_operations", [])
+        if row.get("thesis_id") == "IM-RADAR-TARGET-PIN-01"
+    )
+    diligence = row["real_estate_analysis"]["asset_first_diligence"]
+
+    assert row["thesis_number"] == 3968
+    assert diligence["status"] == "manual_source_found_app_missed"
+    assert diligence["asset_identity"]["process_number"] == "1054685-33.2020.8.26.0100"
+    assert diligence["asset_identity"]["matricula"] == "81.237"
+    assert diligence["source_role_counts"]["condition_photos"] == 1
+    assert any(source["source"] == "Leeilon" for source in diligence["existing_sources"])
+    assert "condition_photos" not in diligence["missing_source_roles"]
+    assert any("Leeilon" in item["query"] for item in diligence["lateral_search_queries"])
 
 
 def test_campo_belo_helbor_candidate_is_closed_after_reading_auction_text() -> None:

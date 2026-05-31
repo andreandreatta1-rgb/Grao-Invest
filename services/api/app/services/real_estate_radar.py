@@ -5,6 +5,8 @@ import re
 import unicodedata
 from typing import Any
 
+from app.services.real_estate_asset_first import build_asset_first_diligence
+
 
 CONDO_DEBT_EXIT_THRESHOLD_BRL = 500_000.0
 SALE_COMPARABLE_PREFIX = "[SALE_COMPARABLE] "
@@ -1553,6 +1555,7 @@ def _sourcing_profile(
 
 
 def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
+    asset_first_diligence = build_asset_first_diligence(payload)
     listing_reading = _auction_listing_reading(payload)
     if listing_reading:
         payload = {**payload}
@@ -2301,6 +2304,29 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
             priority="P1",
             action="Usar comparaveis do mesmo condominio ou raio muito proximo.",
         )
+    if (
+        "condition_photos" in asset_first_diligence.get("missing_source_roles", [])
+        and (is_auction_like or bool(source_url))
+    ):
+        first_condition_query = next(
+            (
+                item.get("query")
+                for item in asset_first_diligence.get("lateral_search_queries", [])
+                if item.get("role") == "condition_photos"
+            ),
+            "",
+        )
+        _add_pending(
+            pending_items,
+            key="asset_first_condition_photos",
+            title="Buscar fonte lateral com fotos internas",
+            priority="P1",
+            action=(
+                "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada "
+                "e videos do mesmo ativo."
+                + (f" Primeira consulta: {first_condition_query}." if first_condition_query else "")
+            ),
+        )
     if needs_physical_condition_review:
         _add_pending(
             pending_items,
@@ -2611,6 +2637,7 @@ def build_candidate_analysis(payload: dict[str, Any]) -> dict[str, Any]:
         "debt_costs_assumed_brl": debt_costs,
         "commercial_terms": commercial_terms,
         "sourcing": sourcing,
+        "asset_first_diligence": asset_first_diligence,
         "valuation_evidence": valuation_evidence or {},
         "local_demand_evidence": local_demand_evidence or {},
         "listing_reading": listing_reading or {},

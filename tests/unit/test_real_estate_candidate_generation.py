@@ -4,6 +4,7 @@ from app.services.real_estate_candidate_generation import (
     STRATEGY_BLUEPRINTS,
     TERRITORY_BLUEPRINTS,
     generate_auctioneer_sourcing_report,
+    generate_active_auction_portal_report,
     generate_condominium_requalification_watchlist,
     generate_strategy_candidate_watchlist,
     generate_strategy_territory_candidate_briefs,
@@ -93,6 +94,22 @@ def test_auctioneer_sourcing_report_maps_official_long_tail_contact_sources() ->
     assert "sao paulo capital e campinas" in report["summary"]["actionability"].lower()
 
 
+def test_active_auction_portal_report_adds_leeilon_and_leilaoimovel_sources() -> None:
+    report = generate_active_auction_portal_report()
+    sources = report["sources"]
+
+    assert report["summary"]["source_count"] >= 8
+    assert report["summary"]["portal_counts"]["Leeilon"] >= 5
+    assert report["summary"]["portal_counts"]["Leilao Imovel"] >= 1
+    assert report["summary"]["role_counts"]["aggregator_clue"] >= 5
+    assert report["summary"]["role_counts"]["primary_legal"] >= 2
+    assert all(source["next_search_queries"] for source in sources)
+    assert all(source["next_action"].startswith("Abrir a pagina") for source in sources)
+    assert any("Pinheiros" in source["neighborhood"] for source in sources)
+    assert any("Perdizes" in source["neighborhood"] for source in sources)
+    assert any("Campinas" in source["neighborhood"] for source in sources)
+
+
 def test_strategy_territory_report_summarizes_matrix_and_watchlist() -> None:
     report = strategy_territory_report()
 
@@ -105,7 +122,9 @@ def test_strategy_territory_report_summarizes_matrix_and_watchlist() -> None:
     assert report["summary"]["source_candidate_count"] >= len(STRATEGY_BLUEPRINTS) * 2
     assert report["summary"]["auctioneer_directory_count"] == 1
     assert report["summary"]["auctioneer_contact_count"] >= 12
+    assert report["summary"]["active_auction_portal_source_count"] >= 8
     assert report["matrix_briefs"]
     assert report["strategy_candidate_watchlist"]
     assert report["condominium_requalification_watchlist"]
     assert report["auctioneer_sourcing"]["official_directories"]
+    assert report["active_auction_portal_discovery"]["sources"]

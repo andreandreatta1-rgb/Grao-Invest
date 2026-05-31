@@ -96932,6 +96932,118 @@
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
         },
+        "asset_first_diligence": {
+          "status": "manual_source_found_app_missed",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Pinheiros / Rua Capote Valente, 134 - Apto 124",
+            "address_variants": [
+              "Rua Capote Valente, 134 - Apto 124",
+              "Rua Capote Valente, 134",
+              "Sao Paulo / Pinheiros / Rua Capote Valente, 134 - Apto 124",
+              "Rua Capote Valente, 134 - Apto 124 Pinheiros",
+              "Rua Capote Valente, 134 - Apto 124 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Capote Valente, 134 - Apto 124",
+            "condominium": "Edificio Saint Germain",
+            "unit": "124",
+            "process_number": "1054685-33.2020.8.26.0100",
+            "matricula": "81.237",
+            "registry": "13o CRI/SP",
+            "taxpayer_id": "013.016.0640-5",
+            "private_area_m2": "33.5",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "primary_legal",
+              "query": "\"Rua Capote Valente, 134 - Apto 124\" \"124\"",
+              "reason": "confirmar que a fonte lateral e a mesma unidade",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Capote Valente, 134 - Apto 124\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Capote Valente, 134 - Apto 124\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Capote Valente, 134 - Apto 124\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Capote Valente, 134 - Apto 124\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Edificio Saint Germain\" \"Pinheiros\" fotos",
+              "reason": "validar fachada, padrao do predio e fotos internas",
+              "source_hint": "imagens/portais"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Edificio Saint Germain\" \"Sao Paulo\" venda",
+              "reason": "comparar com unidades do mesmo condominio",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Edificio Saint Germain\" leilao",
+              "reason": "achar leiloeiro oficial ou agregadores do ativo",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"1054685-33.2020.8.26.0100\"",
+              "reason": "seguir a cadeia judicial/processual",
+              "source_hint": "TJSP/leiloeiro"
+            },
+            {
+              "role": "primary_legal",
+              "query": "matricula \"81.237\" \"13o CRI/SP\"",
+              "reason": "confirmar registro, onus e identidade do ativo",
+              "source_hint": "cartorio/leiloeiro"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+              "status": "valid"
+            },
+            {
+              "role": "condition_photos",
+              "source": "Leeilon",
+              "source_url": "https://www.leeilon.com.br/imovel-em-leilao/sp/sao-paulo/apartamento-3350m-pinheiros-sao-paulosp/1287519",
+              "status": "condition_photos_same_asset_user_found"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1,
+            "condition_photos": 1
+          },
+          "missing_source_roles": [
+            "market_comparable"
+          ],
+          "next_actions": [
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": true,
+          "method": "asset_first"
+        },
         "valuation_evidence": {
           "source": "auction_reference_value",
           "status": "pendente",
@@ -97363,6 +97475,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Galeno de Almeida, 245\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Galeno de Almeida, 245\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -97428,6 +97560,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Pinheiros / Rua Galeno de Almeida, 245",
+            "address_variants": [
+              "Rua Galeno de Almeida, 245",
+              "Sao Paulo / Pinheiros / Rua Galeno de Almeida, 245",
+              "Rua Galeno de Almeida, 245 Pinheiros",
+              "Rua Galeno de Almeida, 245 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Galeno de Almeida, 245",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "27.22",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Galeno de Almeida, 245\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Galeno de Almeida, 245\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Galeno de Almeida, 245\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Galeno de Almeida, 245\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / Gaia Leiloes\" \"Rua Galeno de Almeida, 245\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Pinheiros\" \"27.22m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-10-vara-civel-foro-central-sp-direitos-studio-27m-haus-mitre-pinheiros-imovel-2805991",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -97828,6 +98042,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Alves Guimaraes, 866\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Alves Guimaraes, 866\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -97899,6 +98133,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Pinheiros / Rua Alves Guimaraes, 866",
+            "address_variants": [
+              "Rua Alves Guimaraes, 866",
+              "Sao Paulo / Pinheiros / Rua Alves Guimaraes, 866",
+              "Rua Alves Guimaraes, 866 Pinheiros",
+              "Rua Alves Guimaraes, 866 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Alves Guimaraes, 866",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "147",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Alves Guimaraes, 866\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Alves Guimaraes, 866\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Alves Guimaraes, 866\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Alves Guimaraes, 866\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / Santander\" \"Rua Alves Guimaraes, 866\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Pinheiros\" \"147m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apto-cobertura-duplex-147m-02-vagas-pinheiros-sao-paulo-sp-imovel-banco-santander-2810257",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -98002,19 +98318,19 @@
       "current_price_brl": 490928.97,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "status": "Fechada",
-      "outcome": "Descartado pelo radar",
+      "exit_rule": "Validar fonte manualmente",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "is_open": false,
+      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
+      "is_open": true,
       "real_estate_analysis": {
         "score": 55,
         "confidence": 43,
-        "suggested_status": "Descartado",
-        "next_action": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Validar fonte manualmente",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -98261,6 +98577,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Turiassu, 362\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Turiassu, 362\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -98333,6 +98669,88 @@
             "vistoria/fotos/orcamento"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Perdizes / Rua Turiassu, 362",
+            "address_variants": [
+              "Rua Turiassu, 362",
+              "Sao Paulo / Perdizes / Rua Turiassu, 362",
+              "Rua Turiassu, 362 Perdizes",
+              "Rua Turiassu, 362 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Perdizes",
+            "street": "Rua Turiassu, 362",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "90.8",
+            "source_domain": "proleilao.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Turiassu, 362\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Turiassu, 362\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Turiassu, 362\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Turiassu, 362\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"ProLeilao / registro individual\" \"Rua Turiassu, 362\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Perdizes\" \"90.8m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "primary_legal",
+              "source": "proleilao.com.br",
+              "source_url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "primary_legal": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -98408,24 +98826,7 @@
             "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
-        "hard_filters": [
-          "base_roi_below_target"
-        ],
-        "owner_triage": {
-          "checked_at": "2026-05-30T21:25:12-03:00",
-          "reason_code": "base_roi_below_target",
-          "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
-          "action": "descartar",
-          "exit_rule": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
-        }
-      },
-      "owner_triage": {
-        "checked_at": "2026-05-30T21:25:12-03:00",
-        "reason_code": "base_roi_below_target",
-        "evidence": "base_roi_pct=19.73; optimistic_roi_pct=25.71",
-        "action": "descartar",
-        "exit_rule": "Descartado: ROI base 19.73% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
       }
     },
     {
@@ -98728,6 +99129,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Avenida Francisco Matarazzo, 43\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Avenida Francisco Matarazzo, 43\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -98799,6 +99220,88 @@
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Perdizes / Avenida Francisco Matarazzo, 43",
+            "address_variants": [
+              "Avenida Francisco Matarazzo, 43",
+              "Sao Paulo / Perdizes / Avenida Francisco Matarazzo, 43",
+              "Avenida Francisco Matarazzo, 43 Perdizes",
+              "Avenida Francisco Matarazzo, 43 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Perdizes",
+            "street": "Avenida Francisco Matarazzo, 43",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "66",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Avenida Francisco Matarazzo, 43\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Avenida Francisco Matarazzo, 43\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Avenida Francisco Matarazzo, 43\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Avenida Francisco Matarazzo, 43\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote individual\" \"Avenida Francisco Matarazzo, 43\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Perdizes\" \"66m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-66m-perdizes-imovel-2798547",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -98903,19 +99406,19 @@
       "current_price_brl": 980137.5,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
-      "status": "Fechada",
-      "outcome": "Descartado pelo radar",
+      "exit_rule": "Validar fonte manualmente",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
-      "is_open": false,
+      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Classificar modalidade do leilao.",
+      "is_open": true,
       "real_estate_analysis": {
         "score": 48,
         "confidence": 13,
-        "suggested_status": "Descartado",
-        "next_action": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes.",
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Validar fonte manualmente",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -99213,6 +99716,26 @@
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
           },
           {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Caiowaa, 117\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Caiowaa, 117\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
+          },
+          {
             "key": "renovation_budget",
             "title": "Fazer orcamento de reforma",
             "priority": "P1",
@@ -99284,6 +99807,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Perdizes / Rua Caiowaa, 117",
+            "address_variants": [
+              "Rua Caiowaa, 117",
+              "Sao Paulo / Perdizes / Rua Caiowaa, 117",
+              "Rua Caiowaa, 117 Perdizes",
+              "Rua Caiowaa, 117 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Perdizes",
+            "street": "Rua Caiowaa, 117",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "0",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Caiowaa, 117\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Caiowaa, 117\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Caiowaa, 117\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Caiowaa, 117\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote judicial\" \"Rua Caiowaa, 117\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Perdizes\" \"0m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -99358,24 +99963,7 @@
             "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
-        "hard_filters": [
-          "benchmark_not_candidate"
-        ],
-        "owner_triage": {
-          "checked_at": "2026-05-30T21:25:12-03:00",
-          "reason_code": "benchmark_not_candidate",
-          "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
-          "action": "descartar",
-          "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
-        }
-      },
-      "owner_triage": {
-        "checked_at": "2026-05-30T21:25:12-03:00",
-        "reason_code": "benchmark_not_candidate",
-        "evidence": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
-        "action": "descartar",
-        "exit_rule": "Descartado: fonte e agregador/benchmark de mercado, nao candidato executavel com fonte individual, edital e comparaveis equivalentes."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
       }
     },
     {
@@ -99404,19 +99992,19 @@
       "current_price_brl": 793242.14,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "status": "Fechada",
-      "outcome": "Descartado pelo radar",
+      "exit_rule": "Validar fonte manualmente",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "is_open": false,
+      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar custo total de debitos, Confirmar divida de condominio.",
+      "is_open": true,
       "real_estate_analysis": {
         "score": 64,
         "confidence": 58,
-        "suggested_status": "Descartado",
-        "next_action": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Validar fonte manualmente",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -99648,6 +100236,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Viaza, 975\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Viaza, 975\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -99726,6 +100334,106 @@
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
         },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Campo Belo / Rua Viaza, 975",
+            "address_variants": [
+              "Rua Viaza, 975",
+              "Sao Paulo / Campo Belo / Rua Viaza, 975",
+              "Rua Viaza, 975 Campo Belo",
+              "Rua Viaza, 975 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Campo Belo",
+            "street": "Rua Viaza, 975",
+            "condominium": "atual antes de proposta",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "78",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Viaza, 975\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Viaza, 975\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Viaza, 975\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Viaza, 975\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"atual antes de proposta\" \"Campo Belo\" fotos",
+              "reason": "validar fachada, padrao do predio e fotos internas",
+              "source_hint": "imagens/portais"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"atual antes de proposta\" \"Sao Paulo\" venda",
+              "reason": "comparar com unidades do mesmo condominio",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"atual antes de proposta\" leilao",
+              "reason": "achar leiloeiro oficial ou agregadores do ativo",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / Caixa\" \"Rua Viaza, 975\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Campo Belo\" \"78m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
+        },
         "valuation_evidence": {
           "source": "auction_reference_value",
           "status": "pendente",
@@ -99800,24 +100508,7 @@
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
-        "hard_filters": [
-          "base_roi_below_target"
-        ],
-        "owner_triage": {
-          "checked_at": "2026-05-30T21:25:12-03:00",
-          "reason_code": "base_roi_below_target",
-          "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
-          "action": "descartar",
-          "exit_rule": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
-        }
-      },
-      "owner_triage": {
-        "checked_at": "2026-05-30T21:25:12-03:00",
-        "reason_code": "base_roi_below_target",
-        "evidence": "base_roi_pct=17.75; optimistic_roi_pct=23.64",
-        "action": "descartar",
-        "exit_rule": "Descartado: ROI base 17.75% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
       }
     },
     {
@@ -100144,6 +100835,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Vieira de Morais, 2098\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Vieira de Morais, 2098\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -100227,6 +100938,119 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Campo Belo / Rua Vieira de Morais, 2098",
+            "address_variants": [
+              "Rua Vieira de Morais, 2098",
+              "Sao Paulo / Campo Belo / Rua Vieira de Morais, 2098",
+              "Rua Vieira de Morais, 2098 Campo Belo",
+              "Rua Vieira de Morais, 2098 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Campo Belo",
+            "street": "Rua Vieira de Morais, 2098",
+            "condominium": "Helbor Apto",
+            "unit": "27",
+            "process_number": "",
+            "matricula": "256.212",
+            "registry": "15 CRI",
+            "taxpayer_id": "",
+            "private_area_m2": "65.09",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "primary_legal",
+              "query": "\"Rua Vieira de Morais, 2098\" \"27\"",
+              "reason": "confirmar que a fonte lateral e a mesma unidade",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Vieira de Morais, 2098\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Vieira de Morais, 2098\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Vieira de Morais, 2098\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Vieira de Morais, 2098\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Helbor Apto\" \"Campo Belo\" fotos",
+              "reason": "validar fachada, padrao do predio e fotos internas",
+              "source_hint": "imagens/portais"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Helbor Apto\" \"Sao Paulo\" venda",
+              "reason": "comparar com unidades do mesmo condominio",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Helbor Apto\" leilao",
+              "reason": "achar leiloeiro oficial ou agregadores do ativo",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "primary_legal",
+              "query": "matricula \"256.212\" \"15 CRI\"",
+              "reason": "confirmar registro, onus e identidade do ativo",
+              "source_hint": "cartorio/leiloeiro"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / Vieira de Moraes Leiloeiro\" \"Rua Vieira de Morais, 2098\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-extrajudicial-categoria-residenciais-cod-do-leilao-0109-26-imovel-2824988",
+              "status": "ambiguous"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Chaves na Mao",
+              "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sao-paulo-campo-belo-RS680000/id-42367031/",
+              "status": "asking_listing_same_address"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1,
+            "market_comparable": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "sale_comparables",
@@ -100382,19 +101206,19 @@
       "current_price_brl": 885000.0,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "status": "Fechada",
-      "outcome": "Descartado pelo radar",
+      "exit_rule": "Validar fonte manualmente",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "is_open": false,
+      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
+      "is_open": true,
       "real_estate_analysis": {
         "score": 62,
         "confidence": 43,
-        "suggested_status": "Descartado",
-        "next_action": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Validar fonte manualmente",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -100641,6 +101465,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Vieira de Morais, 601\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Vieira de Morais, 601\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -100712,6 +101556,88 @@
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Campo Belo / Rua Vieira de Morais, 601",
+            "address_variants": [
+              "Rua Vieira de Morais, 601",
+              "Sao Paulo / Campo Belo / Rua Vieira de Morais, 601",
+              "Rua Vieira de Morais, 601 Campo Belo",
+              "Rua Vieira de Morais, 601 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Campo Belo",
+            "street": "Rua Vieira de Morais, 601",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "95.916",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Vieira de Morais, 601\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Vieira de Morais, 601\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Vieira de Morais, 601\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Vieira de Morais, 601\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote judicial\" \"Rua Vieira de Morais, 601\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Campo Belo\" \"95.916m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -100787,24 +101713,7 @@
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
-        "hard_filters": [
-          "base_roi_below_target"
-        ],
-        "owner_triage": {
-          "checked_at": "2026-05-30T21:25:12-03:00",
-          "reason_code": "base_roi_below_target",
-          "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
-          "action": "descartar",
-          "exit_rule": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
-        }
-      },
-      "owner_triage": {
-        "checked_at": "2026-05-30T21:25:12-03:00",
-        "reason_code": "base_roi_below_target",
-        "evidence": "base_roi_pct=15.05; optimistic_roi_pct=20.80",
-        "action": "descartar",
-        "exit_rule": "Descartado: ROI base 15.05% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
       }
     },
     {
@@ -101141,6 +102050,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Constantino de Sousa, 437\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Constantino de Sousa, 437\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -101206,6 +102135,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Campo Belo / Rua Constantino de Sousa, 437",
+            "address_variants": [
+              "Rua Constantino de Sousa, 437",
+              "Sao Paulo / Campo Belo / Rua Constantino de Sousa, 437",
+              "Rua Constantino de Sousa, 437 Campo Belo",
+              "Rua Constantino de Sousa, 437 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Campo Belo",
+            "street": "Rua Constantino de Sousa, 437",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "134",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Constantino de Sousa, 437\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Constantino de Sousa, 437\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Constantino de Sousa, 437\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Constantino de Sousa, 437\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote judicial\" \"Rua Constantino de Sousa, 437\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Campo Belo\" \"134m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/campo-belo",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -101572,6 +102583,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Joaquim Floriano, 892\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Joaquim Floriano, 892\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -101649,6 +102680,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Itaim Bibi / Rua Joaquim Floriano, 892",
+            "address_variants": [
+              "Rua Joaquim Floriano, 892",
+              "Sao Paulo / Itaim Bibi / Rua Joaquim Floriano, 892",
+              "Rua Joaquim Floriano, 892 Itaim Bibi",
+              "Rua Joaquim Floriano, 892 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Itaim Bibi",
+            "street": "Rua Joaquim Floriano, 892",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "76.92",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Joaquim Floriano, 892\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Joaquim Floriano, 892\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Joaquim Floriano, 892\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Joaquim Floriano, 892\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / Mega Leiloes\" \"Rua Joaquim Floriano, 892\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Itaim Bibi\" \"76.92m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -102028,6 +103141,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Abilio Soares, 639\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Abilio Soares, 639\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -102099,6 +103232,88 @@
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Paraiso / Rua Abilio Soares, 639",
+            "address_variants": [
+              "Rua Abilio Soares, 639",
+              "Sao Paulo / Paraiso / Rua Abilio Soares, 639",
+              "Rua Abilio Soares, 639 Paraiso",
+              "Rua Abilio Soares, 639 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Paraiso",
+            "street": "Rua Abilio Soares, 639",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "101.7",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Abilio Soares, 639\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Abilio Soares, 639\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Abilio Soares, 639\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Abilio Soares, 639\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote individual\" \"Rua Abilio Soares, 639\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Paraiso\" \"101.7m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-direitos-apto-cond-ed-tocantins-araguaia-paraiso-sao-paulo-sp-imovel-2804088",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -102496,6 +103711,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Rafael de Barros, 174\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Rafael de Barros, 174\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -102561,6 +103796,88 @@
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Paraiso / Rua Rafael de Barros, 174",
+            "address_variants": [
+              "Rua Rafael de Barros, 174",
+              "Sao Paulo / Paraiso / Rua Rafael de Barros, 174",
+              "Rua Rafael de Barros, 174 Paraiso",
+              "Rua Rafael de Barros, 174 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Paraiso",
+            "street": "Rua Rafael de Barros, 174",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "120.34",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Rafael de Barros, 174\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Rafael de Barros, 174\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Rafael de Barros, 174\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Rafael de Barros, 174\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote individual\" \"Rua Rafael de Barros, 174\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Paraiso\" \"120.34m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-no-edificio-guaraja-cod-leilao-496-1-imovel-2797706",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -102925,6 +104242,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Fausto Ferraz, 227\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Fausto Ferraz, 227\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -102996,6 +104333,90 @@
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Paraiso / Rua Fausto Ferraz, 227",
+            "address_variants": [
+              "Rua Fausto Ferraz, 227",
+              "Sao Paulo / Paraiso / Rua Fausto Ferraz, 227",
+              "Rua Fausto Ferraz, 227 Paraiso",
+              "Rua Fausto Ferraz, 227 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Paraiso",
+            "street": "Rua Fausto Ferraz, 227",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "94",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Fausto Ferraz, 227\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Fausto Ferraz, 227\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Fausto Ferraz, 227\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Fausto Ferraz, 227\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / venda direta\" \"Rua Fausto Ferraz, 227\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Paraiso\" \"94m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-desocupado-imovel-2839350",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "primary_legal",
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "abrir fonte oficial por processo/matricula/leiloeiro",
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -103343,6 +104764,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Padre Carvalho, 129\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Padre Carvalho, 129\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -103426,6 +104867,88 @@
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Pinheiros / Rua Padre Carvalho, 129",
+            "address_variants": [
+              "Rua Padre Carvalho, 129",
+              "Sao Paulo / Pinheiros / Rua Padre Carvalho, 129",
+              "Rua Padre Carvalho, 129 Pinheiros",
+              "Rua Padre Carvalho, 129 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Padre Carvalho, 129",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "80",
+            "source_domain": "megaleiloes.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Padre Carvalho, 129\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Padre Carvalho, 129\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Padre Carvalho, 129\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Padre Carvalho, 129\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Mega Leiloes / Bradesco\" \"Rua Padre Carvalho, 129\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Pinheiros\" \"80m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "source_clue",
+              "source": "megaleiloes.com.br",
+              "source_url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-80-m2-sao-paulo-sp-rua-padre-carvalho-129-pinheiros-x123972",
+              "status": "valid"
+            }
+          ],
+          "source_role_counts": {
+            "source_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -103840,6 +105363,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Avenida Brigadeiro Faria Lima, 1931\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Avenida Brigadeiro Faria Lima, 1931\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -103911,6 +105454,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Pinheiros / Avenida Brigadeiro Faria Lima, 1931",
+            "address_variants": [
+              "Avenida Brigadeiro Faria Lima, 1931",
+              "Sao Paulo / Pinheiros / Avenida Brigadeiro Faria Lima, 1931",
+              "Avenida Brigadeiro Faria Lima, 1931 Pinheiros",
+              "Avenida Brigadeiro Faria Lima, 1931 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Avenida Brigadeiro Faria Lima, 1931",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "153",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Avenida Brigadeiro Faria Lima, 1931\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Avenida Brigadeiro Faria Lima, 1931\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Avenida Brigadeiro Faria Lima, 1931\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Avenida Brigadeiro Faria Lima, 1931\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote judicial\" \"Avenida Brigadeiro Faria Lima, 1931\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Pinheiros\" \"153m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-fracao-conjunto-comercial-153m-av-brig-faria-lima-sao-paulo-imovel-2826091",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -104021,19 +105646,19 @@
       "current_price_brl": 950000.0,
       "latest_price_at": "2026-05-23T11:24:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "status": "Fechada",
-      "outcome": "Descartado pelo radar",
+      "exit_rule": "Validar fonte manualmente",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
-      "is_open": false,
+      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Classificar modalidade do leilao.",
+      "is_open": true,
       "real_estate_analysis": {
         "score": 54,
         "confidence": 43,
-        "suggested_status": "Descartado",
-        "next_action": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem.",
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Validar fonte manualmente",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -104314,6 +105939,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Ministro Godoy, 478\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Ministro Godoy, 478\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -104385,6 +106030,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Perdizes / Rua Ministro Godoy, 478",
+            "address_variants": [
+              "Rua Ministro Godoy, 478",
+              "Sao Paulo / Perdizes / Rua Ministro Godoy, 478",
+              "Rua Ministro Godoy, 478 Perdizes",
+              "Rua Ministro Godoy, 478 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Perdizes",
+            "street": "Rua Ministro Godoy, 478",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "84",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Ministro Godoy, 478\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Ministro Godoy, 478\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Ministro Godoy, 478\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Ministro Godoy, 478\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote judicial\" \"Rua Ministro Godoy, 478\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Perdizes\" \"84m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -104461,24 +106188,7 @@
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/comercial-escritorio-84m-perdizes-sao-paulo-sp-imovel-2835997"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
-        "hard_filters": [
-          "base_roi_below_target"
-        ],
-        "owner_triage": {
-          "checked_at": "2026-05-30T21:25:12-03:00",
-          "reason_code": "base_roi_below_target",
-          "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
-          "action": "descartar",
-          "exit_rule": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
-        }
-      },
-      "owner_triage": {
-        "checked_at": "2026-05-30T21:25:12-03:00",
-        "reason_code": "base_roi_below_target",
-        "evidence": "base_roi_pct=18.69; optimistic_roi_pct=24.62",
-        "action": "descartar",
-        "exit_rule": "Descartado: ROI base 18.69% abaixo do alvo minimo de 20%; P0 de debito/posse/fonte so pioram a margem."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
       }
     },
     {
@@ -104816,6 +106526,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Sebastiao Paes, 389\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Sebastiao Paes, 389\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -104881,6 +106611,90 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Campo Belo / Rua Sebastiao Paes, 389",
+            "address_variants": [
+              "Rua Sebastiao Paes, 389",
+              "Sao Paulo / Campo Belo / Rua Sebastiao Paes, 389",
+              "Rua Sebastiao Paes, 389 Campo Belo",
+              "Rua Sebastiao Paes, 389 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Campo Belo",
+            "street": "Rua Sebastiao Paes, 389",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "90",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Sebastiao Paes, 389\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Sebastiao Paes, 389\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Sebastiao Paes, 389\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Sebastiao Paes, 389\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / Banco Santander PGFN\" \"Rua Sebastiao Paes, 389\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Campo Belo\" \"90m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-90m-campo-belo-sao-paulo-sp-imovel-banco-santander-comprei-pgfn-2832112",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "primary_legal",
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "abrir fonte oficial por processo/matricula/leiloeiro",
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -104985,19 +106799,19 @@
       "current_price_brl": 1771338.16,
       "latest_price_at": "2026-05-23T11:24:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico.",
-      "status": "Fechada",
-      "outcome": "Descartado pelo radar",
+      "exit_rule": "Confirmar custo total de debitos",
+      "status": "Aberta - Atencao",
+      "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico.",
-      "is_open": false,
+      "learning_note": "Antes de proposta: Confirmar custo total de debitos. Pendencias principais: Confirmar custo total de debitos, Confirmar divida de condominio, Validar valor de saida.",
+      "is_open": true,
       "real_estate_analysis": {
         "score": 53,
         "confidence": 58,
-        "suggested_status": "Descartado",
-        "next_action": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico.",
+        "suggested_status": "Aberto com pendencias",
+        "next_action": "Confirmar custo total de debitos",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -105213,6 +107027,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Bandeira Paulista, 292\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Bandeira Paulista, 292\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -105303,6 +107137,112 @@
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
         },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Itaim Bibi / Rua Bandeira Paulista, 292",
+            "address_variants": [
+              "Rua Bandeira Paulista, 292",
+              "Sao Paulo / Itaim Bibi / Rua Bandeira Paulista, 292",
+              "Rua Bandeira Paulista, 292 Itaim Bibi",
+              "Rua Bandeira Paulista, 292 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Itaim Bibi",
+            "street": "Rua Bandeira Paulista, 292",
+            "condominium": "Verona",
+            "unit": "123",
+            "process_number": "",
+            "matricula": "48.136",
+            "registry": "4 CRI",
+            "taxpayer_id": "",
+            "private_area_m2": "119.08",
+            "source_domain": "portalzuk.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "primary_legal",
+              "query": "\"Rua Bandeira Paulista, 292\" \"123\"",
+              "reason": "confirmar que a fonte lateral e a mesma unidade",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Bandeira Paulista, 292\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Bandeira Paulista, 292\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Bandeira Paulista, 292\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Bandeira Paulista, 292\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Verona\" \"Itaim Bibi\" fotos",
+              "reason": "validar fachada, padrao do predio e fotos internas",
+              "source_hint": "imagens/portais"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Verona\" \"Sao Paulo\" venda",
+              "reason": "comparar com unidades do mesmo condominio",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Verona\" leilao",
+              "reason": "achar leiloeiro oficial ou agregadores do ativo",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "primary_legal",
+              "query": "matricula \"48.136\" \"4 CRI\"",
+              "reason": "confirmar registro, onus e identidade do ativo",
+              "source_hint": "cartorio/leiloeiro"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Portal Zuk / TJSP\" \"Rua Bandeira Paulista, 292\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "primary_legal",
+              "source": "portalzuk.com.br",
+              "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
+              "status": "valid"
+            }
+          ],
+          "source_role_counts": {
+            "primary_legal": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
+        },
         "valuation_evidence": {
           "source": "auction_reference_value",
           "status": "pendente",
@@ -105384,24 +107324,7 @@
             "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
           }
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados.",
-        "hard_filters": [
-          "optimistic_roi_below_target"
-        ],
-        "owner_triage": {
-          "checked_at": "2026-05-30T21:25:12-03:00",
-          "reason_code": "optimistic_roi_below_target",
-          "evidence": "optimistic_roi_pct=16.67",
-          "action": "descartar",
-          "exit_rule": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico."
-        }
-      },
-      "owner_triage": {
-        "checked_at": "2026-05-30T21:25:12-03:00",
-        "reason_code": "optimistic_roi_below_target",
-        "evidence": "optimistic_roi_pct=16.67",
-        "action": "descartar",
-        "exit_rule": "Descartado: ROI otimista 16.67% abaixo do alvo minimo de 20% antes de debitos e risco juridico."
+        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
       }
     },
     {
@@ -105723,6 +107646,26 @@
               "Usar comparaveis do mesmo condominio ou raio muito proximo."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Correia Dias, 165\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Correia Dias, 165\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -105794,6 +107737,88 @@
             "modalidade"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Paraiso / Rua Correia Dias, 165",
+            "address_variants": [
+              "Rua Correia Dias, 165",
+              "Sao Paulo / Paraiso / Rua Correia Dias, 165",
+              "Rua Correia Dias, 165 Paraiso",
+              "Rua Correia Dias, 165 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Paraiso",
+            "street": "Rua Correia Dias, 165",
+            "condominium": "",
+            "unit": "",
+            "process_number": "",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "211.74",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Correia Dias, 165\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Correia Dias, 165\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Correia Dias, 165\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Correia Dias, 165\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / lote judicial\" \"Rua Correia Dias, 165\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Paraiso\" \"211.74m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-no-paraiso-sao-paulo-sp-imovel-2843317",
+              "status": "ambiguous"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1
+          },
+          "missing_source_roles": [
+            "condition_photos",
+            "market_comparable"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio",
+            "coletar 3 comparaveis do mesmo predio, rua ou raio curto"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "auction_reference_value",
@@ -105907,7 +107932,7 @@
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Desocupacao por conta do comprador. Pendencias principais: Desocupacao por conta do comprador, Validar demanda local e comprador.",
+      "learning_note": "Antes de proposta: Desocupacao por conta do comprador. Pendencias principais: Desocupacao por conta do comprador, Validar demanda local e comprador, Buscar fonte lateral com fotos internas.",
       "is_open": true,
       "real_estate_analysis": {
         "score": 70,
@@ -106084,6 +108109,26 @@
               "Buscar 3 vendas equivalentes no mesmo predio ou raio curto e validar oferta concorrente."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Padre Carvalho, 129 - Casa 5\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Padre Carvalho, 129 - Casa 5\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -106184,6 +108229,124 @@
           ],
           "gaps": [],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "manual_source_found_app_missed",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Pinheiros / Rua Padre Carvalho, 129 - Casa 5",
+            "address_variants": [
+              "Rua Padre Carvalho, 129 - Casa 5",
+              "Rua Padre Carvalho, 129",
+              "Sao Paulo / Pinheiros / Rua Padre Carvalho, 129 - Casa 5",
+              "Rua Padre Carvalho, 129 - Casa 5 Pinheiros",
+              "Rua Padre Carvalho, 129 - Casa 5 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Pinheiros",
+            "street": "Rua Padre Carvalho, 129 - Casa 5",
+            "condominium": "",
+            "unit": "5",
+            "process_number": "",
+            "matricula": "22.175",
+            "registry": "10 CRI",
+            "taxpayer_id": "083.204.0042-2",
+            "private_area_m2": "180",
+            "source_domain": "portalzuk.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "primary_legal",
+              "query": "\"Rua Padre Carvalho, 129 - Casa 5\" \"5\"",
+              "reason": "confirmar que a fonte lateral e a mesma unidade",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Padre Carvalho, 129 - Casa 5\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Padre Carvalho, 129 - Casa 5\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Padre Carvalho, 129 - Casa 5\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Padre Carvalho, 129 - Casa 5\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "primary_legal",
+              "query": "matricula \"22.175\" \"10 CRI\"",
+              "reason": "confirmar registro, onus e identidade do ativo",
+              "source_hint": "cartorio/leiloeiro"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Portal Zuk / Bradesco\" \"Rua Padre Carvalho, 129 - Casa 5\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Pinheiros\" \"180m2\" venda apartamento",
+              "reason": "buscar faixa de saida por metragem equivalente",
+              "source_hint": "portais de venda"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "primary_legal",
+              "source": "portalzuk.com.br",
+              "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+              "status": "valid"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Lopes",
+              "source_url": "https://www.lopes.com.br/busca/venda/br/sp/sao-paulo/pinheiros/rua-padre-carvalho/tipo/casa",
+              "status": "asking_listing_same_street"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Lopes",
+              "source_url": "https://www.lopes.com.br/busca/venda/br/sp/sao-paulo/pinheiros/rua-padre-carvalho/tipo/casa",
+              "status": "asking_listing_same_street"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Chaves na Mao",
+              "source_url": "https://www.chavesnamao.com.br/casas-a-venda/sp-sao-paulo/pinheiros/?q=Rua%20Padre%20Carvalho",
+              "status": "asking_listing_same_neighborhood"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Mega Leiloes casa 4",
+              "source_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-80-m2-sao-paulo-sp-rua-padre-carvalho-129-pinheiros-x123972",
+              "status": "failed_auction_reference"
+            }
+          ],
+          "source_role_counts": {
+            "primary_legal": 1,
+            "market_comparable": 4
+          },
+          "missing_source_roles": [
+            "condition_photos"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio"
+          ],
+          "product_failure_signal": true,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "sale_comparables",
@@ -106406,7 +108569,7 @@
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao.",
+      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Buscar fonte lateral com fotos internas.",
       "is_open": true,
       "real_estate_analysis": {
         "score": 77,
@@ -106584,6 +108747,26 @@
               "Validar com fonte oficial, corretor ou responsavel pelo edital."
             ],
             "validation_exit_criteria": "Resolvida quando ocupacao, responsavel pela desocupacao, prazo e custo estiverem documentados ou o candidato for descartado."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Cardoso de Almeida, 704 - Apto 41\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Cardoso de Almeida, 704 - Apto 41\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -106673,6 +108856,130 @@
             "fonte oficial individual"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Perdizes / Rua Cardoso de Almeida, 704 - Apto 41",
+            "address_variants": [
+              "Rua Cardoso de Almeida, 704 - Apto 41",
+              "Rua Cardoso de Almeida, 704",
+              "Sao Paulo / Perdizes / Rua Cardoso de Almeida, 704 - Apto 41",
+              "Rua Cardoso de Almeida, 704 - Apto 41 Perdizes",
+              "Rua Cardoso de Almeida, 704 - Apto 41 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Perdizes",
+            "street": "Rua Cardoso de Almeida, 704 - Apto 41",
+            "condominium": "Edificio Sena",
+            "unit": "41",
+            "process_number": "0001707-34.2022.8.26.0001",
+            "matricula": "",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "152",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "primary_legal",
+              "query": "\"Rua Cardoso de Almeida, 704 - Apto 41\" \"41\"",
+              "reason": "confirmar que a fonte lateral e a mesma unidade",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Cardoso de Almeida, 704 - Apto 41\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Cardoso de Almeida, 704 - Apto 41\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Cardoso de Almeida, 704 - Apto 41\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Cardoso de Almeida, 704 - Apto 41\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Edificio Sena\" \"Perdizes\" fotos",
+              "reason": "validar fachada, padrao do predio e fotos internas",
+              "source_hint": "imagens/portais"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Edificio Sena\" \"Sao Paulo\" venda",
+              "reason": "comparar com unidades do mesmo condominio",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Edificio Sena\" leilao",
+              "reason": "achar leiloeiro oficial ou agregadores do ativo",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"0001707-34.2022.8.26.0001\"",
+              "reason": "seguir a cadeia judicial/processual",
+              "source_hint": "TJSP/leiloeiro"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / ProLeilao / Alfa Leiloes\" \"Rua Cardoso de Almeida, 704 - Apto 41\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
+              "status": "ambiguous"
+            },
+            {
+              "role": "market_comparable",
+              "source": "VivaReal",
+              "source_url": "https://www.vivareal.com.br/condominio/edificio-sena-perdizes-id-1272becc-7a64/",
+              "status": "asking_listing_same_condo"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Lopes",
+              "source_url": "https://www.lopes.com.br/condominios/sp/sao-paulo/perdizes/REC26419/condominio-edificio-sena-rua-cardoso-de-almeida-704",
+              "status": "asking_listing_same_condo"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Lopes",
+              "source_url": "https://www.lopes.com.br/imovel/REO967523/venda-apartamento-3-quartos-sao-paulo-perdizes",
+              "status": "asking_listing_same_condo"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1,
+            "market_comparable": 3
+          },
+          "missing_source_roles": [
+            "condition_photos"
+          ],
+          "next_actions": [
+            "buscar fotos internas/externas pelo endereco e condominio"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "sale_comparables",
@@ -107125,6 +109432,26 @@
               "Buscar 3 vendas equivalentes no mesmo predio ou raio curto e validar oferta concorrente."
             ],
             "validation_exit_criteria": "Resolvida quando 3 comparaveis equivalentes e sinal de liquidez local sustentam o preco de saida conservador."
+          },
+          {
+            "key": "asset_first_condition_photos",
+            "title": "Buscar fonte lateral com fotos internas",
+            "priority": "P1",
+            "status": "aberta",
+            "action": "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Diana, 649 - Apto 13\" fotos internas.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "Anexar edital, matricula e laudo quando existirem.",
+              "Extrair texto dos PDFs; se falhar, rodar OCR ou pedir via cartorio/leiloeiro.",
+              "Conferir objeto vendido, titularidade, onus, averbacoes, restricoes e prazos.",
+              "Buscar 3 comparaveis equivalentes no mesmo predio, rua curta ou microbairro.",
+              "Rodar busca asset-first por endereco/condominio para achar fotos internas, fachada e videos do mesmo ativo. Primeira consulta: \"Rua Diana, 649 - Apto 13\" fotos internas."
+            ],
+            "validation_exit_criteria": "Resolvida quando a pendencia virar evidencia anexada, custo/modelo atualizado ou descarte explicito."
           }
         ],
         "clarified_items": [
@@ -107202,6 +109529,132 @@
             "fonte oficial individual"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
+        },
+        "asset_first_diligence": {
+          "status": "evidence_started",
+          "asset_identity": {
+            "full_address": "Sao Paulo / Perdizes / Rua Diana, 649 - Apto 13",
+            "address_variants": [
+              "Rua Diana, 649 - Apto 13",
+              "Rua Diana, 649",
+              "Sao Paulo / Perdizes / Rua Diana, 649 - Apto 13",
+              "Rua Diana, 649 - Apto 13 Perdizes",
+              "Rua Diana, 649 - Apto 13 Sao Paulo"
+            ],
+            "city": "Sao Paulo",
+            "neighborhood": "Perdizes",
+            "street": "Rua Diana, 649 - Apto 13",
+            "condominium": "Diana",
+            "unit": "13",
+            "process_number": "",
+            "matricula": "39.887",
+            "registry": "",
+            "taxpayer_id": "",
+            "private_area_m2": "77.94",
+            "source_domain": "leilaoimovel.com.br"
+          },
+          "lateral_search_queries": [
+            {
+              "role": "primary_legal",
+              "query": "\"Rua Diana, 649 - Apto 13\" \"13\"",
+              "reason": "confirmar que a fonte lateral e a mesma unidade",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Diana, 649 - Apto 13\" fotos internas",
+              "reason": "procurar estado de conservacao e reforma",
+              "source_hint": "Google/Bing/imagens"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Rua Diana, 649 - Apto 13\" Leeilon",
+              "reason": "achar espelhos com fotos ou ficha visual",
+              "source_hint": "Leeilon"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Rua Diana, 649 - Apto 13\" leilao",
+              "reason": "achar espelhos do mesmo lote em agregadores",
+              "source_hint": "agregadores"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Rua Diana, 649 - Apto 13\" venda",
+              "reason": "buscar comparaveis do mesmo endereco ou rua",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "condition_photos",
+              "query": "\"Diana\" \"Perdizes\" fotos",
+              "reason": "validar fachada, padrao do predio e fotos internas",
+              "source_hint": "imagens/portais"
+            },
+            {
+              "role": "market_comparable",
+              "query": "\"Diana\" \"Sao Paulo\" venda",
+              "reason": "comparar com unidades do mesmo condominio",
+              "source_hint": "portais de venda"
+            },
+            {
+              "role": "aggregator_clue",
+              "query": "\"Diana\" leilao",
+              "reason": "achar leiloeiro oficial ou agregadores do ativo",
+              "source_hint": "busca geral"
+            },
+            {
+              "role": "primary_legal",
+              "query": "matricula \"39.887\"",
+              "reason": "confirmar registro, onus e identidade do ativo",
+              "source_hint": "cartorio/leiloeiro"
+            },
+            {
+              "role": "primary_legal",
+              "query": "\"Leilao Imovel / Portal Bayit / Provincia\" \"Rua Diana, 649 - Apto 13\"",
+              "reason": "ligar origem/leiloeiro ao ativo",
+              "source_hint": "fonte oficial"
+            }
+          ],
+          "existing_sources": [
+            {
+              "role": "aggregator_clue",
+              "source": "leilaoimovel.com.br",
+              "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-77-9m-cod-do-leilao-provincia-0015-001-residenciais-imovel-2849516",
+              "status": "ambiguous"
+            },
+            {
+              "role": "market_comparable",
+              "source": "VivaReal",
+              "source_url": "https://www.vivareal.com.br/condominio/venda/edificio-diana-perdizes-id-043b017d-945c/",
+              "status": "asking_listing_same_condo"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Loft",
+              "source_url": "https://loft.com.br/condominio/condominio-edificio-diana-perdizes-sao-paulo-sp/O39AVJ7F",
+              "status": "asking_listing_same_condo"
+            },
+            {
+              "role": "market_comparable",
+              "source": "Chaves na Mao",
+              "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sao-paulo-perdizes-RS720000/id-22275591/",
+              "status": "asking_listing_same_condo"
+            }
+          ],
+          "source_role_counts": {
+            "aggregator_clue": 1,
+            "market_comparable": 3
+          },
+          "missing_source_roles": [
+            "primary_legal",
+            "condition_photos"
+          ],
+          "next_actions": [
+            "abrir fonte oficial por processo/matricula/leiloeiro",
+            "buscar fotos internas/externas pelo endereco e condominio"
+          ],
+          "product_failure_signal": false,
+          "method": "asset_first"
         },
         "valuation_evidence": {
           "source": "sale_comparables",
@@ -107405,15 +109858,15 @@
     "real_estate": {
       "total_tested": 40,
       "success_rate_pct": 0,
-      "resolved_count": 33,
+      "resolved_count": 27,
       "success_count": 0,
       "updated_at": "2026-05-30T00:07:25+00:00",
       "counting_policy": "radar_candidates",
       "mapped_count": 40,
       "radar_total": 40,
-      "open_count": 7,
-      "closed_count": 33,
-      "p0_count": 30
+      "open_count": 13,
+      "closed_count": 27,
+      "p0_count": 63
     }
   },
   "data_quality_gate": {

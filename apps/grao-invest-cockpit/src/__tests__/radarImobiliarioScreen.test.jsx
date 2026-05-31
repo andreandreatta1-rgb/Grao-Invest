@@ -2254,6 +2254,84 @@ describe("Radar Imobiliário screen", () => {
     expect(within(portfolio).queryByRole("link", { name: /Abrir link real da Ref\. venda 02/i })).not.toBeInTheDocument();
   });
 
+  it("shows asset-first lateral search evidence in the candidate detail", async () => {
+    const user = userEvent.setup();
+    const data = {
+      thesisRows: [
+        {
+          id: "3968",
+          thesisId: "IM-RADAR-TARGET-PIN-01",
+          front: "imoveis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m",
+          operation: "Leilao judicial WebLeiloes + studio Pinheiros",
+          sourceUrl: "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+          entryPrice: 342870.31,
+          targetPrice: 566409.48,
+          realEstateAnalysis: {
+            score: 69,
+            confidence: 53,
+            max_purchase_price: 350592.28,
+            scenarios: {
+              base: { sale_price: 566409.48, net_profit: 131989.08, roi_pct: 32.5 },
+            },
+            pending_items: [{ priority: "P0", title: "Confirmar ocupacao", action: "Validar fonte oficial." }],
+            source_validation: { status: "valid", reason: "Edital judicial WebLeiloes/TJSP analisado." },
+            asset_first_diligence: {
+              method: "asset_first",
+              status: "manual_source_found_app_missed",
+              product_failure_signal: true,
+              asset_identity: {
+                full_address: "Sao Paulo / Pinheiros / Rua Capote Valente, 134 - Apto 124",
+                condominium: "Edificio Saint Germain",
+                unit: "124",
+                process_number: "1054685-33.2020.8.26.0100",
+                matricula: "81.237",
+              },
+              lateral_search_queries: [
+                {
+                  role: "condition_photos",
+                  query: "\"Rua Capote Valente, 134 - Apto 124\" Leeilon",
+                  reason: "achar espelhos com fotos ou ficha visual",
+                },
+              ],
+              existing_sources: [
+                {
+                  role: "condition_photos",
+                  source: "Leeilon",
+                  source_url: "https://www.leeilon.com.br/imovel-em-leilao/sp/sao-paulo/apartamento-3350m-pinheiros-sao-paulosp/1287519",
+                },
+              ],
+              missing_source_roles: ["market_comparable"],
+              next_actions: ["coletar 3 comparaveis do mesmo predio, rua ou raio curto"],
+            },
+            candidate: {
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              street: "Rua Capote Valente, 134 - Apto 124",
+              property_type: "Apartamento residencial",
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const portfolio = screen.getByTestId("radar-imobiliario-portfolio");
+    await user.click(within(portfolio).getByRole("button", { name: /Abrir Sao Paulo \/ Pinheiros \/ Capote Valente/i }));
+
+    const panel = within(portfolio).getByTestId("asset-first-diligence");
+    expect(within(panel).getByText(/Busca asset-first/i)).toBeInTheDocument();
+    expect(within(panel).getByText(/fonte manual perdida/i)).toBeInTheDocument();
+    expect(within(panel).getByText(/1054685-33\.2020\.8\.26\.0100/i)).toBeInTheDocument();
+    expect(within(panel).getByText(/Rua Capote Valente, 134 - Apto 124.*Leeilon/i)).toBeInTheDocument();
+    expect(within(panel).getAllByText((_, element) => element?.textContent === "condition_photos: Leeilon").length).toBeGreaterThan(0);
+    expect(within(panel).getByText(/falta market_comparable/i)).toBeInTheDocument();
+  });
+
   it("renders radar subareas as isolated content views", () => {
     render(<RadarImobiliario data={{ realEstateStrategyTerritoryCandidates: {} }} section="garimpo" />);
 
