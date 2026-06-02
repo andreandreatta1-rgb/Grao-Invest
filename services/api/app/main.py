@@ -5550,6 +5550,130 @@ def dashboard_summary(
 
     _append_seed_real_estate_discovery_operations()
 
+    def _real_estate_row_analysis(row: dict[str, object]) -> dict[str, object]:
+        analysis = row.get("real_estate_analysis")
+        return analysis if isinstance(analysis, dict) else {}
+
+    def _real_estate_row_candidate(row: dict[str, object]) -> dict[str, object]:
+        candidate = _real_estate_row_analysis(row).get("candidate")
+        return candidate if isinstance(candidate, dict) else {}
+
+    def _real_estate_asset_identity(row: dict[str, object]) -> dict[str, object]:
+        diligence = _real_estate_row_analysis(row).get("asset_first_diligence")
+        if not isinstance(diligence, dict):
+            return {}
+        identity = diligence.get("asset_identity")
+        return identity if isinstance(identity, dict) else {}
+
+    def _canonical_real_estate_text(value: object) -> str:
+        text = str(value or "").strip().lower()
+        if not text:
+            return ""
+        text = re.sub(r"https?://", "", text)
+        text = text.rstrip("/")
+        text = re.sub(r"[\s,.;:]+", " ", text)
+        return text.strip()
+
+    def _real_estate_identity_keys(row: dict[str, object]) -> list[str]:
+        if not isinstance(_real_estate_row_analysis(row), dict):
+            return []
+        candidate = _real_estate_row_candidate(row)
+        identity = _real_estate_asset_identity(row)
+        keys: list[str] = []
+        source_url = _canonical_real_estate_text(
+            row.get("source_url") or candidate.get("source_url")
+        )
+        if source_url:
+            keys.append(f"url:{source_url}")
+        process_number = _canonical_real_estate_text(
+            identity.get("process_number") or candidate.get("process_number")
+        )
+        unit = _canonical_real_estate_text(identity.get("unit") or candidate.get("unit"))
+        address = _canonical_real_estate_text(
+            identity.get("full_address")
+            or identity.get("street")
+            or candidate.get("street")
+            or candidate.get("address")
+        )
+        area = _safe_number(
+            identity.get("private_area_m2"),
+            _safe_number(candidate.get("private_area_m2"), 0.0),
+        )
+        if process_number and unit:
+            keys.append(f"process_unit:{process_number}|{unit}")
+        if address and unit and area > 0:
+            keys.append(f"asset:{address}|unit:{unit}|area:{area:.1f}")
+        return keys
+
+    def _real_estate_maturity_score(row: dict[str, object]) -> tuple[int, int, int, int]:
+        analysis = _real_estate_row_analysis(row)
+        candidate = _real_estate_row_candidate(row)
+        identity = _real_estate_asset_identity(row)
+        pending = analysis.get("pending_items")
+        clarified = analysis.get("clarified_items")
+        valuation = analysis.get("valuation_evidence")
+        source_validation = row.get("source_validation")
+        source_validation_dict = source_validation if isinstance(source_validation, dict) else {}
+        source_status = str(
+            row.get("source_validation_status")
+            or source_validation_dict.get("status")
+            or ""
+        ).lower()
+        exact_identity_fields = sum(
+            1
+            for key in ("full_address", "street", "unit", "process_number", "condominium")
+            if str(identity.get(key) or "").strip()
+        )
+        analysis_depth = len(analysis)
+        if isinstance(pending, list):
+            analysis_depth += len(pending) * 2
+        if isinstance(clarified, list):
+            analysis_depth += len(clarified) * 2
+        if isinstance(valuation, dict):
+            analysis_depth += len(valuation)
+        if isinstance(candidate, dict):
+            analysis_depth += sum(1 for value in candidate.values() if value not in (None, "", []))
+        source_rank = {"valid": 4, "ambiguous": 3, "unchecked": 1}.get(source_status, 0)
+        thesis_number = _safe_int(row.get("thesis_number"), 0)
+        return (exact_identity_fields, source_rank, analysis_depth, -thesis_number)
+
+    def _dedupe_real_estate_open_operations() -> None:
+        nonlocal thesis_open_operations
+        best_index_by_key: dict[str, int] = {}
+        duplicate_indexes: set[int] = set()
+        for index, row in enumerate(thesis_open_operations):
+            if not isinstance(row, dict):
+                continue
+            keys = _real_estate_identity_keys(row)
+            if not keys:
+                continue
+            matched_indexes = {
+                existing_index
+                for key in keys
+                if (existing_index := best_index_by_key.get(key)) is not None
+            }
+            if not matched_indexes:
+                for key in keys:
+                    best_index_by_key[key] = index
+                continue
+            candidates = matched_indexes | {index}
+            best_index = max(
+                candidates,
+                key=lambda candidate_index: _real_estate_maturity_score(
+                    thesis_open_operations[candidate_index]
+                ),
+            )
+            for duplicate_index in candidates - {best_index}:
+                duplicate_indexes.add(duplicate_index)
+            for key in keys:
+                best_index_by_key[key] = best_index
+        if duplicate_indexes:
+            thesis_open_operations = [
+                row
+                for index, row in enumerate(thesis_open_operations)
+                if index not in duplicate_indexes
+            ]
+
     def _append_real_estate_candidate_operations() -> None:
         existing_index_by_id = {
             str(row.get("thesis_id") or ""): index
@@ -5792,6 +5916,7 @@ def dashboard_summary(
                 thesis_open_operations[existing_index] = operation_row
 
     _append_real_estate_candidate_operations()
+    _dedupe_real_estate_open_operations()
 
     for row in thesis_open_operations:
         if not str(row.get("phase") or "").strip():

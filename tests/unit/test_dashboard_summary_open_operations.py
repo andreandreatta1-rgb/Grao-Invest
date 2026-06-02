@@ -130,3 +130,118 @@ def test_dashboard_summary_closes_overdue_current_operation(
     assert row["status"] == "Fechada"
     assert row["outcome"] == "Tempo"
     assert row["is_open"] is False
+
+
+def test_dashboard_summary_dedupes_real_estate_candidates_by_asset_identity(
+    client,
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app import main as main_module
+
+    runtime_dir = tmp_path / "runtime"
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    source_url = (
+        "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/"
+        "residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149"
+    )
+    seed_payload = {
+        "generated_at": "2026-06-02T10:00:00-03:00",
+        "user_id": 1,
+        "historical_analysis_summary": {"thesis_count": 1},
+        "current_simulation_summary": {"thesis_count": 0},
+        "current_simulation_daily": [],
+        "thesis_history_overview": {"total_tested": 2},
+        "thesis_executive_summary": {},
+        "front_overview": {},
+        "thesis_open_operations": [
+            {
+                "phase": "pos_go_live",
+                "thesis_number": 6426,
+                "thesis_id": "IM-RADAR-TARGET-PER-05",
+                "thesis_raised_at": "2026-05-30T20:10:00-03:00",
+                "front": "imoveis",
+                "source_url": source_url,
+                "source_validation_status": "ambiguous",
+                "status": "Aberta - Atencao",
+                "outcome": "Pendencias abertas",
+                "planned_exit_at": "2026-06-03",
+                "real_estate_analysis": {
+                    "score": 77,
+                    "candidate": {
+                        "source_url": source_url,
+                        "city": "Sao Paulo",
+                        "neighborhood": "Perdizes",
+                        "private_area_m2": 152,
+                    },
+                    "asset_first_diligence": {
+                        "asset_identity": {
+                            "full_address": (
+                                "Sao Paulo / Perdizes / "
+                                "Rua Cardoso de Almeida, 704 - Apto 41"
+                            ),
+                            "street": "Rua Cardoso de Almeida, 704 - Apto 41",
+                            "unit": "41",
+                            "process_number": "0001707-34.2022.8.26.0001",
+                            "condominium": "Edificio Sena",
+                            "private_area_m2": "152",
+                        }
+                    },
+                    "valuation_evidence": {"sale_comparables_count": 3},
+                    "pending_items": [{"priority": "P0", "title": "Validar fonte"}],
+                },
+            },
+            {
+                "phase": "pos_go_live",
+                "thesis_number": 6429,
+                "thesis_id": "IM-RADAR-27",
+                "thesis_raised_at": "2026-05-30T20:10:00-03:00",
+                "front": "imoveis",
+                "source_url": source_url,
+                "source_validation_status": "unchecked",
+                "status": "Aberta - Atencao",
+                "outcome": "Pendencias abertas",
+                "planned_exit_at": "2026-06-16",
+                "real_estate_analysis": {
+                    "score": 72,
+                    "candidate": {
+                        "source_url": source_url,
+                        "city": "Sao Paulo",
+                        "neighborhood": "Perdizes",
+                        "private_area_m2": 152,
+                    },
+                    "asset_first_diligence": {
+                        "asset_identity": {
+                            "full_address": "Sao Paulo / Perdizes",
+                            "private_area_m2": "152",
+                        }
+                    },
+                    "pending_items": [{"priority": "P0", "title": "Validar fonte"}],
+                },
+            },
+        ],
+    }
+    (runtime_dir / "dashboard_seed.json").write_text(
+        json.dumps(seed_payload),
+        encoding="utf-8",
+    )
+
+    original_data_dir = main_module.data_dir
+    original_bundled_data_dir = main_module.bundled_data_dir
+    main_module.data_dir = runtime_dir
+    main_module.bundled_data_dir = runtime_dir
+    try:
+        response = client.get("/api/dashboard/summary/1")
+        assert response.status_code == 200
+        payload = response.json()
+    finally:
+        main_module.data_dir = original_data_dir
+        main_module.bundled_data_dir = original_bundled_data_dir
+
+    real_estate_rows = [
+        row
+        for row in payload["thesis_open_operations"]
+        if row.get("source_url") == source_url
+    ]
+    assert [row["thesis_id"] for row in real_estate_rows] == ["IM-RADAR-TARGET-PER-05"]
+    assert real_estate_rows[0]["thesis_number"] == 6426
