@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T09:00:25+00:00",
+  "generated_at": "2026-06-02T11:36:35+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -207,19 +207,19 @@
         ]
       }
     ],
-    "event_count": 7139,
-    "global_event_count": 7142,
+    "event_count": 7143,
+    "global_event_count": 7146,
     "global_total_tested": 4234,
     "user_total_tested": 4233,
     "sources": {
       "case_study_runs": 4234,
-      "current_monitor_runs": 758
+      "current_monitor_runs": 761
     },
     "sample_quality": {
       "counting_policy": "unique_resolved_case_studies",
-      "raw_case_study_events": 6384,
-      "duplicate_case_study_events_excluded": 2150,
-      "current_monitor_snapshots_excluded": 758,
+      "raw_case_study_events": 6385,
+      "duplicate_case_study_events_excluded": 2151,
+      "current_monitor_snapshots_excluded": 761,
       "current_monitor_policy": "excluded_until_resolved_and_deduplicated"
     },
     "avg_resolution_days": 1.17,
@@ -121539,8 +121539,27 @@
       "is_open": false
     },
     {
-      "phase": "pos_go_live",
+      "phase": "historico",
       "thesis_number": 6385,
+      "thesis_id": "TH-PETR4-bullish-3514",
+      "thesis_raised_at": "2026-06-02T11:35:50+00:00",
+      "action": "PETR4",
+      "thesis_reason": "Tese historica compra para PETR4 no exercicio continuo. Registro legado com confianca 80.55% e retorno esperado 4.82%.",
+      "expected_result_pct": 4.8219,
+      "operation_plan": "Compra ate - (case study historico continuo; detalhes completos de prazo/preco nao persistidos no evento legado)",
+      "structured_operation": "Bull Call Spread | ganho max n/d | perda max n/d",
+      "entry_price_brl": null,
+      "exit_rule": "Sai por alvo/stop/tempo da estrategia (detalhe de preco indisponivel no legado)",
+      "status": "Fechada",
+      "outcome": "Alvo",
+      "moment_result_pct": 3.1405,
+      "duration_days": null,
+      "learning_note": "A direção estava correta, mas o ganho veio abaixo do esperado. Próxima: calibrar melhor alvo e prazo.",
+      "is_open": false
+    },
+    {
+      "phase": "pos_go_live",
+      "thesis_number": 6386,
       "thesis_id": "TH-PETR4-bearish-0008",
       "thesis_raised_at": "2026-06-01T00:00:00+00:00",
       "action": "PETR4",
@@ -121563,7 +121582,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6386,
+      "thesis_number": 6387,
       "thesis_id": "TH-GGBR4-bearish-0089",
       "thesis_raised_at": "2026-05-29T00:00:00+00:00",
       "action": "GGBR4",
@@ -121586,7 +121605,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6387,
+      "thesis_number": 6388,
       "thesis_id": "TH-PRIO3-bearish-0076",
       "thesis_raised_at": "2026-06-01T00:00:00+00:00",
       "action": "PRIO3",
@@ -121609,7 +121628,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6388,
+      "thesis_number": 6389,
       "thesis_id": "TH-BPAC11-bearish-0120",
       "thesis_raised_at": "2026-06-01T00:00:00+00:00",
       "action": "BPAC11",
@@ -121632,7 +121651,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6389,
+      "thesis_number": 6390,
       "thesis_id": "TH-B3SA3-bearish-0050",
       "thesis_raised_at": "2026-05-22T00:00:00+00:00",
       "action": "B3SA3",
@@ -121655,7 +121674,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6390,
+      "thesis_number": 6391,
       "thesis_id": "TH-HAPV3-bearish-0112",
       "thesis_raised_at": "2026-06-01T00:00:00+00:00",
       "action": "HAPV3",
@@ -121678,7 +121697,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6391,
+      "thesis_number": 6392,
       "thesis_id": "TH-BTCUSDT-range-0008",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "BTCUSDT",
@@ -121701,7 +121720,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6392,
+      "thesis_number": 6393,
       "thesis_id": "TH-ETHUSDT-range-0016",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "ETHUSDT",
@@ -121724,7 +121743,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6393,
+      "thesis_number": 6394,
       "thesis_id": "TH-SOLUSDT-range-0024",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "SOLUSDT",
@@ -121747,7 +121766,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6394,
+      "thesis_number": 6395,
       "thesis_id": "TH-BNBUSDT-range-0031",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "BNBUSDT",
@@ -121770,7 +121789,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6395,
+      "thesis_number": 6396,
       "thesis_id": "TH-LTCUSDT-range-0077",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "LTCUSDT",
@@ -121793,7 +121812,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6396,
+      "thesis_number": 6397,
       "thesis_id": "TH-ADAUSDT-range-0046",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "ADAUSDT",
@@ -121816,7 +121835,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6397,
+      "thesis_number": 6398,
       "thesis_id": "TH-AVAXUSDT-range-0062",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "AVAXUSDT",
@@ -121839,7 +121858,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6398,
+      "thesis_number": 6399,
       "thesis_id": "TH-DOGEUSDT-range-0054",
       "thesis_raised_at": "2026-06-01T15:29:59+00:00",
       "action": "DOGEUSDT",
@@ -121862,7 +121881,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6399,
+      "thesis_number": 6400,
       "thesis_id": "IM-FOLHA-FRAZAO-SAUDE-37528",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -122133,7 +122152,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6400,
+      "thesis_number": 6401,
       "thesis_id": "IM-FOLHA-FRAZAO-PARADA-INGLESA-37570",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -122503,7 +122522,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6401,
+      "thesis_number": 6402,
       "thesis_id": "IM-FOLHA-FRAZAO-CAMPINAS-37386",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -122751,7 +122770,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6402,
+      "thesis_number": 6403,
       "thesis_id": "IM-FOLHA-FRAZAO-BUTANTA-37467",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -122969,7 +122988,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6403,
+      "thesis_number": 6404,
       "thesis_id": "IM-FOLHA-FRAZAO-BELENZINHO-37539",
       "thesis_raised_at": "2026-05-18T12:00:00+00:00",
       "front": "imoveis",
@@ -123197,7 +123216,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6404,
+      "thesis_number": 6405,
       "thesis_id": "IM-RADAR-TARGET-PIN-01",
       "thesis_raised_at": "2026-05-30T20:58:00-03:00",
       "front": "imoveis",
@@ -123750,7 +123769,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6405,
+      "thesis_number": 6406,
       "thesis_id": "IM-RADAR-TARGET-PIN-02",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -124332,7 +124351,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6406,
+      "thesis_number": 6407,
       "thesis_id": "IM-RADAR-TARGET-PIN-03",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -124901,7 +124920,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6407,
+      "thesis_number": 6408,
       "thesis_id": "IM-RADAR-TARGET-PER-01",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -125438,7 +125457,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6408,
+      "thesis_number": 6409,
       "thesis_id": "IM-RADAR-TARGET-PER-02",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -125989,7 +126008,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6409,
+      "thesis_number": 6410,
       "thesis_id": "IM-RADAR-TARGET-PER-03",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -126575,7 +126594,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6410,
+      "thesis_number": 6411,
       "thesis_id": "IM-RADAR-TARGET-CAM-01",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -127120,7 +127139,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6411,
+      "thesis_number": 6412,
       "thesis_id": "IM-RADAR-TARGET-CAM-02",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -127789,7 +127808,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6412,
+      "thesis_number": 6413,
       "thesis_id": "IM-RADAR-TARGET-CAM-03",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -128325,7 +128344,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6413,
+      "thesis_number": 6414,
       "thesis_id": "IM-RADAR-TARGET-CAM-04",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -128903,7 +128922,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6414,
+      "thesis_number": 6415,
       "thesis_id": "IM-RADAR-TARGET-ITA-01",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -129450,7 +129469,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6415,
+      "thesis_number": 6416,
       "thesis_id": "IM-RADAR-TARGET-PAR-01",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -130005,7 +130024,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6416,
+      "thesis_number": 6417,
       "thesis_id": "IM-RADAR-TARGET-PAR-02",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -130565,7 +130584,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6417,
+      "thesis_number": 6418,
       "thesis_id": "IM-RADAR-TARGET-PAR-03",
       "thesis_raised_at": "2026-05-20T21:00:00-03:00",
       "front": "imoveis",
@@ -131104,7 +131123,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6418,
+      "thesis_number": 6419,
       "thesis_id": "IM-RADAR-TARGET-PIN-04",
       "thesis_raised_at": "2026-05-23T11:24:00-03:00",
       "front": "imoveis",
@@ -131638,7 +131657,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6419,
+      "thesis_number": 6420,
       "thesis_id": "IM-RADAR-TARGET-PIN-05",
       "thesis_raised_at": "2026-05-23T11:24:00-03:00",
       "front": "imoveis",
@@ -132229,7 +132248,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6420,
+      "thesis_number": 6421,
       "thesis_id": "IM-RADAR-TARGET-PER-04",
       "thesis_raised_at": "2026-05-23T11:24:00-03:00",
       "front": "imoveis",
@@ -132800,7 +132819,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6421,
+      "thesis_number": 6422,
       "thesis_id": "IM-RADAR-TARGET-CAM-05",
       "thesis_raised_at": "2026-05-23T11:24:00-03:00",
       "front": "imoveis",
@@ -133382,7 +133401,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6422,
+      "thesis_number": 6423,
       "thesis_id": "IM-RADAR-TARGET-ITA-02",
       "thesis_raised_at": "2026-05-23T11:24:00-03:00",
       "front": "imoveis",
@@ -133936,7 +133955,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6423,
+      "thesis_number": 6424,
       "thesis_id": "IM-RADAR-TARGET-PAR-04",
       "thesis_raised_at": "2026-05-23T11:24:00-03:00",
       "front": "imoveis",
@@ -134509,7 +134528,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6424,
+      "thesis_number": 6425,
       "thesis_id": "IM-RADAR-TARGET-PIN-06",
       "thesis_raised_at": "2026-05-27T18:00:00-03:00",
       "front": "imoveis",
@@ -135146,7 +135165,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6425,
+      "thesis_number": 6426,
       "thesis_id": "IM-RADAR-TARGET-PER-05",
       "thesis_raised_at": "2026-05-30T20:10:00-03:00",
       "front": "imoveis",
@@ -135770,7 +135789,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6426,
+      "thesis_number": 6427,
       "thesis_id": "IM-RADAR-TARGET-PER-06",
       "thesis_raised_at": "2026-05-30T20:10:00-03:00",
       "front": "imoveis",
@@ -136444,7 +136463,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6427,
+      "thesis_number": 6428,
       "thesis_id": "IM-RADAR-28",
       "thesis_raised_at": "2026-05-30T20:10:00-03:00",
       "front": "imoveis",
@@ -136473,7 +136492,7 @@
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 2,
+      "open_days": 3,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Buscar edital oficial, Confirmar custo total de debitos.",
       "real_estate_analysis": {
         "score": 64,
@@ -136995,7 +137014,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6428,
+      "thesis_number": 6429,
       "thesis_id": "IM-RADAR-27",
       "thesis_raised_at": "2026-05-30T20:10:00-03:00",
       "front": "imoveis",
@@ -137024,7 +137043,7 @@
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 2,
+      "open_days": 3,
       "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar fonte lateral com fotos internas.",
       "real_estate_analysis": {
         "score": 72,
@@ -137510,7 +137529,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6429,
+      "thesis_number": 6430,
       "thesis_id": "IM-RADAR-26",
       "thesis_raised_at": "2026-05-23T21:16:43+00:00",
       "front": "imoveis",
@@ -137539,7 +137558,7 @@
       "outcome": "Pendencias abertas",
       "moment_result_pct": 0.0,
       "duration_days": null,
-      "open_days": 9,
+      "open_days": 10,
       "learning_note": "Antes de proposta: Confirmar custo total de debitos. Pendencias principais: Confirmar custo total de debitos, Confirmar divida de condominio, Confirmar divida de IPTU.",
       "real_estate_analysis": {
         "score": 61,
@@ -138117,7 +138136,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6430,
+      "thesis_number": 6431,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -138644,7 +138663,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6431,
+      "thesis_number": 6432,
       "thesis_id": "IM-RADAR-20",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -139192,7 +139211,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6432,
+      "thesis_number": 6433,
       "thesis_id": "IM-RADAR-25",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -139770,7 +139789,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6433,
+      "thesis_number": 6434,
       "thesis_id": "IM-RADAR-24",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -140348,7 +140367,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6434,
+      "thesis_number": 6435,
       "thesis_id": "IM-RADAR-23",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -140896,7 +140915,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6435,
+      "thesis_number": 6436,
       "thesis_id": "IM-RADAR-22",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -141448,7 +141467,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6436,
+      "thesis_number": 6437,
       "thesis_id": "IM-RADAR-21",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -142090,7 +142109,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6437,
+      "thesis_number": 6438,
       "thesis_id": "IM-RADAR-19",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -142668,7 +142687,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6438,
+      "thesis_number": 6439,
       "thesis_id": "IM-RADAR-18",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -143401,7 +143420,7 @@
     "recommended_actions": []
   },
   "ops_health": {
-    "generated_at": "2026-06-02T07:38:47+00:00",
+    "generated_at": "2026-06-02T11:36:36+00:00",
     "user_id": 1,
     "status": "ok",
     "message": "Ciclo operacional saudavel. O laboratorio publicou dados atuais dentro do contrato.",
@@ -143415,74 +143434,37 @@
         "message": "Task Scheduler aponta para powershell.exe com paths protegidos.",
         "details": {
           "status": "ok",
-          "repo_root": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-          "checked_at": "2026-06-02T07:39:01.1717118Z",
+          "task_count": 6,
           "tasks": [
             {
               "task_name": "GraoInvest-B3-01",
               "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1780371001000)/",
-              "last_task_result": 0,
-              "next_run_time": "/Date(1780457400000)/"
+              "last_task_result": 0
             },
             {
               "task_name": "GraoInvest-B3-02",
               "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1780385401000)/",
-              "last_task_result": 267009,
-              "next_run_time": "/Date(1780471800000)/"
+              "last_task_result": 0
             },
             {
               "task_name": "GraoInvest-B3-03",
               "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1780316999000)/",
-              "last_task_result": 2147946720,
-              "next_run_time": "/Date(1780399800000)/"
+              "last_task_result": 267009
             },
             {
               "task_name": "GraoInvest-B3-04",
               "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1780327801000)/",
-              "last_task_result": 0,
-              "next_run_time": "/Date(1780414200000)/"
+              "last_task_result": 0
             },
             {
               "task_name": "GraoInvest-B3-05",
               "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_b3_automation_cycle.ps1\" -RepoRoot \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\" -UserId 1 -FlushRetries 160",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1780342201000)/",
-              "last_task_result": 3221225786,
-              "next_run_time": "/Date(1780428600000)/"
+              "last_task_result": 3221225786
             },
             {
               "task_name": "GraoInvest-CaseStudy-Night",
               "ok": true,
-              "issues": [],
-              "execute": "powershell.exe",
-              "arguments": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia\\scripts\\run_case_study_overnight_loop.ps1\" -SleepSeconds 5 -PublishEveryMinutes 30 -EndHour 6",
-              "working_directory": "C:\\Users\\Andreatta\\OneDrive - Oracle Corporation\\Andreatta OD\\Pessoal\\A Projetos\\Assistente de Investimento\\ProjectOne - Copia",
-              "last_run_time": "/Date(1780362001000)/",
-              "last_task_result": 2147946720,
-              "next_run_time": "/Date(1780448400000)/"
+              "last_task_result": 0
             }
           ]
         }
@@ -143490,8 +143472,8 @@
       "b3_daily_job": {
         "status": "ok",
         "message": "Resumo do ultimo job B3 encontrado.",
-        "run_at": "2026-06-02T07:35:57+00:00",
-        "age_days": 0.002,
+        "run_at": "2026-06-02T11:34:38+00:00",
+        "age_days": 0.001,
         "build_executed": false,
         "load_executed": true,
         "case_study_executed": true,
@@ -143535,7 +143517,7 @@
                 "count": 18
               }
             ],
-            "age_days": 1.319,
+            "age_days": 1.484,
             "max_age_days": 4.0
           },
           "crypto": {
@@ -143550,7 +143532,7 @@
                 "count": 31176
               }
             ],
-            "age_days": 0.673,
+            "age_days": 0.838,
             "max_age_days": 1.0
           }
         }
@@ -143558,7 +143540,7 @@
       "current_thesis_generator": {
         "status": "ok",
         "message": "Gerador publicou teses atuais.",
-        "generated_at": "2026-06-02T07:37:48+00:00",
+        "generated_at": "2026-06-02T11:35:52+00:00",
         "thesis_count": 14,
         "summary": {
           "target_hits": 0,
@@ -143576,11 +143558,11 @@
       "dashboard_seed": {
         "status": "ok",
         "message": "Dashboard seed legivel.",
-        "generated_at": "2026-06-02T07:38:46+00:00",
+        "generated_at": "2026-06-02T11:36:35+00:00",
         "age_days": 0.0,
-        "thesis_open_operations": 6301,
+        "thesis_open_operations": 6439,
         "operations_by_front": {
-          "sem_frente": 6261,
+          "sem_frente": 6399,
           "imoveis": 40
         }
       },
