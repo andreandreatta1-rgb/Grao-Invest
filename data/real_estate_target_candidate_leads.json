@@ -1501,7 +1501,7 @@
     "plan_b": "Deixar como estudo de desconto aparente. So reabre se o edital provar sub-rogacao/limite dos R$ 175k de condominio e se o imovel estiver desocupado ou com plano juridico claro.",
     "listing_description": "ProLeilao indexa li2833723: apartamento 32 do Edificio Mont Rouge, Rua Manoel Antonio Pinto 4, Butanta, 189,13m2 privativos, 324,10m2 totais, 3 boxes/vagas e deposito. Leilao em 14/07/2026 por R$ 300.000,00 contra avaliacao de R$ 750.000,00. A propria fonte aponta penhoras, indisponibilidades e debitos condominiais de R$ 175.247,65 ate 27/02/2026.",
     "source_validation_status": "ambiguous",
-    "source_validation_reason": "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
+    "source_validation_reason": "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
     "observed_at": "2026-06-02T15:46:43-03:00",
     "source_checked_at": "2026-06-02T15:46:43-03:00",
     "thesis_number": 4056
@@ -1576,8 +1576,8 @@
     "local_demand_risk": "baixo",
     "plan_b": "Nao e alvo para lance do investidor sozinho. Reavaliar apenas se houver coinvestidor e se a entrega da posse em ate 20 dias for confirmada por escrito.",
     "listing_description": "Mega Leiloes X123642: apartamento 22, Edificio Personale Campo Belo, Rua Barao do Triunfo 801, Brooklin Paulista/Vila Amalia, 218,867m2 privativos, 3 vagas e deposito. Fonte informa imovel ocupado, valor minimo R$ 1.990.000,00, leilao extrajudicial e transmissao da posse ao arrematante em ate 20 dias apos pagamento integral e outorga da escritura.",
-    "source_validation_status": "valid",
-    "source_validation_reason": "Pagina individual Mega X123642 aberta em 02/06/2026 com edital, matricula, regras, ocupacao e valor minimo.",
+    "source_validation_status": "expired",
+    "source_validation_reason": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
     "observed_at": "2026-06-02T15:46:43-03:00",
     "source_checked_at": "2026-06-02T15:46:43-03:00",
     "thesis_number": 4058

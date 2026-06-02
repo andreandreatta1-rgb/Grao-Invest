@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T18:50:59+00:00",
+  "generated_at": "2026-06-02T19:45:26+00:00",
   "user_id": 1,
   "phase_kickoff_date": "2026-04-27",
   "historical_analysis_summary": {
@@ -207,19 +207,19 @@
         ]
       }
     ],
-    "event_count": 7150,
-    "global_event_count": 7153,
+    "event_count": 7154,
+    "global_event_count": 7157,
     "global_total_tested": 4234,
     "user_total_tested": 4233,
     "sources": {
       "case_study_runs": 4234,
-      "current_monitor_runs": 768
+      "current_monitor_runs": 772
     },
     "sample_quality": {
       "counting_policy": "unique_resolved_case_studies",
       "raw_case_study_events": 6385,
       "duplicate_case_study_events_excluded": 2151,
-      "current_monitor_snapshots_excluded": 768,
+      "current_monitor_snapshots_excluded": 772,
       "current_monitor_policy": "excluded_until_resolved_and_deduplicated"
     },
     "avg_resolution_days": 1.17,
@@ -75617,7 +75617,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6452,
+      "thesis_number": 6458,
       "thesis_id": "TH-PETR4-bullish-3514",
       "thesis_raised_at": "2026-05-23T03:33:45+00:00",
       "action": "PETR4",
@@ -75636,7 +75636,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6453,
+      "thesis_number": 6459,
       "thesis_id": "TH-PETR4-bullish-3514",
       "thesis_raised_at": "2026-05-23T15:34:01+00:00",
       "action": "PETR4",
@@ -75655,7 +75655,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6454,
+      "thesis_number": 6460,
       "thesis_id": "TH-PETR4-bullish-3514",
       "thesis_raised_at": "2026-05-23T19:50:29+00:00",
       "action": "PETR4",
@@ -75674,7 +75674,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6455,
+      "thesis_number": 6461,
       "thesis_id": "TH-BPAC11-bullish-8418",
       "thesis_raised_at": "2026-05-24T01:00:19+00:00",
       "action": "BPAC11",
@@ -75693,7 +75693,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6456,
+      "thesis_number": 6462,
       "thesis_id": "TH-PRIO3-bullish-5328",
       "thesis_raised_at": "2026-05-24T01:00:39+00:00",
       "action": "PRIO3",
@@ -75712,7 +75712,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6457,
+      "thesis_number": 6463,
       "thesis_id": "TH-GGBR4-bullish-8648",
       "thesis_raised_at": "2026-05-24T01:01:06+00:00",
       "action": "GGBR4",
@@ -75731,7 +75731,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6458,
+      "thesis_number": 6464,
       "thesis_id": "TH-PRIO3-bullish-9108",
       "thesis_raised_at": "2026-05-24T01:01:26+00:00",
       "action": "PRIO3",
@@ -75750,7 +75750,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6459,
+      "thesis_number": 6465,
       "thesis_id": "TH-PRIO3-bullish-15550",
       "thesis_raised_at": "2026-05-24T01:01:47+00:00",
       "action": "PRIO3",
@@ -75769,7 +75769,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6460,
+      "thesis_number": 6466,
       "thesis_id": "TH-PETR4-bullish-3514",
       "thesis_raised_at": "2026-05-24T01:02:20+00:00",
       "action": "PETR4",
@@ -75788,7 +75788,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6461,
+      "thesis_number": 6467,
       "thesis_id": "TH-SUZB3-bullish-16080",
       "thesis_raised_at": "2026-05-24T01:02:50+00:00",
       "action": "SUZB3",
@@ -75807,7 +75807,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6462,
+      "thesis_number": 6468,
       "thesis_id": "TH-GGBR4-bullish-3918",
       "thesis_raised_at": "2026-05-24T01:03:05+00:00",
       "action": "GGBR4",
@@ -75826,7 +75826,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6463,
+      "thesis_number": 6469,
       "thesis_id": "TH-SUZB3-bullish-0478",
       "thesis_raised_at": "2026-05-24T01:03:20+00:00",
       "action": "SUZB3",
@@ -75845,7 +75845,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6464,
+      "thesis_number": 6470,
       "thesis_id": "TH-SUZB3-bullish-8040",
       "thesis_raised_at": "2026-05-24T01:03:39+00:00",
       "action": "SUZB3",
@@ -75864,7 +75864,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6465,
+      "thesis_number": 6471,
       "thesis_id": "TH-HAPV3-bearish-11108",
       "thesis_raised_at": "2026-05-24T01:04:01+00:00",
       "action": "HAPV3",
@@ -75883,7 +75883,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6466,
+      "thesis_number": 6472,
       "thesis_id": "TH-PETR4-bullish-3514",
       "thesis_raised_at": "2026-05-24T01:04:26+00:00",
       "action": "PETR4",
@@ -75902,7 +75902,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6467,
+      "thesis_number": 6473,
       "thesis_id": "TH-PETR4-bullish-24614",
       "thesis_raised_at": "2026-05-24T01:04:53+00:00",
       "action": "PETR4",
@@ -75921,7 +75921,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6468,
+      "thesis_number": 6474,
       "thesis_id": "TH-PRIO3-bullish-5328",
       "thesis_raised_at": "2026-05-24T01:05:14+00:00",
       "action": "PRIO3",
@@ -75940,7 +75940,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6469,
+      "thesis_number": 6475,
       "thesis_id": "TH-PRIO3-bullish-9128",
       "thesis_raised_at": "2026-05-24T01:05:37+00:00",
       "action": "PRIO3",
@@ -75959,7 +75959,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6470,
+      "thesis_number": 6476,
       "thesis_id": "TH-HAPV3-bearish-5650",
       "thesis_raised_at": "2026-05-24T01:05:52+00:00",
       "action": "HAPV3",
@@ -75978,7 +75978,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6471,
+      "thesis_number": 6477,
       "thesis_id": "TH-PETR4-bullish-23482",
       "thesis_raised_at": "2026-05-24T01:06:20+00:00",
       "action": "PETR4",
@@ -76947,7 +76947,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6472,
+      "thesis_number": 6478,
       "thesis_id": "TH-SUZB3-bullish-4813",
       "thesis_raised_at": "2026-05-25T01:01:57+00:00",
       "action": "SUZB3",
@@ -76966,7 +76966,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6473,
+      "thesis_number": 6479,
       "thesis_id": "TH-HAPV3-bearish-9919",
       "thesis_raised_at": "2026-05-25T01:02:18+00:00",
       "action": "HAPV3",
@@ -76985,7 +76985,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6474,
+      "thesis_number": 6480,
       "thesis_id": "TH-PRIO3-bullish-14040",
       "thesis_raised_at": "2026-05-25T01:02:57+00:00",
       "action": "PRIO3",
@@ -77004,7 +77004,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6475,
+      "thesis_number": 6481,
       "thesis_id": "TH-PETR4-bullish-13302",
       "thesis_raised_at": "2026-05-25T01:03:33+00:00",
       "action": "PETR4",
@@ -77023,7 +77023,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6476,
+      "thesis_number": 6482,
       "thesis_id": "TH-SUZB3-bullish-0478",
       "thesis_raised_at": "2026-05-25T01:03:59+00:00",
       "action": "SUZB3",
@@ -77042,7 +77042,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6477,
+      "thesis_number": 6483,
       "thesis_id": "TH-PETR4-bullish-22876",
       "thesis_raised_at": "2026-05-25T01:04:42+00:00",
       "action": "PETR4",
@@ -77061,7 +77061,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6478,
+      "thesis_number": 6484,
       "thesis_id": "TH-PETR4-bullish-29869",
       "thesis_raised_at": "2026-05-25T01:05:34+00:00",
       "action": "PETR4",
@@ -77080,7 +77080,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6479,
+      "thesis_number": 6485,
       "thesis_id": "TH-PETR4-bullish-5648",
       "thesis_raised_at": "2026-05-25T01:06:08+00:00",
       "action": "PETR4",
@@ -77099,7 +77099,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6480,
+      "thesis_number": 6486,
       "thesis_id": "TH-PRIO3-bullish-3419",
       "thesis_raised_at": "2026-05-25T01:06:52+00:00",
       "action": "PRIO3",
@@ -77118,7 +77118,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6481,
+      "thesis_number": 6487,
       "thesis_id": "TH-B3SA3-bearish-4351",
       "thesis_raised_at": "2026-05-25T01:07:14+00:00",
       "action": "B3SA3",
@@ -77137,7 +77137,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6482,
+      "thesis_number": 6488,
       "thesis_id": "TH-PETR4-bullish-10151",
       "thesis_raised_at": "2026-05-25T01:07:43+00:00",
       "action": "PETR4",
@@ -77156,7 +77156,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6483,
+      "thesis_number": 6489,
       "thesis_id": "TH-PETR4-bullish-12095",
       "thesis_raised_at": "2026-05-25T01:08:33+00:00",
       "action": "PETR4",
@@ -77175,7 +77175,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6484,
+      "thesis_number": 6490,
       "thesis_id": "TH-HAPV3-bearish-5559",
       "thesis_raised_at": "2026-05-25T01:08:58+00:00",
       "action": "HAPV3",
@@ -77194,7 +77194,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6485,
+      "thesis_number": 6491,
       "thesis_id": "TH-HAPV3-bearish-7981",
       "thesis_raised_at": "2026-05-25T01:09:32+00:00",
       "action": "HAPV3",
@@ -77213,7 +77213,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6486,
+      "thesis_number": 6492,
       "thesis_id": "TH-HAPV3-bearish-16304",
       "thesis_raised_at": "2026-05-25T01:10:14+00:00",
       "action": "HAPV3",
@@ -77232,7 +77232,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6487,
+      "thesis_number": 6493,
       "thesis_id": "TH-PRIO3-bullish-28066",
       "thesis_raised_at": "2026-05-25T01:10:58+00:00",
       "action": "PRIO3",
@@ -77251,7 +77251,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6488,
+      "thesis_number": 6494,
       "thesis_id": "TH-JBSS3-bullish-19760",
       "thesis_raised_at": "2026-05-25T01:11:36+00:00",
       "action": "JBSS3",
@@ -77270,7 +77270,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6489,
+      "thesis_number": 6495,
       "thesis_id": "TH-PETR4-bullish-23709",
       "thesis_raised_at": "2026-05-25T01:12:16+00:00",
       "action": "PETR4",
@@ -77289,7 +77289,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6490,
+      "thesis_number": 6496,
       "thesis_id": "TH-HAPV3-bearish-14154",
       "thesis_raised_at": "2026-05-25T01:12:53+00:00",
       "action": "HAPV3",
@@ -77308,7 +77308,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6491,
+      "thesis_number": 6497,
       "thesis_id": "TH-PETR4-bullish-13872",
       "thesis_raised_at": "2026-05-25T01:13:22+00:00",
       "action": "PETR4",
@@ -77327,7 +77327,7 @@
     },
     {
       "phase": "historico",
-      "thesis_number": 6492,
+      "thesis_number": 6498,
       "thesis_id": "TH-HAPV3-bearish-9353",
       "thesis_raised_at": "2026-05-25T01:13:51+00:00",
       "action": "HAPV3",
@@ -123216,7 +123216,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6442,
+      "thesis_number": 6448,
       "thesis_id": "IM-RADAR-26",
       "thesis_raised_at": "2026-05-23T21:16:43+00:00",
       "front": "imoveis",
@@ -123823,7 +123823,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6443,
+      "thesis_number": 6449,
       "thesis_id": "IM-RADAR-17",
       "thesis_raised_at": "2026-05-05T17:11:00+00:00",
       "front": "imoveis",
@@ -124350,7 +124350,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6444,
+      "thesis_number": 6450,
       "thesis_id": "IM-RADAR-20",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -124898,7 +124898,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6445,
+      "thesis_number": 6451,
       "thesis_id": "IM-RADAR-25",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -125476,7 +125476,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6446,
+      "thesis_number": 6452,
       "thesis_id": "IM-RADAR-24",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -126054,7 +126054,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6447,
+      "thesis_number": 6453,
       "thesis_id": "IM-RADAR-23",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -126602,7 +126602,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6448,
+      "thesis_number": 6454,
       "thesis_id": "IM-RADAR-22",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -127154,7 +127154,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6449,
+      "thesis_number": 6455,
       "thesis_id": "IM-RADAR-21",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -127796,7 +127796,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6450,
+      "thesis_number": 6456,
       "thesis_id": "IM-RADAR-19",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -128374,7 +128374,7 @@
     },
     {
       "phase": "pos_go_live",
-      "thesis_number": 6451,
+      "thesis_number": 6457,
       "thesis_id": "IM-RADAR-18",
       "thesis_raised_at": "2026-05-18T01:45:01+00:00",
       "front": "imoveis",
@@ -152758,12 +152758,12 @@
       "source_url": "https://www.proleilao.com.br/leilao-de-imoveis/sao-paulo-sp?pesquisa=Butant",
       "source_validation": {
         "status": "ambiguous",
-        "reason": "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
+        "reason": "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
         "checked_at": "2026-06-02T15:46:43-03:00",
         "url": "https://www.proleilao.com.br/leilao-de-imoveis/sao-paulo-sp?pesquisa=Butant"
       },
       "source_validation_status": "ambiguous",
-      "source_validation_reason": "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
+      "source_validation_reason": "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
       "source_checked_at": "2026-06-02T15:46:43-03:00",
       "asset": "Sao Paulo / Butanta / Mont Rouge 189m / Entrada 300K Saida 750K",
       "action": "Sao Paulo / Butanta / Mont Rouge 189m / Entrada 300K Saida 750K",
@@ -152934,14 +152934,14 @@
             "title": "Validar fonte manualmente",
             "priority": "P0",
             "status": "aberta",
-            "action": "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
+            "action": "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
             "validation_method": "investigador_implacavel_aula_3",
             "validation_route": [
               "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
               "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
               "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
               "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
-              "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais."
+              "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais."
             ],
             "validation_exit_criteria": "Resolvida quando a fonte primaria, edital/anexos, leiloeiro oficial e dados de pagamento estiverem coerentes; se exigir login, fica bloqueada por acesso do usuario, nao por desistência da app."
           },
@@ -153346,7 +153346,7 @@
         },
         "source_validation": {
           "status": "ambiguous",
-          "reason": "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
+          "reason": "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
           "checked_at": "2026-06-02T15:46:43-03:00",
           "url": "https://www.proleilao.com.br/leilao-de-imoveis/sao-paulo-sp?pesquisa=Butant"
         },
@@ -153383,11 +153383,11 @@
           "plan_b": "Deixar como estudo de desconto aparente. So reabre se o edital provar sub-rogacao/limite dos R$ 175k de condominio e se o imovel estiver desocupado ou com plano juridico claro.",
           "notes": "Garimpo alvo: Butanta / Rua Manoel Antonio Pinto, 4 - Apto 32 (Edificio Mont Rouge). Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta.",
           "source_validation_status": "ambiguous",
-          "source_validation_reason": "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
+          "source_validation_reason": "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
           "source_checked_at": "2026-06-02T15:46:43-03:00",
           "source_validation": {
             "status": "ambiguous",
-            "reason": "Achado veio por busca ProLeilao; falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
+            "reason": "Pagina ProLeilao/Butanta aberta na busca live de 02/06/2026 e contem o lote li2833723. Falta URL oficial Granado, edital e leitura da responsabilidade pelos debitos condominiais.",
             "checked_at": "2026-06-02T15:46:43-03:00",
             "url": "https://www.proleilao.com.br/leilao-de-imoveis/sao-paulo-sp?pesquisa=Butant"
           }
@@ -154003,37 +154003,37 @@
       "front": "imoveis",
       "source_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-218-m2-03-vagas-brooklin-paulista-sao-paulo-sp-x123642",
       "source_validation": {
-        "status": "valid",
-        "reason": "Pagina individual Mega X123642 aberta em 02/06/2026 com edital, matricula, regras, ocupacao e valor minimo.",
+        "status": "expired",
+        "reason": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
         "checked_at": "2026-06-02T15:46:43-03:00",
         "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-218-m2-03-vagas-brooklin-paulista-sao-paulo-sp-x123642"
       },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Pagina individual Mega X123642 aberta em 02/06/2026 com edital, matricula, regras, ocupacao e valor minimo.",
+      "source_validation_status": "expired",
+      "source_validation_reason": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
       "source_checked_at": "2026-06-02T15:46:43-03:00",
       "asset": "Sao Paulo / Brooklin / Personale Campo Belo 218m / Entrada 1.99M Saida 2.4M",
       "action": "Sao Paulo / Brooklin / Personale Campo Belo 218m / Entrada 1.99M Saida 2.4M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Brooklin / Rua Barao do Triunfo, 801 - Apto 22 (Edificio Personale Campo Belo). Score 42/100, confianca 58/100.",
       "expected_result_pct": -7.13,
-      "operation_plan": "Entrada R$ 1,990,000.00 | Saida base R$ 2,400,000.00 | Teto Halley R$ 1,142,960.00 | Caixa R$ 2,429,200.00 | Proximo passo: Descartar ou travar decisao",
+      "operation_plan": "Entrada R$ 1,990,000.00 | Saida base R$ 2,400,000.00 | Teto Halley R$ 1,142,960.00 | Caixa R$ 2,429,200.00 | Proximo passo: URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
       "structured_operation": "Mega extrajudicial Bradesco high-ticket; bom para watchlist, travado por ocupacao e capital. | Mega Leiloes / Bradesco | Apartamento residencial | Acima do teto",
       "entry_price_brl": 1990000.0,
       "current_price_brl": 2400000.0,
       "latest_price_at": "2026-06-02T15:46:43-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Descartar ou travar decisao",
+      "exit_rule": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
       "status": "Fechada",
       "outcome": "Descartado pelo radar",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Descartar ou travar decisao. Pendencias principais: Imovel ocupado na primeira operacao, Confirmar custo total de debitos, Confirmar divida de condominio.",
+      "learning_note": "Antes de proposta: URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.. Pendencias principais: Fonte indisponivel, Imovel ocupado na primeira operacao, Confirmar custo total de debitos.",
       "is_open": false,
       "real_estate_analysis": {
         "score": 42,
         "confidence": 58,
         "suggested_status": "Descartado",
-        "next_action": "Descartar ou travar decisao",
+        "next_action": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -154176,6 +154176,22 @@
         ],
         "pending_items": [
           {
+            "key": "source_validation",
+            "title": "Fonte indisponivel",
+            "priority": "P0",
+            "status": "aberta",
+            "action": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
+            "validation_method": "investigador_implacavel_aula_3",
+            "validation_route": [
+              "Abrir a pagina individual do lote/anuncio e confirmar que nao e apenas agregador.",
+              "Baixar edital/anexos e localizar o leiloeiro ou fonte oficial dentro do documento.",
+              "Conferir o lote no site do leiloeiro, tribunal, banco, diario/jornal ou fonte primaria equivalente.",
+              "Se a fonte pedir cadastro/login, pedir credenciais ao usuario e continuar a diligencia.",
+              "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa."
+            ],
+            "validation_exit_criteria": "Resolvida quando a fonte primaria, edital/anexos, leiloeiro oficial e dados de pagamento estiverem coerentes; se exigir login, fica bloqueada por acesso do usuario, nao por desistência da app."
+          },
+          {
             "key": "occupied_first_operation",
             "title": "Imovel ocupado na primeira operacao",
             "priority": "P0",
@@ -154272,12 +154288,6 @@
           }
         ],
         "clarified_items": [
-          {
-            "key": "source_validation",
-            "title": "Fonte individual validada",
-            "status": "esclarecido",
-            "detail": "Pagina individual Mega X123642 aberta em 02/06/2026 com edital, matricula, regras, ocupacao e valor minimo."
-          },
           {
             "key": "occupancy",
             "title": "Ocupacao informada",
@@ -154407,14 +154417,14 @@
         },
         "commercial_terms": {},
         "sourcing": {
-          "score": 40,
+          "score": 25,
           "tier": "bloqueado_por_p0",
           "signals": [
-            "fonte oficial individual",
             "saida clara",
             "modalidade classificada"
           ],
           "gaps": [
+            "fonte oficial individual",
             "comparaveis de saida"
           ],
           "recommendation": "Resolver P0 antes de usar como padrao positivo de busca."
@@ -154509,7 +154519,7 @@
               "role": "source_clue",
               "source": "megaleiloes.com.br",
               "source_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-218-m2-03-vagas-brooklin-paulista-sao-paulo-sp-x123642",
-              "status": "valid"
+              "status": "expired"
             }
           ],
           "source_role_counts": {
@@ -154548,8 +154558,8 @@
           "auction_modality": "extrajudicial"
         },
         "source_validation": {
-          "status": "valid",
-          "reason": "Pagina individual Mega X123642 aberta em 02/06/2026 com edital, matricula, regras, ocupacao e valor minimo.",
+          "status": "expired",
+          "reason": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
           "checked_at": "2026-06-02T15:46:43-03:00",
           "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-218-m2-03-vagas-brooklin-paulista-sao-paulo-sp-x123642"
         },
@@ -154586,12 +154596,12 @@
           "listing_description": "Mega Leiloes X123642: apartamento 22, Edificio Personale Campo Belo, Rua Barao do Triunfo 801, Brooklin Paulista/Vila Amalia, 218,867m2 privativos, 3 vagas e deposito. Fonte informa imovel ocupado, valor minimo R$ 1.990.000,00, leilao extrajudicial e transmissao da posse ao arrematante em ate 20 dias apos pagamento integral e outorga da escritura.",
           "plan_b": "Nao e alvo para lance do investidor sozinho. Reavaliar apenas se houver coinvestidor e se a entrega da posse em ate 20 dias for confirmada por escrito.",
           "notes": "Garimpo alvo: Brooklin / Rua Barao do Triunfo, 801 - Apto 22 (Edificio Personale Campo Belo). Valor de saida inicial vem do valor de referencia publicado; exige comparaveis equivalentes antes de proposta.",
-          "source_validation_status": "valid",
-          "source_validation_reason": "Pagina individual Mega X123642 aberta em 02/06/2026 com edital, matricula, regras, ocupacao e valor minimo.",
+          "source_validation_status": "expired",
+          "source_validation_reason": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
           "source_checked_at": "2026-06-02T15:46:43-03:00",
           "source_validation": {
-            "status": "valid",
-            "reason": "Pagina individual Mega X123642 aberta em 02/06/2026 com edital, matricula, regras, ocupacao e valor minimo.",
+            "status": "expired",
+            "reason": "URL Mega X123642 abre, mas em 02/06/2026 redirecionou para /leiloes-realizados/. Manter somente como referencia/watchlist historica do Brooklin, nao como oportunidade ativa.",
             "checked_at": "2026-06-02T15:46:43-03:00",
             "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-218-m2-03-vagas-brooklin-paulista-sao-paulo-sp-x123642"
           }
