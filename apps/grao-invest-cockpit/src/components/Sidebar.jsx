@@ -34,6 +34,13 @@ const navSubItemsById = {
     { id: "modelo", label: "Modelo operacional" },
     { id: "garimpo", label: "Garimpo estruturado" },
     { id: "candidatos", label: "Candidatos abertos" },
+    {
+      id: "conhecimento",
+      label: "Conhecimento",
+      children: [
+        { id: "conhecimento/milhao-com-leilao", label: "Milh\u00e3o com leil\u00e3o" },
+      ],
+    },
   ],
 };
 
@@ -163,7 +170,7 @@ function NavButton({ item, active, onSelect }) {
   );
 }
 
-function SubNavButton({ parentId, item, activeSubsection, onSelect }) {
+function NestedSubNavButton({ parentId, item, activeSubsection, onSelect }) {
   const isActive = activeSubsection === item.id;
 
   return (
@@ -181,12 +188,12 @@ function SubNavButton({ parentId, item, activeSubsection, onSelect }) {
         cursor: "pointer",
         display: "flex",
         fontFamily: "inherit",
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: isActive ? 800 : 600,
         gap: 7,
         lineHeight: 1.25,
         margin: "1px 0",
-        padding: "7px 8px 7px 30px",
+        padding: "7px 8px 7px 44px",
         textAlign: "left",
         width: "100%",
       }}
@@ -202,6 +209,63 @@ function SubNavButton({ parentId, item, activeSubsection, onSelect }) {
       />
       <span>{item.label}</span>
     </button>
+  );
+}
+
+function SubNavButton({ parentId, item, activeSubsection, onSelect }) {
+  const childItems = Array.isArray(item.children) ? item.children : [];
+  const childActive = childItems.some((child) => activeSubsection === child.id);
+  const isActive = activeSubsection === item.id || childActive;
+  const nextRoute = childItems.length > 0 ? childItems[0].id : item.id;
+
+  return (
+    <div>
+      <button
+        type="button"
+        aria-current={isActive && !childActive ? "page" : undefined}
+        aria-expanded={childItems.length > 0 ? isActive : undefined}
+        aria-label={item.label}
+        onClick={() => onSelect?.(`${parentId}/${nextRoute}`)}
+        style={{
+          alignItems: "center",
+          background: isActive ? withAlpha(C.gold, "10") : "transparent",
+          border: `1px solid ${isActive ? withAlpha(C.gold, "28") : "transparent"}`,
+          borderRadius: 8,
+          color: isActive ? C.gold : C.dim,
+          cursor: "pointer",
+          display: "flex",
+          fontFamily: "inherit",
+          fontSize: 11,
+          fontWeight: isActive ? 800 : 600,
+          gap: 7,
+          lineHeight: 1.25,
+          margin: "1px 0",
+          padding: "7px 8px 7px 30px",
+          textAlign: "left",
+          width: "100%",
+        }}
+      >
+        <span
+          aria-hidden="true"
+          style={{
+            background: isActive ? C.gold : C.line,
+            borderRadius: 999,
+            height: 5,
+            width: 5,
+          }}
+        />
+        <span>{item.label}</span>
+      </button>
+      {childItems.map((child) => (
+        <NestedSubNavButton
+          key={`${item.id}-${child.id}`}
+          parentId={parentId}
+          item={child}
+          activeSubsection={activeSubsection}
+          onSelect={onSelect}
+        />
+      ))}
+    </div>
   );
 }
 

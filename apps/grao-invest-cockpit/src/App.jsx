@@ -129,7 +129,8 @@ function activeSubsectionFromHash() {
 function routeFromHash() {
   if (typeof window === "undefined") return { screen: "dashboard", section: "" };
   const candidate = window.location.hash.replace(/^#/, "").trim();
-  const [screen, section = ""] = candidate.split("/");
+  const [screen, ...sectionParts] = candidate.split("/");
+  const section = sectionParts.join("/");
   return {
     screen: SCREEN_IDS.has(screen) ? screen : "dashboard",
     section: SCREEN_IDS.has(screen) ? section : "",
@@ -138,7 +139,8 @@ function routeFromHash() {
 
 function routeFromNavValue(value) {
   const raw = String(value || "").trim();
-  const [screen, section = ""] = raw.split("/");
+  const [screen, ...sectionParts] = raw.split("/");
+  const section = sectionParts.join("/");
   return {
     screen: SCREEN_IDS.has(screen) ? screen : "dashboard",
     section: SCREEN_IDS.has(screen) ? section : "",

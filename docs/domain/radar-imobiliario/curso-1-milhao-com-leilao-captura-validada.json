@@ -1,0 +1,2309 @@
+{
+  "capturedAt": "2026-06-02T13:51:34.053Z",
+  "source": "https://grupo-primo.circle.so/c/leilao/",
+  "storagePolicy": "transcricao literal nao persistida; apenas metadados, contagens e material operacional",
+  "totalLessons": 25,
+  "transcriptValidated": 23,
+  "textualValidated": 2,
+  "lessons": [
+    {
+      "sequence": 1,
+      "listTitle": "Boas vindas do Granvas + COMUNIDADE DE ALUNOS 07:33",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903813",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903813",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 386,
+      "timeLineCount": 191,
+      "transcriptCharCount": 9462,
+      "descriptionCharCount": 409,
+      "keywordCounts": {},
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://leiloeslucrativos.com.br/t12025finclass/nivelamento",
+          "href": "https://leiloeslucrativos.com.br/t12025finclass/nivelamento"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "listTitle": "Aula 1 - Construção de base de Leilões para arrematação 09:22",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903814",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903814",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 451,
+      "timeLineCount": 224,
+      "transcriptCharCount": 7730,
+      "descriptionCharCount": 461,
+      "keywordCounts": {},
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "listTitle": "Aula 2 - Leilão Extrajudicial 01:06:35",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903815",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903815",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 3229,
+      "timeLineCount": 1613,
+      "transcriptCharCount": 54751,
+      "descriptionCharCount": 437,
+      "keywordCounts": {
+        "lei_9514": 6,
+        "iptu": 10,
+        "ocupacao": 19,
+        "financiamento": 27,
+        "edital": 9,
+        "investidor": 3,
+        "aluguel_venda": 11
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 4,
+      "listTitle": "Aula 3 - O Leilão Judicial \"O Pareto 80/20\" 01:27:43",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903816",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903816",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 4395,
+      "timeLineCount": 2196,
+      "transcriptCharCount": 77092,
+      "descriptionCharCount": 439,
+      "keywordCounts": {
+        "iptu": 1,
+        "ocupacao": 19,
+        "financiamento": 3,
+        "edital": 25,
+        "aluguel_venda": 12
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 5,
+      "listTitle": "Aula 4 - Leilão da Caixa 29:35",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903817",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903817",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1338,
+      "timeLineCount": 669,
+      "transcriptCharCount": 27367,
+      "descriptionCharCount": 412,
+      "keywordCounts": {
+        "lei_9514": 5,
+        "iptu": 3,
+        "ocupacao": 13,
+        "financiamento": 16,
+        "edital": 12,
+        "investidor": 2,
+        "aluguel_venda": 32
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        }
+      ]
+    },
+    {
+      "sequence": 6,
+      "listTitle": "Aula 5 - Leilões Presenciais, Leilões Online, Leilões HIbridos 38:15",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903818",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765821/lessons/2903818",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1710,
+      "timeLineCount": 854,
+      "transcriptCharCount": 32978,
+      "descriptionCharCount": 464,
+      "keywordCounts": {
+        "ocupacao": 2,
+        "edital": 15,
+        "aluguel_venda": 3
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 7,
+      "listTitle": "Aula 1 - Leilões da Justiça Trabalhista 34:08",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903826",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903826",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1490,
+      "timeLineCount": 744,
+      "transcriptCharCount": 30609,
+      "descriptionCharCount": 441,
+      "keywordCounts": {
+        "iptu": 2,
+        "edital": 10,
+        "aluguel_venda": 17
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 8,
+      "listTitle": "Aula 2 - Ferramentas de avaliação online do imóvel a ser arrematado 23:17",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903827",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903827",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1120,
+      "timeLineCount": 559,
+      "transcriptCharCount": 17233,
+      "descriptionCharCount": 463,
+      "keywordCounts": {
+        "ocupacao": 3
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 9,
+      "listTitle": "Aula 3 - Onde encontrar Leilões e como selecionar as melhores ofertas 53:32",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903829",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903829",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2670,
+      "timeLineCount": 1334,
+      "transcriptCharCount": 43190,
+      "descriptionCharCount": 469,
+      "keywordCounts": {
+        "ocupacao": 1,
+        "edital": 4,
+        "investidor": 6,
+        "aluguel_venda": 13
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 10,
+      "listTitle": "Aula 4 - Análise de dívidas do imóvel e do executado 41:45",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903830",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765822/lessons/2903830",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2106,
+      "timeLineCount": 1052,
+      "transcriptCharCount": 31270,
+      "descriptionCharCount": 450,
+      "keywordCounts": {
+        "iptu": 12,
+        "ocupacao": 2,
+        "financiamento": 3,
+        "edital": 4,
+        "aluguel_venda": 3
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 11,
+      "listTitle": "Aula 1 - Comprando imóveis pela metade do preço e preço Vil 34:30",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903855",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903855",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1636,
+      "timeLineCount": 817,
+      "transcriptCharCount": 24966,
+      "descriptionCharCount": 461,
+      "keywordCounts": {
+        "iptu": 1,
+        "ocupacao": 1,
+        "edital": 12,
+        "aluguel_venda": 2
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 12,
+      "listTitle": "Aula 2 - Arrematar sem ou com pouco dinheiro 46:55",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903857",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903857",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2290,
+      "timeLineCount": 1144,
+      "transcriptCharCount": 39169,
+      "descriptionCharCount": 445,
+      "keywordCounts": {
+        "lei_9514": 2,
+        "financiamento": 10,
+        "edital": 1,
+        "investidor": 11,
+        "aluguel_venda": 8
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 13,
+      "listTitle": "Aula 3 - Noção de contabilidade legal do imóvel 43:14",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903858",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903858",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2154,
+      "timeLineCount": 1076,
+      "transcriptCharCount": 34040,
+      "descriptionCharCount": 442,
+      "keywordCounts": {
+        "iptu": 13,
+        "edital": 4,
+        "investidor": 1,
+        "aluguel_venda": 6
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 14,
+      "listTitle": "Aula 4 - Como obter informações sobre o ocupante 30:04",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903859",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903859",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1374,
+      "timeLineCount": 686,
+      "transcriptCharCount": 22596,
+      "descriptionCharCount": 446,
+      "keywordCounts": {
+        "ocupacao": 11,
+        "edital": 3,
+        "aluguel_venda": 1
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 15,
+      "listTitle": "Aula 5 - Bônus / Checklist do Granvas 48:33",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903860",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/765829/lessons/2903860",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2356,
+      "timeLineCount": 1177,
+      "transcriptCharCount": 39999,
+      "descriptionCharCount": 435,
+      "keywordCounts": {
+        "lei_9514": 2,
+        "iptu": 4,
+        "ocupacao": 13,
+        "financiamento": 3,
+        "edital": 16,
+        "investidor": 1
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 16,
+      "listTitle": "Aula 1 - Fazendo minha primeira arrematação + Super Ultra Mega Bônus 43:48",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906986",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906986",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2084,
+      "timeLineCount": 1041,
+      "transcriptCharCount": 34360,
+      "descriptionCharCount": 473,
+      "keywordCounts": {
+        "ocupacao": 6,
+        "financiamento": 1,
+        "investidor": 5,
+        "aluguel_venda": 2
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 17,
+      "listTitle": "Aula 2 - Desocupação com eficiência 29:50",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906988",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906988",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1444,
+      "timeLineCount": 721,
+      "transcriptCharCount": 24680,
+      "descriptionCharCount": 433,
+      "keywordCounts": {
+        "lei_9514": 2,
+        "ocupacao": 6,
+        "financiamento": 1,
+        "edital": 1
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 18,
+      "listTitle": "Aula 3 - Vendendo ou alugando rápido meu imóvel 31:36",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906989",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906989",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1512,
+      "timeLineCount": 755,
+      "transcriptCharCount": 24674,
+      "descriptionCharCount": 1937,
+      "keywordCounts": {
+        "iptu": 2,
+        "ocupacao": 4,
+        "financiamento": 1,
+        "investidor": 1,
+        "aluguel_venda": 32
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 19,
+      "listTitle": "Aula 4 - Dossiê de investidores: como torna-se um arrematante insider 46:58",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906990",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/2906990",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2265,
+      "timeLineCount": 1131,
+      "transcriptCharCount": 39551,
+      "descriptionCharCount": 462,
+      "keywordCounts": {
+        "investidor": 30,
+        "aluguel_venda": 3
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 20,
+      "listTitle": "Modulo 4 - Analisando Editais 22:37",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3107254",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3107254",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1062,
+      "timeLineCount": 530,
+      "transcriptCharCount": 18255,
+      "descriptionCharCount": 418,
+      "keywordCounts": {
+        "lei_9514": 1,
+        "iptu": 1,
+        "edital": 16,
+        "aluguel_venda": 10
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 21,
+      "listTitle": "Modelos de Requerimento de Desocupação de Imóvel",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3180766",
+      "clickedTranscript": false,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3180766",
+      "status": "conteudo_textual_validado",
+      "hasTranscript": false,
+      "transcriptLineCount": 0,
+      "timeLineCount": 0,
+      "transcriptCharCount": 0,
+      "descriptionCharCount": 1899,
+      "keywordCounts": {
+        "investidor": 1
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        }
+      ]
+    },
+    {
+      "sequence": 22,
+      "listTitle": "Modulo 4 - Formas de arrematar sem tirar dinheiro do bolso 19:29",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3180767",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3180767",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 916,
+      "timeLineCount": 457,
+      "transcriptCharCount": 15789,
+      "descriptionCharCount": 417,
+      "keywordCounts": {
+        "lei_9514": 1,
+        "financiamento": 1,
+        "aluguel_venda": 1
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "https://t.me/+Tp289Ti0jfhlMjQx",
+          "href": "https://t.me/+Tp289Ti0jfhlMjQx"
+        },
+        {
+          "text": "https://pergunteaogranvas.com.br/t12025finclass/",
+          "href": "https://pergunteaogranvas.com.br/t12025finclass/"
+        }
+      ]
+    },
+    {
+      "sequence": 23,
+      "listTitle": "Modulo 4 - Arrematando e fazendo tudo à distância 29:28",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3180768",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3180768",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 1378,
+      "timeLineCount": 689,
+      "transcriptCharCount": 19080,
+      "descriptionCharCount": 455,
+      "keywordCounts": {
+        "aluguel_venda": 8
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        }
+      ]
+    },
+    {
+      "sequence": 24,
+      "listTitle": "Aula Bônus - Monetizando com carta de Consórcio 43:54",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3363322",
+      "clickedTranscript": true,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3363322",
+      "status": "transcricao_validada",
+      "hasTranscript": true,
+      "transcriptLineCount": 2146,
+      "timeLineCount": 1073,
+      "transcriptCharCount": 37439,
+      "descriptionCharCount": 441,
+      "keywordCounts": {
+        "lei_9514": 1,
+        "financiamento": 29,
+        "edital": 1,
+        "investidor": 1,
+        "aluguel_venda": 7
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        }
+      ]
+    },
+    {
+      "sequence": 25,
+      "listTitle": "O Fim do Curso, O Início do Seu Primeiro Milhão",
+      "href": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3363337",
+      "clickedTranscript": false,
+      "pageTitle": "1 Milhão com Leilão | Finclub",
+      "finalUrl": "https://grupo-primo.circle.so/c/leilao/sections/766792/lessons/3363337",
+      "status": "conteudo_textual_validado",
+      "hasTranscript": false,
+      "transcriptLineCount": 0,
+      "timeLineCount": 0,
+      "transcriptCharCount": 0,
+      "descriptionCharCount": 3180,
+      "keywordCounts": {
+        "aluguel_venda": 1
+      },
+      "resourceLinks": [
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        },
+        {
+          "text": "Apresente-se",
+          "href": "https://grupo-primo.circle.so/c/apresente-se/"
+        },
+        {
+          "text": "Dúvidas Frequentes",
+          "href": "https://grupo-primo.circle.so/c/duvidas-frequentes/"
+        },
+        {
+          "text": "📢 Novidades e Avisos",
+          "href": "https://grupo-primo.circle.so/c/anuncios/"
+        },
+        {
+          "text": "💬 Dúvidas e Discussões",
+          "href": "https://grupo-primo.circle.so/c/discussao/"
+        },
+        {
+          "text": "Planilhas Automatizadas",
+          "href": "https://grupo-primo.circle.so/c/materiais-complementares/"
+        },
+        {
+          "text": "😍 Como a Finclass te ajudou?",
+          "href": "https://grupo-primo.circle.so/c/como-a-finclass-te-ajudou-d12062/"
+        },
+        {
+          "text": "🔁 Deixe seu feedback",
+          "href": "https://grupo-primo.circle.so/c/deixe-seu-feedback/"
+        },
+        {
+          "text": "1 Milhão com Leilão",
+          "href": "https://grupo-primo.circle.so/c/leilao/"
+        }
+      ]
+    }
+  ]
+}

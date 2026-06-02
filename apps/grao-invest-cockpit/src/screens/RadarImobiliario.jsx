@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Badge, C, KPICard, PatrickJane, alpha, mono, withAlpha } from "../components";
 import { discardRealEstateCandidate } from "../data/cockpitHalleyApi";
+import { AuctionCourseKnowledge } from "./Conhecimento.jsx";
 import { PerdizesCasePortfolio, REAL_ESTATE_DEMO_CASES } from "./JornadaTese.jsx";
 
 function asArray(value) {
@@ -127,7 +128,13 @@ const TARGET_NEIGHBORHOODS = [
   { key: "paraiso", label: "Paraiso", terms: ["paraiso", "abilio soares", "rafael de barros", "fausto ferraz"] },
 ];
 
-const RADAR_SECTION_IDS = new Set(["visao-geral", "modelo", "garimpo", "candidatos"]);
+const RADAR_SECTION_IDS = new Set([
+  "visao-geral",
+  "modelo",
+  "garimpo",
+  "candidatos",
+  "conhecimento/milhao-com-leilao",
+]);
 
 function targetNeighborhoodForText(value) {
   const text = searchText(value);
@@ -2262,6 +2269,11 @@ export default function RadarImobiliario({ data, onRefresh, section = "" }) {
       {activeSection === "garimpo" && (
       <section id="radar-imobiliario-garimpo" data-section-id="garimpo" style={{ display: "flex", flexDirection: "column", gap: 18, scrollMarginTop: 18 }}>
         <RadarAuctioneerSourcing sourcing={auctioneerSourcing} />
+      </section>
+      )}
+      {activeSection === "conhecimento/milhao-com-leilao" && (
+      <section id="radar-imobiliario-conhecimento-milhao-com-leilao" data-section-id="conhecimento/milhao-com-leilao" data-testid="radar-imobiliario-conhecimento-milhao-com-leilao" style={{ display: "flex", flexDirection: "column", gap: 18, scrollMarginTop: 18 }}>
+        <AuctionCourseKnowledge />
       </section>
       )}
       {activeSection === "candidatos" && (
