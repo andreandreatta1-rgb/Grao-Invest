@@ -275,6 +275,35 @@ def test_campo_belo_helbor_candidate_is_closed_after_reading_auction_text() -> N
     assert analysis["price_ceiling_status"] == "Acima do teto"
 
 
+def test_live_neighborhood_search_batch_is_preserved_in_target_seed() -> None:
+    payload = json.loads(Path("data/dashboard_seed.json").read_text(encoding="utf-8"))
+    rows_by_id = {
+        row.get("thesis_id"): row
+        for row in payload.get("thesis_open_operations", [])
+        if str(row.get("thesis_id", "")).startswith("IM-RADAR-TARGET-")
+    }
+
+    expected_ids = {
+        "IM-RADAR-TARGET-VLO-01",
+        "IM-RADAR-TARGET-PIN-07",
+        "IM-RADAR-TARGET-BUT-01",
+        "IM-RADAR-TARGET-BUT-02",
+        "IM-RADAR-TARGET-BRK-01",
+        "IM-RADAR-TARGET-BRK-02",
+    }
+    assert rows_by_id.keys() >= expected_ids
+    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["is_open"] is True
+    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["status"] == "Aberta - Atencao"
+    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["source_validation_status"] == "ambiguous"
+    assert rows_by_id["IM-RADAR-TARGET-VLO-01"]["is_open"] is False
+    assert rows_by_id["IM-RADAR-TARGET-PIN-07"]["is_open"] is False
+    assert rows_by_id["IM-RADAR-TARGET-BRK-01"]["is_open"] is False
+    assert rows_by_id["IM-RADAR-TARGET-BRK-02"]["is_open"] is False
+    assert "Rua Helena" in rows_by_id["IM-RADAR-TARGET-VLO-01"]["asset"]
+    assert "Neo Butanta" in rows_by_id["IM-RADAR-TARGET-BUT-01"]["asset"]
+    assert "Brooklin" in rows_by_id["IM-RADAR-TARGET-BRK-02"]["asset"]
+
+
 def test_target_seed_preserves_existing_historical_thesis_numbers(tmp_path, monkeypatch) -> None:
     import scripts.seed_real_estate_target_candidates as seed_module
 
