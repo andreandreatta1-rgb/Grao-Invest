@@ -36,6 +36,12 @@ def _positive_int(value: Any) -> int:
 def _candidate_snapshot(lead: dict[str, Any], analysis: dict[str, Any]) -> dict[str, Any]:
     fields = [
         "strategy",
+        "strategy_id",
+        "strategy_label",
+        "candidate_category",
+        "target_strategy_category",
+        "search_category",
+        "category",
         "source_url",
         "origin",
         "city",

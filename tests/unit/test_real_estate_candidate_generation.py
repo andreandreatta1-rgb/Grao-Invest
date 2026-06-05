@@ -55,6 +55,33 @@ def test_strategy_candidate_watchlist_has_sources_for_every_strategy() -> None:
     assert all(item["diligence_checklist"] for item in watchlist)
 
 
+def test_multifamily_retrofit_is_a_distinct_strategy_with_own_p0s() -> None:
+    strategy_id = "retrofit_residencial_multifamiliar"
+    strategy = next(item for item in STRATEGY_BLUEPRINTS if item["strategy_id"] == strategy_id)
+    briefs = [
+        item
+        for item in generate_strategy_territory_candidate_briefs()
+        if item["strategy_id"] == strategy_id
+    ]
+    sources = [
+        item
+        for item in generate_strategy_candidate_watchlist()
+        if item["strategy_id"] == strategy_id
+    ]
+
+    assert strategy["label"] == "Retrofit residencial multifamiliar"
+    assert len(briefs) == len(TERRITORY_BLUEPRINTS)
+    assert len(sources) >= 2
+    assert all(item["condominium_signal"]["required"] is True for item in briefs)
+    assert any("predio inteiro" in query for query in briefs[0]["next_search_queries"])
+    assert {
+        "confirmar que o uso residencial ja existe e nao depende de conversao comercial",
+        "buscar matricula atualizada, instituicao de condominio e situacao de individualizacao",
+        "validar com arquiteto/prefeitura se unidades grandes podem ser desmembradas em studios",
+    }.issubset(set(briefs[0]["diligence_checklist"]))
+    assert {item["source_name"] for item in sources} >= {"VivaReal", "Imovelweb"}
+
+
 def test_auctioneer_sourcing_report_maps_official_long_tail_contact_sources() -> None:
     report = generate_auctioneer_sourcing_report()
 

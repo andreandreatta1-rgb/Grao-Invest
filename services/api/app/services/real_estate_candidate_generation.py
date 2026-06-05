@@ -49,6 +49,21 @@ STRATEGY_BLUEPRINTS: list[dict[str, object]] = [
         "target_roi_pct": 30,
     },
     {
+        "strategy_id": "retrofit_residencial_multifamiliar",
+        "label": "Retrofit residencial multifamiliar",
+        "asset_profile": (
+            "predio residencial antigo inteiro, preferencialmente com matricula unica "
+            "ou baixa complexidade registral, unidades grandes e potencial de "
+            "reposicionamento para studios"
+        ),
+        "renovation_profile": (
+            "fachada, entrada, areas comuns e reconfiguracao interna; evitar tese "
+            "que dependa de mudar uso comercial para residencial"
+        ),
+        "target_discount_pct": 22,
+        "target_roi_pct": 30,
+    },
+    {
         "strategy_id": "renda_plano_b",
         "label": "Renda / Plano B",
         "asset_profile": "unidade que pode carregar aluguel se a revenda atrasar",
@@ -371,6 +386,38 @@ STRATEGY_CANDIDATE_SOURCES: list[dict[str, object]] = [
         "candidate_angle": (
             "Usar como caso de estudo de margem alta com risco alto e prazo de "
             "saida mais longo."
+        ),
+    },
+    {
+        "source_id": "vivareal_predio_residencial_sp",
+        "title": "VivaReal - predios residenciais em Sao Paulo",
+        "strategy_id": "retrofit_residencial_multifamiliar",
+        "territory_id": "pinheiros_higienopolis_consolacao",
+        "source_name": "VivaReal",
+        "source_url": "https://www.vivareal.com.br/venda/sp/sao-paulo/predio_residencial/",
+        "source_summary": (
+            "Busca de predios residenciais inteiros para garimpar ativos antigos "
+            "com baixa liquidez por formato, antes de qualquer contato ou proposta."
+        ),
+        "candidate_angle": (
+            "Filtrar predios de apartamentos existentes, evitar conversao de uso e "
+            "priorizar matricula unica ou individualizacao juridicamente simples."
+        ),
+    },
+    {
+        "source_id": "imovelweb_predio_inteiro_sp",
+        "title": "Imovelweb - predios inteiros em Sao Paulo",
+        "strategy_id": "retrofit_residencial_multifamiliar",
+        "territory_id": "vila_mariana_aclimacao_ana_rosa",
+        "source_name": "Imovelweb",
+        "source_url": "https://www.imovelweb.com.br/predios-venda-sao-paulo-sp.html",
+        "source_summary": (
+            "Canal de busca para predio inteiro residencial ou misto a descartar "
+            "rapidamente se a tese exigir transformacao estrutural de uso."
+        ),
+        "candidate_angle": (
+            "Testar se unidades grandes podem virar studios com obra, aprovacao, "
+            "individualizacao e comparaveis de saida dentro do capital alvo."
         ),
     },
     {
@@ -962,6 +1009,16 @@ CONDOMINIUM_DILIGENCE_CHECKLIST = [
 ]
 
 
+MULTIFAMILY_RETROFIT_DILIGENCE_CHECKLIST = [
+    "confirmar que o uso residencial ja existe e nao depende de conversao comercial",
+    "buscar matricula atualizada, instituicao de condominio e situacao de individualizacao",
+    "validar com arquiteto/prefeitura se unidades grandes podem ser desmembradas em studios",
+    "orcamentar fachada, entrada, areas comuns, medidores, hidraulica, eletrica e aprovacao",
+    "comparar venda e aluguel de studios novos/reformados no mesmo raio",
+    "reservar custo de cartorio, aprovacao, obra, carregamento e contingencia juridica",
+]
+
+
 LAUNCH_DILIGENCE_CHECKLIST = [
     "confirmar incorporadora, SPE e memorial de incorporacao",
     "validar prazo de entrega, atraso historico e clausulas de distrato",
@@ -986,6 +1043,14 @@ def _source_candidate_id(source_id: object) -> str:
 def _search_queries(territory: dict[str, object], strategy: dict[str, object]) -> list[str]:
     neighborhoods = " OR ".join(str(item) for item in territory["neighborhoods"])
     strategy_label = str(strategy["label"])
+    strategy_id = str(strategy["strategy_id"])
+    if strategy_id == "retrofit_residencial_multifamiliar":
+        return [
+            f'"{neighborhoods}" "predio residencial" "venda" Sao Paulo',
+            f'"{neighborhoods}" "predio inteiro" apartamentos venda Sao Paulo',
+            f'"{neighborhoods}" "matricula unica" apartamentos Sao Paulo',
+            f'"{neighborhoods}" studios retrofit "predio antigo" Sao Paulo',
+        ]
     return [
         f'"{neighborhoods}" apartamento venda "{strategy_label}" Sao Paulo',
         (
@@ -1000,6 +1065,8 @@ def _diligence_checklist_for_strategy(strategy_id: str) -> list[str]:
     checklist = list(BASE_DILIGENCE_CHECKLIST)
     if strategy_id == "condominio_antigo_requalificacao":
         checklist = list(dict.fromkeys(CONDOMINIUM_DILIGENCE_CHECKLIST + checklist))
+    if strategy_id == "retrofit_residencial_multifamiliar":
+        checklist = list(dict.fromkeys(MULTIFAMILY_RETROFIT_DILIGENCE_CHECKLIST + checklist))
     if strategy_id == "lancamentos_ciclo_entrega":
         checklist = list(dict.fromkeys(LAUNCH_DILIGENCE_CHECKLIST + checklist))
     return checklist
@@ -1011,7 +1078,10 @@ def generate_strategy_territory_candidate_briefs() -> list[dict[str, object]]:
         for strategy in STRATEGY_BLUEPRINTS:
             territory_id = str(territory["territory_id"])
             strategy_id = str(strategy["strategy_id"])
-            requires_condominium_signal = strategy_id == "condominio_antigo_requalificacao"
+            requires_condominium_signal = strategy_id in {
+                "condominio_antigo_requalificacao",
+                "retrofit_residencial_multifamiliar",
+            }
             checklist = _diligence_checklist_for_strategy(strategy_id)
             briefs.append(
                 {
@@ -1039,6 +1109,9 @@ def generate_strategy_territory_candidate_briefs() -> list[dict[str, object]]:
                             "retrofit estrutural",
                             "portaria/elevadores modernizados",
                             "ata ou comunicacao formal da obra",
+                            "predio residencial antigo",
+                            "matricula unica ou individualizacao simples",
+                            "plantas grandes com viabilidade de studio",
                         ],
                     },
                     "next_search_queries": _search_queries(territory, strategy),

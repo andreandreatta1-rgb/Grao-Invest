@@ -122,9 +122,16 @@ const DIRECT_MARKERS = [
 
 const TARGET_NEIGHBORHOODS = [
   { key: "pinheiros", label: "Pinheiros", terms: ["pinheiros", "mourato coelho", "mateus grou", "padre carvalho"] },
+  { key: "vila-madalena-sumare", label: "Vila Madalena / Sumare", terms: ["vila madalena", "sumare", "sumarezinho", "fradique coutinho"] },
   { key: "perdizes", label: "Perdizes", terms: ["perdizes", "turiassu", "turiaçu", "cardoso de almeida", "caiubi"] },
+  { key: "pompeia-lapa", label: "Pompeia / Lapa", terms: ["pompeia", "lapa", "vila romana", "agua branca", "tito"] },
+  { key: "higienopolis-santa-cecilia", label: "Higienopolis / Santa Cecilia", terms: ["higienopolis", "santa cecilia", "mackenzie", "angelica"] },
+  { key: "consolacao-bela-vista", label: "Consolacao / Bela Vista", terms: ["consolacao", "bela vista", "augusta", "frei caneca"] },
   { key: "itaim-bibi", label: "Itaim Bibi", terms: ["itaim bibi", "itaim"] },
   { key: "campo-belo", label: "Campo Belo", terms: ["campo belo", "joao de sousa dias", "vieira de morais"] },
+  { key: "vila-mariana-aclimacao", label: "Vila Mariana / Aclimacao", terms: ["vila mariana", "aclimacao", "ana rosa", "klabin"] },
+  { key: "saude", label: "Saude", terms: ["saude", "praca da arvore", "alto do ipiranga", "santa cruz"] },
+  { key: "santana", label: "Santana / Jardim Sao Paulo", terms: ["santana", "jardim sao paulo", "parada inglesa", "tucuruvi"] },
   { key: "paraiso", label: "Paraiso", terms: ["paraiso", "abilio soares", "rafael de barros", "fausto ferraz"] },
 ];
 
@@ -819,6 +826,11 @@ function strategyTextFor(row) {
   const candidate = candidateFor(row);
   return [
     row?.strategy,
+    row?.strategyId,
+    row?.strategy_id,
+    row?.candidateCategory,
+    row?.candidate_category,
+    row?.category,
     row?.operation,
     row?.structure,
     row?.hypothesis,
@@ -831,6 +843,11 @@ function strategyTextFor(row) {
     row?.source_origin,
     row?.origin,
     candidate.strategy,
+    candidate.strategyId,
+    candidate.strategy_id,
+    candidate.candidateCategory,
+    candidate.candidate_category,
+    candidate.category,
     candidate.origin,
     candidate.notes,
   ].map(searchText).join(" ");
@@ -899,6 +916,20 @@ function strategyFor(row) {
     || text.includes("negociacao")
     || text.includes("vendedor");
   const hasResale = text.includes("revenda") || text.includes("venda direta") || text.includes("vender") || text.includes("saida imediata");
+  const hasMultifamilyRetrofit = includesAny(text, [
+    "retrofit_residencial_multifamiliar",
+    "retrofit residencial multifamiliar",
+    "predio residencial antigo",
+    "predio inteiro",
+    "matricula unica",
+    "matricula nao individualizada",
+    "individualizacao",
+    "desmembrar unidades",
+    "studios boutique",
+    "converter unidades em studios",
+  ]);
+
+  if (hasMultifamilyRetrofit) return "Retrofit residencial multifamiliar";
 
   if (hasAuction && hasFlip) return "Leilão + HF";
   if (hasAuction && hasResale) return "Leilão direto e venda";
@@ -923,6 +954,9 @@ function withTypeIcon(item) {
 
 function iconForStrategy(strategy) {
   const text = String(strategy || "").toLowerCase();
+  if (text.includes("retrofit residencial") || text.includes("multifamiliar")) {
+    return { icon: "R+", label: "Retrofit residencial multifamiliar", basis: "Predio residencial antigo, matricula/individualizacao, obra e venda de studios viram uma tese propria." };
+  }
   if (text.includes("leilão + hf") || text.includes("leilao + hf")) {
     return { icon: "⚖🛠", label: "Leilão + HF", basis: "Origem por leilão, mas a margem depende de reforma, reposicionamento e revenda." };
   }
@@ -1901,6 +1935,7 @@ function StrategyIconLegend() {
     iconForStrategy("Compra direta"),
     iconForStrategy("Compra para revenda"),
     iconForStrategy("Compra direta + HF"),
+    iconForStrategy("Retrofit residencial multifamiliar"),
     iconForStrategy("Renda / plano B"),
     iconForStrategy("Lançamento"),
     iconForStrategy("Calibração"),

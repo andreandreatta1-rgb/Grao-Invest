@@ -230,10 +230,10 @@ const realEstateRows = [
 
 const strategyTerritoryReport = {
   summary: {
-    strategyCount: 8,
+    strategyCount: 9,
     territoryCount: 12,
-    matrixBriefCount: 96,
-    sourceCandidateCount: 16,
+    matrixBriefCount: 108,
+    sourceCandidateCount: 18,
     sourceConfirmedRequalificationCount: 4,
   },
   matrixBriefs: [
@@ -456,8 +456,8 @@ describe("real estate radar experience", () => {
     fireEvent.click(screen.getAllByText(/Briefs por estrat.gia e territ.rio/i)[0]);
 
     const briefsPanel = screen.getByTestId("real-estate-strategy-territory-briefs");
-    expect(within(briefsPanel).getByText("96")).toBeInTheDocument();
-    expect(within(briefsPanel).getByText("16")).toBeInTheDocument();
+    expect(within(briefsPanel).getByText("108")).toBeInTheDocument();
+    expect(within(briefsPanel).getByText("18")).toBeInTheDocument();
     expect(within(briefsPanel).getAllByText(/Hip.tese de busca/i).length).toBeGreaterThan(0);
     expect(within(briefsPanel).getAllByText(/Fonte candidata/i).length).toBeGreaterThan(0);
     expect(within(briefsPanel).getAllByText(/Sinal confirmado/i).length).toBeGreaterThan(0);

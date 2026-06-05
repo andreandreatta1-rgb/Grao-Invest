@@ -125,10 +125,10 @@ const fixturePayloads = {
   realEstateStrategyTerritoryCandidates: {
     generated_at: "2026-05-08T02:32:50Z",
     summary: {
-      strategy_count: 8,
+      strategy_count: 9,
       territory_count: 12,
-      matrix_brief_count: 96,
-      source_candidate_count: 16,
+      matrix_brief_count: 108,
+      source_candidate_count: 18,
       source_confirmed_requalification_count: 4,
       auctioneer_directory_count: 1,
       auctioneer_contact_count: 2,
@@ -1074,10 +1074,10 @@ describe("cockpitHalleyAdapter", () => {
 
     expect(result.realEstateStrategyTerritoryCandidates).toMatchObject({
       summary: {
-        strategyCount: 8,
+        strategyCount: 9,
         territoryCount: 12,
-        matrixBriefCount: 96,
-        sourceCandidateCount: 16,
+        matrixBriefCount: 108,
+        sourceCandidateCount: 18,
         sourceConfirmedRequalificationCount: 4,
       },
       matrixBriefs: [

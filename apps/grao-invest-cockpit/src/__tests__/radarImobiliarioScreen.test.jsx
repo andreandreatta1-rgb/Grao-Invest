@@ -119,6 +119,56 @@ describe("Radar Imobiliário screen", () => {
     expect(within(portfolio).getAllByText(/Teto Halley/i).length).toBeGreaterThan(0);
   });
 
+  it("classifies whole-building studio conversion as multifamily residential retrofit", () => {
+    const data = {
+      thesisRows: [
+        {
+          thesisId: "IM-RETROFIT-MULTI-01",
+          front: "ImÃ³veis",
+          status: "Aberta - Atencao",
+          statusGroup: "Go-live",
+          isOpen: true,
+          asset: "REAL TARGET - Pinheiros predio residencial antigo",
+          entryPrice: 3200000,
+          currentPrice: 3200000,
+          targetPrice: 4700000,
+          expectedPct: 26,
+          hypothesis: "Predio inteiro residencial antigo com matricula unica e unidades grandes para individualizacao em studios.",
+          operation: "Retrofit residencial multifamiliar com fachada, entrada, studios boutique e revenda.",
+          realEstateAnalysis: {
+            score: 69,
+            confidence: 39,
+            max_purchase_price: 3400000,
+            next_action: "Validar matricula, prefeitura e projeto de studios",
+            scenarios: { base: { sale_price: 4700000, net_profit: 780000, roi_pct: 26 } },
+            pending_items: [
+              {
+                priority: "P0",
+                title: "Validar individualizacao",
+                action: "Confirmar matricula, instituicao de condominio e aprovacao antes de proposta.",
+              },
+            ],
+            candidate: {
+              strategy_id: "retrofit_residencial_multifamiliar",
+              strategy: "Retrofit residencial multifamiliar",
+              candidate_category: "retrofit_residencial_multifamiliar",
+              city: "Sao Paulo",
+              neighborhood: "Pinheiros",
+              property_type: "Predio residencial antigo",
+              private_area_m2: 420,
+            },
+          },
+        },
+      ],
+    };
+
+    render(<RadarImobiliario data={data} section="candidatos" />);
+
+    const openPortfolio = screen.getByTestId("radar-imobiliario-abertos");
+    expect(within(openPortfolio).getAllByText(/Retrofit residencial multifamiliar/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Predio residencial antigo, matricula\/individualizacao/i).length).toBeGreaterThan(0);
+  });
+
   it("surfaces source access blockers with the credential file requested by the app", () => {
     const data = {
       thesisRows: [

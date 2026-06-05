@@ -378,6 +378,14 @@ const realEstateFrontDefinitions = [
     emptyAction: "Exigir margem maior e orçamento antes de virar tese.",
   },
   {
+    key: "multifamily-retrofit",
+    label: "Retrofit residencial multifamiliar",
+    accent: C.gold,
+    strategyIds: ["retrofit_residencial_multifamiliar"],
+    objective: "Comprar prédio residencial antigo inteiro e destravar valor com individualização, studios e cara de produto novo.",
+    emptyAction: "Buscar prédio de apartamentos antigo, com matrícula única ou baixa complexidade registral.",
+  },
+  {
     key: "income",
     label: "Renda / Plano B",
     accent: C.green,
@@ -448,6 +456,7 @@ const neighborhoodCondoTargets = [
 
 function realEstateFrontKey(row) {
   const text = searchableText(row);
+  if (hasAnyTerm(text, ["retrofit residencial multifamiliar", "predio residencial antigo", "predio inteiro", "matricula unica", "matricula nao individualizada", "individualizacao", "desmembrar unidades", "studios boutique", "converter unidades em studios"])) return "multifamily-retrofit";
   if (hasAnyTerm(text, ["condominio antigo", "requalificacao", "fachada reformada", "area comum reformada", "areas comuns reformadas", "retrofit"])) return "requalification";
   if (hasAnyTerm(text, ["reforma pesada", "obra pesada", "estrutural"])) return "heavy-flip";
   if (hasAnyTerm(text, ["leilao", "caixa", "venda online", "arremat"])) return "auction";
