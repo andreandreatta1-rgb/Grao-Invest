@@ -86,6 +86,9 @@ def _candidate_snapshot(lead: dict[str, Any], analysis: dict[str, Any]) -> dict[
         "source_validation_status",
         "source_validation_reason",
         "source_checked_at",
+        "manual_recheck_status",
+        "manual_recheck_reason",
+        "manual_recheck_checked_at",
     ]
     snapshot = {field: lead.get(field) for field in fields if field in lead}
     snapshot["source_validation"] = analysis.get("source_validation") or {}
@@ -126,12 +129,41 @@ def _enriched_lead(lead: dict[str, Any]) -> dict[str, Any]:
 def _operation_row(lead: dict[str, Any], thesis_number: int) -> dict[str, Any]:
     enriched = _enriched_lead(lead)
     analysis = build_candidate_analysis(enriched)
+    manual_recheck_status = str(enriched.get("manual_recheck_status") or "").strip()
+    if manual_recheck_status == "closed_no_active_auction":
+        manual_checked_at = str(enriched.get("manual_recheck_checked_at") or enriched.get("source_checked_at") or "")
+        manual_reason = str(
+            enriched.get("manual_recheck_reason")
+            or "Fechado por rechecagem manual: sem prova atual de leilao ativo."
+        )
+        manual_recheck = {
+            "status": manual_recheck_status,
+            "checked_at": manual_checked_at,
+            "reason": manual_reason,
+            "decision": "fechar",
+        }
+        analysis = {
+            **analysis,
+            "suggested_status": "Descartado",
+            "next_action": "Fechado: sem prova atual de leilao ativo",
+            "source_validation": {
+                "status": "inactive",
+                "reason": manual_reason,
+                "checked_at": manual_checked_at,
+                "url": enriched.get("source_url"),
+            },
+            "manual_recheck": manual_recheck,
+        }
     analysis = {
         **analysis,
         "candidate": _candidate_snapshot(enriched, analysis),
         "summary": (
-            "Candidato de bairro-alvo capturado em garimpo online; manter aberto "
-            "somente enquanto fonte, demanda local e valor de saida forem provados."
+            "Fechado por rechecagem manual: sem prova atual de leilao ativo."
+            if manual_recheck_status == "closed_no_active_auction"
+            else (
+                "Candidato de bairro-alvo capturado em garimpo online; manter aberto "
+                "somente enquanto fonte, demanda local e valor de saida forem provados."
+            )
         ),
     }
     candidate = analysis["candidate"]

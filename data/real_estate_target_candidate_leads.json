@@ -26,8 +26,8 @@
     "location_liquidity_score": 90,
     "local_demand_risk": "baixo",
     "plan_b": "Locacao compacta em Pinheiros se a revenda atrasar, condicionada a confirmar ocupacao e custo condominial.",
-    "source_validation_status": "valid",
-    "source_validation_reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
+    "source_validation_status": "access_blocked_no_active_proof",
+    "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
     "observed_at": "2026-05-30T20:58:00-03:00",
     "thesis_number": 3968,
     "appraisal_value": 571450.52,
@@ -42,7 +42,7 @@
     "listing_description": "Edital judicial WebLeiloes/TJSP: processo 1054685-33.2020.8.26.0100, 43a Vara Civel do Foro Central Civel de Sao Paulo. Apto 124, 12o andar, Condominio Edificio Saint Germain, Rua Capote Valente 134, Pinheiros/Jardim America, area privativa 33,500m2, area de garagem 30,090m2, uma vaga indeterminada no 1o ou 2o subsolo com manobrista, area total 92,755m2. Matricula 81.237 do 13o CRI/SP, contribuinte 013.016.0640-5. Debito dos autos R$ 137.372,04 em abril/2022. Nao constam debitos tributarios ate o edital; debitos tributarios sub-rogam no preco da arrematacao conforme art. 130 CTN. Avaliacao atualizada R$ 571.450,52 em maio/2026. 1a praca ate 03/08/2026 as 14:00 por R$ 571.450,52; 2a praca ate 25/08/2026 as 14:00, minimo 60%, R$ 342.870,31. Pagamento por guia judicial em 24h; comissao leiloeiro 5%; parcelamento possivel com 25% a vista e saldo em ate 30 meses, proposta a vista tem preferencia.",
     "eviction_plan": "O edital nao informa ocupacao; antes de lance, confirmar com WebLeiloes/condominio se ocupado, se ha visita/fotos internas e se ha risco de imissao.",
     "notes": "Edital local analisado: C:/Users/Andreatta/Downloads/sl-bem-16156-6a19e1e82c306-6a19e1e82d719.pdf. A app nao havia evoluido porque a extracao automatica do Leilao Imovel retornou pagina generica de busca sem link PDF; o usuario acessou a sessao com botao Edital e forneceu o arquivo. Visita presencial em 30/05/2026: investidor gostou do local e da fachada do predio. P0 remanescente: ocupacao e 3 comparaveis reais de venda/locacao. Fonte lateral agregada: Leeilon 1287519, encontrada manualmente pelo usuario, com fotos internas do apto; lacuna de produto: app precisa busca asset-first por endereco/processo/matricula e captura visual.",
-    "source_checked_at": "2026-05-30T20:58:00-03:00",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "visual_evidence": [
       {
         "source": "Leeilon",
@@ -53,7 +53,13 @@
       }
     ],
     "condition_evidence_status": "user_found_internal_photos_pending_capture",
-    "condition_evidence_reason": "Leeilon tem fotos internas segundo verificacao manual do usuario; a app deve capturar/analisar imagens e ajustar reforma/conservacao."
+    "condition_evidence_reason": "Leeilon tem fotos internas segundo verificacao manual do usuario; a app deve capturar/analisar imagens e ajustar reforma/conservacao.",
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "inacessivel_sem_prova",
+    "manual_recheck_final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+    "manual_recheck_status": "closed_no_active_auction"
   },
   {
     "id_suffix": "PIN-02",
@@ -146,10 +152,17 @@
     "location_liquidity_score": 78,
     "local_demand_risk": "baixo",
     "plan_b": "Revenda ou locacao familiar em Perdizes se reforma couber no teto.",
-    "source_validation_status": "ambiguous",
-    "source_validation_reason": "Validar ocupacao, dividas e se o desconto sobre avaliacao compensa reforma.",
+    "source_validation_status": "access_blocked_no_active_proof",
+    "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
     "observed_at": "2026-05-20T21:00:00-03:00",
-    "thesis_number": 3971
+    "thesis_number": 3971,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "inacessivel_sem_prova",
+    "manual_recheck_final_url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+    "manual_recheck_status": "closed_no_active_auction",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00"
   },
   {
     "id_suffix": "PER-02",
@@ -210,10 +223,17 @@
     "location_liquidity_score": 74,
     "local_demand_risk": "medio",
     "plan_b": "Manter como caso de comparacao para aprender limite juridico em Perdizes.",
-    "source_validation_status": "ambiguous",
-    "source_validation_reason": "Fonte indica outros/direitos; exige leitura juridica antes de tratar como apartamento vendavel.",
+    "source_validation_status": "access_blocked_no_active_proof",
+    "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
     "observed_at": "2026-05-20T21:00:00-03:00",
-    "thesis_number": 3973
+    "thesis_number": 3973,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "inacessivel_sem_prova",
+    "manual_recheck_final_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+    "manual_recheck_status": "closed_no_active_auction",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00"
   },
   {
     "id_suffix": "CAM-01",
@@ -242,10 +262,17 @@
     "location_liquidity_score": 80,
     "local_demand_risk": "baixo",
     "plan_b": "Revenda familiar ou aluguel de 3 dormitorios proximo ao aeroporto.",
-    "source_validation_status": "ambiguous",
-    "source_validation_reason": "Confirmar status Caixa, debitos e condominio atual antes de proposta.",
+    "source_validation_status": "access_blocked_no_active_proof",
+    "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
     "observed_at": "2026-05-20T21:00:00-03:00",
-    "thesis_number": 3974
+    "thesis_number": 3974,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "inacessivel_sem_prova",
+    "manual_recheck_final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+    "manual_recheck_status": "closed_no_active_auction",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00"
   },
   {
     "id_suffix": "CAM-02",
@@ -318,10 +345,17 @@
     "location_liquidity_score": 79,
     "local_demand_risk": "baixo",
     "plan_b": "Venda para familia local se preco de saida for comprovado no raio imediato.",
-    "source_validation_status": "ambiguous",
-    "source_validation_reason": "Abrir lote individual e validar debitos antes de tratar como candidato de lance.",
+    "source_validation_status": "access_blocked_no_active_proof",
+    "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
     "observed_at": "2026-05-20T21:00:00-03:00",
-    "thesis_number": 3976
+    "thesis_number": 3976,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "inacessivel_sem_prova",
+    "manual_recheck_final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+    "manual_recheck_status": "closed_no_active_auction",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00"
   },
   {
     "id_suffix": "CAM-04",
@@ -383,10 +417,17 @@
     "location_liquidity_score": 88,
     "local_demand_risk": "baixo",
     "plan_b": "So segue se juridico de ocupacao e comprador final de Itaim estiverem claros.",
-    "source_validation_status": "ambiguous",
-    "source_validation_reason": "Ocupado; manter aberto para estudo, mas bloquear proposta sem estrategia juridica.",
+    "source_validation_status": "access_blocked_no_active_proof",
+    "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
     "observed_at": "2026-05-20T21:00:00-03:00",
-    "thesis_number": 3978
+    "thesis_number": 3978,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "inacessivel_sem_prova",
+    "manual_recheck_final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+    "manual_recheck_status": "closed_no_active_auction",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00"
   },
   {
     "id_suffix": "PAR-01",
@@ -651,11 +692,17 @@
     "local_demand_risk": "medio",
     "local_demand_notes": "Itaim tem comprador final, mas unidade ocupada e ticket acima de 1M exigem corretor confirmar liquidez do predio.",
     "plan_b": "Nao propor sem plano juridico de desocupacao e comprador final validado.",
-    "source_validation_status": "valid",
-    "source_validation_reason": "Fonte individual validada.",
-    "source_checked_at": "2026-05-23T14:21:47+00:00",
+    "source_validation_status": "inactive",
+    "source_validation_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-05-23T11:24:00-03:00",
-    "thesis_number": 3986
+    "thesis_number": 3986,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "sem_sinal_leilao_ativo",
+    "manual_recheck_final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp",
+    "manual_recheck_status": "closed_no_active_auction"
   },
   {
     "id_suffix": "PAR-04",
@@ -760,10 +807,16 @@
     "plan_b": "Watchlist juridica: so virar proposta com matricula completa, debitos municipais e plano juridico de imissao/desocupacao.",
     "notes": "Anexos analisados: Edital de venda, Edital de Venda do Imovel e Matricula do Imovel. A matricula I36393lote001matricula2.pdf foi aberta pelo usuario/Chrome e lida visualmente porque as paginas principais sao imagem; evidencia salva localmente em data/reports/evidence_4038_matricula_pages. Nao tratar como lance automatico: exigir plano de desocupacao, debitos municipais/condominio e revisao juridica da imissao antes de proposta.",
     "source_validation_status": "valid",
-    "source_validation_reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026.",
-    "source_checked_at": "2026-05-27T18:00:00-03:00",
+    "source_validation_reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-05-27T18:00:00-03:00",
-    "thesis_number": 4038
+    "thesis_number": 4038,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+    "manual_recheck_decision": "manter",
+    "manual_recheck_reason_code": "prova_leilao_ativo",
+    "manual_recheck_final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+    "manual_recheck_status": "active_live_recheck"
   },
   {
     "id_suffix": "PER-05",
@@ -834,11 +887,17 @@
     "manual_status": "watchlist",
     "manual_decision": "travado",
     "watchlist_reason": "Bom desconto e rua liquida em Perdizes, com fonte oficial validada; travado por impugnacao de bem de familia pendente e ocupacao nao confirmada.",
-    "source_validation_status": "valid",
-    "source_validation_reason": "Lote oficial Alfa 9949 confirma endereco, processo, avaliacao, lance minimo, status aberto e documentos do leilao. Pendencias restantes sao juridicas/ocupacionais, nao de identidade da fonte.",
-    "source_checked_at": "2026-06-03T21:45:00-03:00",
+    "source_validation_status": "inactive",
+    "source_validation_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-06-03T21:45:00-03:00",
-    "thesis_number": 4039
+    "thesis_number": 4039,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "sem_sinal_leilao_ativo",
+    "manual_recheck_final_url": "https://www.alfaleiloes.com/",
+    "manual_recheck_status": "closed_no_active_auction"
   },
   {
     "id_suffix": "PER-06",
@@ -2486,16 +2545,22 @@
     ],
     "plan_b": "Manter vivo apenas enquanto a saida real do condominio continuar acima de ~R$ 1,2 mi e a ocupacao nao aparecer como litigio pesado. Se surgir posse hostil ou comparavel real abaixo disso, descartar.",
     "listing_description": "Mega J122544 expÃƒÂµe o apartamento 144 do 14o andar do Edificio Sapucaia, Rua Sapucaia 1070, Alto da Mooca, Sao Paulo, com 105,15m2 privativos, 2 vagas, matricula 137.420 do 7o CRI de Sao Paulo, valor inicial de R$ 689.352,66 na 2a praca e avaliacao judicial de R$ 1.148.921,10. A propria pagina oficial informa debitos inscritos em divida ativa de R$ 9.084,52 e IPTU de R$ 5.548,56 (2025) + R$ 4.821,86 (exercicio atual), alem de penhoras e arrolamentos na matricula.",
-    "source_validation_status": "valid",
-    "source_validation_reason": "Pagina individual Mega J122544 aberta em 06/06/2026 com endereco, metragem, vagas, processo, matricula, preco publico e debitos fiscais no corpo da oferta.",
+    "source_validation_status": "inactive",
+    "source_validation_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
     "observed_at": "2026-06-06T17:20:26-03:00",
-    "source_checked_at": "2026-06-06T17:20:26-03:00",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "thesis_number": 4071,
     "triage_manual": {
       "status": "blocked",
       "reason": "economics_alive_but_occupancy_and_exit_need_confirmation",
       "decided_at": "2026-06-06T17:20:26-03:00"
-    }
+    },
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "encerrado_ou_indisponivel",
+    "manual_recheck_final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544?utm_source=megaleiloes&utm_medium=link&utm_campaign=apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544&utm_term=J122544&utm_content=link",
+    "manual_recheck_status": "closed_no_active_auction"
   },
   {
     "id_suffix": "VFO-01",
@@ -2627,15 +2692,21 @@
     "plan_b": "Continuar vivo apenas na 2a praca e so ate fechar ocupacao e passivo atualizado do processo. Se a 2a praca subir materialmente, se a posse aparecer hostil ou se o debito crescer, descartar.",
     "listing_description": "Mega J125050 expÃƒÂµe o apartamento 43 do 4o andar do Condominio Dosso Del Liro, Bloco D, Rua Apucarana 116, Tatuape, Sao Paulo, com 47,72m2 privativos, 61,21m2 totais, 1 vaga indeterminada e matricula 150.387 do 9o CRI de Sao Paulo. A busca atual mostrou 1a praca em 06/07/2026 por R$ 441.592,50 e 2a praca em 27/07/2026 por R$ 264.955,50. O mesmo processo judicial 1000433-70.2017.8.26.0008 aparece tambem no edital/espelho da Projud Leiloes, com cadeia de prova coerente; ha ainda documento do processo com planilha atualizada mencionando cota condominial de R$ 1.360,57 e outro valor processual de R$ 6.675,70 que ainda precisa ser classificado com frescor.",
     "source_validation_status": "valid",
-    "source_validation_reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo.",
+    "source_validation_reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-03",
     "observed_at": "2026-06-07T15:44:32-03:00",
-    "source_checked_at": "2026-06-07T15:44:32-03:00",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "thesis_number": 4073,
     "triage_manual": {
       "status": "blocked",
       "reason": "economics_alive_but_occupancy_and_debt_freshness_need_confirmation",
       "decided_at": "2026-06-07T15:44:32-03:00"
-    }
+    },
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos ativos (encerramento, venda direta) e data futura 2026-07-03",
+    "manual_recheck_decision": "manter",
+    "manual_recheck_reason_code": "prova_leilao_ativo",
+    "manual_recheck_final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
+    "manual_recheck_status": "active_live_recheck"
   },
   {
     "id_suffix": "ADP-01",
@@ -2911,15 +2982,21 @@
     "plan_b": "Manter vivo so para a 2a praca de 17/08/2026. Se aparecer ocupacao hostil, debito condominial material ou perda de spread frente aos comparaveis, descartar.",
     "listing_description": "A pagina oficial Mega J125056 expÃƒÂµe o apartamento 124 do 12o pavimento do Bloco 6 (Edificio Cotovia), integrante do Conjunto Habitacional Guarapiranga Park, na Avenida Guarapiranga 2616, Sao Paulo, com 65,70m2 privativos, 1 vaga indeterminada, matricula 359.673 do 11o CRI/SP, 1a praca por R$ 493.571,64 e 2a praca em 17/08/2026 por R$ 246.785,81. A fonte publica informa quitacao da alienacao fiduciaria anterior, inexistencia de debito inscrito em divida ativa e ausencia de IPTU do exercicio atual, mas deixa a ocupacao e eventual passivo condominial sem fechamento explicito nesta rodada.",
     "source_validation_status": "valid",
-    "source_validation_reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca.",
+    "source_validation_reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-24",
     "observed_at": "2026-06-08T07:45:28-03:00",
-    "source_checked_at": "2026-06-08T07:45:28-03:00",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "thesis_number": 4077,
     "triage_manual": {
       "status": "active",
       "reason": "second_praca_spread_alive_pending_occupancy_and_condo_proof",
       "decided_at": "2026-06-08T07:45:28-03:00"
-    }
+    },
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos ativos (encerramento, venda direta) e data futura 2026-07-24",
+    "manual_recheck_decision": "manter",
+    "manual_recheck_reason_code": "prova_leilao_ativo",
+    "manual_recheck_final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
+    "manual_recheck_status": "active_live_recheck"
   },
   {
     "id_suffix": "JPC-01",
@@ -3326,16 +3403,22 @@
     ],
     "plan_b": "Manter vivo so ate fechar ocupacao, metragem construida real e onus do edital. Se a saida liquida escorregar para a faixa de R$ 860 mil ou aparecer posse hostil, descartar.",
     "listing_description": "A pagina oficial Mega J123631 foi aberta em 09/06/2026 com fotos, endereco Rua Sousa Filho 420, Vila Arcadia, processo 0001171-27.2021.8.26.0011 (1001308-60.2019.8.26.0011), avaliacao de R$ 1.146.762,27 em 05/2026 e matricula 53.791 do 8o CRI de Sao Paulo. O indice oficial de casas em Sao Paulo mostrou 1a praca em 21/05/2026 por R$ 1.146.762,27 e 2a praca em 10/06/2026 por R$ 573.381,13. A rodada ainda nao abriu o edital completo; a propria matricula resumida visivel na pagina fala em terreno de 220m2, entao a area construida de 328m2 do titulo segue como ponto de confirmacao documental.",
-    "source_validation_status": "ambiguous",
-    "source_validation_reason": "Pagina individual oficial Mega J123631 aberta com endereco, fotos, processo, avaliacao e matricula; comparaveis da mesma rua sustentam economia, mas a rodada nao fechou ocupacao nem abriu a cadeia completa do edital/onus.",
+    "source_validation_status": "inactive",
+    "source_validation_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
     "observed_at": "2026-06-09T07:50:16-03:00",
-    "source_checked_at": "2026-06-09T07:50:16-03:00",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "thesis_number": 4083,
     "triage_manual": {
       "status": "blocked",
       "reason": "economics_alive_but_occupancy_area_and_edital_chain_need_confirmation",
       "decided_at": "2026-06-09T07:50:16-03:00"
-    }
+    },
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "encerrado_ou_indisponivel",
+    "manual_recheck_final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631?utm_source=megaleiloes&utm_medium=link&utm_campaign=casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631&utm_term=J123631&utm_content=link",
+    "manual_recheck_status": "closed_no_active_auction"
   },
   {
     "id_suffix": "JAR-01",
@@ -4362,13 +4445,19 @@
     "local_demand_risk": "medio",
     "plan_b": "Locacao como plano B se revenda atrasar; antes de proposta, confirmar ocupacao, documentos e comparaveis reais.",
     "source_validation_status": "valid",
-    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-    "source_checked_at": "2026-06-21T14:08:00-03:00",
+    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-06-21T14:08:00-03:00",
     "listing_description": "Leilão de Apartamento - Bosque da Saúde - São Paulo/SP cod: 227859 | Zuk Leilões Tipo de imóvel Residenciais Encontre imóveis para morar ou investir em todo o Brasil Comerciais Leilão de salas corporativas, prédios, galpões entre outros imóveis comerciais. Rurais Confira os leilão de imóveis em áreas rurais como chácaras, sítios e fazendas. Terrenos Leilões com áreas de construção na cidade e no campo. Outras Oportunidades Veículos Veículos Bens Diversos Bens Diversos Imóveis desocupados Imóveis elação completa do leilão Encerra em 24/06/26 às 10h06 Data de encerramento Em leilão pelo valor de R$ 760.000,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: Data 24/06/26 às 10h06 3 R$ 760.000,00 Participar do leilão Consu lor de R$ 760.000,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: Data 24/06/26 às 10h06 3 R$ 760.000,00 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior lance até agora por +R$ 7.000,00 Incremento ja também Apartamento São Paulo / SP - Bosque da Saúde Rua Guararema, 725 2 104,42m² útil 1º leilão R$ 999.448,10 03/06/2026 às 14:20 2º leilão R$ 603.386,81 40 24/06/2026 às 14:20 Apartamento São Paulo / SP - Vila da Saúde Rua Divin e da Saúde Rua Guararema, 725 2 104,42m² útil 1º leilão R$ 999.448,10 03/06/2026 às 14:20 2º leilão R$ 603.386,81 40 24/06/2026 às 14:20 Apartamento São Paulo / SP - Vila da Saúde Rua Divinópolis, 353 216,46m² útil Valor R$ 739.200,0 6/2026 às 14:20 Apartamento São Paulo / SP - Vila da Saúde Rua Divinópolis, 353 216,46m² útil Valor R$ 739.200,00 39 24/06/2026 às 10:29 Casa São Paulo / SP - Vila Firmiano Pinto Rua Saturnino dos Santos, 369 68,00m² construída 1º le asa São Paulo / SP - Vila Firmiano Pinto Rua Saturnino dos Santos, 369 68,00m² construída 1º leilão R$ 527.851,72 24/06/2026 às 1",
     "notes": "Incluido apos reclamacao do owner: radar nao pode ficar sem fila para avaliacao. Candidato entra como pendente, nao como recomendacao de lance.",
     "sale_comparables_count": 0,
-    "rent_comparables_count": 0
+    "rent_comparables_count": 0,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+    "manual_recheck_decision": "manter",
+    "manual_recheck_reason_code": "prova_leilao_ativo",
+    "manual_recheck_final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
+    "manual_recheck_status": "active_live_recheck"
   },
   {
     "id_suffix": "USR-ALFA-10184",
@@ -4405,14 +4494,20 @@
     "location_liquidity_score": 72,
     "local_demand_risk": "medio",
     "plan_b": "Locacao como plano B se revenda atrasar; antes de proposta, confirmar ocupacao, documentos e comparaveis reais.",
-    "source_validation_status": "valid",
-    "source_validation_reason": "Alfa Leiloes: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-    "source_checked_at": "2026-06-21T14:08:00-03:00",
+    "source_validation_status": "inactive",
+    "source_validation_reason": "conteudo baixado pequeno demais (99 chars)",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-06-21T14:08:00-03:00",
     "listing_description": "São Paulo (SP) - Apartamento no Bairro do Limão com 60m² de Área Privativa | Alfa Leilões | Especialista em Imóveis icon-pessoa-juridica > > icon-facebook icon-instagram icon-linkedin Lembrar Senha Cadastre-se SELECIONE O TIPO DE PESSOA E FAÇA SEU CADASTRO × Pessoa Fisica Pessoa Juridica × LEMBRAR SENHA Para obter uma nova senha de acesso informe seu e-mail de cadastro no site. Página Inicial Quem somos Leilões Como Participar Faça seu leilão Conosco Olá --> ENCONTRE SEU IMÓVEL AQUI Categorias E Justiça do Estado de São Paulo - TJ/SP (Processo n° 0313150-35.2001.8.26.0100). Valor da Avaliação: R$ 305.431,31 Lance Mínimo: R$ 229.073,48 Débitos Tributários: Não há débitos até a data de confecção deste edital. Os débi-tos tribu lo - TJ/SP (Processo n° 0313150-35.2001.8.26.0100). Valor da Avaliação: R$ 305.431,31 Lance Mínimo: R$ 229.073,48 Débitos Tributários: Não há débitos até a data de confecção deste edital. Os débi-tos tributários são sub-rogados no va ndominiais ficarão sub-rogados no valor da arrematação (artigo 908, §1°, do CPC). Débito Exequendo: R$ 1.393.269,93 (Fev/2026) Observações: 1) CONDIÇÕES DE VENDA: À vista ou Parcelado (não admite utilização de carta de crédito). 2) PRO",
     "notes": "Incluido apos reclamacao do owner: radar nao pode ficar sem fila para avaliacao. Candidato entra como pendente, nao como recomendacao de lance.",
     "sale_comparables_count": 0,
-    "rent_comparables_count": 0
+    "rent_comparables_count": 0,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "conteudo baixado pequeno demais (99 chars)",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "conteudo_insuficiente",
+    "manual_recheck_final_url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
+    "manual_recheck_status": "closed_no_active_auction"
   },
   {
     "id_suffix": "USR-ZUK-227826",
@@ -4494,13 +4589,19 @@
     "local_demand_risk": "medio",
     "plan_b": "Locacao como plano B se revenda atrasar; antes de proposta, confirmar ocupacao, documentos e comparaveis reais.",
     "source_validation_status": "valid",
-    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-    "source_checked_at": "2026-06-21T14:12:00-03:00",
+    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-06-21T14:12:00-03:00",
     "listing_description": "Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227827 | Zuk Leilões Tipo de imóvel Residenciais Encontre imóveis para morar ou investir em todo o Brasil Comerciais Leilão de salas corporativas, prédios, galpões entre outros imóveis comerciais. Rurais Confira os leilão de imóveis em áreas rurais como chácaras, sítios e fazendas. Terrenos Leilões com áreas de construção na cidade e no campo. Outras Oportunidades Veículos Veículos Bens Diversos Bens Diversos Imóveis desocupados Imóveis deso  não haver licitantes, no dia 29/06/26 às 10h04 será realizado o 2º leilão deste lote pelo valor de R$ 58.500,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h04 R$ 117.000,00 2º Leilão 29/06/26 às 1 r de R$ 58.500,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h04 R$ 117.000,00 2º Leilão 29/06/26 às 10h04 50 R$ 58.500,00 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior  20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h04 R$ 117.000,00 2º Leilão 29/06/26 às 10h04 50 R$ 58.500,00 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior lance até agora por +R$ 1.000,00 Incremento ém Casa São Paulo / SP - Jardim Barro Branco I Rua Comitiva Esperança, 135 22,07m² construída Valor R$ 255.900,00 36 24/06/2026 às 10:17 Apartamento São Paulo / SP - S.ETELVINA VII Rua Engenheiro Carlo Grazia, 135 42,50m² útil 1º lei Apartamento São Paulo / SP - S.ETELVINA VII Rua Engenheiro Carlo Grazia, 135 42,50m² útil 1º leilão R$ 150.000,00 22/06/2026 às 10:08 2º leilão R$ 99.569,13 34 29/06/2026 às 10:08 Apartamento São Paulo / SP - Guaianazes Rua Eduardo S Rua Engenheiro Carlo Grazia, 135 42,50m² útil 1º leilão R$ 150.000,00 22/06/2026 às 10:08 2º leilão R$ 99.569,13 34 29/06/2026 às 1",
     "notes": "Incluido apos reclamacao do owner: radar nao pode ficar sem fila para avaliacao. Candidato entra como pendente, nao como recomendacao de lance.",
     "sale_comparables_count": 0,
-    "rent_comparables_count": 0
+    "rent_comparables_count": 0,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+    "manual_recheck_decision": "manter",
+    "manual_recheck_reason_code": "prova_leilao_ativo",
+    "manual_recheck_final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
+    "manual_recheck_status": "active_live_recheck"
   },
   {
     "id_suffix": "USR-ZUK-227828",
@@ -4538,13 +4639,19 @@
     "local_demand_risk": "medio",
     "plan_b": "Locacao como plano B se revenda atrasar; antes de proposta, confirmar ocupacao, documentos e comparaveis reais.",
     "source_validation_status": "valid",
-    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-    "source_checked_at": "2026-06-21T14:12:00-03:00",
+    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-06-21T14:12:00-03:00",
     "listing_description": "Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227828 | Zuk Leilões Tipo de imóvel Residenciais Encontre imóveis para morar ou investir em todo o Brasil Comerciais Leilão de salas corporativas, prédios, galpões entre outros imóveis comerciais. Rurais Confira os leilão de imóveis em áreas rurais como chácaras, sítios e fazendas. Terrenos Leilões com áreas de construção na cidade e no campo. Outras Oportunidades Veículos Veículos Bens Diversos Bens Diversos Imóveis desocupados Imóveis deso  não haver licitantes, no dia 29/06/26 às 10h06 será realizado o 2º leilão deste lote pelo valor de R$ 74.796,57 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h06 R$ 147.000,00 2º Leilão 29/06/26 às 1 r de R$ 74.796,57 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h06 R$ 147.000,00 2º Leilão 29/06/26 às 10h06 49 R$ 74.796,57 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior  20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h06 R$ 147.000,00 2º Leilão 29/06/26 às 10h06 49 R$ 74.796,57 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior lance até agora por +R$ 1.000,00 Incremento ja também Apartamento São Paulo / SP - Guaianazes Rua Igarapé Água Azul, 738 42,43m² útil 1º leilão R$ 147.000,00 22/06/2026 às 10:20 2º leilão R$ 73.500,00 50 29/06/2026 às 10:20 Apartamento São Paulo / SP - Guaianazes Rua Senador N nazes Rua Igarapé Água Azul, 738 42,43m² útil 1º leilão R$ 147.000,00 22/06/2026 às 10:20 2º leilão R$ 73.500,00 50 29/06/2026 às 10:20 Apartamento São Paulo / SP - Guaianazes Rua Senador Nelson Carneiro, 42 42,28m² útil 1º leilão R 0:20 Apartamento São Paulo / SP - Guaianazes Rua Senador Nelson Carneiro, 42 42,28m² útil 1º leilão R$ 127.000,00 22/06/2026 às 10:1",
     "notes": "Incluido apos reclamacao do owner: radar nao pode ficar sem fila para avaliacao. Candidato entra como pendente, nao como recomendacao de lance.",
     "sale_comparables_count": 0,
-    "rent_comparables_count": 0
+    "rent_comparables_count": 0,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+    "manual_recheck_decision": "manter",
+    "manual_recheck_reason_code": "prova_leilao_ativo",
+    "manual_recheck_final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
+    "manual_recheck_status": "active_live_recheck"
   },
   {
     "id_suffix": "USR-ZUK-227829",
@@ -4845,14 +4952,20 @@
     "location_liquidity_score": 68,
     "local_demand_risk": "medio",
     "plan_b": "Locacao como plano B se revenda atrasar; antes de proposta, confirmar ocupacao, documentos e comparaveis reais.",
-    "source_validation_status": "valid",
-    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-    "source_checked_at": "2026-06-21T14:12:00-03:00",
+    "source_validation_status": "inactive",
+    "source_validation_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-06-21T14:12:00-03:00",
     "listing_description": "Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227835 | Zuk Leilões Tipo de imóvel Residenciais Encontre imóveis para morar ou investir em todo o Brasil Comerciais Leilão de salas corporativas, prédios, galpões entre outros imóveis comerciais. Rurais Confira os leilão de imóveis em áreas rurais como chácaras, sítios e fazendas. Terrenos Leilões com áreas de construção na cidade e no campo. Outras Oportunidades Veículos Veículos Bens Diversos Bens Diversos Imóveis desocupados Imóveis deso  não haver licitantes, no dia 29/06/26 às 10h20 será realizado o 2º leilão deste lote pelo valor de R$ 73.500,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h20 R$ 147.000,00 2º Leilão 29/06/26 às 1 r de R$ 73.500,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h20 R$ 147.000,00 2º Leilão 29/06/26 às 10h20 50 R$ 73.500,00 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior  20 Segundos Lance mínimo: 1º Leilão 22/06/26 às 10h20 R$ 147.000,00 2º Leilão 29/06/26 às 10h20 50 R$ 73.500,00 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior lance até agora por +R$ 1.000,00 Incremento ja também Apartamento São Paulo / SP - Guaianazes Rua Igarapé Água Azul, 308 41,82m² útil 1º leilão R$ 147.000,00 22/06/2026 às 10:06 2º leilão R$ 74.796,57 49 29/06/2026 às 10:06 Apartamento São Paulo / SP - Guaianazes Rua Senador N nazes Rua Igarapé Água Azul, 308 41,82m² útil 1º leilão R$ 147.000,00 22/06/2026 às 10:06 2º leilão R$ 74.796,57 49 29/06/2026 às 10:06 Apartamento São Paulo / SP - Guaianazes Rua Senador Nelson Carneiro, 42 42,28m² útil 1º leilão R 0:06 Apartamento São Paulo / SP - Guaianazes Rua Senador Nelson Carneiro, 42 42,28m² útil 1º leilão R$ 127.000,00 22/06/2026 às 10:1",
     "notes": "Incluido apos reclamacao do owner: radar nao pode ficar sem fila para avaliacao. Candidato entra como pendente, nao como recomendacao de lance.",
     "sale_comparables_count": 0,
-    "rent_comparables_count": 0
+    "rent_comparables_count": 0,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+    "manual_recheck_decision": "fechar",
+    "manual_recheck_reason_code": "sem_sinal_leilao_ativo",
+    "manual_recheck_final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp?inforetirado=1",
+    "manual_recheck_status": "closed_no_active_auction"
   },
   {
     "id_suffix": "USR-ZUK-227865",
@@ -4890,12 +5003,18 @@
     "local_demand_risk": "medio",
     "plan_b": "Locacao como plano B se revenda atrasar; antes de proposta, confirmar ocupacao, documentos e comparaveis reais.",
     "source_validation_status": "valid",
-    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-    "source_checked_at": "2026-06-21T14:12:00-03:00",
+    "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+    "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
     "observed_at": "2026-06-21T14:12:00-03:00",
     "listing_description": "Leilão de Apartamento - República - São Paulo/SP cod: 227865 | Zuk Leilões Tipo de imóvel Residenciais Encontre imóveis para morar ou investir em todo o Brasil Comerciais Leilão de salas corporativas, prédios, galpões entre outros imóveis comerciais. Rurais Confira os leilão de imóveis em áreas rurais como chácaras, sítios e fazendas. Terrenos Leilões com áreas de construção na cidade e no campo. Outras Oportunidades Veículos Veículos Bens Diversos Bens Diversos Imóveis desocupados Imóveis desoc elação completa do leilão Encerra em 24/06/26 às 10h09 Data de encerramento Em leilão pelo valor de R$ 483.300,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: Data 24/06/26 às 10h09 R$ 483.300,00 Participar do leilão Consult valor de R$ 483.300,00 01 Dias 01 Horas 10 Minutos 20 Segundos Lance mínimo: Data 24/06/26 às 10h09 R$ 483.300,00 Participar do leilão Consulte o edital e documentos do leilão R$ 0,00 Maior lance até agora por +R$ 5.000,00 Incremento $ 8.746,52 50 10/07/2026 às 10:20 Apartamento São Paulo / SP - Consolação Rua Marconi, 94 1º leilão R$ 379.080,87 11/06/2026 às 14:20 2º leilão R$ 228.858,70 40 02/07/2026 às 14:30 Venda Direta Loja / Sala Comercial São Paulo / SP -  o São Paulo / SP - Consolação Rua Marconi, 94 1º leilão R$ 379.080,87 11/06/2026 às 14:20 2º leilão R$ 228.858,70 40 02/07/2026 às 14:30 Venda Direta Loja / Sala Comercial São Paulo / SP - Centro Rua Conselheiro Crispiniano, 105 129, ite sua Participação Clique aqui para Participar Simular Parcelamento Valor da simulação R$ Mínimo: R$ 58.275,00 Prosseguir Simular parcelamento 01 02 03 Valor do sinal R$ Mínimo: R$ 58.275,00 % do sinal Mínimo 30% de Sinal Cancelar imulação R$ Mínimo: R$ 58.275,00 Prosseguir Simular parcelamento 01 02 03 Valor do sinal R$ Mínimo: R$ 58.275,00 % do sinal Mínimo",
     "notes": "Incluido apos reclamacao do owner: radar nao pode ficar sem fila para avaliacao. Candidato entra como pendente, nao como recomendacao de lance.",
     "sale_comparables_count": 0,
-    "rent_comparables_count": 0
+    "rent_comparables_count": 0,
+    "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00",
+    "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+    "manual_recheck_decision": "manter",
+    "manual_recheck_reason_code": "prova_leilao_ativo",
+    "manual_recheck_final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
+    "manual_recheck_status": "active_live_recheck"
   }
 ]

@@ -135804,15 +135804,21 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
       "source_validation": {
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
         "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
-        "status": "unchecked",
-        "reason": "Fonte ainda nao validada pela app.",
-        "checked_at": "",
-        "http_status": null
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-27.html"
+        }
       },
-      "source_validation_status": "unchecked",
-      "source_validation_reason": "Fonte ainda nao validada pela app.",
-      "source_checked_at": "",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "action": "Sao Paulo / Perdizes / Rua Cardoso de Almeida 152m / Entrada 677K Saida 1.196M",
       "thesis_reason": "Radar imobiliario: Leilao Imovel / ProLeilao / Alfa Leiloes em Perdizes / Sao Paulo. Score 72/100, confianca 68/100, status Aberto com pendencias.",
       "expected_result_pct": 29.2,
@@ -135822,18 +135828,18 @@
       "current_price_brl": 1280000.0,
       "latest_price_at": "2026-05-30T20:10:00-03:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 22,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar fonte lateral com fotos internas.",
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
       "real_estate_analysis": {
         "score": 72,
         "confidence": 68,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -136341,11 +136347,17 @@
           "auction_modality": "judicial"
         },
         "source_validation": {
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
           "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
-          "status": "unchecked",
-          "reason": "Fonte ainda nao validada pela app.",
-          "checked_at": "",
-          "http_status": null
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-27.html"
+          }
         },
         "candidate": {
           "strategy": "Judicial Alfa Leiloes + arbitragem residencial Perdizes",
@@ -136377,16 +136389,34 @@
           "source_checked_at": "",
           "visit_evidence": [],
           "source_validation": {
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
             "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
-            "status": "unchecked",
-            "reason": "Fonte ainda nao validada pela app.",
-            "checked_at": "",
-            "http_status": null
-          }
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-27.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-de-apartamento-em-perdizes-sp-imovel-2856149"
+        },
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo."
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -137793,15 +137823,21 @@
       "front": "imoveis",
       "source_url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
       "source_validation": {
+        "status": "inactive",
+        "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
         "url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
-        "status": "unchecked",
-        "reason": "Fonte ainda nao validada pela app.",
-        "checked_at": "",
-        "http_status": null
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "status_code": 200,
+          "final_url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-25.html"
+        }
       },
-      "source_validation_status": "unchecked",
-      "source_validation_reason": "Fonte ainda nao validada pela app.",
-      "source_checked_at": "",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "action": "REAL - Alphaville Campinas flat Ibis Styles 32m2",
       "thesis_reason": "Radar imobiliario: Chaves na Mao em Alphaville Campinas / Campinas. Score 62/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
@@ -137811,18 +137847,18 @@
       "current_price_brl": 152000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 35,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
       "real_estate_analysis": {
         "score": 62,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -138513,11 +138549,17 @@
         "local_demand_evidence": {},
         "listing_reading": {},
         "source_validation": {
+          "status": "inactive",
+          "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
           "url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
-          "status": "unchecked",
-          "reason": "Fonte ainda nao validada pela app.",
-          "checked_at": "",
-          "http_status": null
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "marketplace_sem_leilao",
+            "status_code": 200,
+            "final_url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-25.html"
+          }
         },
         "candidate": {
           "strategy": "Renda / Plano B",
@@ -138549,16 +138591,34 @@
           "source_checked_at": "",
           "visit_evidence": [],
           "source_validation": {
+            "status": "inactive",
+            "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
             "url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
-            "status": "unchecked",
-            "reason": "Fonte ainda nao validada pela app.",
-            "checked_at": "",
-            "http_status": null
-          }
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "marketplace_sem_leilao",
+              "status_code": 200,
+              "final_url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-25.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "status_code": 200,
+          "final_url": "https://www.chavesnamao.com.br/flat/sp-campinas/alphaville/"
+        },
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo."
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -138568,15 +138628,21 @@
       "front": "imoveis",
       "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
       "source_validation": {
+        "status": "inactive",
+        "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
         "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
-        "status": "unchecked",
-        "reason": "Fonte ainda nao validada pela app.",
-        "checked_at": "",
-        "http_status": null
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "status_code": 200,
+          "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-24.html"
+        }
       },
-      "source_validation_status": "unchecked",
-      "source_validation_reason": "Fonte ainda nao validada pela app.",
-      "source_checked_at": "",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "action": "REAL - Mansoes Santo Antonio Campinas 75m2 sem financiamento",
       "thesis_reason": "Radar imobiliario: Chaves na Mao em Mansoes Santo Antonio / Campinas. Score 55/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
@@ -138586,18 +138652,18 @@
       "current_price_brl": 360000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 35,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
       "real_estate_analysis": {
         "score": 55,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -139288,11 +139354,17 @@
         "local_demand_evidence": {},
         "listing_reading": {},
         "source_validation": {
+          "status": "inactive",
+          "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
           "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
-          "status": "unchecked",
-          "reason": "Fonte ainda nao validada pela app.",
-          "checked_at": "",
-          "http_status": null
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "marketplace_sem_leilao",
+            "status_code": 200,
+            "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-24.html"
+          }
         },
         "candidate": {
           "strategy": "Compra direta com negociacao + house flipping leve",
@@ -139324,16 +139396,34 @@
           "source_checked_at": "",
           "visit_evidence": [],
           "source_validation": {
+            "status": "inactive",
+            "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
             "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
-            "status": "unchecked",
-            "reason": "Fonte ainda nao validada pela app.",
-            "checked_at": "",
-            "http_status": null
-          }
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "marketplace_sem_leilao",
+              "status_code": 200,
+              "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-24.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "status_code": 200,
+          "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-3-quartos-com-garagem-sp-campinas-mansoes-santo-antonio-75m2-RS360000/id-35276434/"
+        },
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo."
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -140067,15 +140157,21 @@
       "front": "imoveis",
       "source_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
       "source_validation": {
+        "status": "inactive",
+        "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
         "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
-        "status": "unchecked",
-        "reason": "Fonte ainda nao validada pela app.",
-        "checked_at": "",
-        "http_status": null
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "status_code": 200,
+          "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-22.html"
+        }
       },
-      "source_validation_status": "unchecked",
-      "source_validation_reason": "Fonte ainda nao validada pela app.",
-      "source_checked_at": "",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "action": "REAL - Parque Campolim Sorocaba Augusto Lippel 48m2",
       "thesis_reason": "Radar imobiliario: Chaves na Mao em Parque Campolim / Sorocaba. Score 69/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 11.96,
@@ -140085,18 +140181,18 @@
       "current_price_brl": 429600.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 35,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
       "real_estate_analysis": {
         "score": 69,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -140740,11 +140836,17 @@
         "local_demand_evidence": {},
         "listing_reading": {},
         "source_validation": {
+          "status": "inactive",
+          "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
           "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
-          "status": "unchecked",
-          "reason": "Fonte ainda nao validada pela app.",
-          "checked_at": "",
-          "http_status": null
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "marketplace_sem_leilao",
+            "status_code": 200,
+            "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-22.html"
+          }
         },
         "candidate": {
           "strategy": "House flipping leve + renda plano B",
@@ -140776,16 +140878,34 @@
           "source_checked_at": "",
           "visit_evidence": [],
           "source_validation": {
+            "status": "inactive",
+            "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
             "url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
-            "status": "unchecked",
-            "reason": "Fonte ainda nao validada pela app.",
-            "checked_at": "",
-            "http_status": null
-          }
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "marketplace_sem_leilao",
+              "status_code": 200,
+              "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-22.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "reason": "chavesnamao.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "status_code": 200,
+          "final_url": "https://www.chavesnamao.com.br/imovel/apartamento-a-venda-2-quartos-com-garagem-sp-sorocaba-parque-campolim-48m2-RS320000/id-37153369/"
+        },
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo."
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -140795,15 +140915,21 @@
       "front": "imoveis",
       "source_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
       "source_validation": {
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
         "url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
-        "status": "unchecked",
-        "reason": "Fonte ainda nao validada pela app.",
-        "checked_at": "",
-        "http_status": null
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-21.html"
+        }
       },
-      "source_validation_status": "unchecked",
-      "source_validation_reason": "Fonte ainda nao validada pela app.",
-      "source_checked_at": "",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "action": "REAL - Vila Aviacao Bauru leilao Olavo Moura 50m2",
       "thesis_reason": "Radar imobiliario: Leilao Caixa via Imovelweb em Vila Aviacao / Bauru. Score 54/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
@@ -140813,18 +140939,18 @@
       "current_price_brl": 180000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 35,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar edital oficial.",
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
       "real_estate_analysis": {
         "score": 54,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -141653,11 +141779,17 @@
         "local_demand_evidence": {},
         "listing_reading": {},
         "source_validation": {
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
           "url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
-          "status": "unchecked",
-          "reason": "Fonte ainda nao validada pela app.",
-          "checked_at": "",
-          "http_status": null
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-21.html"
+          }
         },
         "candidate": {
           "strategy": "Leilao/venda online + venda",
@@ -141689,16 +141821,34 @@
           "source_checked_at": "",
           "visit_evidence": [],
           "source_validation": {
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
             "url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
-            "status": "unchecked",
-            "reason": "Fonte ainda nao validada pela app.",
-            "checked_at": "",
-            "http_status": null
-          }
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-21.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.imovelweb.com.br/propriedades/oportunidade-unica-em-bauru-sp-3034244339.html"
+        },
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo."
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -141708,15 +141858,21 @@
       "front": "imoveis",
       "source_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
       "source_validation": {
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
         "url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
-        "status": "unchecked",
-        "reason": "Fonte ainda nao validada pela app.",
-        "checked_at": "",
-        "http_status": null
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-19.html"
+        }
       },
-      "source_validation_status": "unchecked",
-      "source_validation_reason": "Fonte ainda nao validada pela app.",
-      "source_checked_at": "",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "action": "REAL - Jardim Olhos D Agua RP Monterey 56m2",
       "thesis_reason": "Radar imobiliario: Imovelweb em Jardim Olhos D Agua / Ribeirao Preto. Score 55/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
@@ -141726,18 +141882,18 @@
       "current_price_brl": 370000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 35,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
       "real_estate_analysis": {
         "score": 55,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -142428,11 +142584,17 @@
         "local_demand_evidence": {},
         "listing_reading": {},
         "source_validation": {
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
           "url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
-          "status": "unchecked",
-          "reason": "Fonte ainda nao validada pela app.",
-          "checked_at": "",
-          "http_status": null
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-19.html"
+          }
         },
         "candidate": {
           "strategy": "House flipping leve + renda plano B",
@@ -142464,16 +142626,34 @@
           "source_checked_at": "",
           "visit_evidence": [],
           "source_validation": {
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
             "url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
-            "status": "unchecked",
-            "reason": "Fonte ainda nao validada pela app.",
-            "checked_at": "",
-            "http_status": null
-          }
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-19.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.imovelweb.com.br/apartamentos-venda-jardim-olhos-d-agua-ribeirao-preto-2-quartos.html"
+        },
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo."
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -142483,15 +142663,21 @@
       "front": "imoveis",
       "source_url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
       "source_validation": {
+        "status": "inactive",
+        "reason": "floraimoveis.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
         "url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
-        "status": "unchecked",
-        "reason": "Fonte ainda nao validada pela app.",
-        "checked_at": "",
-        "http_status": null
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "status_code": 200,
+          "final_url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-18.html"
+        }
       },
-      "source_validation_status": "unchecked",
-      "source_validation_reason": "Fonte ainda nao validada pela app.",
-      "source_checked_at": "",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "floraimoveis.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "action": "REAL - Cambui Campinas Rua Coronel Quirino 45m2",
       "thesis_reason": "Radar imobiliario: Flora Imoveis em Cambui / Campinas. Score 55/100, confianca 33/100, status Aberto com pendencias.",
       "expected_result_pct": 0.0,
@@ -142501,18 +142687,18 @@
       "current_price_brl": 328000.0,
       "latest_price_at": "2026-05-18T01:45:01+00:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Validar fonte do candidato",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 35,
-      "learning_note": "Antes de proposta: Validar fonte do candidato. Pendencias principais: Validar fonte do candidato, Confirmar ocupacao, Buscar matricula atualizada.",
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. floraimoveis.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
       "real_estate_analysis": {
         "score": 55,
         "confidence": 33,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte do candidato",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -143205,11 +143391,17 @@
           "auction_modality": "venda_direta"
         },
         "source_validation": {
+          "status": "inactive",
+          "reason": "floraimoveis.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
           "url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
-          "status": "unchecked",
-          "reason": "Fonte ainda nao validada pela app.",
-          "checked_at": "",
-          "http_status": null
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "marketplace_sem_leilao",
+            "status_code": 200,
+            "final_url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-18.html"
+          }
         },
         "candidate": {
           "strategy": "House flipping leve + venda direta",
@@ -143241,16 +143433,34 @@
           "source_checked_at": "",
           "visit_evidence": [],
           "source_validation": {
+            "status": "inactive",
+            "reason": "floraimoveis.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
             "url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
-            "status": "unchecked",
-            "reason": "Fonte ainda nao validada pela app.",
-            "checked_at": "",
-            "http_status": null
-          }
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "marketplace_sem_leilao",
+              "status_code": 200,
+              "final_url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-18.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "floraimoveis.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "visit_evidence": []
+        "visit_evidence": [],
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "marketplace_sem_leilao",
+          "reason": "floraimoveis.com.br: pagina de marketplace/classificado, nao fonte oficial de leilao ativo",
+          "status_code": 200,
+          "final_url": "https://www.floraimoveis.com.br/imovel/campinas/apartamento/3226394"
+        },
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo."
       },
-      "is_open": true
+      "is_open": false
     },
     {
       "phase": "pos_go_live",
@@ -143260,14 +143470,21 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
       "source_validation": {
-        "status": "valid",
-        "reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
-        "checked_at": "2026-05-30T20:58:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839"
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PIN-01.html"
+        }
       },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
-      "source_checked_at": "2026-05-30T20:58:00-03:00",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m / Entrada 343K Saida 566K",
       "action": "Sao Paulo / Pinheiros / Capote Valente Saint Germain 33m / Entrada 343K Saida 566K",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Capote Valente, 134 - Apto 124. Score 69/100, confianca 53/100.",
@@ -143278,19 +143495,19 @@
       "current_price_brl": 566409.48,
       "latest_price_at": "2026-05-30T20:58:00-03:00",
       "planned_exit_at": "2026-06-13",
-      "exit_rule": "Confirmar ocupacao",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Confirmar responsabilidade por debitos, Validar valor de saida.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 69,
         "confidence": 53,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -143931,10 +144148,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "valid",
-          "reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
-          "checked_at": "2026-05-30T20:58:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839"
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PIN-01.html"
+          }
         },
         "candidate": {
           "strategy": "Leilao judicial WebLeiloes + studio Pinheiros com vaga/manobrista",
@@ -143987,13 +144211,31 @@
           "source_validation_reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
           "source_checked_at": "2026-05-30T20:58:00-03:00",
           "source_validation": {
-            "status": "valid",
-            "reason": "Edital judicial WebLeiloes/TJSP analisado localmente; confirma leiloeiro, processo, bem, matricula, contribuinte, praca, pagamento e debitos tributarios sub-rogados. Ocupacao nao consta no edital.",
-            "checked_at": "2026-05-30T20:58:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839"
-          }
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PIN-01.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-33-50m-pinheiros-sao-paulo-sp-imovel-2803839"
+        }
       }
     },
     {
@@ -145797,14 +146039,21 @@
       "front": "imoveis",
       "source_url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Validar ocupacao, dividas e se o desconto sobre avaliacao compensa reforma.",
-        "checked_at": "2026-05-20T21:00:00-03:00",
-        "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034"
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-01.html"
+        }
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Validar ocupacao, dividas e se o desconto sobre avaliacao compensa reforma.",
-      "source_checked_at": "2026-05-20T21:00:00-03:00",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "REAL TARGET - Perdizes Turiassu 90m 3q",
       "action": "REAL TARGET - Perdizes Turiassu 90m 3q",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Perdizes / Rua Turiassu, 362. Score 55/100, confianca 43/100.",
@@ -145815,19 +146064,19 @@
       "current_price_brl": 490928.97,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 55,
         "confidence": 43,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -146540,10 +146789,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Validar ocupacao, dividas e se o desconto sobre avaliacao compensa reforma.",
-          "checked_at": "2026-05-20T21:00:00-03:00",
-          "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034"
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-01.html"
+          }
         },
         "candidate": {
           "strategy": "Leilao judicial com preco baixo",
@@ -146580,13 +146836,31 @@
           "source_validation_reason": "Validar ocupacao, dividas e se o desconto sobre avaliacao compensa reforma.",
           "source_checked_at": "2026-05-20T21:00:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Validar ocupacao, dividas e se o desconto sobre avaliacao compensa reforma.",
-            "checked_at": "2026-05-20T21:00:00-03:00",
-            "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034"
-          }
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-01.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (404) NÃ£o Localizado.\")",
+          "status_code": 0,
+          "final_url": "https://www.proleilao.com.br/leilao-de-imoveis/sp/sao-paulo/apartamento-em-perdizes-sao-paulo-sp_i36034"
+        }
       }
     },
     {
@@ -147432,14 +147706,21 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Fonte indica outros/direitos; exige leitura juridica antes de tratar como apartamento vendavel.",
-        "checked_at": "2026-05-20T21:00:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes"
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-03.html"
+        }
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Fonte indica outros/direitos; exige leitura juridica antes de tratar como apartamento vendavel.",
-      "source_checked_at": "2026-05-20T21:00:00-03:00",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "REAL TARGET - Perdizes Caiowaa lote alto risco",
       "action": "REAL TARGET - Perdizes Caiowaa lote alto risco",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Perdizes / Rua Caiowaa, 117. Score 48/100, confianca 13/100.",
@@ -147450,19 +147731,19 @@
       "current_price_brl": 980137.5,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Classificar modalidade do leilao.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 48,
         "confidence": 13,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -148320,10 +148601,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Fonte indica outros/direitos; exige leitura juridica antes de tratar como apartamento vendavel.",
-          "checked_at": "2026-05-20T21:00:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes"
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-03.html"
+          }
         },
         "candidate": {
           "strategy": "Aprendizado juridico sem lance imediato",
@@ -148360,13 +148648,31 @@
           "source_validation_reason": "Fonte indica outros/direitos; exige leitura juridica antes de tratar como apartamento vendavel.",
           "source_checked_at": "2026-05-20T21:00:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Fonte indica outros/direitos; exige leitura juridica antes de tratar como apartamento vendavel.",
-            "checked_at": "2026-05-20T21:00:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes"
-          }
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-03.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/leilao-de-imovel/sp/sao-paulo/perdizes"
+        }
       }
     },
     {
@@ -148377,14 +148683,21 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Confirmar status Caixa, debitos e condominio atual antes de proposta.",
-        "checked_at": "2026-05-20T21:00:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa"
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-CAM-01.html"
+        }
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Confirmar status Caixa, debitos e condominio atual antes de proposta.",
-      "source_checked_at": "2026-05-20T21:00:00-03:00",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "REAL TARGET - Campo Belo Viaza 78m Caixa",
       "action": "REAL TARGET - Campo Belo Viaza 78m Caixa",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Campo Belo / Rua Viaza, 975. Score 64/100, confianca 58/100.",
@@ -148395,19 +148708,19 @@
       "current_price_brl": 793242.14,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar custo total de debitos, Confirmar divida de condominio.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 64,
         "confidence": 58,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -149102,10 +149415,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Confirmar status Caixa, debitos e condominio atual antes de proposta.",
-          "checked_at": "2026-05-20T21:00:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa"
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-CAM-01.html"
+          }
         },
         "candidate": {
           "strategy": "Venda direta Caixa + liquidez residencial",
@@ -149142,13 +149462,31 @@
           "source_validation_reason": "Confirmar status Caixa, debitos e condominio atual antes de proposta.",
           "source_checked_at": "2026-05-20T21:00:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Confirmar status Caixa, debitos e condominio atual antes de proposta.",
-            "checked_at": "2026-05-20T21:00:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa"
-          }
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-CAM-01.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-jardim-aeroporto-3-quartos-2-vagas-na-garagem-imovel-caixa-economica-federal-cef-2714964-1444416395581-venda-direta-caixa"
+        }
       }
     },
     {
@@ -150144,14 +150482,21 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Abrir lote individual e validar debitos antes de tratar como candidato de lance.",
-        "checked_at": "2026-05-20T21:00:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884"
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-CAM-03.html"
+        }
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Abrir lote individual e validar debitos antes de tratar como candidato de lance.",
-      "source_checked_at": "2026-05-20T21:00:00-03:00",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "REAL TARGET - Campo Belo Vieira de Morais 96m",
       "action": "REAL TARGET - Campo Belo Vieira de Morais 96m",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Campo Belo / Rua Vieira de Morais, 601. Score 62/100, confianca 43/100.",
@@ -150162,19 +150507,19 @@
       "current_price_brl": 885000.0,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 62,
         "confidence": 43,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -150886,10 +151231,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Abrir lote individual e validar debitos antes de tratar como candidato de lance.",
-          "checked_at": "2026-05-20T21:00:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884"
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-CAM-03.html"
+          }
         },
         "candidate": {
           "strategy": "Leilao judicial + desconto de segunda praca",
@@ -150926,13 +151278,31 @@
           "source_validation_reason": "Abrir lote individual e validar debitos antes de tratar como candidato de lance.",
           "source_checked_at": "2026-05-20T21:00:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Abrir lote individual e validar debitos antes de tratar como candidato de lance.",
-            "checked_at": "2026-05-20T21:00:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884"
-          }
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-CAM-03.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-leilao-apto-148-no-edificio-modular-omega-cod-do-leilao-vieirademoraes-leilao-apto-148-no-edifici-imovel-2807884"
+        }
       }
     },
     {
@@ -151854,14 +152224,21 @@
       "front": "imoveis",
       "source_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Ocupado; manter aberto para estudo, mas bloquear proposta sem estrategia juridica.",
-        "checked_at": "2026-05-20T21:00:00-03:00",
-        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598"
+        "status": "access_blocked_no_active_proof",
+        "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-ITA-01.html"
+        }
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Ocupado; manter aberto para estudo, mas bloquear proposta sem estrategia juridica.",
-      "source_checked_at": "2026-05-20T21:00:00-03:00",
+      "source_validation_status": "access_blocked_no_active_proof",
+      "source_validation_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "REAL TARGET - Itaim Bibi Joaquim Floriano 76m",
       "action": "REAL TARGET - Itaim Bibi Joaquim Floriano 76m",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Itaim Bibi / Rua Joaquim Floriano, 892. Score 59/100, confianca 58/100.",
@@ -151872,19 +152249,19 @@
       "current_price_brl": 1150000.0,
       "latest_price_at": "2026-05-20T21:00:00-03:00",
       "planned_exit_at": "2026-06-03",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Classificar modalidade do leilao, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 59,
         "confidence": 58,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -152603,10 +152980,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Ocupado; manter aberto para estudo, mas bloquear proposta sem estrategia juridica.",
-          "checked_at": "2026-05-20T21:00:00-03:00",
-          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598"
+          "status": "access_blocked_no_active_proof",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "inacessivel_sem_prova",
+            "status_code": 0,
+            "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-ITA-01.html"
+          }
         },
         "candidate": {
           "strategy": "Leilao ocupado em bairro premium",
@@ -152644,13 +153028,31 @@
           "source_validation_reason": "Ocupado; manter aberto para estudo, mas bloquear proposta sem estrategia juridica.",
           "source_checked_at": "2026-05-20T21:00:00-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Ocupado; manter aberto para estudo, mas bloquear proposta sem estrategia juridica.",
-            "checked_at": "2026-05-20T21:00:00-03:00",
-            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598"
-          }
+            "status": "access_blocked_no_active_proof",
+            "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "inacessivel_sem_prova",
+              "status_code": 0,
+              "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-ITA-01.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "inacessivel_sem_prova",
+          "reason": "fetch sem sucesso (0; ExceÃ§Ã£o ao chamar \"GetResponse\" com \"0\" argumento(s): \"O servidor remoto retornou um erro: (403) Proibido.\")",
+          "status_code": 0,
+          "final_url": "https://www.leilaoimovel.com.br/imovel/sp/sao-paulo/residencial-apartamento-76-m-itaim-bibi-sao-paulo-sp-imovel-2774598"
+        }
       }
     },
     {
@@ -158653,14 +159055,21 @@
       "front": "imoveis",
       "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
       "source_validation": {
-        "status": "valid",
-        "reason": "Fonte individual validada.",
-        "checked_at": "2026-05-23T14:21:47+00:00",
-        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
+        "status": "inactive",
+        "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "sem_sinal_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-ITA-02.html"
+        }
       },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Fonte individual validada.",
-      "source_checked_at": "2026-05-23T14:21:47+00:00",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Itaim Bibi / Rua Bandeira Paulista / Entrada 1.240M Saida 1.771M",
       "action": "Sao Paulo / Itaim Bibi / Rua Bandeira Paulista / Entrada 1.240M Saida 1.771M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Itaim Bibi / Rua Bandeira Paulista, 292. Score 53/100, confianca 58/100.",
@@ -158671,19 +159080,19 @@
       "current_price_brl": 1771338.16,
       "latest_price_at": "2026-05-23T11:24:00-03:00",
       "planned_exit_at": "2026-06-06",
-      "exit_rule": "Confirmar custo total de debitos",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar custo total de debitos. Pendencias principais: Confirmar custo total de debitos, Confirmar divida de condominio, Validar valor de saida.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 53,
         "confidence": 58,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar custo total de debitos",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -159360,10 +159769,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "valid",
-          "reason": "Fonte individual validada.",
-          "checked_at": "2026-05-23T14:21:47+00:00",
-          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
+          "status": "inactive",
+          "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "sem_sinal_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-ITA-02.html"
+          }
         },
         "candidate": {
           "strategy": "2a praca judicial em bairro premium + comprador final mapeado",
@@ -159403,13 +159819,31 @@
           "source_validation_reason": "Fonte individual validada.",
           "source_checked_at": "2026-05-23T14:21:47+00:00",
           "source_validation": {
-            "status": "valid",
-            "reason": "Fonte individual validada.",
-            "checked_at": "2026-05-23T14:21:47+00:00",
-            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684"
-          }
+            "status": "inactive",
+            "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/itaim-bibi/rua-bandeira-paulista-292/36337-225684",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "sem_sinal_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-ITA-02.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "sem_sinal_leilao_ativo",
+          "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp"
+        }
       }
     },
     {
@@ -160301,13 +160735,20 @@
       "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
       "source_validation": {
         "status": "valid",
-        "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026.",
-        "checked_at": "2026-05-27T18:00:00-03:00",
-        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112"
+        "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+        "live_recheck": {
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PIN-06.html"
+        }
       },
       "source_validation_status": "valid",
-      "source_validation_reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026.",
-      "source_checked_at": "2026-05-27T18:00:00-03:00",
+      "source_validation_reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Pinheiros / Rua Padre Carvalho Casa 5 / Entrada 1.611M Saida 2.955M",
       "action": "Sao Paulo / Pinheiros / Rua Padre Carvalho Casa 5 / Entrada 1.611M Saida 2.955M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Pinheiros / Rua Padre Carvalho, 129 - Casa 5. Score 70/100, confianca 83/100.",
@@ -160320,11 +160761,11 @@
       "planned_exit_at": "2026-06-10",
       "exit_rule": "Desocupacao por conta do comprador",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Leilao ativo revalidado",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Desocupacao por conta do comprador. Pendencias principais: Desocupacao por conta do comprador, Validar demanda local e comprador, Buscar fonte lateral com fotos internas.",
+      "learning_note": "Rechecado em 2026-06-26: manter aberto porque a pagina individual ainda mostra leilao/venda ativo. termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
       "is_open": true,
       "real_estate_analysis": {
         "score": 70,
@@ -160985,9 +161426,16 @@
         },
         "source_validation": {
           "status": "valid",
-          "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026.",
-          "checked_at": "2026-05-27T18:00:00-03:00",
-          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112"
+          "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+          "live_recheck": {
+            "decision": "manter",
+            "reason_code": "prova_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PIN-06.html"
+          }
         },
         "candidate": {
           "strategy": "2a praca extrajudicial Bradesco + casa em vila com desconto aparente",
@@ -161063,12 +161511,30 @@
           "source_checked_at": "2026-05-27T18:00:00-03:00",
           "source_validation": {
             "status": "valid",
-            "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026.",
-            "checked_at": "2026-05-27T18:00:00-03:00",
-            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112"
-          }
+            "reason": "Fonte oficial Zuk/Banco Bradesco validada; edital especifico, edital de venda e matricula 22.175 analisados. Matricula confirma alienacao fiduciaria Banco Bradesco S/A e consolidacao da propriedade em 17/03/2026. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+            "live_recheck": {
+              "decision": "manter",
+              "reason_code": "prova_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PIN-06.html"
+            }
+          },
+          "manual_recheck_status": "active_live_recheck",
+          "manual_recheck_reason": "termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Mantido aberto em rechecagem ao vivo de 2026-06-26: pagina individual mostra leilao/venda ativo com data futura.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "reason": "termos ativos (encerramento, encerramento em, venda direta) e data futura 2026-07-08",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/pinheiros/rua-padre-carvalho-129/36388-226112"
+        }
       }
     },
     {
@@ -161079,14 +161545,21 @@
       "front": "imoveis",
       "source_url": "https://www.alfaleiloes.com/lote/9949/leilao-de-apartamento-em-perdizes-sp/",
       "source_validation": {
-        "status": "valid",
-        "reason": "Lote oficial Alfa 9949 confirma endereco, processo, avaliacao, lance minimo, status aberto e documentos do leilao. Pendencias restantes sao juridicas/ocupacionais, nao de identidade da fonte.",
-        "checked_at": "2026-06-03T21:45:00-03:00",
-        "url": "https://www.alfaleiloes.com/lote/9949/leilao-de-apartamento-em-perdizes-sp/"
+        "status": "inactive",
+        "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.alfaleiloes.com/lote/9949/leilao-de-apartamento-em-perdizes-sp/",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "sem_sinal_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.alfaleiloes.com/",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-05.html"
+        }
       },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Lote oficial Alfa 9949 confirma endereco, processo, avaliacao, lance minimo, status aberto e documentos do leilao. Pendencias restantes sao juridicas/ocupacionais, nao de identidade da fonte.",
-      "source_checked_at": "2026-06-03T21:45:00-03:00",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Perdizes / Rua Cardoso de Almeida 152m / Entrada 677K Saida 1.196M",
       "action": "Sao Paulo / Perdizes / Rua Cardoso de Almeida 152m / Entrada 677K Saida 1.196M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Perdizes / Rua Cardoso de Almeida, 704 - Apto 41. Score 77/100, confianca 68/100.",
@@ -161097,19 +161570,19 @@
       "current_price_brl": 1255000.0,
       "latest_price_at": "2026-06-03T21:45:00-03:00",
       "planned_exit_at": "2026-06-17",
-      "exit_rule": "Confirmar ocupacao",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar fonte lateral com fotos internas.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 77,
         "confidence": 68,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -161724,10 +162197,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "valid",
-          "reason": "Lote oficial Alfa 9949 confirma endereco, processo, avaliacao, lance minimo, status aberto e documentos do leilao. Pendencias restantes sao juridicas/ocupacionais, nao de identidade da fonte.",
-          "checked_at": "2026-06-03T21:45:00-03:00",
-          "url": "https://www.alfaleiloes.com/lote/9949/leilao-de-apartamento-em-perdizes-sp/"
+          "status": "inactive",
+          "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.alfaleiloes.com/lote/9949/leilao-de-apartamento-em-perdizes-sp/",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "sem_sinal_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.alfaleiloes.com/",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-05.html"
+          }
         },
         "candidate": {
           "strategy": "Judicial Alfa Leiloes + arbitragem residencial Perdizes",
@@ -161795,13 +162275,31 @@
           "source_validation_reason": "Lote oficial Alfa 9949 confirma endereco, processo, avaliacao, lance minimo, status aberto e documentos do leilao. Pendencias restantes sao juridicas/ocupacionais, nao de identidade da fonte.",
           "source_checked_at": "2026-06-03T21:45:00-03:00",
           "source_validation": {
-            "status": "valid",
-            "reason": "Lote oficial Alfa 9949 confirma endereco, processo, avaliacao, lance minimo, status aberto e documentos do leilao. Pendencias restantes sao juridicas/ocupacionais, nao de identidade da fonte.",
-            "checked_at": "2026-06-03T21:45:00-03:00",
-            "url": "https://www.alfaleiloes.com/lote/9949/leilao-de-apartamento-em-perdizes-sp/"
-          }
+            "status": "inactive",
+            "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.alfaleiloes.com/lote/9949/leilao-de-apartamento-em-perdizes-sp/",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "sem_sinal_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.alfaleiloes.com/",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-PER-05.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "sem_sinal_leilao_ativo",
+          "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "status_code": 200,
+          "final_url": "https://www.alfaleiloes.com/"
+        }
       }
     },
     {
@@ -184238,14 +184736,21 @@
       "front": "imoveis",
       "source_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544",
       "source_validation": {
-        "status": "valid",
-        "reason": "Pagina individual Mega J122544 aberta em 06/06/2026 com endereco, metragem, vagas, processo, matricula, preco publico e debitos fiscais no corpo da oferta.",
-        "checked_at": "2026-06-06T17:20:26-03:00",
-        "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544"
+        "status": "inactive",
+        "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "encerrado_ou_indisponivel",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544?utm_source=megaleiloes&utm_medium=link&utm_campaign=apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544&utm_term=J122544&utm_content=link",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-AMO-02.html"
+        }
       },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Pagina individual Mega J122544 aberta em 06/06/2026 com endereco, metragem, vagas, processo, matricula, preco publico e debitos fiscais no corpo da oferta.",
-      "source_checked_at": "2026-06-06T17:20:26-03:00",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Alto da Mooca / Edificio Sapucaia 105m / Entrada 689K / Saida 1,28M",
       "action": "Sao Paulo / Alto da Mooca / Edificio Sapucaia 105m / Entrada 689K / Saida 1,28M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Alto da Mooca / Rua Sapucaia, 1070 - Apartamento 144 (Edificio Sapucaia). Score 70/100, confianca 58/100.",
@@ -184256,19 +184761,19 @@
       "current_price_brl": 1280000.0,
       "latest_price_at": "2026-06-06T17:20:26-03:00",
       "planned_exit_at": "2026-06-20",
-      "exit_rule": "Confirmar ocupacao",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Confirmar custo total de debitos, Confirmar divida de condominio.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. termos de encerramento/indisponibilidade: encerrado, arrematado",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 70,
         "confidence": 58,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -184959,10 +185464,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "valid",
-          "reason": "Pagina individual Mega J122544 aberta em 06/06/2026 com endereco, metragem, vagas, processo, matricula, preco publico e debitos fiscais no corpo da oferta.",
-          "checked_at": "2026-06-06T17:20:26-03:00",
-          "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544"
+          "status": "inactive",
+          "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "encerrado_ou_indisponivel",
+            "status_code": 200,
+            "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544?utm_source=megaleiloes&utm_medium=link&utm_campaign=apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544&utm_term=J122544&utm_content=link",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-AMO-02.html"
+          }
         },
         "candidate": {
           "strategy": "Mega judicial com desconto real, debitos fiscais publicos controlaveis e comparaveis do mesmo endereco, mas ainda depende de prova de ocupacao e de uma saida limpa acima de ~R$ 1,2 mi.",
@@ -185027,13 +185539,31 @@
           "source_validation_reason": "Pagina individual Mega J122544 aberta em 06/06/2026 com endereco, metragem, vagas, processo, matricula, preco publico e debitos fiscais no corpo da oferta.",
           "source_checked_at": "2026-06-06T17:20:26-03:00",
           "source_validation": {
-            "status": "valid",
-            "reason": "Pagina individual Mega J122544 aberta em 06/06/2026 com endereco, metragem, vagas, processo, matricula, preco publico e debitos fiscais no corpo da oferta.",
-            "checked_at": "2026-06-06T17:20:26-03:00",
-            "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544"
-          }
+            "status": "inactive",
+            "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "encerrado_ou_indisponivel",
+              "status_code": 200,
+              "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544?utm_source=megaleiloes&utm_medium=link&utm_campaign=apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544&utm_term=J122544&utm_content=link",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-AMO-02.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "encerrado_ou_indisponivel",
+          "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/apartamentos/sp/sao-paulo/apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544?utm_source=megaleiloes&utm_medium=link&utm_campaign=apartamento-105-m2-02-vagas-alto-da-mooca-sao-paulo-sp-j122544&utm_term=J122544&utm_content=link"
+        }
       }
     },
     {
@@ -185885,13 +186415,20 @@
       "source_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
       "source_validation": {
         "status": "valid",
-        "reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo.",
-        "checked_at": "2026-06-07T15:44:32-03:00",
-        "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050"
+        "reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-03",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
+        "live_recheck": {
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-TAT-01.html"
+        }
       },
       "source_validation_status": "valid",
-      "source_validation_reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo.",
-      "source_checked_at": "2026-06-07T15:44:32-03:00",
+      "source_validation_reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-03",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Tatuape / Dosso Del Liro 47m / Entrada 265K / Saida 530K",
       "action": "Sao Paulo / Tatuape / Dosso Del Liro 47m / Entrada 265K / Saida 530K",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Tatuape / Rua Apucarana, 116 - Apartamento 43, Bloco D (Condominio Dosso Del Liro). Score 73/100, confianca 58/100.",
@@ -185904,11 +186441,11 @@
       "planned_exit_at": "2026-06-21",
       "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Leilao ativo revalidado",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Confirmar custo total de debitos, Confirmar divida de IPTU.",
+      "learning_note": "Rechecado em 2026-06-26: manter aberto porque a pagina individual ainda mostra leilao/venda ativo. termos ativos (encerramento, venda direta) e data futura 2026-07-03",
       "is_open": true,
       "real_estate_analysis": {
         "score": 73,
@@ -186606,9 +187143,16 @@
         },
         "source_validation": {
           "status": "valid",
-          "reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo.",
-          "checked_at": "2026-06-07T15:44:32-03:00",
-          "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050"
+          "reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-03",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
+          "live_recheck": {
+            "decision": "manter",
+            "reason_code": "prova_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-TAT-01.html"
+          }
         },
         "candidate": {
           "strategy": "Mega judicial com 2a praca publica, processo e matricula rastreaveis, comparaveis do mesmo endereco e gordura economica real; manter vivo apenas ate fechar ocupacao e atualizar passivos do processo.",
@@ -186674,12 +187218,30 @@
           "source_checked_at": "2026-06-07T15:44:32-03:00",
           "source_validation": {
             "status": "valid",
-            "reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo.",
-            "checked_at": "2026-06-07T15:44:32-03:00",
-            "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050"
-          }
+            "reason": "Pagina individual Mega J125050 aberta via busca atual com processo, autor, matricula, area, datas de 1a/2a praca e avaliacao; cadeia reforcada por edital e espelhos do mesmo processo. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-03",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
+            "live_recheck": {
+              "decision": "manter",
+              "reason_code": "prova_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-TAT-01.html"
+            }
+          },
+          "manual_recheck_status": "active_live_recheck",
+          "manual_recheck_reason": "termos ativos (encerramento, venda direta) e data futura 2026-07-03",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Mantido aberto em rechecagem ao vivo de 2026-06-26: pagina individual mostra leilao/venda ativo com data futura.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "reason": "termos ativos (encerramento, venda direta) e data futura 2026-07-03",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-47-m2-com-01-vaga-prox-a-estacao-carrao-tatuape-sao-paulo-sp-j125050"
+        }
       }
     },
     {
@@ -188373,13 +188935,20 @@
       "source_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
       "source_validation": {
         "status": "valid",
-        "reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca.",
-        "checked_at": "2026-06-08T07:45:28-03:00",
-        "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056"
+        "reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-24",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
+        "live_recheck": {
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-GUA-01.html"
+        }
       },
       "source_validation_status": "valid",
-      "source_validation_reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca.",
-      "source_checked_at": "2026-06-08T07:45:28-03:00",
+      "source_validation_reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-24",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Guarapiranga Park 65m / 2a praca 247K / Saida 520K",
       "action": "Sao Paulo / Guarapiranga Park 65m / 2a praca 247K / Saida 520K",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Guarapiranga / Avenida Guarapiranga, 2616 - Apartamento 124, Bloco 6 (Edificio Cotovia / Guarapiranga Park). Score 79/100, confianca 58/100.",
@@ -188392,11 +188961,11 @@
       "planned_exit_at": "2026-06-22",
       "exit_rule": "Confirmar ocupacao",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Leilao ativo revalidado",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Confirmar custo total de debitos, Confirmar divida de condominio.",
+      "learning_note": "Rechecado em 2026-06-26: manter aberto porque a pagina individual ainda mostra leilao/venda ativo. termos ativos (encerramento, venda direta) e data futura 2026-07-24",
       "is_open": true,
       "real_estate_analysis": {
         "score": 79,
@@ -189119,9 +189688,16 @@
         },
         "source_validation": {
           "status": "valid",
-          "reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca.",
-          "checked_at": "2026-06-08T07:45:28-03:00",
-          "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056"
+          "reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-24",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
+          "live_recheck": {
+            "decision": "manter",
+            "reason_code": "prova_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-GUA-01.html"
+          }
         },
         "candidate": {
           "strategy": "Mega judicial com cadeia primaria limpa, 2a praca muito abaixo dos comparaveis do mesmo endereco e P0 concentrado em ocupacao/passivo condominial.",
@@ -189187,12 +189763,30 @@
           "source_checked_at": "2026-06-08T07:45:28-03:00",
           "source_validation": {
             "status": "valid",
-            "reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca.",
-            "checked_at": "2026-06-08T07:45:28-03:00",
-            "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056"
-          }
+            "reason": "Pagina individual Mega J125056 aberta com endereco, matricula, areas, datas de 1a/2a praca e status fiscal publico; comparaveis reais do mesmo endereco sustentam spread economico na 2a praca. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, venda direta) e data futura 2026-07-24",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
+            "live_recheck": {
+              "decision": "manter",
+              "reason_code": "prova_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-GUA-01.html"
+            }
+          },
+          "manual_recheck_status": "active_live_recheck",
+          "manual_recheck_reason": "termos ativos (encerramento, venda direta) e data futura 2026-07-24",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Mantido aberto em rechecagem ao vivo de 2026-06-26: pagina individual mostra leilao/venda ativo com data futura.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "reason": "termos ativos (encerramento, venda direta) e data futura 2026-07-24",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/imoveis/apartamentos/sp/sao-paulo/apartamento-65-m2-01-vaga-guarapiranga-sao-paulo-sp-j125056"
+        }
       }
     },
     {
@@ -193530,14 +194124,21 @@
       "front": "imoveis",
       "source_url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631",
       "source_validation": {
-        "status": "ambiguous",
-        "reason": "Pagina individual oficial Mega J123631 aberta com endereco, fotos, processo, avaliacao e matricula; comparaveis da mesma rua sustentam economia, mas a rodada nao fechou ocupacao nem abriu a cadeia completa do edital/onus.",
-        "checked_at": "2026-06-09T07:50:16-03:00",
-        "url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631"
+        "status": "inactive",
+        "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "encerrado_ou_indisponivel",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631?utm_source=megaleiloes&utm_medium=link&utm_campaign=casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631&utm_term=J123631&utm_content=link",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-VAR-01.html"
+        }
       },
-      "source_validation_status": "ambiguous",
-      "source_validation_reason": "Pagina individual oficial Mega J123631 aberta com endereco, fotos, processo, avaliacao e matricula; comparaveis da mesma rua sustentam economia, mas a rodada nao fechou ocupacao nem abriu a cadeia completa do edital/onus.",
-      "source_checked_at": "2026-06-09T07:50:16-03:00",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Vila Arcadia / Sousa Filho 328m / 2a praca 573K / Saida 1,14M",
       "action": "Sao Paulo / Vila Arcadia / Sousa Filho 328m / 2a praca 573K / Saida 1,14M",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Vila Arcadia / Rua Sousa Filho, 420. Score 69/100, confianca 58/100.",
@@ -193548,19 +194149,19 @@
       "current_price_brl": 1145000.0,
       "latest_price_at": "2026-06-09T07:50:16-03:00",
       "planned_exit_at": "2026-06-23",
-      "exit_rule": "Validar fonte manualmente",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Validar fonte manualmente. Pendencias principais: Validar fonte manualmente, Confirmar ocupacao, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. termos de encerramento/indisponibilidade: encerrado, arrematado",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 69,
         "confidence": 58,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Validar fonte manualmente",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -194341,10 +194942,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "ambiguous",
-          "reason": "Pagina individual oficial Mega J123631 aberta com endereco, fotos, processo, avaliacao e matricula; comparaveis da mesma rua sustentam economia, mas a rodada nao fechou ocupacao nem abriu a cadeia completa do edital/onus.",
-          "checked_at": "2026-06-09T07:50:16-03:00",
-          "url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631"
+          "status": "inactive",
+          "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "encerrado_ou_indisponivel",
+            "status_code": 200,
+            "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631?utm_source=megaleiloes&utm_medium=link&utm_campaign=casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631&utm_term=J123631&utm_content=link",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-VAR-01.html"
+          }
         },
         "candidate": {
           "strategy": "Mega judicial com pagina oficial aberta, processo e matricula publicos e comparaveis da mesma rua, mas a tese so sobrevive se a ocupacao e a cadeia completa de edital/onus forem fechadas antes da 2a praca.",
@@ -194409,13 +195017,31 @@
           "source_validation_reason": "Pagina individual oficial Mega J123631 aberta com endereco, fotos, processo, avaliacao e matricula; comparaveis da mesma rua sustentam economia, mas a rodada nao fechou ocupacao nem abriu a cadeia completa do edital/onus.",
           "source_checked_at": "2026-06-09T07:50:16-03:00",
           "source_validation": {
-            "status": "ambiguous",
-            "reason": "Pagina individual oficial Mega J123631 aberta com endereco, fotos, processo, avaliacao e matricula; comparaveis da mesma rua sustentam economia, mas a rodada nao fechou ocupacao nem abriu a cadeia completa do edital/onus.",
-            "checked_at": "2026-06-09T07:50:16-03:00",
-            "url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631"
-          }
+            "status": "inactive",
+            "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.megaleiloes.com.br/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "encerrado_ou_indisponivel",
+              "status_code": 200,
+              "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631?utm_source=megaleiloes&utm_medium=link&utm_campaign=casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631&utm_term=J123631&utm_content=link",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-VAR-01.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "encerrado_ou_indisponivel",
+          "reason": "termos de encerramento/indisponibilidade: encerrado, arrematado",
+          "status_code": 200,
+          "final_url": "https://www.megaleiloes.com.br/leiloes-realizados/imoveis/casas/sp/sao-paulo/casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631?utm_source=megaleiloes&utm_medium=link&utm_campaign=casa-328-m2-prox-a-marginal-tiete-vila-arcadia-sao-paulo-sp-j123631&utm_term=J123631&utm_content=link"
+        }
       }
     },
     {
@@ -209797,13 +210423,20 @@
       "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
       "source_validation": {
         "status": "valid",
-        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-        "checked_at": "2026-06-21T14:08:00-03:00",
-        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859"
+        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
+        "live_recheck": {
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227859.html"
+        }
       },
       "source_validation_status": "valid",
-      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-      "source_checked_at": "2026-06-21T14:08:00-03:00",
+      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Bosque Da Saude / Leilão de Apartamento - Bosque da Saúde - São Paulo/SP cod: 227859 / Entrada R$ 603.387 / Referencia R$ 999.448",
       "action": "Sao Paulo / Bosque Da Saude / Leilão de Apartamento - Bosque da Saúde - São Paulo/SP cod: 227859 / Entrada R$ 603.387 / Referencia R$ 999.448",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Bosque Da Saude / . Score 59/100, confianca 43/100.",
@@ -209816,11 +210449,11 @@
       "planned_exit_at": "2026-07-05",
       "exit_rule": "Buscar matricula atualizada",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Leilao ativo revalidado",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Buscar matricula atualizada. Pendencias principais: Classificar modalidade do leilao, Buscar matricula atualizada, Confirmar custo total de debitos.",
+      "learning_note": "Rechecado em 2026-06-26: manter aberto porque a pagina individual ainda mostra leilao/venda ativo. termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
       "is_open": true,
       "real_estate_analysis": {
         "score": 59,
@@ -210579,9 +211212,16 @@
         },
         "source_validation": {
           "status": "valid",
-          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-          "checked_at": "2026-06-21T14:08:00-03:00",
-          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859"
+          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
+          "live_recheck": {
+            "decision": "manter",
+            "reason_code": "prova_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227859.html"
+          }
         },
         "candidate": {
           "strategy": "Garimpo amplo usuario - leilao ativo com prova minima",
@@ -210625,12 +211265,30 @@
           "source_checked_at": "2026-06-21T14:08:00-03:00",
           "source_validation": {
             "status": "valid",
-            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-            "checked_at": "2026-06-21T14:08:00-03:00",
-            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859"
-          }
+            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
+            "live_recheck": {
+              "decision": "manter",
+              "reason_code": "prova_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227859.html"
+            }
+          },
+          "manual_recheck_status": "active_live_recheck",
+          "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Mantido aberto em rechecagem ao vivo de 2026-06-26: pagina individual mostra leilao/venda ativo com data futura.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/bosque-da-saude/rua-jucara-80/36626-227859"
+        }
       }
     },
     {
@@ -210641,14 +211299,21 @@
       "front": "imoveis",
       "source_url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
       "source_validation": {
-        "status": "valid",
-        "reason": "Alfa Leiloes: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-        "checked_at": "2026-06-21T14:08:00-03:00",
-        "url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp"
+        "status": "inactive",
+        "reason": "conteudo baixado pequeno demais (99 chars)",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "conteudo_insuficiente",
+          "status_code": 200,
+          "final_url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ALFA-10184.html"
+        }
       },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Alfa Leiloes: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-      "source_checked_at": "2026-06-21T14:08:00-03:00",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "conteudo baixado pequeno demais (99 chars)",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Limão / São Paulo (SP) - Apartamento no Bairro do Limão com 60m² de Área Privativa / Entrada R$ 229.073 / Referencia R$ 1.393.270",
       "action": "Sao Paulo / Limão / São Paulo (SP) - Apartamento no Bairro do Limão com 60m² de Área Privativa / Entrada R$ 229.073 / Referencia R$ 1.393.270",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Limão / . Score 59/100, confianca 28/100.",
@@ -210659,19 +211324,19 @@
       "current_price_brl": 1393269.93,
       "latest_price_at": "2026-06-21T14:08:00-03:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Confirmar ocupacao",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Confirmar ocupacao. Pendencias principais: Confirmar ocupacao, Buscar matricula atualizada, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. conteudo baixado pequeno demais (99 chars)",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 59,
         "confidence": 28,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Confirmar ocupacao",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -211422,10 +212087,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "valid",
-          "reason": "Alfa Leiloes: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-          "checked_at": "2026-06-21T14:08:00-03:00",
-          "url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp"
+          "status": "inactive",
+          "reason": "conteudo baixado pequeno demais (99 chars)",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "conteudo_insuficiente",
+            "status_code": 200,
+            "final_url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ALFA-10184.html"
+          }
         },
         "candidate": {
           "strategy": "Garimpo amplo usuario - leilao ativo com prova minima",
@@ -211468,13 +212140,31 @@
           "source_validation_reason": "Alfa Leiloes: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
           "source_checked_at": "2026-06-21T14:08:00-03:00",
           "source_validation": {
-            "status": "valid",
-            "reason": "Alfa Leiloes: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-            "checked_at": "2026-06-21T14:08:00-03:00",
-            "url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp"
-          }
+            "status": "inactive",
+            "reason": "conteudo baixado pequeno demais (99 chars)",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "conteudo_insuficiente",
+              "status_code": 200,
+              "final_url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ALFA-10184.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "conteudo baixado pequeno demais (99 chars)",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "conteudo_insuficiente",
+          "reason": "conteudo baixado pequeno demais (99 chars)",
+          "status_code": 200,
+          "final_url": "https://www.alfaleiloes.com/lote/10184/leilao-de-apartamento-no-bairro-do-limao-sp"
+        }
       }
     },
     {
@@ -212331,13 +213021,20 @@
       "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
       "source_validation": {
         "status": "valid",
-        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-        "checked_at": "2026-06-21T14:12:00-03:00",
-        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827"
+        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
+        "live_recheck": {
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227827.html"
+        }
       },
       "source_validation_status": "valid",
-      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-      "source_checked_at": "2026-06-21T14:12:00-03:00",
+      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Guaianazes / Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227827 / Entrada R$ 58.500 / Referencia R$ 255.900",
       "action": "Sao Paulo / Guaianazes / Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227827 / Entrada R$ 58.500 / Referencia R$ 255.900",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Guaianazes / . Score 64/100, confianca 43/100.",
@@ -212350,11 +213047,11 @@
       "planned_exit_at": "2026-07-05",
       "exit_rule": "Buscar matricula atualizada",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Leilao ativo revalidado",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Buscar matricula atualizada. Pendencias principais: Classificar modalidade do leilao, Buscar matricula atualizada, Confirmar custo total de debitos.",
+      "learning_note": "Rechecado em 2026-06-26: manter aberto porque a pagina individual ainda mostra leilao/venda ativo. termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
       "is_open": true,
       "real_estate_analysis": {
         "score": 64,
@@ -213114,9 +213811,16 @@
         },
         "source_validation": {
           "status": "valid",
-          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-          "checked_at": "2026-06-21T14:12:00-03:00",
-          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827"
+          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
+          "live_recheck": {
+            "decision": "manter",
+            "reason_code": "prova_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227827.html"
+          }
         },
         "candidate": {
           "strategy": "Garimpo amplo usuario - leilao ativo com prova minima",
@@ -213160,12 +213864,30 @@
           "source_checked_at": "2026-06-21T14:12:00-03:00",
           "source_validation": {
             "status": "valid",
-            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-            "checked_at": "2026-06-21T14:12:00-03:00",
-            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827"
-          }
+            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
+            "live_recheck": {
+              "decision": "manter",
+              "reason_code": "prova_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227827.html"
+            }
+          },
+          "manual_recheck_status": "active_live_recheck",
+          "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Mantido aberto em rechecagem ao vivo de 2026-06-26: pagina individual mostra leilao/venda ativo com data futura.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-conto-de-areia-96/36621-227827"
+        }
       }
     },
     {
@@ -213177,13 +213899,20 @@
       "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
       "source_validation": {
         "status": "valid",
-        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-        "checked_at": "2026-06-21T14:12:00-03:00",
-        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828"
+        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
+        "live_recheck": {
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227828.html"
+        }
       },
       "source_validation_status": "valid",
-      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-      "source_checked_at": "2026-06-21T14:12:00-03:00",
+      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Guaianazes / Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227828 / Entrada R$ 73.500 / Referencia R$ 147.000",
       "action": "Sao Paulo / Guaianazes / Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227828 / Entrada R$ 73.500 / Referencia R$ 147.000",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Guaianazes / . Score 64/100, confianca 43/100.",
@@ -213196,11 +213925,11 @@
       "planned_exit_at": "2026-07-05",
       "exit_rule": "Buscar matricula atualizada",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Leilao ativo revalidado",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Buscar matricula atualizada. Pendencias principais: Classificar modalidade do leilao, Buscar matricula atualizada, Confirmar custo total de debitos.",
+      "learning_note": "Rechecado em 2026-06-26: manter aberto porque a pagina individual ainda mostra leilao/venda ativo. termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
       "is_open": true,
       "real_estate_analysis": {
         "score": 64,
@@ -213960,9 +214689,16 @@
         },
         "source_validation": {
           "status": "valid",
-          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-          "checked_at": "2026-06-21T14:12:00-03:00",
-          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828"
+          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
+          "live_recheck": {
+            "decision": "manter",
+            "reason_code": "prova_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227828.html"
+          }
         },
         "candidate": {
           "strategy": "Garimpo amplo usuario - leilao ativo com prova minima",
@@ -214006,12 +214742,30 @@
           "source_checked_at": "2026-06-21T14:12:00-03:00",
           "source_validation": {
             "status": "valid",
-            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-            "checked_at": "2026-06-21T14:12:00-03:00",
-            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828"
-          }
+            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
+            "live_recheck": {
+              "decision": "manter",
+              "reason_code": "prova_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227828.html"
+            }
+          },
+          "manual_recheck_status": "active_live_recheck",
+          "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Mantido aberto em rechecagem ao vivo de 2026-06-26: pagina individual mostra leilao/venda ativo com data futura.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "reason": "termos ativos (encerramento, encerramento em) e data futura 2026-06-29",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-308/36621-227828"
+        }
       }
     },
     {
@@ -219097,14 +219851,21 @@
       "front": "imoveis",
       "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-738/36621-227835",
       "source_validation": {
-        "status": "valid",
-        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-        "checked_at": "2026-06-21T14:12:00-03:00",
-        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-738/36621-227835"
+        "status": "inactive",
+        "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-738/36621-227835",
+        "live_recheck": {
+          "decision": "fechar",
+          "reason_code": "sem_sinal_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp?inforetirado=1",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227835.html"
+        }
       },
-      "source_validation_status": "valid",
-      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-      "source_checked_at": "2026-06-21T14:12:00-03:00",
+      "source_validation_status": "inactive",
+      "source_validation_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Guaianazes / Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227835 / Entrada R$ 73.500 / Referencia R$ 147.000",
       "action": "Sao Paulo / Guaianazes / Leilão de Apartamento - Guaianazes - São Paulo/SP cod: 227835 / Entrada R$ 73.500 / Referencia R$ 147.000",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Guaianazes / . Score 64/100, confianca 43/100.",
@@ -219115,19 +219876,19 @@
       "current_price_brl": 147000.0,
       "latest_price_at": "2026-06-21T14:12:00-03:00",
       "planned_exit_at": "2026-07-05",
-      "exit_rule": "Buscar matricula atualizada",
-      "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "exit_rule": "Reabrir somente com pagina individual mostrando leilao/venda ativo, data futura ou oferta vigente, valor/lance atual e edital/anexos atuais.",
+      "status": "Fechada",
+      "outcome": "Fechado por falta de leilao ativo",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Buscar matricula atualizada. Pendencias principais: Classificar modalidade do leilao, Buscar matricula atualizada, Confirmar custo total de debitos.",
-      "is_open": true,
+      "learning_note": "Fechado em 2026-06-26: rechecagem ao vivo nao encontrou prova atual de leilao ativo. pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+      "is_open": false,
       "real_estate_analysis": {
         "score": 64,
         "confidence": 43,
-        "suggested_status": "Aberto com pendencias",
-        "next_action": "Buscar matricula atualizada",
+        "suggested_status": "Descartado",
+        "next_action": "Fechado: sem prova atual de leilao ativo",
         "score_breakdown": [
           {
             "key": "location_liquidity",
@@ -219880,10 +220641,17 @@
           "auction_reference_not_resale": true
         },
         "source_validation": {
-          "status": "valid",
-          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-          "checked_at": "2026-06-21T14:12:00-03:00",
-          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-738/36621-227835"
+          "status": "inactive",
+          "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-738/36621-227835",
+          "live_recheck": {
+            "decision": "fechar",
+            "reason_code": "sem_sinal_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp?inforetirado=1",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227835.html"
+          }
         },
         "candidate": {
           "strategy": "Garimpo amplo usuario - leilao ativo com prova minima",
@@ -219926,13 +220694,31 @@
           "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
           "source_checked_at": "2026-06-21T14:12:00-03:00",
           "source_validation": {
-            "status": "valid",
-            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-            "checked_at": "2026-06-21T14:12:00-03:00",
-            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-738/36621-227835"
-          }
+            "status": "inactive",
+            "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/guaianazes/rua-igarape-agua-azul-738/36621-227835",
+            "live_recheck": {
+              "decision": "fechar",
+              "reason_code": "sem_sinal_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp?inforetirado=1",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227835.html"
+            }
+          },
+          "manual_recheck_status": "closed_no_active_auction",
+          "manual_recheck_reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Fechado em rechecagem ao vivo de 2026-06-26: sem prova atual de leilao ativo.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "fechar",
+          "reason_code": "sem_sinal_leilao_ativo",
+          "reason": "pagina acessivel, mas sem termos suficientes de leilao/venda ativa",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/leilao-de-imoveis/u/todos-imoveis/sp?inforetirado=1"
+        }
       }
     },
     {
@@ -219944,13 +220730,20 @@
       "source_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
       "source_validation": {
         "status": "valid",
-        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-        "checked_at": "2026-06-21T14:12:00-03:00",
-        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865"
+        "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+        "checked_at": "2026-06-26T18:32:20.586328-03:00",
+        "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
+        "live_recheck": {
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
+          "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227865.html"
+        }
       },
       "source_validation_status": "valid",
-      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-      "source_checked_at": "2026-06-21T14:12:00-03:00",
+      "source_validation_reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+      "source_checked_at": "2026-06-26T18:32:20.586328-03:00",
       "asset": "Sao Paulo / Republica / Leilão de Apartamento - República - São Paulo/SP cod: 227865 / Entrada R$ 228.859 / Referencia R$ 483.300",
       "action": "Sao Paulo / Republica / Leilão de Apartamento - República - São Paulo/SP cod: 227865 / Entrada R$ 228.859 / Referencia R$ 483.300",
       "thesis_reason": "Radar de bairro-alvo: Sao Paulo / Republica / . Score 61/100, confianca 43/100.",
@@ -219963,11 +220756,11 @@
       "planned_exit_at": "2026-07-05",
       "exit_rule": "Buscar matricula atualizada",
       "status": "Aberta - Atencao",
-      "outcome": "Pendencias abertas",
+      "outcome": "Leilao ativo revalidado",
       "moment_result_pct": 0.0,
       "duration_days": null,
       "open_days": 0,
-      "learning_note": "Antes de proposta: Buscar matricula atualizada. Pendencias principais: Buscar matricula atualizada, Confirmar custo total de debitos, Confirmar divida de condominio.",
+      "learning_note": "Rechecado em 2026-06-26: manter aberto porque a pagina individual ainda mostra leilao/venda ativo. termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
       "is_open": true,
       "real_estate_analysis": {
         "score": 61,
@@ -220685,9 +221478,16 @@
         },
         "source_validation": {
           "status": "valid",
-          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-          "checked_at": "2026-06-21T14:12:00-03:00",
-          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865"
+          "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
+          "live_recheck": {
+            "decision": "manter",
+            "reason_code": "prova_leilao_ativo",
+            "status_code": 200,
+            "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
+            "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227865.html"
+          }
         },
         "candidate": {
           "strategy": "Garimpo amplo usuario - leilao ativo com prova minima",
@@ -220731,12 +221531,30 @@
           "source_checked_at": "2026-06-21T14:12:00-03:00",
           "source_validation": {
             "status": "valid",
-            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis.",
-            "checked_at": "2026-06-21T14:12:00-03:00",
-            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865"
-          }
+            "reason": "Zuk: pagina individual capturada no detail probe 2026-06-21 com preco e documentos/edital sinalizados; manter como pendente ate validar ocupacao, edital/anexos e comparaveis. Rechecagem ao vivo 2026-06-26: termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+            "checked_at": "2026-06-26T18:32:20.586328-03:00",
+            "url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
+            "live_recheck": {
+              "decision": "manter",
+              "reason_code": "prova_leilao_ativo",
+              "status_code": 200,
+              "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865",
+              "html_file": "C:\\tmp\\grao-close-inactive-auctions-20260626\\data\\reports\\open_candidate_live_recheck_20260626\\IM-RADAR-TARGET-USR-ZUK-227865.html"
+            }
+          },
+          "manual_recheck_status": "active_live_recheck",
+          "manual_recheck_reason": "termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+          "manual_recheck_checked_at": "2026-06-26T18:32:20.586328-03:00"
         },
-        "summary": "Candidato de bairro-alvo capturado em garimpo online; manter aberto somente enquanto fonte, demanda local e valor de saida forem provados."
+        "summary": "Mantido aberto em rechecagem ao vivo de 2026-06-26: pagina individual mostra leilao/venda ativo com data futura.",
+        "manual_recheck": {
+          "checked_at": "2026-06-26T18:32:20.586328-03:00",
+          "decision": "manter",
+          "reason_code": "prova_leilao_ativo",
+          "reason": "termos ativos (encerramento, encerramento em) e data futura 2026-07-02",
+          "status_code": 200,
+          "final_url": "https://www.portalzuk.com.br/imovel/sp/sao-paulo/republica/praca-da-republica-411/36626-227865"
+        }
       }
     }
   ],
@@ -220762,16 +221580,17 @@
     "real_estate": {
       "total_tested": 108,
       "success_rate_pct": 0,
-      "resolved_count": 82,
+      "resolved_count": 101,
       "success_count": 0,
-      "updated_at": "2026-06-21T14:12:00-03:00",
+      "updated_at": "2026-06-26T18:32:20.586328-03:00",
       "counting_policy": "radar_candidates",
       "mapped_count": 108,
       "radar_total": 108,
-      "open_count": 26,
-      "closed_count": 82,
-      "p0_count": 116,
-      "latest_candidate_observed_at": "2026-06-21T14:12:00-03:00"
+      "open_count": 7,
+      "closed_count": 101,
+      "p0_count": 27,
+      "latest_candidate_observed_at": "2026-06-21T14:12:00-03:00",
+      "latest_live_recheck_at": "2026-06-26T18:32:20.586328-03:00"
     }
   },
   "data_quality_gate": {

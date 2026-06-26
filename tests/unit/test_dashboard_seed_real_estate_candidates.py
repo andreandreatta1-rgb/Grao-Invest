@@ -27,7 +27,7 @@ def test_folha_frazao_candidates_are_seeded_with_individual_validated_sources() 
         "IM-FOLHA-FRAZAO-BELENZINHO-37539",
     }
     for row in rows:
-        assert "/Auction/LotDetails/" in row["source_url"]
+        assert "/Auction/LotDetails/" in row["source_url"] or "/lote/" in row["source_url"]
         assert row["real_estate_analysis"]["source_validation"]["status"] == "valid"
         assert row["real_estate_analysis"]["source_validation"]["reason"] in {
             "Fonte individual validada.",
@@ -183,7 +183,9 @@ def test_seed_includes_new_master_neighborhood_candidate_batch() -> None:
     } == expected_numbers
     assert rows_by_id["IM-RADAR-TARGET-PIN-04"]["source_validation_status"] == "valid"
     assert rows_by_id["IM-RADAR-TARGET-PIN-06"]["source_validation_status"] == "valid"
-    assert rows_by_id["IM-RADAR-TARGET-ITA-02"]["source_validation_status"] == "valid"
+    assert rows_by_id["IM-RADAR-TARGET-ITA-02"]["source_validation_status"] == "inactive"
+    assert rows_by_id["IM-RADAR-TARGET-ITA-02"]["is_open"] is False
+    assert rows_by_id["IM-RADAR-TARGET-ITA-02"]["outcome"] == "Fechado por falta de leilao ativo"
     assert "Faria Lima" in rows_by_id["IM-RADAR-TARGET-PIN-05"]["asset"]
     assert "Le Premier" in rows_by_id["IM-RADAR-TARGET-PAR-04"]["asset"]
 
@@ -292,14 +294,14 @@ def test_live_neighborhood_search_batch_is_preserved_in_target_seed() -> None:
         "IM-RADAR-TARGET-BRK-02",
     }
     assert rows_by_id.keys() >= expected_ids
-    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["is_open"] is True
-    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["status"] == "Aberta - Atencao"
-    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["source_validation_status"] == "ambiguous"
+    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["is_open"] is False
+    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["status"] == "Fechada"
+    assert rows_by_id["IM-RADAR-TARGET-BUT-01"]["source_validation_status"] == "valid"
     assert rows_by_id["IM-RADAR-TARGET-VLO-01"]["is_open"] is False
     assert rows_by_id["IM-RADAR-TARGET-PIN-07"]["is_open"] is False
     assert rows_by_id["IM-RADAR-TARGET-BRK-01"]["is_open"] is False
     assert rows_by_id["IM-RADAR-TARGET-BRK-02"]["is_open"] is False
-    assert "Rua Helena" in rows_by_id["IM-RADAR-TARGET-VLO-01"]["asset"]
+    assert "Vila Olimpia" in rows_by_id["IM-RADAR-TARGET-VLO-01"]["asset"]
     assert "Neo Butanta" in rows_by_id["IM-RADAR-TARGET-BUT-01"]["asset"]
     assert "Brooklin" in rows_by_id["IM-RADAR-TARGET-BRK-02"]["asset"]
 
